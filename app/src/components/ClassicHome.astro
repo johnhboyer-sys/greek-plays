@@ -11,7 +11,6 @@ import { isBuilt } from '../lib/built-works';
 import SiteHeader from './SiteHeader.astro';
 import SiteFoot from './SiteFoot.astro';
 import Figure from './Figure.astro';
-import { drawing } from '../lib/drawings';
 import '@shared/styles/global.css';
 import '../styles/vase.css';
 
@@ -39,38 +38,6 @@ const playwrights = AUTHORS
       .filter((w): w is Work => Boolean(w) && isBuilt(w.id)),
   }))
   .filter((p) => p.works.length > 0);
-
-// Every figure one height (John, 2026-10-20: "I do like how all the images
-// are equal height"): each column as wide as its figure's aspect ratio, in
-// fr, so the four stand at ONE height and none is shrunk to a quarter; the
-// height drops only when the four together would not fit the width. Phones
-// set them two by two, so the wider pair bounds the height there. An author
-// with no figure keeps an empty space of the mock's .7 ratio.
-const ratios = playwrights.map(({ author }) => {
-  const d = drawing(author.id);
-  return d ? d.width / d.height : 0.7;
-});
-const sum = ratios.reduce((a, b) => a + b, 0);
-const pairs = [ratios.slice(0, 2), ratios.slice(2, 4)].map((p) => p.reduce((a, b) => a + b, 0));
-// One size for all four names (John, 2026-10-23: Sophocles' name came out
-// bigger, scaled to his wide figure's column): the size the tightest name
-// allows in its own column, as a share of the frieze's width (--nk, and
-// --npad for the column's padding); on a phone, two equal columns (--nkp).
-// Cardo sets about .5em a letter, .56em in Greek.
-const nameFit = (chars: (a: (typeof playwrights)[number]) => number, em: number) => {
-  let best = { k: Infinity, pad: 0 };
-  playwrights.forEach((p, i) => {
-    const k = ratios[i]! / sum / (chars(p) * em);
-    if (k < best.k) best = { k, pad: 0.8 / (chars(p) * em) };
-  });
-  const longest = Math.max(...playwrights.map(chars));
-  return { k: best.k, pad: best.pad, phone: 0.5 / (longest * em), phonePad: 0.8 / (longest * em) };
-};
-const en = nameFit((p) => p.author.name.length, 0.5);
-const gk = nameFit((p) => [...(p.author.nativeName ?? '')].length || 1, 0.56);
-const friezeVars = `--cols:${ratios.map((r) => `${r.toFixed(3)}fr`).join(' ')};--sum:${sum.toFixed(3)};--pairmax:${Math.max(...pairs).toFixed(3)}`
-  + `;--nk:${en.k.toFixed(5)};--npad:${en.pad.toFixed(4)}rem;--nkp:${en.phone.toFixed(5)};--npadp:${en.phonePad.toFixed(4)}rem`
-  + `;--gk:${gk.k.toFixed(5)};--gpad:${gk.pad.toFixed(4)}rem;--gkp:${gk.phone.toFixed(5)};--gpadp:${gk.phonePad.toFixed(4)}rem`;
 
 // Structured data: identify the site (WebSite) and enumerate every built work as
 // an ItemList of CreativeWorks linking to its landing page. This tells Google the
@@ -144,86 +111,68 @@ const structuredData = Astro.site
     <main>
       <h1 class="visually-hidden">{SITE_NAME}</h1>
 
-      <div class="frieze" style={friezeVars}>
-        {playwrights.map(({ author, works }) => (
-          <div class="col">
-            {/* The figure opens the author's page too (John, 2026-10-21); the
-                name below is the link for keyboards and screen readers. */}
-            <a class="fl" href={`${base}${authorPath(author.id)}`} tabindex="-1" aria-hidden="true"><Figure slug={author.id} /></a>
-            <div class="nm">
-              <span class="gk" lang="grc">{author.nativeName}</span>
-              <a class="en" href={`${base}${authorPath(author.id)}`}>{author.name}</a>
-              <span class="ct">{works.length} play{works.length === 1 ? '' : 's'}</span>
-            </div>
+      {/* One row per author (John, 2026-10-23, from the rows mockup: "let's
+          go with that layout"): the figure on the row's ground line, the
+          names beside it, the plays in short columns, so Euripides' nineteen
+          no longer make the page long. The figure opens the author's page
+          too; the name is the link for keyboards and screen readers. */}
+      {playwrights.map(({ author, works }) => (
+        <section class="row">
+          <a class="fl" href={`${base}${authorPath(author.id)}`} tabindex="-1" aria-hidden="true"><Figure slug={author.id} /></a>
+          <div class="nm">
+            <span class="gk" lang="grc">{author.nativeName}</span>
+            <a class="en" href={`${base}${authorPath(author.id)}`}>{author.name}</a>
+            <span class="ct">{works.length} play{works.length === 1 ? '' : 's'}</span>
           </div>
-        ))}
-      </div>
-
-      {/* Every title, as a run under each name, never a list (John,
-          2026-10-20: "the lists are LONG and vertical and remove reason to
-          go to author pages"). The runs sit in the frieze's own columns. */}
-      <div class="runs" style={friezeVars}>
-        {playwrights.map(({ author, works }) => (
-          <p class="run"><b>{author.name}:</b> {works.map((w, i) => (
-            <>{i > 0 && ', '}<a href={`${base}${workLanding(w.id)}`}>{w.title}</a></>
-          ))}</p>
-        ))}
-      </div>
+          <ul class="plays" aria-label={`${author.name}'s plays`}>
+            {works.map((w) => <li><a href={`${base}${workLanding(w.id)}`}>{w.title}</a></li>)}
+          </ul>
+        </section>
+      ))}
     </main>
 
     <SiteFoot />
   </div>
 
   <style>
-    /* The home page (docs/redesign/HANDOFF-ui-pass2-build.md §4): A's frieze
-       in B's colours, every figure one height. */
-    .frieze {
-      display: grid; grid-template-columns: var(--cols, repeat(4, minmax(0, 1fr)));
-      --fig-h: min(300px, calc((100vw - 10rem) / var(--sum, 4)));
-      margin-top: 1.6rem;
-      container-type: inline-size;
+    /* The rows: figure, names, and plays on one ground line. */
+    main { margin-top: 1.2rem; }
+    .row {
+      display: flex; flex-wrap: wrap; align-items: flex-end; column-gap: 1.8rem;
+      border-bottom: 2px solid var(--line); padding-top: 1.6rem;
+      --fig-h: 200px; --fig-lift: 0px;
     }
-    .col { min-width: 0; }
-    .fl { display: block; color: inherit; }
-    /* The names shrink together, never past their columns (John's
-       click-around, 2026-10-22: "Aristophanes" needed 243px of a 141px
-       column at 701px; 2026-10-23: one size for all four). */
-    .nm { text-align: center; padding: 1.1rem .4rem 0; }
-    .gk { display: block; font-family: var(--font-greek); font-weight: 400; line-height: 1.1; font-size: min(1.5rem, calc(100cqi * var(--gk) - var(--gpad))); color: var(--clay-deep); }
-    .en { display: block; font-family: var(--font-english); font-weight: 400; line-height: 1.05; font-size: min(2.8rem, calc(100cqi * var(--nk) - var(--npad))); color: var(--ink); text-decoration: none; }
+    .fl { flex: 0 0 auto; display: block; color: inherit; }
+    .row :global(.fb) { border-bottom: 0; }
+    .nm { flex: 0 0 auto; min-width: 11.5rem; padding-bottom: .9rem; }
+    .gk { display: block; font: 400 1.5rem/1.1 var(--font-greek); color: var(--clay-deep); }
+    .en { display: block; font: 400 2.6rem/1.05 var(--font-english); color: var(--ink); text-decoration: none; }
     .en:hover { text-decoration: underline; text-underline-offset: .12em; }
     .ct { display: block; font: 400 1rem var(--font-ui); color: var(--mid); margin-top: .3rem; }
-
-    /* No column gap: the tracks match the frieze's, so each run sits under
-       its name; narrow, so it wraps into several lines. */
-    .runs { display: grid; grid-template-columns: var(--cols, repeat(4, minmax(0, 1fr))); gap: 0; margin-top: 1.4rem; }
-    .run {
-      font: 400 1.02rem/1.45 var(--font-english); text-align: center;
-      padding: 0 .7rem; min-width: 0; max-width: 16em; margin: 0 auto;
+    .plays {
+      flex: 1 1 15rem; min-width: 0; margin: 0; padding: 0 0 .9rem; list-style: none;
+      columns: 8em 3; column-gap: 1.6rem; font: 400 1.05rem/1.45 var(--font-english);
     }
-    .run b {
-      position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
-      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
-    }
-    .run a { color: var(--ink); text-decoration: none; }
-    .run a:hover { text-decoration: underline; text-underline-offset: .12em; }
+    .plays li { break-inside: avoid; }
+    .plays a { color: var(--ink); text-decoration: none; }
+    .plays a:hover { text-decoration: underline; text-underline-offset: .12em; }
 
-    /* Phone: the frieze two by two, the wider pair bounding the height; the
-       runs one column, each led by the author's name. */
+    /* Tablet: a smaller figure and name; the plays keep three columns where
+       each has 8em, else two. */
+    @media (max-width: 1000px) {
+      .row { --fig-h: 170px; }
+      .nm { min-width: 9.5rem; }
+      .en { font-size: 2rem; }
+      .plays { column-gap: 1.2rem; font-size: 1rem; }
+    }
+    /* Phone: figure and names side by side, the plays in two columns under them. */
     @media (max-width: 700px) {
-      .frieze {
-        grid-template-columns: 1fr 1fr; row-gap: 1.6rem;
-        --fig-h: min(170px, calc((100vw - 3rem) / var(--pairmax, 2)));
-      }
+      .row { --fig-h: 110px; column-gap: 1rem; }
+      .nm { flex: 1 1 8rem; min-width: 0; }
       /* Under 24px the Greek takes the darker clay (AA for small text). */
-      .gk { font-size: min(1.15rem, calc(100cqi * var(--gkp) - var(--gpadp))); color: var(--clay-text); }
-      .en { font-size: min(1.7rem, calc(100cqi * var(--nkp) - var(--npadp))); }
-      .runs { grid-template-columns: 1fr; gap: .8rem; }
-      .run { text-align: left; padding: 0; font-size: 1rem; max-width: none; margin: 0; }
-      .run b {
-        position: static; width: auto; height: auto; margin: 0; overflow: visible;
-        clip: auto; white-space: normal; font-weight: 400; color: var(--mid);
-      }
+      .gk { font-size: 1.15rem; color: var(--clay-text); }
+      .en { font-size: 1.75rem; }
+      .plays { flex: 1 1 100%; columns: 2; padding-top: .2rem; }
     }
   </style>
 </body>
