@@ -52,7 +52,25 @@ const ratios = playwrights.map(({ author }) => {
 });
 const sum = ratios.reduce((a, b) => a + b, 0);
 const pairs = [ratios.slice(0, 2), ratios.slice(2, 4)].map((p) => p.reduce((a, b) => a + b, 0));
-const friezeVars = `--cols:${ratios.map((r) => `${r.toFixed(3)}fr`).join(' ')};--sum:${sum.toFixed(3)};--pairmax:${Math.max(...pairs).toFixed(3)}`;
+// One size for all four names (John, 2026-10-23: Sophocles' name came out
+// bigger, scaled to his wide figure's column): the size the tightest name
+// allows in its own column, as a share of the frieze's width (--nk, and
+// --npad for the column's padding); on a phone, two equal columns (--nkp).
+// Cardo sets about .5em a letter, .56em in Greek.
+const nameFit = (chars: (a: (typeof playwrights)[number]) => number, em: number) => {
+  let best = { k: Infinity, pad: 0 };
+  playwrights.forEach((p, i) => {
+    const k = ratios[i]! / sum / (chars(p) * em);
+    if (k < best.k) best = { k, pad: 0.8 / (chars(p) * em) };
+  });
+  const longest = Math.max(...playwrights.map(chars));
+  return { k: best.k, pad: best.pad, phone: 0.5 / (longest * em), phonePad: 0.8 / (longest * em) };
+};
+const en = nameFit((p) => p.author.name.length, 0.5);
+const gk = nameFit((p) => [...(p.author.nativeName ?? '')].length || 1, 0.56);
+const friezeVars = `--cols:${ratios.map((r) => `${r.toFixed(3)}fr`).join(' ')};--sum:${sum.toFixed(3)};--pairmax:${Math.max(...pairs).toFixed(3)}`
+  + `;--nk:${en.k.toFixed(5)};--npad:${en.pad.toFixed(4)}rem;--nkp:${en.phone.toFixed(5)};--npadp:${en.phonePad.toFixed(4)}rem`
+  + `;--gk:${gk.k.toFixed(5)};--gpad:${gk.pad.toFixed(4)}rem;--gkp:${gk.phone.toFixed(5)};--gpadp:${gk.phonePad.toFixed(4)}rem`;
 
 // Structured data: identify the site (WebSite) and enumerate every built work as
 // an ItemList of CreativeWorks linking to its landing page. This tells Google the
@@ -132,7 +150,7 @@ const structuredData = Astro.site
             {/* The figure opens the author's page too (John, 2026-10-21); the
                 name below is the link for keyboards and screen readers. */}
             <a class="fl" href={`${base}${authorPath(author.id)}`} tabindex="-1" aria-hidden="true"><Figure slug={author.id} /></a>
-            <div class="nm" style={`--chars:${author.name.length};--gchars:${[...(author.nativeName ?? '')].length}`}>
+            <div class="nm">
               <span class="gk" lang="grc">{author.nativeName}</span>
               <a class="en" href={`${base}${authorPath(author.id)}`}>{author.name}</a>
               <span class="ct">{works.length} play{works.length === 1 ? '' : 's'}</span>
@@ -163,15 +181,16 @@ const structuredData = Astro.site
       display: grid; grid-template-columns: var(--cols, repeat(4, minmax(0, 1fr)));
       --fig-h: min(300px, calc((100vw - 10rem) / var(--sum, 4)));
       margin-top: 1.6rem;
+      container-type: inline-size;
     }
     .col { min-width: 0; }
     .fl { display: block; color: inherit; }
-    /* The names scale to their column, so a long one never runs past it
-       between phone and wide desktop (John's click-around, 2026-10-22:
-       "Aristophanes" needed 243px of a 141px column at 701px). */
-    .nm { text-align: center; padding: 1.1rem .4rem 0; container-type: inline-size; }
-    .gk { display: block; font-family: var(--font-greek); font-weight: 400; line-height: 1.1; font-size: min(1.5rem, calc(100cqi / (var(--gchars, 9) * .56))); color: var(--clay-deep); }
-    .en { display: block; font-family: var(--font-english); font-weight: 400; line-height: 1.05; font-size: min(2.8rem, calc(100cqi / (var(--chars, 9) * .5))); color: var(--ink); text-decoration: none; }
+    /* The names shrink together, never past their columns (John's
+       click-around, 2026-10-22: "Aristophanes" needed 243px of a 141px
+       column at 701px; 2026-10-23: one size for all four). */
+    .nm { text-align: center; padding: 1.1rem .4rem 0; }
+    .gk { display: block; font-family: var(--font-greek); font-weight: 400; line-height: 1.1; font-size: min(1.5rem, calc(100cqi * var(--gk) - var(--gpad))); color: var(--clay-deep); }
+    .en { display: block; font-family: var(--font-english); font-weight: 400; line-height: 1.05; font-size: min(2.8rem, calc(100cqi * var(--nk) - var(--npad))); color: var(--ink); text-decoration: none; }
     .en:hover { text-decoration: underline; text-underline-offset: .12em; }
     .ct { display: block; font: 400 1rem var(--font-ui); color: var(--mid); margin-top: .3rem; }
 
@@ -197,8 +216,8 @@ const structuredData = Astro.site
         --fig-h: min(170px, calc((100vw - 3rem) / var(--pairmax, 2)));
       }
       /* Under 24px the Greek takes the darker clay (AA for small text). */
-      .gk { font-size: min(1.15rem, calc(100cqi / (var(--gchars, 9) * .56))); color: var(--clay-text); }
-      .en { font-size: min(1.7rem, calc(100cqi / (var(--chars, 9) * .5))); }
+      .gk { font-size: min(1.15rem, calc(100cqi * var(--gkp) - var(--gpadp))); color: var(--clay-text); }
+      .en { font-size: min(1.7rem, calc(100cqi * var(--nkp) - var(--npadp))); }
       .runs { grid-template-columns: 1fr; gap: .8rem; }
       .run { text-align: left; padding: 0; font-size: 1rem; max-width: none; margin: 0; }
       .run b {

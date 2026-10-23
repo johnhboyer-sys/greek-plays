@@ -4,25 +4,105 @@ import SiteHeader from '../components/SiteHeader.astro';
 import SiteFoot from '../components/SiteFoot.astro';
 import Pwa from '../components/Pwa.astro';
 import '@shared/styles/global.css';
-import { WORKS, visibleTranslations } from '@shared/lib/works';
+import { WORKS, visibleTranslations, type Work, type TranslationRef } from '@shared/lib/works';
 import { jsonLdSafe } from '../lib/jsonld';
 import { SITE_NAME } from '../lib/site';
 import { servedDrawings } from '../lib/drawings';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const siteName = SITE_NAME;
+const editionsOn = import.meta.env.PUBLIC_EDITIONS === '1';
 
-// True only in the local/full build (PUBLIC_SHOW_PRIVATE=1), where copyright-
-// encumbered overlays are carried; every production/public build drops them
-// entirely, so the "local only" legend below is suppressed there. Routed
-// through visibleTranslations as defense in depth: private entries are
-// already stripped from WORKS at compile time (build-registry.mjs for the
-// vendored aristotle registry, Vite's define-fold for the classical
-// manifests), so this is a second, independent guard rather than the only one.
-const hasPrivate = WORKS.some((w) => visibleTranslations(w).some((t) => t.private));
+// Texts & Licences, play by play (John, 2026-10-23): for each play the Greek
+// editions and the English translations as bibliography, and every licence
+// in one section at the end. DRAFT copy: John approves.
+
+// The reference Greek text: the registry's short form, written out in full.
+function greekFull(short: string): string {
+  const v = (s: string) => s.match(/vol\. (\d+)/)?.[1];
+  const y = (s: string) => s.match(/(\d{4})\)$/)?.[1];
+  if (short.startsWith('Murray, Aeschyli')) return 'Gilbert Murray, ed., Aeschyli septem quae supersunt tragoediae, 2nd ed. (Oxford: Clarendon Press, 1955)';
+  if (short.startsWith('Dain & Mazon')) return `Alphonse Dain and Paul Mazon, eds., Sophocle, vol. ${v(short)} (Paris: Les Belles Lettres, ${y(short)})`;
+  if (short.startsWith('Diggle')) return `James Diggle, ed., Euripidis fabulae, vol. ${v(short)} (Oxford: Clarendon Press, ${y(short)})`;
+  if (short.startsWith('Coulon & van Daele')) return `Victor Coulon and Hilaire van Daele, eds., Aristophane, vol. ${v(short)} (Paris: Les Belles Lettres, ${y(short)})`;
+  if (short.startsWith('Dover')) return 'K. J. Dover, ed., Aristophanes: Clouds (Oxford: Clarendon Press, 1968)';
+  if (short.startsWith('MacDowell')) return 'D. M. MacDowell, ed., Aristophanes: Wasps (Oxford: Clarendon Press, 1971)';
+  if (short.startsWith('Ussher')) return 'R. G. Ussher, ed., Aristophanes: Ecclesiazusae (Oxford: Clarendon Press, 1973)';
+  throw new Error(`attribution: no full citation for the Greek text "${short}"`);
+}
+
+const MURRAY: Record<string, string> = {
+  hippolytus: 'The Hippolytus of Euripides (London: George Allen, 1902)',
+  bacchae: 'The Bacchae of Euripides (London: George Allen, 1902)',
+  'electra-eur': 'The Electra of Euripides (London: George Allen, 1905)',
+  'trojan-women': 'The Trojan Women of Euripides (London: George Allen, 1905)',
+  medea: 'The Medea of Euripides (London: George Allen, 1906)',
+  frogs: 'The Frogs of Aristophanes (London: George Allen, 1908)',
+  'iphigenia-in-tauris': 'The Iphigenia in Tauris of Euripides (London: George Allen, 1910)',
+  'oedipus-tyrannus': 'Oedipus, King of Thebes (London: George Allen, 1911)',
+  rhesus: 'The Rhesus of Euripides (London: George Allen, 1913)',
+  alcestis: 'The Alcestis of Euripides (London: George Allen, 1915)',
+  agamemnon: 'The Agamemnon of Aeschylus (London: George Allen & Unwin, 1920)',
+};
+const KOSMOS: Record<string, [string, string]> = {
+  'seven-against-thebes': ['Herbert Weir Smyth, rev. the Seven Against Thebes Heroization team (Hélène Emeriaud, Kelly Lambert, Janet M. Ozsolak, Sarah Scott, Keith Stone)', 'https://kosmossociety.org/seven-against-thebes-aeschylus/'],
+  agamemnon: ['Herbert Weir Smyth, rev. Gregory Crane and Graeme Bird, further rev. Gregory Nagy', 'https://kosmossociety.org/agamemnon-aeschylus/'],
+  'libation-bearers': ['Jim Erdman, further rev. Gregory Nagy', 'https://kosmossociety.org/libation-bearers-aeschylus/'],
+  eumenides: ['Herbert Weir Smyth, rev. Cynthia Bannon, further rev. Gregory Nagy', 'https://kosmossociety.org/eumenides-aeschylus/'],
+  antigone: ['R. C. Jebb, rev. Pierre Habel and Gregory Nagy, newly rev. the Hour 25 Antigone Team (Brian Prescott-Decie, Jacqui Donlon, Jessica Eichelburg, Claudia Filos, Sarah Scott)', 'https://kosmossociety.org/antigone-sophocles-2/'],
+  'oedipus-coloneus': ['R. C. Jebb, rev. Roger Ceragioli, further rev. Gregory Nagy', 'https://kosmossociety.org/sophocles-oedipus-at-colonus/'],
+  'oedipus-tyrannus': ['R. C. Jebb, rev. Alex Sens, further rev. Gregory Nagy', 'https://kosmossociety.org/oedipus-tyrannus-sophocles/'],
+  helen: ['E. P. Coleridge, rev. the Helen Heroization team (Hélène Emeriaud, Claudia Filos, Janet M. Ozsolak, Sarah Scott, Jack Vaughan)', 'https://kosmossociety.org/euripides-helen/'],
+  heracles: ['Robert Potter, adapted by Mary Ebbott and Casey Dué, further adapted by Miriam Kamil', 'https://chs.harvard.edu/primary-source/euripides-herakles'],
+  medea: ['E. P. Coleridge, rev. Roger Ceragioli, further rev. Gregory Nagy, newly rev. the Hour 25 Medea Heroization Team (Jessica Eichelburg, Hélène Emeriaud, Claudia Filos, Janet M. Ozsolak, Sarah Scott, Jack Vaughan)', 'https://kosmossociety.org/euripides-medea/'],
+  'trojan-women': ['E. P. Coleridge, rev. the Trojan Women Heroization team (Keith DeStone, Hélène Emeriaud, Kelly Lambert, Janet M. Ozsolak, Sarah Scott)', 'https://kosmossociety.org/trojan-women-euripides/'],
+  bacchae: ['T. A. Buckley, rev. Alex Sens, further rev. Gregory Nagy', 'https://kosmossociety.org/bacchae-euripides/'],
+  hippolytus: ['E. P. Coleridge, rev. Mary Jane Rein, further rev. Gregory Nagy', 'https://kosmossociety.org/hippolytus-euripides/'],
+};
+const ARROWSMITH: Record<string, [string, string]> = {
+  birds: ['1961', 'https://doi.org/10.3998/mpub.12945782'],
+  clouds: ['1962', 'https://doi.org/10.3998/mpub.12945776'],
+};
+const ATREUS = new Set(['agamemnon', 'libation-bearers', 'eumenides']);
+
+type Cite = { text: string; href?: string };
+// The English: one bibliographic line per translation. A translation printed
+// in the same book as one of the play's Greek editions (Smyth's and Storr's
+// Loebs, Jebb's commentaries, Way's Medea) cites that book.
+function englishCite(w: Work, t: TranslationRef): Cite {
+  const ed = (id: string) => w.greekEditions?.find((e) => e.id === id)?.full;
+  switch (t.id) {
+    case 'smyth': return { text: ed('smyth-loeb') ?? 'H. W. Smyth, Aeschylus, 2 vols. (Loeb Classical Library, 1922–26)' };
+    case 'storr': return { text: ed('storr-loeb') ?? 'F. Storr, Sophocles, 2 vols. (Loeb Classical Library, 1912–13)' };
+    case 'jebb': return { text: ed('jebb') ?? 'R. C. Jebb, Sophocles: The Plays and Fragments (Cambridge, 1883–1900)' };
+    case 'way': return { text: ed('way-loeb') ?? 'A. S. Way, Euripides, 4 vols. (Loeb Classical Library, London: Heinemann; New York: Macmillan, 1912)' };
+    case 'coleridge': return { text: 'E. P. Coleridge, The Plays of Euripides, 2 vols. (London: George Bell and Sons, 1891)' };
+    case 'buckley': return { text: 'T. A. Buckley, The Tragedies of Euripides (London: Henry G. Bohn, 1850)' };
+    case 'morshead': return ATREUS.has(w.id)
+      ? { text: 'E. D. A. Morshead, The House of Atreus: Being the Agamemnon, Libation-Bearers, and Furies of Aeschylus (London, 1881)', href: 'https://en.wikisource.org/wiki/The_House_of_Atreus' }
+      : { text: 'E. D. A. Morshead, Four Plays of Aeschylus (1908)', href: 'https://en.wikisource.org/wiki/Four_Plays_of_Aeschylus_(1908)_Morshead' };
+    case 'murray-verse': { const m = MURRAY[w.id]; if (m) return { text: `Gilbert Murray, ${m}` }; break; }
+    case 'kosmos': { const k = KOSMOS[w.id]; if (k) return { text: `${k[0]}, in the Kosmos Society Sourcebook, ed. Gregory Nagy (Center for Hellenic Studies)`, href: k[1] }; break; }
+    case 'johnston': return { text: `Ian Johnston, ${w.title} (Vancouver Island University)`, href: 'https://web.viu.ca/johnstoi/' };
+    case 'athenian-society': return { text: 'Aristophanes: The Eleven Comedies, 2 vols. (London: The Athenian Society, 1912)' };
+    case 'hickie': return { text: 'W. J. Hickie, The Comedies of Aristophanes, 2 vols. (London: Henry G. Bohn, 1853)' };
+    case 'rogers': return { text: 'B. B. Rogers, Aristophanes, 3 vols. (Loeb Classical Library, London: Heinemann; New York: G. P. Putnam’s Sons, 1924)' };
+    case 'lindsay': return { text: 'Jack Lindsay, Lysistrata (Fanfrolico Press, 1925)' };
+    case 'arrowsmith': { const a = ARROWSMITH[w.id]; if (a) return { text: `William Arrowsmith, ${w.title}, in The Complete Greek Comedy (Ann Arbor: University of Michigan Press, ${a[0]})`, href: a[1] }; break; }
+  }
+  throw new Error(`attribution: no citation for translation "${t.id}" on ${w.id}`);
+}
+
+const plays = WORKS.map((w) => {
+  const greek = [greekFull(w.greekSource.full)];
+  if (editionsOn) for (const e of w.greekEditions ?? []) if (e.id !== 'tlg' && !greek.includes(e.full)) greek.push(e.full);
+  const english = visibleTranslations(w).filter((t) => !t.private).map((t) => englishCite(w, t));
+  return { id: w.id, title: w.title, greek, english };
+});
+
 const pageTitle = `Texts & Licences — ${siteName}`;
 const metaDescription =
-  `Source and licence information for ${siteName}: the Greek editions, the English translations, the LSJ lexicon, and the open-source code.`;
+  `The Greek editions and English translations of every play on ${siteName}, with their licences.`;
 const canonical = Astro.site ? new URL(`${base}/attribution/`, Astro.site).href : undefined;
 const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
 const jsonLd = {
@@ -65,80 +145,18 @@ const jsonLd = {
       margin: 0 auto;
       padding: 2rem 1rem 4rem;
       font-family: var(--font-english);
-      font-size: 0.95rem;
-      line-height: 1.75;
-      color: var(--text);
-    }
-    h2 {
-      font-family: var(--font-ui);
       font-size: 1rem;
-      font-weight: 600;
-      color: var(--accent);
-      margin: 2rem 0 0.4rem;
-      letter-spacing: .02em;
-    }
-    h2:first-of-type { margin-top: 1rem; }
-    p { margin: 0 0 0.6rem; }
-    ul { margin: 0 0 0.6rem; padding-left: 1.3rem; }
-    li { margin: 0 0 0.35rem; }
-    a { color: var(--accent); }
-    .licence-badge {
-      display: inline-block;
-      font-family: var(--font-ui);
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: .06em;
-      background: var(--border);
-      border-radius: 3px;
-      padding: 0.1em 0.5em;
-      margin-left: 0.4em;
-      vertical-align: middle;
-      color: var(--text-mid);
-    }
-    .licence-badge.cc { background: #e8f4e8; color: #2a6a2a; }
-    .licence-badge.pd { background: #e8eef4; color: #2a4a6a; }
-    .licence-badge.mit { background: #f4f0e8; color: #6a4a2a; }
-    .licence-badge.local {
-      font-size: 0.65rem;
-      letter-spacing: .04em;
-      text-transform: uppercase;
-      background: #f4e8e8; color: #8a3a3a;
-    }
-    /* A translator's own free-use terms: not public domain, not a
-       Creative Commons licence (D2, 2026-09-17: the Johnston column's
-       real basis, distinct from both). */
-    .licence-badge.terms { background: #f4f0e8; color: #6a4a2a; }
-    :global(html[data-theme="dark"]) .licence-badge.cc { background: #1f3320; color: #9ed3a0; }
-    :global(html[data-theme="dark"]) .licence-badge.pd { background: #1c2a3a; color: #9cc2e6; }
-    :global(html[data-theme="dark"]) .licence-badge.mit { background: #33291c; color: #e0b483; }
-    :global(html[data-theme="dark"]) .licence-badge.terms { background: #33291c; color: #e0b483; }
-    :global(html[data-theme="dark"]) .licence-badge.local { background: #3a1c1c; color: #e69c9c; }
-    .trans-list { list-style: none; padding-left: 0; margin: 0.75rem 0 1rem; }
-    .trans-list > li { margin: 0 0 0.9rem; }
-    .trans-list > li > strong {
-      font-family: var(--font-ui);
-      font-size: 0.9rem;
+      line-height: 1.6;
       color: var(--text);
     }
-    .trans-list ul {
-      list-style: none;
-      padding-left: 0.9rem;
-      margin: 0.15rem 0 0;
-      border-left: 1px solid var(--border);
-    }
-    .trans-list ul li {
-      margin: 0.1rem 0;
-      color: var(--text-mid);
-      font-size: 0.9rem;
-    }
-    blockquote {
-      border-left: 3px solid var(--border);
-      margin: 0.75rem 0 0.75rem 1rem;
-      padding: 0.25rem 0 0.25rem 1rem;
-      color: var(--text-mid);
-      font-size: 0.9rem;
-    }
-    .greek { font-family: var(--font-greek); }
+    h2 { font: 400 1.6rem/1.2 var(--font-english); color: var(--ink); margin: 2.4rem 0 .4rem; }
+    h2:first-of-type { margin-top: 1rem; }
+    h3 { font: 400 .95rem var(--font-ui); color: var(--mid); margin: .9rem 0 .25rem; }
+    p { margin: 0 0 0.6rem; }
+    ul { margin: 0 0 0.6rem; padding-left: 0; list-style: none; }
+    li { margin: 0 0 0.35rem; padding-left: 1.2em; text-indent: -1.2em; }
+    a { color: var(--accent); }
+    .play h2 { font-size: 1.35rem; margin-top: 1.8rem; }
   </style>
   <Pwa />
 </head>
@@ -148,229 +166,68 @@ const jsonLd = {
   <main class="attr-body">
     <h1 class="sr-only">Texts and licences for {siteName}</h1>
     <h2>Texts &amp; Licences</h2>
+    <p>The Greek editions and English translations of each play, then the licences.</p>
+
+    {plays.map((pl) => (
+      <section class="play" id={pl.id}>
+        <h2>{pl.title}</h2>
+        <h3>Greek</h3>
+        <ul>{pl.greek.map((g) => <li>{g}</li>)}</ul>
+        <h3>English</h3>
+        <ul>{pl.english.map((c) => <li>{c.href ? <a href={c.href}>{c.text}</a> : c.text}</li>)}</ul>
+      </section>
+    ))}
+
+    <h2>Greek lexicon</h2>
     <p>
-      This site sets the Greek text of forty-four plays beside English
-      translations that are public domain, openly licensed, or published
-      under their translator's own free-use terms. Every source is named
-      below, with its licence where one applies.
+      Henry George Liddell and Robert Scott, <em>A Greek-English Lexicon</em>,
+      rev. Henry Stuart Jones with Roderick McKenzie, 9th ed. (Oxford:
+      Clarendon Press, 1940), with the 1996 supplement; machine-readable
+      version by the <a href="https://www.perseus.tufts.edu/">Perseus Digital Library</a>,
+      Tufts University. Served by <a href="https://grammata.pages.dev/">Grammata</a>.
     </p>
 
-    <h2>The Greek text</h2>
-    <p>
-      The Greek comes from the editions the
-      <a href="https://stephanus.tlg.uci.edu/">Thesaurus Linguae Graecae</a>
-      (TLG) carries: for Aeschylus, Gilbert Murray's Oxford text (2nd edition,
-      1955); for Sophocles, the Budé text of Alphonse Dain and Paul Mazon
-      (1955–60); for Euripides, James Diggle's Oxford text (1981–94), which
-      includes the <em>Rhesus</em>; for Aristophanes, Victor Coulon's Budé text,
-      except the <em>Clouds</em> (K. J. Dover, 1968), the <em>Wasps</em>
-      (D. M. MacDowell, 1971), and the <em>Ecclesiazusae</em> (R. G. Ussher,
-      1973). Line numbers, speaker labels, strophe markings, and the editors'
-      brackets are printed as those editions print them; where an editor
-      numbers a line twice or prints a line out of numerical order, the
-      reader keeps the printed order and prints the number at that line.
-    </p>
-    <p>
-      The TLG is a licensed, subscription resource. What this site publishes
-      is the text as rendered by its own tooling, not the TLG's database
-      files, markup, or apparatus.
-    </p>
-
-    <h2>English translations</h2>
-    <p>
-      Each translation below is public domain, carries an open licence, or
-      is used under the translator's own free terms; the paragraph for each
-      one says which, with its own badge. The list itself is generated from
-      the corpus registry, so it matches what the reader carries.
-    </p>
-    <ul class="trans-list">
-      {WORKS.filter((w) => visibleTranslations(w).length > 0).map((w) => (
-        <li>
-          <strong>{w.title}</strong>
-          <ul>
-            {visibleTranslations(w).map((t) => (
-              <li>
-                {t.name}
-                {t.private && <span class="licence-badge local">local only</span>}
-              </li>
-            ))}
-          </ul>
-        </li>
-      ))}
-    </ul>
-    <p>
-      <span class="licence-badge pd">Public Domain (US)</span>
-      The line-keyed translations come from the
-      <a href="https://github.com/PerseusDL/canonical-greekLit">Perseus Digital
-      Library</a>'s TEI editions: Herbert Weir Smyth's Loeb Aeschylus (1926),
-      Sir Richard Jebb's Sophocles (Cambridge, 1883–1900), Edward P. Coleridge's
-      Euripides (London, 1891; the <em>Bacchae</em> in Theodore Alois Buckley's
-      version, Bohn, 1850), and W. J. Hickie's <em>Clouds</em> (Bohn, 1853).
-      Hickie's Aristophanes is bowdlerised and rides only as a comparison
-      column. The translations are public domain;
-      Perseus's TEI encoding of them is released under
-      <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>, and this site's
-      derived data carries that licence and this notice.
-    </p>
-    <p>
-      <span class="licence-badge pd">Public Domain (US)</span>
-      Aristophanes is given complete and unexpurgated in the anonymous
-      <em>Eleven Comedies</em> of the Athenian Society (1912), from
-      <a href="https://www.gutenberg.org/ebooks/8688">Project Gutenberg #8688</a>
-      and <a href="https://www.gutenberg.org/ebooks/8689">#8689</a>; Jack
-      Lindsay's <em>Lysistrata</em> (1925) is from
-      <a href="https://www.gutenberg.org/ebooks/7700">#7700</a>. The remaining
-      comparison texts were read from scans on the
-      <a href="https://archive.org/">Internet Archive</a>: F. Storr's Loeb
-      Sophocles (1912–13), A. S. Way's Loeb Euripides (1912), and W. J.
-      Hickie's Bohn Aristophanes (1853), read from the owner's own second
-      OCR pass of the same scans: vol. II on <em>Lysistrata</em>,
-      <em>Thesmophoriazusae</em>, <em>Frogs</em>, <em>Ecclesiazusae</em>, and
-      <em>Wealth</em>, and vol. I on <em>Acharnians</em>, <em>Knights</em>,
-      <em>Wasps</em>, <em>Peace</em>, and <em>Birds</em>. All of these were
-      published before 1931 and are public domain in the United States.
-      Those scans were corrected by hand and by machine; a slip that
-      survives is ours, not the translator's. Hickie's Aristophanes is
-      bowdlerised and rides only as a comparison column.
-    </p>
-    <!-- DRAFT (Morshead credit, 2026-09-15): awaiting John's approval. -->
-    <p>
-      <span class="licence-badge cc">CC BY-SA 4.0</span>
-      The Morshead column on the seven Aeschylus plays is E. D. A. Morshead's
-      English verse, public domain: <em>Persians</em>,
-      <em>Prometheus Bound</em>, <em>Seven against Thebes</em>, and
-      <em>Suppliant Maidens</em> from
-      <a href="https://en.wikisource.org/wiki/Four_Plays_of_Aeschylus_(1908)_Morshead">Four Plays of Aeschylus</a>
-      (1908, validated); <em>Agamemnon</em>, <em>The Libation-Bearers</em>,
-      and <em>The Furies</em> from
-      <a href="https://en.wikisource.org/wiki/The_House_of_Atreus">The House of Atreus</a>
-      (1881). <em>Four Plays</em> is validated by Wikisource's proofreaders;
-      <em>The House of Atreus</em> is Wikisource's transcription of the 1881
-      edition, with no proofread status stated. Both are licensed
-      CC BY-SA 4.0.
-    </p>
-    <p>
-      <span class="licence-badge cc">PD Mark</span>
-      William Arrowsmith's translations of <em>Birds</em> (1961) and
-      <em>Clouds</em> (1962) are from <em>The Complete Greek Comedy</em>
-      (Ann Arbor: University of Michigan Press), in the Press's Fulcrum
-      editions:
-      <a href="https://www.fulcrum.org/concern/monographs/n009w531d"><em>Birds</em></a>
-      (<a href="https://doi.org/10.3998/mpub.12945782">doi:10.3998/mpub.12945782</a>)
-      and <a href="https://www.fulcrum.org/concern/monographs/pr76f649p"><em>Clouds</em></a>
-      (<a href="https://doi.org/10.3998/mpub.12945776">doi:10.3998/mpub.12945776</a>).
-      Both are shared here under the Creative Commons
-      <a href="https://creativecommons.org/publicdomain/mark/1.0/">Public Domain Mark 1.0</a>.
-    </p>
-    <p>
-      <span class="licence-badge cc">CC BY-NC-ND 3.0</span>
-      The Kosmos column on thirteen tragedies is from the online Sourcebook
-      of the <a href="https://kosmossociety.org/text-library/">Kosmos Society</a>
-      and the Center for Hellenic Studies, edited by Gregory Nagy. The texts
-      are reproduced without change under <a href="https://creativecommons.org/licenses/by-nc-nd/3.0/">CC BY-NC-ND 3.0</a>,
-      with credit; this site is non-commercial. <a href="https://kosmossociety.org/seven-against-thebes-aeschylus/"><em>Seven against Thebes</em></a>: Herbert Weir Smyth,
-      revised by the <em>Seven Against Thebes</em> Heroization team (Hélène
-      Emeriaud, Kelly Lambert, Janet M. Ozsolak, Sarah Scott, Keith Stone).
-      <a href="https://kosmossociety.org/agamemnon-aeschylus/"><em>Agamemnon</em></a>: Smyth, revised by Gregory Crane and Graeme Bird,
-      further revised by Gregory Nagy. <a href="https://kosmossociety.org/libation-bearers-aeschylus/"><em>Libation Bearers</em></a>: Jim Erdman,
-      further revised by Gregory Nagy. <a href="https://kosmossociety.org/eumenides-aeschylus/"><em>Eumenides</em></a>: Smyth, revised by
-      Cynthia Bannon, further revised by Gregory Nagy. <a href="https://kosmossociety.org/antigone-sophocles-2/"><em>Antigone</em></a>:
-      R. C. Jebb, revised by Pierre Habel and Gregory Nagy, newly revised by
-      the Hour 25 Antigone Team (Brian Prescott-Decie, Jacqui Donlon, Jessica
-      Eichelburg, Claudia Filos, Sarah Scott). <a href="https://kosmossociety.org/sophocles-oedipus-at-colonus/"><em>Oedipus at Colonus</em></a>:
-      Jebb, revised by Roger Ceragioli, further revised by Gregory Nagy.
-      <a href="https://kosmossociety.org/oedipus-tyrannus-sophocles/"><em>Oedipus Tyrannus</em></a>: Jebb, revised by Alex Sens, further revised
-      by Gregory Nagy. <a href="https://kosmossociety.org/euripides-helen/"><em>Helen</em></a>: E. P. Coleridge, revised by the
-      <em>Helen</em> Heroization team (Hélène Emeriaud, Claudia Filos, Janet
-      M. Ozsolak, Sarah Scott, Jack Vaughan). <a href="https://chs.harvard.edu/primary-source/euripides-herakles"><em>Herakles</em></a>: Robert
-      Potter, adapted by Mary Ebbott and Casey Dué, further adapted by Miriam
-      Kamil. <a href="https://kosmossociety.org/euripides-medea/"><em>Medea</em></a>: Coleridge, revised by Roger Ceragioli, further revised
-      by Gregory Nagy, newly revised by the Hour 25 Medea Heroization Team
-      (Jessica Eichelburg, Hélène Emeriaud, Claudia Filos, Janet M. Ozsolak,
-      Sarah Scott, Jack Vaughan). <a href="https://kosmossociety.org/trojan-women-euripides/"><em>Trojan Women</em></a>: Coleridge, revised by
-      the <em>Trojan Women</em> Heroization team (Keith DeStone, Hélène
-      Emeriaud, Kelly Lambert, Janet M. Ozsolak, Sarah Scott).
-      <a href="https://kosmossociety.org/bacchae-euripides/"><em>Bacchae</em></a>: T. A. Buckley, revised by Alex Sens, further revised by
-      Gregory Nagy. <a href="https://kosmossociety.org/hippolytus-euripides/"><em>Hippolytus</em></a>: Coleridge, revised by Mary Jane Rein,
-      further revised by Gregory Nagy.
-    </p>
-    <!-- DRAFT (Ian Johnston credit, 2026-09-12): awaiting John's approval. -->
-    <p>
-      <span class="licence-badge terms">Free-Use Terms</span>
-      The Johnston column on twenty-three plays is the verse translation of
-      Ian Johnston of Vancouver Island University, from his
-      <a href="https://web.viu.ca/johnstoi/">johnstonia</a> pages. His
-      <a href="https://web.viu.ca/johnstoi/copyright.htm">terms</a> let
-      readers, teachers, and students use and share the texts without charge
-      where no commercial publication is involved; this site is free.
-    </p>
-    <!-- DRAFT (Gilbert Murray credit, 2026-09-12): awaiting John's approval. -->
-    <p>
-      <span class="licence-badge pd">Public Domain (US)</span>
-      The Murray column on eleven plays is the rhyming verse of Gilbert
-      Murray, published between 1902 and 1920 and now in the public domain:
-      ten plays from <a href="https://www.gutenberg.org/">Project Gutenberg</a>,
-      and <em>Frogs</em> (1912) from
-      <a href="https://en.wikisource.org/wiki/Frogs_(Murray_1912)">Wikisource</a>.
-    </p>
-    <p>
-      A translation keyed to the Greek by line number sits beside its lines.
-      One aligned by speech (the comedies and the older verse translations)
-      sits beside the speech it renders, and where the translator gives a
-      speech to a different character than the edition does, the reader says
-      so at the speaker's name. Where a translation has no words for a line,
-      the reader leaves the line's English empty rather than borrow.
-    </p>
-
-    <h2>
-      Greek Lexicon (LSJ)
-      <span class="licence-badge cc">CC BY-SA 3.0</span>
-    </h2>
-    <p>
-      The word popups and lemma pages are served by
-      <a href="https://grammata.pages.dev/">Grammata</a> from the
-      <em>Greek–English Lexicon</em> of Henry George Liddell and Robert Scott,
-      revised by Sir Henry Stuart Jones with the assistance of Roderick McKenzie
-      (Oxford: Clarendon Press, 9th ed. 1940; supplement 1996), in the XML
-      transcription prepared by the
-      <a href="https://www.perseus.tufts.edu/">Perseus Digital Library</a>
-      at Tufts University under a
-      <a href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative
-      Commons Attribution-ShareAlike 3.0 United States</a> licence.
-    </p>
-    <blockquote>
-      Liddell, Henry George, and Robert Scott.
-      <em>A Greek-English Lexicon.</em>
-      Revised and augmented by Henry Stuart Jones.
-      Oxford: Clarendon Press, 1940.
-      Machine-readable version: Perseus Digital Library,
-      Trustees of Tufts University.
-      <a href="https://creativecommons.org/licenses/by-sa/3.0/us/">CC BY-SA 3.0 US</a>.
-    </blockquote>
-
-    {/* DRAFT copy: John approves. */}
     <h2 id="drawings">Drawings</h2>
-    <p>
-      The line drawings of vase paintings on the home, author and play pages,
-      each with its source and licence:
-    </p>
-    <ul class="drawing-credits">
+    <ul>
       {servedDrawings().map((d) => (
         <li><strong>{d.alt}.</strong> {d.credit}</li>
       ))}
     </ul>
 
-    <h2>
-      Application Code
-      <span class="licence-badge mit">MIT</span>
-    </h2>
-    <p>
-      The pipeline and web application source code (Python and TypeScript/Svelte)
-      are released under the
-      <a href="https://opensource.org/licenses/MIT">MIT Licence</a>.
-      Data files derived from CC BY-SA sources are excluded from this grant
-      and remain subject to CC BY-SA.
-    </p>
+    <h2 id="licences">Licences</h2>
+    <ul>
+      <li>
+        Texts from the <a href="https://github.com/PerseusDL/canonical-greekLit">Perseus Digital Library</a>
+        (the English of Smyth, Jebb, Coleridge, Buckley, and Hickie's <em>Clouds</em>, and the Greek of
+        the Smyth, Storr, Murray, and Hall and Geldart editions):
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. This site's data
+        derived from them carries the same licence.
+      </li>
+      <li>
+        Morshead's translations, from <a href="https://en.wikisource.org/">Wikisource</a>:
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.
+      </li>
+      <li>
+        The Kosmos Society translations:
+        <a href="https://creativecommons.org/licenses/by-nc-nd/3.0/">CC BY-NC-ND 3.0</a>, reproduced
+        without change.
+      </li>
+      <li>
+        Arrowsmith's <em>Birds</em> and <em>Clouds</em>, University of Michigan Press:
+        <a href="https://creativecommons.org/publicdomain/mark/1.0/">Public Domain Mark 1.0</a>.
+      </li>
+      <li>
+        Ian Johnston's translations: used under <a href="https://web.viu.ca/johnstoi/copyright.htm">his terms</a>.
+      </li>
+      <li>
+        The LSJ lexicon:
+        <a href="https://creativecommons.org/licenses/by-sa/3.0/us/">CC BY-SA 3.0 US</a>.
+      </li>
+      <li>
+        This site's code: <a href="https://opensource.org/licenses/MIT">MIT</a>. Data derived from
+        CC BY-SA sources stays under CC BY-SA.
+      </li>
+    </ul>
     <p>
       Site by <a href="https://johnhboyer.com" target="_blank" rel="noopener">John H. Boyer</a>.
     </p>
