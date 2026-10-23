@@ -67,7 +67,7 @@ const canonical = Astro.site ? new URL(`${base}/search/how/`, Astro.site).href :
           <li><code>{L.beta}</code><span class="gk" lang="grc">{L.greek}</span><span class="nm">{L.name}</span></li>
         ))}
       </ul>
-      <h3>Accents and breathings, optional and ignored when matching</h3>
+      <h3>Accents and breathings, optional, ignored unless Accents matter is on</h3>
       <p>Type the mark right after the vowel:</p>
       <ul class="marks">
         {BETA_MARKS.map((M) => (

@@ -29,8 +29,8 @@ export const BETA_LETTERS: { beta: string; greek: string; name: string }[] = [
   { beta: 'w', greek: 'ω', name: 'omega' },
 ];
 
-// Diacritics are typed AFTER the vowel. They're stripped before matching,
-// so they're optional — but they show how full Beta Code is written.
+// Diacritics are typed AFTER the vowel. They're stripped before matching
+// unless the search's Accents matter is on, so they're optional — but they show how full Beta Code is written.
 export const BETA_MARKS: { beta: string; example: string; name: string }[] = [
   { beta: ')', example: 'a) → ἀ', name: 'smooth breathing' },
   { beta: '(', example: 'a( → ἁ', name: 'rough breathing' },

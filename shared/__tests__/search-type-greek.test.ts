@@ -122,6 +122,37 @@ describe('Type Greek dialog', () => {
     await fireEvent.keyDown(window, { key: 'Tab', shiftKey: true });
     expect(document.activeElement).toBe(link);
   });
+
+  // Grok review: the dialog opens focused on itself, which neither end of the
+  // trap matched, so the browser's own Tab left the dialog.
+  it('from the just-opened dialog, Tab goes to its first control and Shift+Tab to its last', async () => {
+    const page = render(Search);
+    await fireEvent.click(page.getByRole('button', { name: 'Type Greek' }));
+    await waitFor(() => expect(document.activeElement).toBe(dialog()));
+    const close = page.getByRole('button', { name: 'Close' });
+    const link = dialog()!.querySelector('a.ln') as HTMLElement;
+    const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+    window.dispatchEvent(tab);
+    expect(tab.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(close);
+    dialog()!.focus();
+    await fireEvent.keyDown(window, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(link);
+    // Focus somewhere behind the backdrop comes back in too.
+    (page.container.querySelector('#grk-input') as HTMLElement).focus();
+    await fireEvent.keyDown(window, { key: 'Tab' });
+    expect(document.activeElement).toBe(close);
+  });
+
+  it('Escape is spent on the dialog, not passed on to the search box', async () => {
+    const page = render(Search);
+    await fireEvent.click(page.getByRole('button', { name: 'Type Greek' }));
+    await waitFor(() => expect(dialog()).not.toBeNull());
+    const esc = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
+    window.dispatchEvent(esc);
+    expect(esc.defaultPrevented).toBe(true);
+    await waitFor(() => expect(dialog()).toBeNull());
+  });
 });
 
 describe('liveGreek (Grammata)', () => {

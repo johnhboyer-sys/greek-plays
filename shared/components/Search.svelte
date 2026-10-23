@@ -785,6 +785,8 @@
   function onHelpKey(e: KeyboardEvent) {
     if (!showHelp) return;
     if (e.key === 'Escape') {
+      // Not also the search box's own Escape, which clears the query.
+      e.preventDefault();
       closeHelp();
       return;
     }
@@ -797,10 +799,15 @@
     }
     const first = els[0];
     const last = els[els.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
+    // The dialog opens with focus on itself, which is in neither end of the
+    // list: from there (or from anywhere outside it) Tab goes to the first
+    // control and Shift+Tab to the last, never out behind the backdrop.
+    const active = document.activeElement;
+    const inside = active instanceof HTMLElement && active !== helpModal && helpModal.contains(active);
+    if (e.shiftKey && (!inside || active === first)) {
       e.preventDefault();
       last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
+    } else if (!e.shiftKey && (!inside || active === last)) {
       e.preventDefault();
       first.focus();
     }
@@ -923,7 +930,7 @@
             <li><code>{L.beta}</code><span class="gk" lang="grc">{L.greek}</span><span class="nm">{L.name}</span></li>
           {/each}
         </ul>
-        <h3>Accents and breathings, optional and ignored when matching</h3>
+        <h3>Accents and breathings, optional, ignored unless Accents matter is on</h3>
         <p class="help-sub">Type the mark right after the vowel:</p>
         <ul class="mark-list">
           {#each BETA_MARKS as M}
