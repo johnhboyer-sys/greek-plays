@@ -738,13 +738,24 @@
     grkInput?.focus();
   }
 
+  // Grok review: an IME or a phone keyboard that composes whole words
+  // (Gboard) is converted when the word is committed, never mid-composition;
+  // an undo or redo is left as it restores.
   function onGreekInput(e: Event) {
-    if (!betaMode || (e as InputEvent).isComposing) return;
-    const el = e.currentTarget as HTMLInputElement;
+    const ie = e as InputEvent;
+    if (ie.isComposing || ie.inputType === 'historyUndo' || ie.inputType === 'historyRedo') return;
+    convertGreekBox(e.currentTarget as HTMLInputElement);
+  }
+
+  function convertGreekBox(el: HTMLInputElement) {
+    if (!betaMode) return;
     const raw = el.value;
     const converted = liveGreek(raw);
     if (converted === raw) return;
-    const caret = liveGreek(raw.slice(0, el.selectionStart ?? raw.length)).length;
+    let caret = liveGreek(raw.slice(0, el.selectionStart ?? raw.length)).length;
+    // A mark typed after the caret joins the letter before it; where the two
+    // do not precompose, step past the mark rather than split them.
+    while (caret < converted.length && /\p{M}/u.test(converted[caret])) caret++;
     el.value = converted;
     grkQuery = converted;
     el.setSelectionRange(caret, caret);
@@ -835,6 +846,7 @@
         bind:value={grkQuery}
         bind:this={grkInput}
         on:input={onGreekInput}
+        on:compositionend={(e) => convertGreekBox(e.currentTarget)}
         on:keydown={onEnter}
         autocomplete="off"
         autocorrect="off"
@@ -1050,9 +1062,10 @@
   .lab-row .ln, .tog { font: 400 .95rem var(--font-ui); }
   /* The toggle reads as one of B's checks: ☐ in mid, ☑ in ink with the box in the clay. */
   .tog { color: var(--mid); white-space: nowrap; }
-  .tog::before { content: "☐ "; }
+  /* The box is decoration: aria-pressed carries the state, so the alt text is empty. */
+  .tog::before { content: "☐ "; content: "☐ " / ""; }
   .tog[aria-pressed="true"] { color: var(--ink); }
-  .tog[aria-pressed="true"]::before { content: "☑ "; color: var(--clay-text); }
+  .tog[aria-pressed="true"]::before { content: "☑ "; content: "☑ " / ""; color: var(--clay-text); }
   .tog span { font-family: var(--font-greek); }
   .tog:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
   .fld {
