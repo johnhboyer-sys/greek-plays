@@ -45,7 +45,7 @@ const eds = editions.map((e) => {
     name: plain(e.full),
     sub: [String(e.year ?? yearIn(e.full)), by ? `the text ${by} translated` : ''].filter(Boolean).join(', '),
     label: shortYear(e),
-    pair: pairs[0] ?? null,
+    pairs,
   };
 });
 const trs = translations.map((t) => {
@@ -82,11 +82,13 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
             <p class="mh">Greek text</p>
             <ul>
               {eds.map((e) => (
-                <li data-ed={e.id} class:list={{ cur: e.id === defaultEd }}><button type="button" data-ed={e.id} data-pair={e.pair ?? ''}>{e.name}</button><span>{e.sub}</span></li>
+                <li data-ed={e.id} class:list={{ cur: e.id === defaultEd }}><button type="button" data-ed={e.id}>{e.name}</button><span>{e.sub}</span></li>
               ))}
             </ul>
             {/* DRAFT copy (spec §7.5); the rule is John's, 2026-09-28. */}
-            {editionsOn && eds.length > 1 && <p class="mn">Both and English views show each translation beside the Greek its translator used. The Greek view takes any edition.</p>}
+            {editionsOn && eds.length > 1 && <p class="mn mn-one">Both and English views show each translation beside the Greek its translator used. The Greek view takes any edition.</p>}
+            {/* DRAFT copy (John, 2026-10-23: compare chooses its Greek). */}
+            {editionsOn && eds.length > 1 && <p class="mn mn-cmp" hidden>A comparison shows the reference text, or the edition both translators used.</p>}
           </div>
           <div>
             <p class="mh">Translation</p>
@@ -206,6 +208,7 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
   .menu li.cur button { color: var(--clay-text); }
   .menu li span { display: block; color: var(--mid); font-size: .9rem; }
   .menu .mn { margin: .6rem 0 0; color: var(--mid); font-size: .9rem; max-width: 24em; }
+  .menu .mn[hidden], .menu li[hidden] { display: none; }
   .menu .cmp-on, .menu .cmp-off { margin: .6rem 0 0; }
   .menu .cmp-on button, .menu .cmp-off button { color: var(--clay-text); font-size: .95rem; }
   .menu .cmp { margin-top: .6rem; }
@@ -277,7 +280,8 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
 <script>
   // Drive Reader.svelte (window `reader:set`) and follow it (`reader:state`);
   // the text settings are this head's own (drama-scoped keys, spec §7.5).
-  type Ed = { id: string; label: string; pair: string | null };
+  import { compareEditions, headEditionPick } from '@shared/lib/edition-state';
+  type Ed = { id: string; label: string; pairs: string[] };
   type Tr = { id: string; short: string; edition: string };
   type State = { view: string; trans: string; compareLeft: string; compareRight: string; edition: string; spkColor: boolean; citeCopy: boolean };
 
@@ -314,15 +318,10 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
     // ── The picker: a translation, a Greek text, or two translations side by side.
     head.querySelectorAll<HTMLButtonElement>('button[data-tr]').forEach((b) => b.addEventListener('click', () => set({ trans: b.dataset.tr })));
     head.querySelectorAll<HTMLButtonElement>('button[data-ed]').forEach((b) => b.addEventListener('click', () => {
-      const ed = b.dataset.ed!;
-      if (!state || !editionsOn) return;
-      // The Greek view takes any edition; Both and English show a translation
-      // beside its own Greek, so a text with a translation of its own brings
-      // that translation, and a text without one opens in the Greek view
-      // (shared/lib/edition-state.ts, loadEdition).
-      if (state.view === 'greek') set({ edition: ed });
-      else if (b.dataset.pair) set({ trans: b.dataset.pair });
-      else set({ view: 'greek', edition: ed });
+      const ed = eds.find((e) => e.id === b.dataset.ed);
+      if (!state || !editionsOn || !ed) return;
+      const detail = headEditionPick(state, ed, eds);
+      if (detail) set(detail);
     }));
     head.querySelector<HTMLButtonElement>('button[data-compare="on"]')?.addEventListener('click', () => {
       if (state) set({ compare: [state.compareLeft, state.compareRight] });
@@ -395,7 +394,14 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
       head!.dataset.view = state.view;
       views.forEach((b) => b.setAttribute('aria-pressed', String(!compare && b.dataset.view === state!.view)));
       cmpView?.setAttribute('aria-pressed', String(compare));
-      head!.querySelectorAll<HTMLElement>('li[data-ed]').forEach((li) => li.classList.toggle('cur', li.dataset.ed === ed?.id));
+      // A comparison lists only the Greek texts both its translations can stand beside.
+      const offered = compare ? compareEditions(eds, [state.compareLeft, state.compareRight]) : null;
+      head!.querySelectorAll<HTMLElement>('li[data-ed]').forEach((li) => {
+        li.classList.toggle('cur', li.dataset.ed === ed?.id);
+        li.hidden = !!offered && !offered.includes(li.dataset.ed!);
+      });
+      head!.querySelector<HTMLElement>('.mn-one')?.toggleAttribute('hidden', compare);
+      head!.querySelector<HTMLElement>('.mn-cmp')?.toggleAttribute('hidden', !compare);
       head!.querySelectorAll<HTMLElement>('li[data-tr]').forEach((li) => li.classList.toggle('cur', !compare && li.dataset.tr === state!.trans));
       const cmp = head!.querySelector<HTMLElement>('.cmp');
       const on = head!.querySelector<HTMLElement>('.cmp-on');

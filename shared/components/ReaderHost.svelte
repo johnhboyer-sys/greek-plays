@@ -8,7 +8,7 @@
   import { assignSpeakerSlots } from '../lib/speaker-colors';
   import { playSigla } from '../lib/speakers';
   import { lastPrintedRef } from '../lib/citation';
-  import { loadEdition, changeEdition, ownEdition, type EditionState, type ReaderView } from '../lib/edition-state';
+  import { loadEdition, changeEdition, defaultEdition, comparePair, type EditionState, type ReaderView, type Pair } from '../lib/edition-state';
   import { takeBook } from '../lib/book-payload';
 
   export let work: string;
@@ -38,13 +38,15 @@
   // `place`: the ref to write as ?loc= (after an edition switch); the URL's own
   // ?loc= and hash read in the numbering of ?ed=, and a bare ?loc= reads as TLG
   // (plan 4.1 rule 4), so ?ed= stays wherever a place is in the URL and the
-  // edition is not one that reading gives back.
+  // edition is not one that reading gives back. The reader's own scrolling
+  // swaps ?loc= for a hash (Reader.svelte updateHash), so ?ed= stays whenever
+  // the hash rule would need it as well.
   function syncUrl(place: string | null = null) {
     const url = new URL(location.href);
     if (place) { url.searchParams.set('loc', place); url.hash = ''; }
-    const own = ownEdition(meta, state.trans);
+    const own = defaultEdition(meta, state.trans, state.pair);
     const loc = url.searchParams.has('loc');
-    const omit = loc ? state.ed === 'tlg' : url.hash ? state.ed === 'tlg' && own === 'tlg' : state.ed === own;
+    const omit = loc || url.hash ? state.ed === 'tlg' && own === 'tlg' : state.ed === own;
     if (omit) url.searchParams.delete('ed');
     else url.searchParams.set('ed', state.ed);
     history.replaceState(history.state, '', `${url.pathname}${url.search}${url.hash}`);
@@ -78,6 +80,9 @@
         }
       } finally { if (id === generation) pending = false; }
     } else {
+      // A later change on the shown edition supersedes a fetch still loading.
+      ++generation;
+      pending = false;
       const differs = first && (next.view !== state.view || next.trans !== state.trans);
       state = next;
       if (differs) epoch++;
@@ -92,11 +97,13 @@
     if (!valid.has(trans) && trans !== 'compare') trans = defaultTrans;
     let view = params.get('view') ?? localStorage.getItem('reader-view') ?? 'both';
     if (!['both', 'english', 'greek'].includes(view)) view = 'both';
-    const next = loadEdition(meta, { trans, view: view as ReaderView, ed: params.get('ed'), loc: params.get('loc') });
+    const saved = (side: 'l' | 'r') => { try { return localStorage.getItem(`reader-cmp${side}-${work}`); } catch { return null; } };
+    const pair = trans === 'compare' ? comparePair(meta, [saved('l'), saved('r')]) : undefined;
+    const next = loadEdition(meta, { trans, view: view as ReaderView, ed: params.get('ed'), loc: params.get('loc'), pair });
     anchor = params.get('loc');
     void show(next, anchor, null, true);
   });
-  function changed(event: CustomEvent<{ trans: string; view: ReaderView; loc: string | null; ed?: string }>) {
+  function changed(event: CustomEvent<{ trans: string; view: ReaderView; loc: string | null; ed?: string; pair?: Pair }>) {
     const next = changeEdition(meta, state, event.detail);
     void show(next, event.detail.loc ?? anchor);
   }

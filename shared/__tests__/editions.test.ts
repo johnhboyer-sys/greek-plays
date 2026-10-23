@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { getWork } from '../lib/works';
-import { changeEdition, loadEdition, type EditionState } from '../lib/edition-state';
+import { changeEdition, compareEdition, compareEditions, comparePair, defaultEdition, headEditionPick, loadEdition, type EditionState } from '../lib/edition-state';
 import { editionBase, fetchBook, fetchConcordance, readerHref } from '../lib/data';
 import { editionPlace, hasRef, invertConcordance } from '../lib/edition-place';
 import { editionCopyCitation } from '../lib/edition-citation';
@@ -143,7 +143,7 @@ describe('edition copy citation', () => {
 describe('edition state', () => {
   it.each([
     ['greek', { trans: 'morshead', view: 'greek', ed: 'smyth-loeb' }, { ed: 'smyth-loeb', trans: 'morshead', view: 'greek' }],
-    ['compare', { trans: 'compare', view: 'both', ed: 'smyth-loeb' }, { ed: 'tlg', trans: 'compare', view: 'both' }],
+    ['compare, no pair', { trans: 'compare', view: 'both', ed: 'smyth-loeb' }, { ed: 'tlg', trans: 'compare', view: 'both' }],
     ['aligned both', { trans: 'smyth', view: 'both', ed: 'smyth-loeb' }, { ed: 'smyth-loeb', trans: 'smyth', view: 'both' }],
     ['unaligned English', { trans: 'morshead', view: 'english', ed: 'smyth-loeb' }, { ed: 'smyth-loeb', trans: 'smyth', view: 'english' }],
     ['reference link', { trans: 'smyth', view: 'both', loc: '1203' }, { ed: 'tlg', trans: 'smyth', view: 'both' }],
@@ -163,6 +163,77 @@ describe('edition state', () => {
     const slots = assignSpeakerSlots(reference);
     const expanded = assignSpeakerSlots([...reference, ...edition.filter(n => !reference.includes(n))]);
     for (const name of edition) expect(expanded.get(name)).toBe(slots.get(name));
+  });
+});
+
+describe('a comparison\'s Greek text (John, 2026-10-23)', () => {
+  // Eumenides: Smyth and Kosmos on Smyth's Loeb; Morshead and Johnston on the reference text.
+  const eum = getWork('eumenides')!;
+  const shared: [string, string] = ['smyth', 'kosmos'];
+  const mixed: [string, string] = ['smyth', 'morshead'];
+  it('offers the reference text and any edition both translations were made from', () => {
+    expect(compareEditions(eum.greekEditions, shared)).toEqual(['tlg', 'smyth-loeb']);
+    expect(compareEditions(eum.greekEditions, mixed)).toEqual(['tlg']);
+    expect(compareEditions(eum.greekEditions, ['morshead', 'johnston'])).toEqual(['tlg']);
+  });
+  it('defaults to the shared edition, else the reference text', () => {
+    expect(compareEdition(eum, shared)).toBe('smyth-loeb');
+    expect(compareEdition(eum, mixed)).toBe('tlg');
+    expect(defaultEdition(eum, 'compare', shared)).toBe('smyth-loeb');
+    expect(defaultEdition(eum, 'kosmos')).toBe('smyth-loeb');
+    // Hecuba: every translation on Murray's OCT, the reference text Diggle's.
+    expect(compareEdition(getWork('hecuba')!, ['coleridge', 'way'])).toBe('murray-oct');
+  });
+  it.each([
+    ['no ?ed=: the pair\'s default', { trans: 'compare', view: 'both', pair: shared }, { ed: 'smyth-loeb', trans: 'compare', view: 'both', pair: shared }],
+    ['a bare ?loc= reads TLG', { trans: 'compare', view: 'both', pair: shared, loc: '100' }, { ed: 'tlg', trans: 'compare', view: 'both', pair: shared }],
+    ['?ed=tlg is kept', { trans: 'compare', view: 'both', pair: shared, ed: 'tlg' }, { ed: 'tlg', trans: 'compare', view: 'both', pair: shared }],
+    ['an offered ?ed= is kept', { trans: 'compare', view: 'english', pair: shared, ed: 'smyth-loeb', loc: '100' }, { ed: 'smyth-loeb', trans: 'compare', view: 'english', pair: shared }],
+    ['an edition one side lacks: the link wins', { trans: 'compare', view: 'both', pair: mixed, ed: 'smyth-loeb' }, { ed: 'smyth-loeb', trans: 'smyth', view: 'both' }],
+    ['the Greek view: a bare ?loc= reads TLG too', { trans: 'compare', view: 'greek', pair: shared, loc: '100' }, { ed: 'tlg', trans: 'compare', view: 'greek', pair: shared }],
+    ['an unknown ?ed=', { trans: 'compare', view: 'both', pair: mixed, ed: 'nope' }, { ed: 'tlg', trans: 'compare', view: 'both', pair: mixed }],
+  ] as const)('loads %s', (_label, input, expected) => {
+    expect(loadEdition(eum, { ...input, pair: [...input.pair] as [string, string] })).toEqual(expected);
+  });
+  it('enters compare on the pair\'s default and keeps a picked text while the pair stands', () => {
+    const single: EditionState = { ed: 'tlg', trans: 'morshead', view: 'both' };
+    const entered = changeEdition(eum, single, { trans: 'compare', pair: shared });
+    expect(entered).toEqual({ ed: 'smyth-loeb', trans: 'compare', view: 'both', pair: shared });
+    const picked = changeEdition(eum, entered, { trans: 'compare', ed: 'tlg', pair: shared });
+    expect(picked.ed).toBe('tlg');
+    expect(changeEdition(eum, picked, { trans: 'compare', view: 'english', pair: shared }).ed).toBe('tlg');
+    // A text one side lacks is refused; the comparison keeps its Greek.
+    expect(changeEdition(eum, picked, { trans: 'compare', ed: 'smyth-loeb', pair: mixed }).ed).toBe('tlg');
+    // A new pair takes its own default.
+    expect(changeEdition(eum, picked, { trans: 'compare', pair: mixed }).ed).toBe('tlg');
+    expect(changeEdition(eum, { ...picked, pair: mixed }, { trans: 'compare', pair: shared }).ed).toBe('smyth-loeb');
+    // Leaving compare: the translation's own edition.
+    expect(changeEdition(eum, entered, { trans: 'morshead', pair: shared })).toEqual({ ed: 'tlg', trans: 'morshead', view: 'both' });
+    expect(changeEdition(eum, picked, { trans: 'kosmos', pair: shared }).ed).toBe('smyth-loeb');
+  });
+  it('restores the compare pair the reader restores', () => {
+    expect(comparePair(eum)).toEqual(['smyth', 'morshead']);
+    expect(comparePair(eum, ['kosmos', 'smyth'])).toEqual(['kosmos', 'smyth']);
+    expect(comparePair(eum, ['gone', 'smyth'])).toEqual(['smyth', 'morshead']);
+    expect(comparePair(eum, ['kosmos', 'kosmos'])).toEqual(['kosmos', 'smyth']);
+  });
+});
+
+describe('the head\'s Greek text pick (ReaderHead.astro)', () => {
+  const eds = [{ id: 'tlg', pairs: [] }, { id: 'smyth-loeb', pairs: ['smyth', 'kosmos'] }, { id: 'other', pairs: [] }];
+  const at = (view: string, trans: string, pair: [string, string] = ['smyth', 'kosmos']) =>
+    ({ view, trans, compareLeft: pair[0], compareRight: pair[1] });
+  it('in the Greek view sets any edition', () => {
+    expect(headEditionPick(at('greek', 'smyth'), eds[2]!, eds)).toEqual({ edition: 'other' });
+  });
+  it('in compare sets a text both translations stand beside, and nothing else', () => {
+    expect(headEditionPick(at('both', 'compare'), eds[1]!, eds)).toEqual({ edition: 'smyth-loeb' });
+    expect(headEditionPick(at('both', 'compare'), eds[0]!, eds)).toEqual({ edition: 'tlg' });
+    expect(headEditionPick(at('both', 'compare', ['smyth', 'morshead']), eds[1]!, eds)).toBeNull();
+  });
+  it('in Both and English brings the edition\'s translation, or opens the Greek view', () => {
+    expect(headEditionPick(at('both', 'morshead'), eds[1]!, eds)).toEqual({ trans: 'smyth' });
+    expect(headEditionPick(at('english', 'morshead'), eds[2]!, eds)).toEqual({ view: 'greek', edition: 'other' });
   });
 });
 
