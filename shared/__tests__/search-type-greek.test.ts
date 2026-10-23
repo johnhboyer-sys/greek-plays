@@ -245,6 +245,39 @@ describe('β Beta Code toggle', () => {
     expect(box(page).selectionStart).toBe(2);
   });
 
+  // Grok review: s then a mark typed before it gives ς + U+0301, which has no
+  // precomposed form; the caret used to land between them.
+  it('never leaves the caret between a letter and its mark', async () => {
+    const page = render(Search);
+    await fireEvent.click(toggle(page));
+    await type(box(page), '/');
+    await type(box(page), 's/', 1);
+    expect(box(page).value).toBe('ς\u0301');
+    expect(box(page).selectionStart).toBe(2);
+  });
+
+  it('waits for an IME or phone keyboard to commit, then converts', async () => {
+    const page = render(Search);
+    await fireEvent.click(toggle(page));
+    const el = box(page);
+    el.value = 'lo/gos';
+    el.setSelectionRange(6, 6);
+    await fireEvent(el, new InputEvent('input', { bubbles: true, isComposing: true }));
+    expect(el.value).toBe('lo/gos');
+    await fireEvent(el, new CompositionEvent('compositionend', { bubbles: true, data: 'lo/gos' }));
+    expect(el.value).toBe('λόγος');
+    expect(el.selectionStart).toBe(5);
+  });
+
+  it('leaves an undo as it restores', async () => {
+    const page = render(Search);
+    await fireEvent.click(toggle(page));
+    const el = box(page);
+    el.value = 'λο/';
+    await fireEvent(el, new InputEvent('input', { bubbles: true, inputType: 'historyUndo' }));
+    expect(el.value).toBe('λο/');
+  });
+
   it('a query typed with it on searches as Greek', async () => {
     const book = { book: 1, segments: [{ id: '1:1', column: '1',
       greek: [{ n: 1, ref: '1', text: 'λόγος', tokens: [{ t: 'λόγος', o: 0, k: 'lo/gos' }] }], english: null }] };
