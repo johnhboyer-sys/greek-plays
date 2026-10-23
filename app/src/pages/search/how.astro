@@ -61,13 +61,13 @@ const canonical = Astro.site ? new URL(`${base}/search/how/`, Astro.site).href :
       </dl>
 
       <h2>How to type Greek</h2>
-      <p>The Greek box accepts Greek letters <em>or</em> Beta Code, a plain-ASCII transliteration. Each Greek letter is one Latin key:</p>
+      <p>The Greek box accepts Greek letters <em>or</em> Beta Code, a plain-ASCII transliteration. On the search page, Type Greek, beside the Greek box, opens this chart. Tick β Beta Code beside the box and what you type turns Greek as you go; Shift makes a capital. Each Greek letter is one Latin key:</p>
       <ul class="letters">
         {BETA_LETTERS.map((L) => (
           <li><code>{L.beta}</code><span class="gk" lang="grc">{L.greek}</span><span class="nm">{L.name}</span></li>
         ))}
       </ul>
-      <h3>Accents and breathings, optional and ignored when matching</h3>
+      <h3>Accents and breathings, optional, ignored unless Accents matter is on</h3>
       <p>Type the mark right after the vowel:</p>
       <ul class="marks">
         {BETA_MARKS.map((M) => (
