@@ -1042,3 +1042,4 @@ CI had failed on every run since the first push (2026-09-09). The fixes:
 - `pipeline/drama_pipeline/stage7_emit.py` — 2026-10-22: carries the `capitalKey` mark into the filter and drops it before emitting.
 - `pipeline/drama_pipeline/beta.py` — 2026-10-22: `starts_capitalised` reads the first cased letter past brackets and sigla, titlecase included (⟨Ζεῦ⟩, ᾍδης); stage4 uses it for its capital variants (Grok review).
 - `app/src/components/ClassicHome.astro` — 2026-10-22: the frieze names scale to their columns (container units); between 701 and 1000px "Aristophanes" ran past its column and the home page scrolled sideways.
+- `shared/components/Reader.svelte`, `shared/styles/global.css` — 2026-10-23: playFlow keeps a desktop Both view's English cells hidden (`data-flow-pending`) until its first push lands, and again when the rows change; switching Agamemnon from Smyth to Johnston showed speeches printed over each other for a frame or more.

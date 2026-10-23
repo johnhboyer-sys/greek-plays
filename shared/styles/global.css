@@ -2161,6 +2161,8 @@ body {
      level with its lines more often. Compare mode keeps its own tracks. */
   .reader-body.play-line.view-both:not(.trans-compare) .seg-row { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); }
   .reader-body.play-line:not(.trans-compare) .play-row-split { position: relative; }
+  /* Reader.svelte playFlow: hidden for the one frame before the first push lands. */
+  .reader-body.play-line.view-both:not(.trans-compare) .play-row-split[data-flow-pending] .play-row > .english-col { visibility: hidden; }
   /* Astra lane A, F1: zero-height English cells are a bilingual facing-page
      device. English-only view hides the Greek, so these cells must take their
      natural height or later speeches overlap. */

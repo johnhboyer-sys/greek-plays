@@ -2261,6 +2261,12 @@
   function playFlow(node: HTMLElement, params: { view?: View; plRows?: PlayRow[] } = {}) {
     let timer: ReturnType<typeof setTimeout> | 0 = 0;
     let currentView = params.view;
+    let currentRows = params.plRows;
+    // Until the first push lands, the zero-height English cells all sit at
+    // their rows' tops and overlap: keep them hidden for that frame
+    // (global.css `[data-flow-pending]`; John, 2026-10-23, switching
+    // Agamemnon to Johnston showed the speeches printed over each other).
+    node.dataset.flowPending = '';
     const phone = () => typeof window !== 'undefined' && window.matchMedia('(max-width: 680px)').matches;
     const apply = () => {
       timer = 0;
@@ -2275,6 +2281,7 @@
       if (phone() || currentView === 'english') {
         for (const c of cells) if (c.e) c.e.style.transform = '';
         node.style.paddingBottom = '';
+        delete node.dataset.flowPending;
         return;
       }
       const base = node.getBoundingClientRect().top;
@@ -2306,6 +2313,7 @@
         if (c.e) c.e.style.transform = y ? `translateY(${y}px)` : '';
       });
       node.style.paddingBottom = paddingBottom ? `${paddingBottom}px` : '';
+      delete node.dataset.flowPending;
       // The English cells are zero-height, so a late font or a reflow of the
       // prose never resizes the grid itself: watch each paragraph as well.
       for (const c of cells) if (c.e) ro?.observe(c.e);
@@ -2319,7 +2327,11 @@
     if (typeof window !== 'undefined') window.addEventListener('load', schedule, { once: true });
     if (typeof document !== 'undefined' && (document as any).fonts?.ready) (document as any).fonts.ready.then(schedule);
     return {
-      update(next: { view?: View; plRows?: PlayRow[] } = {}) { currentView = next.view; schedule(); },
+      update(next: { view?: View; plRows?: PlayRow[] } = {}) {
+        // New rows (another translation in the same reader) wait for their push too.
+        if (next.plRows !== currentRows) node.dataset.flowPending = '';
+        currentView = next.view; currentRows = next.plRows; schedule();
+      },
       destroy() { ro?.disconnect(); if (timer) clearTimeout(timer); },
     };
   }
