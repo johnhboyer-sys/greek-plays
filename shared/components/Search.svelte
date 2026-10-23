@@ -7,6 +7,8 @@
   import { WORKS, getWork, workPath, WORK_ORDER } from '../lib/works';
   import { getAuthor, AUTHORS } from '../lib/authors';
   import { formatCite, formatLocValue, schemeFor, groupUnitNoun } from '../lib/citation';
+  import { BETA_LETTERS, BETA_MARKS, BETA_EXAMPLES } from '../lib/beta-chart';
+  import { liveGreek } from '../lib/betacode';
 
   // Astra lane A, F10: display titles, comma-separated; Oxford comma before
   // the last when there are three or more.
@@ -722,7 +724,90 @@
   function onEnter(e: KeyboardEvent) {
     if (e.key === 'Enter') doSearch();
   }
+
+  // "β Beta Code": with the toggle on, the Greek box turns Beta Code into
+  // Greek as you type (lo/gos → λόγος), caret kept, as Grammata's /words box
+  // does (grammar-site src/pages/words.astro). Off on every visit: a toggle
+  // that outlived the visit would quietly turn the next query Greek.
+  let betaMode = false;
+  let grkInput: HTMLInputElement;
+
+  function toggleBeta() {
+    betaMode = !betaMode;
+    if (betaMode && grkQuery) grkQuery = liveGreek(grkQuery);
+    grkInput?.focus();
+  }
+
+  function onGreekInput(e: Event) {
+    if (!betaMode || (e as InputEvent).isComposing) return;
+    const el = e.currentTarget as HTMLInputElement;
+    const raw = el.value;
+    const converted = liveGreek(raw);
+    if (converted === raw) return;
+    const caret = liveGreek(raw.slice(0, el.selectionStart ?? raw.length)).length;
+    el.value = converted;
+    grkQuery = converted;
+    el.setSelectionRange(caret, caret);
+  }
+
+  // "Type Greek": the Beta Code chart in a dialog over the search, as the
+  // Aristotle reader's search opens it from beside its Greek box (John,
+  // 2026-10-23). The same chart is the How to search page's second half.
+  let showHelp = false;
+  let helpModal: HTMLDivElement;
+  let helpTrigger: HTMLElement | null = null;
+
+  async function openHelp(e?: MouseEvent) {
+    helpTrigger = e?.currentTarget instanceof HTMLElement
+      ? e.currentTarget
+      : document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    showHelp = true;
+    await tick();
+    helpModal?.focus();
+  }
+
+  function closeHelp() {
+    showHelp = false;
+    helpTrigger?.focus();
+    helpTrigger = null;
+  }
+
+  function helpFocusableEls(): HTMLElement[] {
+    return helpModal
+      ? Array.from(helpModal.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        )).filter((el) => !el.hasAttribute('disabled') && el.tabIndex !== -1)
+      : [];
+  }
+
+  function onHelpKey(e: KeyboardEvent) {
+    if (!showHelp) return;
+    if (e.key === 'Escape') {
+      closeHelp();
+      return;
+    }
+    if (e.key !== 'Tab') return;
+    const els = helpFocusableEls();
+    if (els.length === 0) {
+      e.preventDefault();
+      helpModal?.focus();
+      return;
+    }
+    const first = els[0];
+    const last = els[els.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
 </script>
+
+<svelte:window on:keydown={onHelpKey} />
 
 <!-- UI pass 2, direction B (docs/redesign/HANDOFF-ui-pass2-build.md §8.1): the
      two boxes at the left, Greek over English, searched together; every control
@@ -733,7 +818,7 @@
 <main class="search-page">
   <form class="search-form" on:submit={doSearch} novalidate>
     <div class="boxes">
-      <label class="lab" for="grk-input">Greek</label>
+      <p class="lab-row"><label class="lab" for="grk-input">Greek</label><span class="lab-acts"><button type="button" class="tog" aria-pressed={betaMode} on:click={toggleBeta} title="Type Beta Code, see Greek: lo/gos becomes λόγος as you type"><span lang="grc">β</span> Beta Code</button><button type="button" class="ln" on:click={openHelp} aria-haspopup="dialog">Type Greek</button></span></p>
       <input
         id="grk-input"
         class="fld greek-input"
@@ -741,6 +826,8 @@
         type="search"
         placeholder="ξίφος, or xifos, fron*"
         bind:value={grkQuery}
+        bind:this={grkInput}
+        on:input={onGreekInput}
         on:keydown={onEnter}
         autocomplete="off"
         autocorrect="off"
@@ -774,7 +861,7 @@
         {#if editionChoices.length}
           <span class="v" title="An edition applies to Greek-only searches, in the plays that hold it"><select aria-label="Greek text to search" value={greekEd} on:change={(e) => (greekEd = e.currentTarget.value)}><option value="tlg">Each play's main text</option>{#each editionChoices as e}<option value={e.id}>{e.label}</option>{/each}</select><i aria-hidden="true">▾</i></span>
         {/if}
-        <span class="mn">* wildcard · Beta Code works</span>
+        <span class="mn">* wildcard · <button type="button" class="ln" on:click={openHelp} aria-haspopup="dialog">Beta Code</button> works</span>
       </p>
       {#if searchedLemmata.length}
         <p class="row lsj"><span class="mn">LSJ</span>{#each searchedLemmata as lemma}<span class="lem" lang="grc">{lemma}</span>{/each}</p>
@@ -812,6 +899,47 @@
       {/if}
     </div>
   </form>
+
+  {#if showHelp}
+    <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+    <div class="help-backdrop" on:click={closeHelp}>
+      <div
+        class="help-modal"
+        bind:this={helpModal}
+        role="dialog"
+        aria-modal="true"
+        aria-label="How to type Greek"
+        tabindex="-1"
+        on:click|stopPropagation
+      >
+        <!-- DRAFT copy: John approves. -->
+        <div class="help-head">
+          <h2>How to type Greek</h2>
+          <button type="button" class="help-close" on:click={closeHelp} aria-label="Close">×</button>
+        </div>
+        <p class="help-intro">The Greek box accepts Greek letters <em>or</em> Beta Code, a plain-ASCII transliteration. Tick β Beta Code beside the box and what you type turns Greek as you go; Shift makes a capital. Each Greek letter is one Latin key:</p>
+        <ul class="beta-grid">
+          {#each BETA_LETTERS as L}
+            <li><code>{L.beta}</code><span class="gk" lang="grc">{L.greek}</span><span class="nm">{L.name}</span></li>
+          {/each}
+        </ul>
+        <h3>Accents and breathings, optional and ignored when matching</h3>
+        <p class="help-sub">Type the mark right after the vowel:</p>
+        <ul class="mark-list">
+          {#each BETA_MARKS as M}
+            <li><code>{M.beta}</code><span class="gk" lang="grc">{M.example}</span><span class="nm">{M.name}</span></li>
+          {/each}
+        </ul>
+        <h3>Examples</h3>
+        <ul class="mark-list">
+          {#each BETA_EXAMPLES as E}
+            <li><code>{E.beta}</code><span class="gk" lang="grc">{E.greek}</span></li>
+          {/each}
+        </ul>
+        <p class="help-foot">Long vowels are distinct: <code>h</code> = η (not <code>e</code> = ε), <code>w</code> = ω (not <code>o</code> = ο). Type them exactly. Accents and breathings may be included or left off. <a class="ln" href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/search/how`}>How to search</a></p>
+      </div>
+    </div>
+  {/if}
 
   {#if error}
     <p class="search-error">{error}</p>
@@ -908,7 +1036,18 @@
   }
   .boxes, .ctrls { min-width: 0; display: flex; flex-direction: column; gap: .55rem; }
   .lab { font: 400 1.05rem var(--font-ui); color: var(--mid); margin-top: .4rem; }
-  .lab:first-child { margin-top: 0; }
+  .lab:first-child, .lab-row:first-child { margin-top: 0; }
+  .lab-row { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin: 0; align-self: stretch; }
+  .lab-row .lab { margin-top: 0; }
+  .lab-acts { display: flex; flex-wrap: wrap; gap: .2rem 1.2rem; align-items: baseline; justify-content: flex-end; }
+  .lab-row .ln, .tog { font: 400 .95rem var(--font-ui); }
+  /* The toggle reads as one of B's checks: ☐ in mid, ☑ in ink with the box in the clay. */
+  .tog { color: var(--mid); white-space: nowrap; }
+  .tog::before { content: "☐ "; }
+  .tog[aria-pressed="true"] { color: var(--ink); }
+  .tog[aria-pressed="true"]::before { content: "☑ "; color: var(--clay-text); }
+  .tog span { font-family: var(--font-greek); }
+  .tog:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
   .fld {
     font: 400 1.8rem/1.25 var(--font-english); color: var(--ink);
     background: none; border: 0; border-bottom: 1px solid var(--line); border-radius: 0;
@@ -972,6 +1111,40 @@
   .instance .ref:hover { text-decoration: underline; }
   .snip.greek { font-family: var(--font-greek); }
   .inst-credit { display: block; font: 400 .85rem var(--font-ui); color: var(--mid); }
+
+  /* "Type Greek": the reader's Help dialog (HelpButton.svelte), holding the
+     How to search page's chart. */
+  .help-backdrop {
+    position: fixed; inset: 0; z-index: 50; overflow-y: auto;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 2rem 1rem; background: rgba(0, 0, 0, 0.4);
+    animation: backdrop-in 0.18s ease-out;
+  }
+  .help-modal {
+    width: 100%; max-width: 36rem; padding: 1.25rem 1.5rem 1.75rem;
+    background: var(--popup-bg); color: var(--ink); border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+    font: 400 1rem/1.5 var(--font-ui);
+    animation: modal-in 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+  @keyframes backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes modal-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .help-backdrop, .help-modal { animation: none; } }
+  .help-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem; }
+  .help-head h2 { font: 400 1.6rem/1.2 var(--font-english); margin: 0; }
+  .help-close { font-size: 1.6rem; line-height: 1; color: var(--mid); padding: 0 .25rem; }
+  .help-close:hover { color: var(--ink); }
+  .help-intro, .help-sub, .help-foot { margin: .4rem 0; color: var(--ink); text-wrap: pretty; }
+  .help-modal h3 { font: 400 1rem var(--font-ui); color: var(--mid); margin: 1.2rem 0 .3rem; }
+  .help-modal ul { list-style: none; margin: .4rem 0; padding: 0; }
+  .help-modal li { display: flex; gap: .6rem; align-items: baseline; padding: .1rem 0; }
+  .help-modal code { font: 400 .95rem ui-monospace, Menlo, monospace; }
+  .help-modal li code { min-width: 1.4rem; color: var(--clay-text); }
+  .help-modal .gk { font-family: var(--font-greek); font-size: 1.08rem; }
+  .help-modal .nm { font-size: .9rem; color: var(--mid); }
+  .beta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: 0 1.2rem; }
+  .help-foot { margin-top: 1rem; padding-top: .75rem; border-top: 1px solid var(--hair); }
+  .help-foot .ln { margin-left: .4rem; }
 
   /* Phone: one column, the boxes, the controls, then Search (§8.1). */
   @media (max-width: 700px) {
