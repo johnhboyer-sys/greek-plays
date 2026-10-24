@@ -26,21 +26,149 @@ english.json" axis, not a Greek-only one):
                  english_head: the FULL primary chunk (legacy name).
                  english_slots: full non-primary texts by translation id.
 
-All four files are copied to build/dist/<work>/search/ by stage7. Stage 6 also
-merges shipped analyses into build/dist/lemma-map/<letter>.json shards.
+Stage 7 also copies offsets.json, grammar-dict.json, and grammar-col.bin to
+build/dist/<work>/search/. They share one global token offset space.
+Reference builds write form/lemma streams to build/ngrams/<work>.json and
+merge shipped analyses into build/dist/lemma-map/<letter>.json shards.
 """
 
 from __future__ import annotations
 
 import json
 import re
+import struct
+import unicodedata
 from collections import defaultdict
 from pathlib import Path
 
 from .config import BUILD_DIR, Manifest, private_translation_ids
+from .stage2_validate import check_grammar, check_ngram_streams, check_offsets
 
 _FOLD = re.compile(r"[^a-z']")  # keep only base letters and apostrophe
 _EN_WORD = re.compile(r"[a-z']+")
+
+# The archive translations print possessives and contractions with U+2019
+# (Aristotle’s, isn’t); U+02BC is the modifier-letter apostrophe. The reader
+# folds a typed straight apostrophe to itself (englishFold) and the text's
+# curly one to straight (englishWords) — so the index must key "aristotle's"
+# as one word or neither path can find it.
+_EN_APOSTROPHE = re.compile("[\u2019\u02bc]")
+# Apparatus a translation's prose carries inline, which the reader renders as
+# controls and not as words: a footnote marker [^1.9] is glued to the word
+# before it and is simply dropped; a sidenote or figure marker [[s3]] / [[fig1]]
+# stands between words and leaves a space. Indexed as text, [[s3]] was the word
+# "s" and broke every phrase that ran across it. (Ported from the Aristotle
+# reader, whose translations carry these markers.)
+_EN_FOOTNOTE = re.compile(r"\[\^[0-9A-Za-z_.*\u2020]+\]")
+_EN_SIDENOTE = re.compile(r"\[\[(?:s|fig)[0-9]+\]\]")
+# One pass, so a marker counts only as written: "[[s[^1]12]]" loses its
+# footnote and keeps "[[s12]]" as text, never a sidenote, as the reader shows
+# it: the footnote becomes a button and the rest stays prose. englishWords
+# scans the same.
+_EN_MARKER = re.compile(f"(?P<fn>{_EN_FOOTNOTE.pattern})|{_EN_SIDENOTE.pattern}")
+# Older translations print Latin letters the fold would otherwise split on:
+# "Lacedæmonians" was indexed as "laced" + "monians", "versâ" as "vers". The
+# ligatures become two letters and accents drop off, so the word is the one a
+# reader types, as latinFold in shared/lib/search.ts folds it.
+_EN_COMBINING = re.compile("[\u0300-\u036f]")
+
+
+def _latin_fold(text: str) -> str:
+    text = _EN_COMBINING.sub("", unicodedata.normalize("NFD", text))
+    return text.replace("\u00e6", "ae").replace("\u0153", "oe")
+
+
+def english_words(text: str) -> list[str]:
+    """The English word stream as the reader's fold sees it: lowercase, curly
+    apostrophes made straight, split on anything outside [a-z']. An apostrophe
+    at a word's edge is a quotation mark (‘change’ closes with the same U+2019
+    that Aristotle’s elides with) and is not part of the word. Used by
+    stage8 for phrase counts and english-segments.json. The existing English
+    search index keeps its own word split and translation-id postings.
+    Inline footnote, sidenote and figure markers are not words (see
+    _EN_FOOTNOTE). Ligatures and accented letters fold to plain ones (see
+    _latin_fold)."""
+    text = _EN_MARKER.sub(lambda m: "" if m.group("fn") else " ", text)
+    words = _EN_WORD.findall(_latin_fold(_EN_APOSTROPHE.sub("'", text).lower()))
+    return [w for w in (raw.strip("'") for raw in words) if w]
+
+
+# -- Morphology feature vocabulary -------------------------------------------
+# Derived from what stage4 actually emits. `parse` is a raw Morpheus string
+# ("pres ind act 2nd sg (doric aeolic)") with parentheses glued to the first and
+# last word of a qualifier run, so strip the parens and classify word by word.
+#
+# There is deliberately NO part-of-speech category. Morpheus emits no
+# noun/verb/adjective field, and inferring one from feature presence would
+# overstate the data: participles carry both nominal and verbal morphology, and
+# nouns and adjectives are indistinguishable here. Only Morpheus's own explicit
+# markers are indexed, under "marker". Note that `part` is the PARTICIPLE mood,
+# not `particle` — they are different tags and must not be conflated.
+#
+# Dialect words (attic, epic, doric, …) and clitic/format markers (enclitic,
+# nu_movable, indeclform, …) are not queryable features and are skipped. Two
+# analyses differing only by dialect collapse to one reading, which is right:
+# they are the same morphological reading.
+_FEATURES: dict[str, str] = {
+    value: category
+    for category, values in {
+        "gender": "masc fem neut masc/fem masc/neut masc/fem/neut",
+        "case": "nom gen dat acc voc nom/acc nom/voc nom/voc/acc gen/dat",
+        "number": "sg pl dual",
+        "person": "1st 2nd 3rd",
+        "tense": "pres imperf fut aor perf plup futperf",
+        "mood": "ind subj opt imperat inf part",
+        "voice": "act mid pass mp",
+        "degree": "comp superl irreg_comp",
+        "marker": "adverb adverbial particle prep conj interrog exclam indecl numeral letter",
+    }.items()
+    for value in values.split()
+}
+
+# Reserved signature ids, so the column stays aligned with the offset space
+# even where there is nothing to say about a token.
+SIG_UNKEYED = 0     # token had no Beta Code key (stage3 key failure)
+SIG_UNANALYSED = 1  # key resolved, but Morpheus returned no analysis
+
+
+def parse_reading(parse: str) -> dict[str, list[str]]:
+    """One Morpheus parse string -> {category: [values]}.
+
+    Syncretic values expand INSIDE the reading (nom/voc/acc -> nom, voc, acc).
+    A single analysis spanning three cases is genuinely three-way ambiguous and
+    must never be reported as one certain parse — that expansion is what makes
+    the ambiguity count honest rather than a count of analysis records.
+    """
+    reading: dict[str, list[str]] = {}
+    for word in parse.replace("(", " ").replace(")", " ").split():
+        category = _FEATURES.get(word)
+        if category is None:
+            continue
+        values = reading.setdefault(category, [])
+        for value in word.split("/"):
+            if value not in values:
+                values.append(value)
+    return {c: sorted(v) for c, v in reading.items()}
+
+
+def signature(entries: list[dict]) -> tuple:
+    """The distinct readings a token's analyses license, canonically ordered.
+
+    Whole readings are kept rather than a per-category union, so correlations
+    survive: analyses {masc nom sg, fem acc pl} must not satisfy a query for
+    masc + acc + sg, which a flattened union would wrongly allow.
+    """
+    readings = []
+    for entry in entries:
+        reading = parse_reading(entry.get("parse") or "")
+        if not reading:
+            continue
+        key = tuple((c, tuple(v)) for c, v in sorted(reading.items()))
+        if key not in readings:
+            readings.append(key)
+    return tuple(sorted(readings))
+
+
 
 
 def slot_text(chunks: object) -> str:
@@ -258,8 +386,159 @@ def run(manifest: Manifest) -> Path:
             }
         )
 
+    # -- Offset primitive ------------------------------------------------------
+    # One running word number per work, assigned in the same document order the
+    # index loop above walks. The global offset of any existing posting is
+    # seg_base_offset[seg_idx] + token_pos, so no posting has to change and no
+    # reverse map is needed. Counts EVERY stage3 token, keyless ones included,
+    # so it stays in step with token_pos.
+    seg_base_offset: list[int] = []
+    seg_coords: list[dict] = []
+    running = 0
+    for seg in segments:
+        seg_base_offset.append(running)
+        # line_runs lets the client turn an offset back into a play line
+        # without fetching the whole book-NN.json: [n, count], or [n, count,
+        # sub] where a line carries a sub-letter. n is the line as printed
+        # (transposed and repeated lines included); fixtures may omit it.
+        line_runs = [
+            [l.get("n"), len(l["tokens"]), l["sub"]] if l.get("sub") else [l.get("n"), len(l["tokens"])]
+            for l in seg["lines"]
+        ]
+        running += sum(r[1] for r in line_runs)
+        seg_coords.append(
+            {"book": seg["book"], "column": seg["column"], "line_runs": line_runs}
+        )
+    token_count = running
+
+    # A segment is keyed (book, column) and so never straddles a book: each
+    # book begins at its first segment's base.
+    book_bounds: list[dict] = []
+    for i, seg in enumerate(segments):
+        if not book_bounds or book_bounds[-1]["book"] != seg["book"]:
+            book_bounds.append({"book": seg["book"], "start": seg_base_offset[i]})
+
+    chapter_bounds: list[dict] = []
+
+    offsets = {
+        # Doubles as a build fingerprint: every artifact indexed by global
+        # offset must agree on it, or they were built from different runs.
+        "token_count": token_count,
+        "seg_base_offset": seg_base_offset,
+        "segments": seg_coords,
+        "book_bounds": book_bounds,
+        "chapter_bounds": chapter_bounds,
+    }
+
+    # -- Grammatical index -----------------------------------------------------
+    # A signature dictionary plus a packed column, not an inverted index:
+    # grammatical predicates are anti-selective (case=gen matches ~10% of every
+    # token in the corpus), so postings would go near-dense and dwarf the lexical
+    # indexes. Interning readings instead gives a table of a few thousand
+    # signatures and one small int per token, indexed by GLOBAL OFFSET — so the
+    # column joins directly onto the offset primitive above.
+    sig_ids: dict[tuple, int] = {}
+    sig_list: list[tuple] = [(), ()]  # slots 0 and 1 are the reserved kinds
+    column: list[int] = []
+    # The n-gram source, gathered in the same walk. Two fold streams indexed by
+    # global offset, keyed exactly as form.json and lemma.json are —
+    # so a phrase found here is a phrase the search can find. null marks a token
+    # no index can key, which breaks the stream: an n-gram may not span it.
+    form_stream: list[str | None] = []
+    lemma_stream: list[list[str] | None] = []
+    for seg in segments:
+        for line in seg["lines"]:
+            for tok in line["tokens"]:
+                key = tok.get("k")
+                form_stream.append(fold_lemma(key) or None if key else None)
+                if not key:
+                    column.append(SIG_UNKEYED)
+                    lemma_stream.append(None)
+                    continue
+                stored = key_map.get(key)
+                entries = analyses.get(stored, []) if stored else []
+                # Every lemma this token licenses, not a chosen one: which lemma
+                # an ambiguous position contributes is a policy the corpus pass
+                # settles, and deciding it here would hide the choice.
+                lemmas = sorted({
+                    fold_lemma(a["lemma"]) if a["lemma"] else fold_lemma(stored)
+                    for a in entries
+                } - {""})
+                lemma_stream.append(lemmas or None)
+                sig = signature(entries)
+                if not sig:
+                    column.append(SIG_UNANALYSED)
+                    continue
+                sid = sig_ids.get(sig)
+                if sid is None:
+                    sid = len(sig_list)
+                    sig_ids[sig] = sid
+                    sig_list.append(sig)
+                column.append(sid)
+
+    # Uint16 covers a few thousand signatures with room to spare; widen rather
+    # than silently truncate if a work ever exceeds it.
+    width = 4 if len(sig_list) > 0xFFFF else 2
+    grammar_dict = {
+        "token_count": token_count,  # must match offsets.json — same build
+        "width": width,
+        "categories": sorted(set(_FEATURES.values())),
+        "reserved": {"unkeyed": SIG_UNKEYED, "unanalysed": SIG_UNANALYSED},
+        "sigs": [
+            [{category: list(values) for category, values in reading} for reading in sig]
+            for sig in sig_list
+        ],
+    }
+
+    streams_check = check_ngram_streams(
+        form_stream, lemma_stream, form_idx, lemma_idx, seg_base_offset, token_count
+    )
+    offsets_check = check_offsets(offsets, segments)
+    grammar_check = check_grammar(
+        grammar_dict, column, offsets, segments, key_map, analyses, signature
+    )
+    for name, check in (("offset", offsets_check), ("grammar", grammar_check),
+                        ("n-gram stream", streams_check)):
+        if not check["ok"]:
+            raise ValueError(
+                f"stage6: {name} validation failed —\n  "
+                + "\n  ".join(check["problems"][:20])
+            )
+
     out_dir = BUILD_DIR / "stage6"
     out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "offsets.json").write_text(
+        json.dumps(offsets, ensure_ascii=False), encoding="utf-8"
+    )
+    (out_dir / "grammar-dict.json").write_text(
+        json.dumps(grammar_dict, ensure_ascii=False), encoding="utf-8"
+    )
+    (out_dir / "grammar-col.bin").write_bytes(
+        struct.pack(f"<{len(column)}{'I' if width == 4 else 'H'}", *column)
+    )
+
+    # The n-gram source goes OUTSIDE build/stage6, which is per-work scratch and
+    # is overwritten by the next work. The corpus n-gram pass is the pipeline's
+    # first cross-work stage and needs every work's stream present at once.
+    if not manifest.data["work"].get("edition_id"):
+        ngram_dir = BUILD_DIR / "ngrams"
+        ngram_dir.mkdir(parents=True, exist_ok=True)
+        (ngram_dir / f"{manifest.work_id}.json").write_text(
+            json.dumps(
+                {
+                    "work": manifest.work_id,
+                    # Fingerprint: the corpus pass refuses to merge streams that
+                    # disagree with the offsets they are supposed to index.
+                    "token_count": token_count,
+                    "book_bounds": book_bounds,
+                    "chapter_bounds": chapter_bounds,
+                    "form": form_stream,
+                    "lemma": lemma_stream,
+                },
+                ensure_ascii=False,
+            ),
+            encoding="utf-8",
+        )
     (out_dir / "lemma.json").write_text(
         json.dumps(lemma_idx, ensure_ascii=False), encoding="utf-8"
     )
@@ -278,8 +557,16 @@ def run(manifest: Manifest) -> Path:
         "forms": len(form_idx),
         "english_terms": len(english_idx),
         "segments": len(meta),
+        "tokens": token_count,
+        "signatures": grammar_check["signatures"],
+        "tokens_unanalysed": grammar_check["tokens_unanalysed"],
+        "ngram_form_tokens": streams_check["form_tokens"],
+        "ngram_multi_lemma": streams_check["multi_lemma_tokens"],
     }
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=1))
+    (out_dir / "grammar_report.json").write_text(
+        json.dumps({"offsets": offsets_check, "grammar": grammar_check}, indent=1)
+    )
     if not manifest.data["work"].get("edition_id"):
         build_lemma_map(analyses, manifest.work_id, BUILD_DIR)
     return out_dir

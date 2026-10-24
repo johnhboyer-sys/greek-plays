@@ -1971,7 +1971,8 @@ def run(manifest: Manifest) -> Path:
         _merge_shared_lsj(manifest.language)
 
     (out_dir / "search").mkdir(exist_ok=True)
-    search_files = ["lemma.json", "form.json", "meta.json"]
+    search_files = ["lemma.json", "form.json", "meta.json",
+                    "offsets.json", "grammar-dict.json", "grammar-col.bin"]
     if not manifest.data["work"].get("edition_id"):
         search_files.insert(2, "english.json")
     for f in search_files:
