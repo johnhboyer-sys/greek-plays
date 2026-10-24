@@ -34,6 +34,17 @@ from .refs import column_key
 from .stage3_tokenize import _SPINE_FILENAMES
 
 
+
+# Work-block fields that are build inputs only and never ship: the TLG
+# export's verbatim <sourceDesc> header is a stage-1 gate (Codex pre-launch
+# review, 2026-10-24; John's ruling: no TLG headers on the site).
+PRIVATE_WORK_FIELDS = frozenset({"expected_sourcedesc"})
+
+
+def public_work(work: dict) -> dict:
+    """The manifest's work block as it is emitted publicly."""
+    return {k: v for k, v in work.items() if k not in PRIVATE_WORK_FIELDS}
+
 def _load(rel: str):
     return json.loads((BUILD_DIR / rel).read_text(encoding="utf-8"))
 
@@ -1966,7 +1977,7 @@ def run(manifest: Manifest) -> Path:
     for f in search_files:
         shutil.copy(BUILD_DIR / "stage6" / f, out_dir / "search" / f)
 
-    work = manifest.data["work"]
+    work = public_work(manifest.data["work"])
     (out_dir / "manifest.json").write_text(
         json.dumps(
             {

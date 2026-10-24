@@ -12,6 +12,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const siteName = SITE_NAME;
 const editionsOn = import.meta.env.PUBLIC_EDITIONS === '1';
+// The fixture build (CI) carries synthetic works with no real citation:
+// print their registry text instead of failing (Codex pre-launch review).
+const fixtures = import.meta.env.PUBLIC_READER_FIXTURES === '1';
 
 // Texts & Licences, play by play (John, 2026-10-23): for each play the Greek
 // editions and the English translations as bibliography, and every licence
@@ -28,6 +31,7 @@ function greekFull(short: string): string {
   if (short.startsWith('Dover')) return 'K. J. Dover, ed., Aristophanes: Clouds (Oxford: Clarendon Press, 1968)';
   if (short.startsWith('MacDowell')) return 'D. M. MacDowell, ed., Aristophanes: Wasps (Oxford: Clarendon Press, 1971)';
   if (short.startsWith('Ussher')) return 'R. G. Ussher, ed., Aristophanes: Ecclesiazusae (Oxford: Clarendon Press, 1973)';
+  if (fixtures) return short;
   throw new Error(`attribution: no full citation for the Greek text "${short}"`);
 }
 
@@ -90,6 +94,7 @@ function englishCite(w: Work, t: TranslationRef): Cite {
     case 'lindsay': return { text: 'Jack Lindsay, Lysistrata (Sydney: Fanfrolico Press, 1925)' };
     case 'arrowsmith': { const a = ARROWSMITH[w.id]; if (a) return { text: `William Arrowsmith, ${w.title}, in The Complete Greek Comedy (Ann Arbor: University of Michigan Press, ${a[0]})`, href: a[1] }; break; }
   }
+  if (fixtures) return { text: t.name };
   throw new Error(`attribution: no citation for translation "${t.id}" on ${w.id}`);
 }
 
