@@ -11,10 +11,13 @@ import { isBuilt } from '../lib/built-works';
 import SiteHeader from './SiteHeader.astro';
 import SiteFoot from './SiteFoot.astro';
 import Figure from './Figure.astro';
+import { drawing } from '../lib/drawings';
 import '@shared/styles/global.css';
 import '../styles/vase.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+// A home figure's width over its height (an author without one keeps .75).
+const figRatio = (id: string) => { const d = drawing(id); return d ? (d.width / d.height).toFixed(3) : '0.750'; };
 
 // DRAFT copy: John approves.
 // Home-page SEO + social card (absolute URLs need Astro.site, set in config).
@@ -118,7 +121,7 @@ const structuredData = Astro.site
           too; the name is the link for keyboards and screen readers. */}
       {playwrights.map(({ author, works }) => (
         <section class="row">
-          <a class="fl" href={`${base}${authorPath(author.id)}`} tabindex="-1" aria-hidden="true"><Figure slug={author.id} /></a>
+          <a class="fl" href={`${base}${authorPath(author.id)}`} tabindex="-1" aria-hidden="true" style={`--r:${figRatio(author.id)}`}><Figure slug={author.id} /></a>
           <div class="nm">
             <span class="gk" lang="grc">{author.nativeName}</span>
             <a class="en" href={`${base}${authorPath(author.id)}`}>{author.name}</a>
@@ -144,10 +147,11 @@ const structuredData = Astro.site
     }
     .fl { flex: 0 0 auto; display: block; color: inherit; }
     .row :global(.fb) { border-bottom: 0; }
-    /* The figure's own max-width (100% of a box sized by the figure) left
-       it 0 wide on phones, where the names' column flexes: no cap here,
-       the row already leaves it room. */
-    .row :global(.fig) { max-width: none; }
+    /* On phones Figure.astro makes .fb a size container (for its small-
+       figure hairline), and a size container takes no width from its
+       content: so the box gets its width from the drawing's proportions
+       (--r, set per author below), or the figure is 0 wide. */
+    .fl { width: calc(var(--fig-h) * var(--r, .75)); }
     .nm { flex: 0 0 auto; min-width: 11.5rem; padding-bottom: .9rem; }
     .gk { display: block; font: 400 1.5rem/1.1 var(--font-greek); color: var(--clay-deep); }
     .en { display: block; font: 400 2.6rem/1.05 var(--font-english); color: var(--ink); text-decoration: none; }
