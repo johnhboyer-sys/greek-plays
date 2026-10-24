@@ -874,8 +874,11 @@ const intro =
       const params = new URLSearchParams(location.search);
       const selected = params.get('trans') ?? saved;
       const own = translationEditions[selected] ?? defaultEdition;
-      if ((params.get('ed') ?? own) !== defaultEdition || params.has('loc'))
+      if ((params.get('ed') ?? own) !== defaultEdition || params.has('loc')) {
         document.documentElement.setAttribute('data-ed-pending', '');
+        // If the reader never starts, show the server's text rather than nothing.
+        setTimeout(() => document.documentElement.removeAttribute('data-ed-pending'), 8000);
+      }
     } catch {}
   </script>}
   {editionsOn && <style is:global>html[data-ed-pending] #edition-reader { visibility: hidden; } html[data-ed-pending] #edition-reader::before { content: '◌'; visibility: visible; display: block; text-align: center; padding: 3rem; }</style>}

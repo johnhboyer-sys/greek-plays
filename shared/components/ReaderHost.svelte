@@ -78,6 +78,9 @@
           state = next;
           if (old !== next.ed) placed = anchor;
         }
+      } catch {
+        // A failed load keeps the shown edition and its text (Codex review,
+        // 2026-10-24: the hold below never lifted and the page stayed blank).
       } finally { if (id === generation) pending = false; }
     } else {
       // A later change on the shown edition supersedes a fetch still loading.
@@ -93,11 +96,12 @@
   onMount(() => {
     const params = new URLSearchParams(location.search);
     const valid = new Set(meta.translations.map(t => t.id));
-    let trans = params.get('trans') ?? localStorage.getItem(`reader-trans-${work}`) ?? defaultTrans;
+    const stored = (key: string) => { try { return localStorage.getItem(key); } catch { return null; } };
+    let trans = params.get('trans') ?? stored(`reader-trans-${work}`) ?? defaultTrans;
     if (!valid.has(trans) && trans !== 'compare') trans = defaultTrans;
-    let view = params.get('view') ?? localStorage.getItem('reader-view') ?? 'both';
+    let view = params.get('view') ?? stored('reader-view') ?? 'both';
     if (!['both', 'english', 'greek'].includes(view)) view = 'both';
-    const saved = (side: 'l' | 'r') => { try { return localStorage.getItem(`reader-cmp${side}-${work}`); } catch { return null; } };
+    const saved = (side: 'l' | 'r') => stored(`reader-cmp${side}-${work}`);
     const pair = trans === 'compare' ? comparePair(meta, [saved('l'), saved('r')]) : undefined;
     const next = loadEdition(meta, { trans, view: view as ReaderView, ed: params.get('ed'), loc: params.get('loc'), pair });
     anchor = params.get('loc');
@@ -105,7 +109,7 @@
   });
   function changed(event: CustomEvent<{ trans: string; view: ReaderView; loc: string | null; ed?: string; pair?: Pair }>) {
     const next = changeEdition(meta, state, event.detail);
-    void show(next, event.detail.loc ?? anchor);
+    void show(next, event.detail.loc || anchor);
   }
   $: castRoster = shownBook.speakerRoster?.length ? shownBook.speakerRoster : speakerRoster;
   $: slots = assignSpeakerSlots(speakerRoster.length ? speakerRoster : castRoster);

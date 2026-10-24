@@ -8,7 +8,7 @@
   import { getAuthor, AUTHORS } from '../lib/authors';
   import { formatCite, formatLocValue, schemeFor, groupUnitNoun } from '../lib/citation';
   import { BETA_LETTERS, BETA_MARKS, BETA_EXAMPLES } from '../lib/beta-chart';
-  import { liveGreek } from '../lib/betacode';
+  import { liveGreek, betaToGreek } from '../lib/betacode';
 
   // Astra lane A, F10: display titles, comma-separated; Oxford comma before
   // the last when there are three or more.
@@ -468,21 +468,28 @@
     return out;
   }
 
+  // Each search and page render takes a number; a slower, older one that
+  // finishes late drops its results (Codex review, 2026-10-24).
+  let runId = 0;
+  let searchRun = 0;
   async function renderPage(i: number) {
+    const id = ++runId;
     pageIdx = i;
     pageLoading = true;
     pageError = '';
     try {
       const { groups: g, failed } = await buildGroups(pages[i] ?? [], searchCtx);
+      if (id !== runId) return;
       groups = g;
       if (failed.length) {
         pageError = `${failed.length} passage source${failed.length === 1 ? '' : 's'} on this page didn’t load — some hits may be missing.`;
       }
     } catch (err) {
+      if (id !== runId) return;
       pageError = String(err);
       groups = [];
     } finally {
-      pageLoading = false;
+      if (id === runId) pageLoading = false;
     }
   }
 
@@ -511,6 +518,7 @@
   async function doSearch(e?: Event) {
     e?.preventDefault();
     if (!grkQuery.trim() && !engQuery.trim()) return;
+    const id = ++searchRun;
     loading = true;
     error = '';
     pageError = '';
@@ -525,10 +533,13 @@
         engQuery: engQuery.trim(),
         engTerms: engQuery.trim().split(/\s+/).filter(Boolean),
         grkAccentTerms: accentSensitive
-          ? grkQuery.trim().split(/\s+/).filter(Boolean).map(accentNorm)
+          // Beta Code terms compare as Greek; a trailing * stays a wildcard.
+          ? grkQuery.trim().split(/\s+/).filter(Boolean)
+            .map(t => { const w = t.length > 1 && t.endsWith('*'); return accentNorm(betaToGreek(w ? t.slice(0, -1) : t)) + (w ? '*' : ''); })
           : [],
       };
       const { results, failed, lemmata } = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode, greekEd);
+      if (id !== searchRun) return;
       searchedLemmata = lemmata ?? [];
       resultEds = new Map(results.filter((r) => r.ed).map((r) => [r.work, r.ed!]));
       resultPlays = new Set(results.map((r) => r.work)).size;
@@ -539,9 +550,9 @@
       if (pages.length) await renderPage(0);
       else { groups = []; pageIdx = 0; }
     } catch (err) {
-      error = err instanceof Error ? err.message : String(err);
+      if (id === searchRun) error = err instanceof Error ? err.message : String(err);
     } finally {
-      loading = false;
+      if (id === searchRun) loading = false;
     }
   }
 
