@@ -1,0 +1,21 @@
+{
+  // The site on a Cloudflare Worker that serves the built files as static
+  // assets (John, 2026-10-23: "Pages only"; Cloudflare now runs Pages as
+  // Workers static assets, and the legacy Pages path needs --force). No
+  // Worker script and no data root: the whole of app/dist ships, data
+  // included (9,739 files; the free limit is 20,000 per version, 25 MiB a
+  // file). Build with `DRAMA_EDITIONS=1 PUBLIC_EDITIONS=1 npm run
+  // build:public` from the root, then from app/:
+  //   CLOUDFLARE_ACCOUNT_ID=6ff75c6d6c06d1092df2c7efd42077ba npx wrangler@4 deploy
+  // Staging: greek-drama-reader.johnhboyer.workers.dev. The custom domain
+  // (greekdrama.johnhboyer.com) is added at launch, with PUBLIC_SITE_ORIGIN
+  // set on the build command, never here.
+  "name": "greek-drama-reader",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  }
+}
