@@ -1,4 +1,5 @@
 ---
+import SkipLink from '../../../components/SkipLink.astro';
 // The Greek Lexicon index at /lemma/grc — a crawlable directory of every
 // built Greek lemma page, sorted alphabetically by transliteration. Doubles
 // as the DefinedTermSet landing and an internal-link hub so the per-lemma
@@ -101,8 +102,9 @@ const jsonLd = {
   <Pwa />
 </head>
 <body>
+  <SkipLink />
   <div class="wrap"><SiteHeader /></div>
-  <main class="lxi-body">
+  <main class="lxi-body" id="main" tabindex="-1">
     <h1 class="lxi-h1">Greek Lexicon</h1>
     <p class="lxi-lede">
       {entries.length} key terms from the corpus's Greek vocabulary — each with its LSJ definition,

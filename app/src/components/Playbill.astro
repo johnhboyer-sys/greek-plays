@@ -1,4 +1,5 @@
 ---
+import SkipLink from './SkipLink.astro';
 // The play's own page, at the bare play URL (docs/redesign/HANDOFF-ui-pass2-build.md
 // §6, direction B; John, 2026-10-20: "I like B's play page the best. Centered
 // image with the clay fill; big title. the layout of cast and translations and
@@ -184,11 +185,12 @@ const breadcrumbLd = Astro.site
   <Pwa />
 </head>
 <body class="play-page" data-author={author.id}>
+  <SkipLink />
   <CommandPalette work={work.id} client:load />
   <div class="wrap">
     <SiteHeader author={{ id: author.id, name: author.name }} stack />
 
-    <main>
+    <main id="main" tabindex="-1">
       <div class="scene"><Figure drawings={drawings} /></div>
 
       <div class="tb">

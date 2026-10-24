@@ -1,4 +1,5 @@
 ---
+import SkipLink from '../../components/SkipLink.astro';
 // How to search (docs/redesign/HANDOFF-ui-pass2-build.md §8.2 step 1: "the
 // chart inside Search.svelte becomes the 'How to search' page, with the
 // controls explained"). The Beta Code chart is the search's old "How to type
@@ -34,9 +35,10 @@ const canonical = Astro.site ? new URL(`${base}/search/how/`, Astro.site).href :
   <Pwa />
 </head>
 <body>
+  <SkipLink />
   <div class="wrap">
     <SiteHeader />
-    <main class="how">
+    <main class="how" id="main" tabindex="-1">
       <h1>How to search</h1>
       <p class="lede">Type Greek, English, or both, and press Search. <a href={`${base}/search`}>Back to the search</a></p>
 

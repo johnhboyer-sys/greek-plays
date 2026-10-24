@@ -5754,7 +5754,7 @@ body.lyceum-chrome.lyc-404 .lyc-gone a { color: var(--laurel); }
   }
   .cp-input:focus { outline: none; border-color: var(--accent); }
   .cp-list { list-style: none; margin: 0.45rem 0 0; padding: 0; max-height: 20rem; overflow-y: auto; }
-  .cp-item button {
+  .cp-item {
     display: flex;
     align-items: baseline;
     gap: 0.55rem;
@@ -5768,7 +5768,7 @@ body.lyceum-chrome.lyc-404 .lyc-gone a { color: var(--laurel); }
     text-align: left;
     cursor: pointer;
   }
-  .cp-item.active button { background: var(--col-bg); }
+  .cp-item.active { background: var(--col-bg); }
   .cp-kind { flex-shrink: 0; width: 1.3rem; text-align: center; color: var(--text-light); font-size: 0.85rem; }
   .cp-label { font-weight: 600; }
   .cp-label.gk { font-family: var(--font-greek); font-weight: 400; font-size: 1.05rem; }

@@ -1,0 +1,18 @@
+---
+// "Skip to content" (WCAG 2.4.1): the first stop for a keyboard reader, off
+// screen until focused, past the header's links and menus to the page's
+// content, marked id="main" (ported from aristotle-reader d0369a8551,
+// 2026-10-24).
+---
+<a class="skip-link" href="#main">Skip to content</a>
+<style is:global>
+  /* Not .sr-only: that clips the link even when focused. */
+  .skip-link {
+    position: absolute; left: .5rem; top: -4rem; z-index: 1100;
+    font: 400 1rem var(--font-ui, system-ui, sans-serif); padding: .6rem 1rem;
+    color: var(--ink, #171310); background: var(--paper, #f3ecdf);
+    border: 2px solid var(--clay, #964e24); text-decoration: none;
+  }
+  .skip-link:focus { top: .5rem; }
+  #main:focus { outline: none; }
+</style>

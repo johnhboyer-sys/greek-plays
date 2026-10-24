@@ -1,4 +1,5 @@
 ---
+import SkipLink from './SkipLink.astro';
 // The reader page body, shared by the two routes:
 //   /<author>/<work>/book/<n>  (multi-book works)  — src/pages/[author]/[work]/book/[n].astro
 //   /<author>/<work>           (single-book works)  — src/pages/[author]/[work]/index.astro
@@ -405,6 +406,7 @@ const intro =
   {isPlayLine && <style is:global>html[data-phone-pending] .reader-body { visibility: hidden; }</style>}
 </head>
 <body data-author={isPlayLine ? work.author : undefined}>
+  <SkipLink />
   <!-- Semantic page heading + topical intro for search engines and screen
        readers. Visually hidden because the visible title is the breadcrumb
        control; this gives the document a real, descriptive <h1> and a prose
@@ -882,6 +884,7 @@ const intro =
     } catch {}
   </script>}
   {editionsOn && <style is:global>html[data-ed-pending] #edition-reader { visibility: hidden; } html[data-ed-pending] #edition-reader::before { content: '◌'; visibility: visible; display: block; text-align: center; padding: 3rem; }</style>}
+  <span id="main" tabindex="-1"></span>
   <script type="application/json" id={bookId} set:html={jsonLdSafe(bookData)} />
   {editionsOn
     ? <div id="edition-reader"><ReaderHost work={workId} bookNum={n} bookId={bookId} serverEdition={defaultEdition} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} authorName={authorName} plate={false} client:load /></div>

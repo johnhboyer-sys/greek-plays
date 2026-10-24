@@ -195,6 +195,8 @@ body[data-author] .word-sidebar .card-face { gap: .1rem; padding: .3rem 0 0; }
 /* Under 24px the lemma takes the clay for small text. */
 body[data-author] .word-sidebar .analysis-card .lemma { font: 400 1.45rem/1.2 var(--font-greek); color: var(--clay-text); }
 body[data-author] .word-sidebar .analysis-card .gloss { font: italic 400 1.12rem/1.35 var(--font-english); color: var(--ink); margin: .1rem 0 0; }
+/* "proper name" stands where a name's missing gloss would: muted, an aside, not a meaning. */
+body[data-author] .word-sidebar .analysis-card .gloss-note { font-style: normal; font-size: .95rem; font-family: var(--font-ui); color: var(--mid); }
 body[data-author] .word-sidebar .parse-rows { font: 400 .95rem/1.4 var(--font-ui); margin-top: .4rem; }
 body[data-author] .word-sidebar .parse-rows dt { color: var(--mid); }
 body[data-author] .word-sidebar .card-open-hint { font: 400 .95rem var(--font-ui); color: var(--clay-text); }

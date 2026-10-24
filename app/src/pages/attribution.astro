@@ -1,4 +1,5 @@
 ---
+import SkipLink from '../components/SkipLink.astro';
 import ThemeInit from '../components/ThemeInit.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFoot from '../components/SiteFoot.astro';
@@ -166,9 +167,10 @@ const jsonLd = {
   <Pwa />
 </head>
 <body>
+  <SkipLink />
   <div class="wrap"><SiteHeader /></div>
 
-  <main class="attr-body">
+  <main class="attr-body" id="main" tabindex="-1">
     <h1 class="sr-only">Texts and licences for {siteName}</h1>
     <h2>Texts &amp; Licences</h2>
 

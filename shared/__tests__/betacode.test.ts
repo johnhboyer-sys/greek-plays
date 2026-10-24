@@ -35,3 +35,10 @@ describe('betaToGreek', () => {
     expect(betaToGreek('λόγος 123 !?')).toBe('λόγος 123 !?');
   });
 });
+
+describe('betaToGreek capitals with iota subscript (ported from aristotle-reader 25d0d67596)', () => {
+  it('keeps a capital with iota subscript as one letter', () => {
+    expect(betaToGreek('*(/|adhs').startsWith('ᾍ')).toBe(true);
+    expect(betaToGreek('*(/|adhs')).toBe('ᾍδης');
+  });
+});

@@ -232,18 +232,24 @@
       {#if items.length}
         <ul class="cp-list" id="cp-list" role="listbox">
           {#each items as item, i}
+            <!-- The option IS the control (ported from plato-reader f6bdd4f5bb,
+                 2026-10-24): a <button> inside role="option" is invalid (axe:
+                 nested-interactive) and a tab stop this pattern does not want;
+                 the input keeps focus and names the active row through
+                 aria-activedescendant. The keyboard is the input's ↑↓/⏎. -->
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
             <li
               id={`cp-item-${i}`}
               role="option"
               aria-selected={i === selected}
               class="cp-item"
               class:active={i === selected}
+              on:click={() => navigate(item.href)}
+              on:mousemove={() => (selected = i)}
             >
-              <button type="button" on:click={() => navigate(item.href)} on:mousemove={() => (selected = i)}>
-                <span class="cp-kind">{item.kind === 'cite' ? '§' : item.kind === 'work' ? '📖' : item.kind === 'lemma' ? 'λ' : '🔍'}</span>
-                <span class="cp-label" class:gk={item.kind === 'lemma'}>{item.label}</span>
-                <span class="cp-detail">{item.detail}</span>
-              </button>
+              <span class="cp-kind">{item.kind === 'cite' ? '§' : item.kind === 'work' ? '📖' : item.kind === 'lemma' ? 'λ' : '🔍'}</span>
+              <span class="cp-label" class:gk={item.kind === 'lemma'}>{item.label}</span>
+              <span class="cp-detail">{item.detail}</span>
             </li>
           {/each}
         </ul>

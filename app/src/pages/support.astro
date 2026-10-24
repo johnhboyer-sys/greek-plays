@@ -1,4 +1,5 @@
 ---
+import SkipLink from '../components/SkipLink.astro';
 // A shareable on-site support/donation page. Giving itself goes through the
 // Stripe Payment Link (SUPPORT_URL); this page gives that appeal a real URL on
 // our own domain with a branded Open Graph card (public/og-support.png).
@@ -86,9 +87,10 @@ const jsonLd = {
   <Pwa />
 </head>
 <body>
+  <SkipLink />
   <div class="wrap"><SiteHeader /></div>
 
-  <main class="sp-body">
+  <main class="sp-body" id="main" tabindex="-1">
     <p class="sp-eyebrow">Support <span class="gk">χάρις</span></p>
     <h1>Support {siteName}</h1>
     <p class="sp-lede">

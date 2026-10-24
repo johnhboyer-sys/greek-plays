@@ -1,4 +1,5 @@
 ---
+import SkipLink from '../components/SkipLink.astro';
 // The A–Z author index at /authors — authors with ≥1 built work, sorted by
 // display name, with period + floruit and a link to their landing page. The
 // registry may list works whose data isn't built in this checkout; only
@@ -79,8 +80,9 @@ const jsonLd = {
   <Pwa />
 </head>
 <body>
+  <SkipLink />
   <div class="wrap"><SiteHeader /></div>
-  <main class="aui-body">
+  <main class="aui-body" id="main" tabindex="-1">
     <h1 class="aui-h1">Authors</h1>
     {/* DRAFT copy: John approves */}
     <p class="aui-lede">

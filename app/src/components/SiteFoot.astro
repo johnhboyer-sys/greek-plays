@@ -2,7 +2,8 @@
 // The foot on every page but the reader (docs/redesign/HANDOFF-ui-pass2-build.md
 // §3.4), one wrapping line in Alegreya Sans. It keeps pass 1's report form and
 // links elsewhere (John, 2026-10-20: "Keep them all and have a link to
-// johnhboyer.com"). The report form is a mail draft, as on pass 1's home page.
+// johnhboyer.com"). The report form posts to /api/feedback, which emails John
+// (app/worker/index.js; John, 2026-10-24).
 import '../styles/vase.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -31,6 +32,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       <label><input type="radio" name="fb-type" value="bug" /> Bug / error report</label>
     </div>
     <textarea id="fb-message" aria-label="Your message" placeholder="Describe the feature or error…"></textarea>
+    <input id="fb-email" type="email" autocomplete="email" aria-label="Your email, if you want a reply" placeholder="Your email, if you want a reply" />
+    <!-- Left empty by people; bots fill it in. -->
+    <input id="fb-website" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="fb-trap" />
+    <p id="fb-status" class="fb-status" role="status" aria-live="polite"></p>
     <div class="fb-actions">
       <button type="button" class="fb-cancel" id="fb-cancel">Cancel</button>
       <button type="button" class="fb-submit" id="fb-submit">Send</button>
@@ -61,7 +66,14 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     border: 1px solid var(--hair); border-radius: 0; padding: .55rem .65rem;
     font: 1rem var(--font-ui); background: var(--paper); color: var(--ink);
   }
-  .fb-box textarea:focus { outline: 2px solid var(--clay); outline-offset: 0; }
+  .fb-box textarea:focus, .fb-box input[type="email"]:focus { outline: 2px solid var(--clay); outline-offset: 0; }
+  .fb-box input[type="email"] {
+    width: 100%; box-sizing: border-box; margin-top: .6rem; border: 1px solid var(--hair); border-radius: 0;
+    padding: .5rem .65rem; font: 1rem var(--font-ui); background: var(--paper); color: var(--ink);
+  }
+  .fb-trap { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .fb-status { margin: .6rem 0 0; min-height: 1.3em; font-size: .95rem; color: var(--mid); }
+  .fb-status.err { color: var(--clay-text); }
   .fb-actions { display: flex; justify-content: flex-end; gap: 1.4rem; margin-top: .9rem; }
   .fb-actions button { background: none; border: 0; padding: 0; cursor: pointer; font: 400 1.05rem var(--font-ui); }
   .fb-actions .fb-cancel { color: var(--mid); }
@@ -74,13 +86,17 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   const cancelBtn = document.getElementById('fb-cancel');
   const submitBtn = document.getElementById('fb-submit');
   const textarea = document.getElementById('fb-message') as HTMLTextAreaElement | null;
+  const emailInput = document.getElementById('fb-email') as HTMLInputElement | null;
+  const trap = document.getElementById('fb-website') as HTMLInputElement | null;
+  const status = document.getElementById('fb-status');
+  const say = (text: string, err = false) => { if (status) { status.textContent = text; status.classList.toggle('err', err); } };
   let feedbackTrigger: HTMLElement | null = null;
 
   const open = (e?: Event) => {
     if (!modal || !textarea) return;
     feedbackTrigger = e?.currentTarget instanceof HTMLElement ? e.currentTarget : null;
     modal.classList.add('open');
-    textarea.value = '';
+    say('');
     textarea.focus();
   };
   const close = () => {
@@ -100,7 +116,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     }
     if (e.key !== 'Tab') return;
     const els = Array.from(modal.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      'a[href], button:not([disabled]), input:not([disabled]):not(.fb-trap), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
     )).filter((el) => !el.hasAttribute('disabled') && el.tabIndex !== -1
       // Tab stops only at a radio group's checked button (Codex review, 2026-10-24).
       && !(el instanceof HTMLInputElement && el.type === 'radio' && !el.checked));
@@ -124,15 +140,30 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     }
   });
 
-  submitBtn?.addEventListener('click', () => {
+  // The form posts to the site's own /api/feedback, which emails John
+  // (app/worker/index.js); the message stays in the box until it is sent.
+  submitBtn?.addEventListener('click', async () => {
     const msg = textarea?.value.trim();
-    if (!msg) return;
+    if (!msg || !submitBtn) { say('Write a message first.', true); return; }
     const type = (document.querySelector('input[name="fb-type"]:checked') as HTMLInputElement).value;
-    const subject = type === 'feature'
-      ? 'The Greek Drama Reader: Feature Request'
-      : 'The Greek Drama Reader: Bug Report';
-    window.location.href =
-      `mailto:jhboyer@loyno.edu?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msg)}`;
-    close();
+    submitBtn.setAttribute('disabled', '');
+    say('Sending…');
+    try {
+      const r = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ type, message: msg, email: emailInput?.value.trim() ?? '', website: trap?.value ?? '', page: location.pathname + location.search + location.hash }),
+      });
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(body.error || 'The message did not send. Try again later.');
+      if (textarea) textarea.value = '';
+      if (emailInput) emailInput.value = '';
+      say('Sent. Thank you.');
+      setTimeout(close, 1400);
+    } catch (err) {
+      say(err instanceof Error && err.message !== 'Failed to fetch' ? err.message : 'The message did not send. Check your connection and try again.', true);
+    } finally {
+      submitBtn.removeAttribute('disabled');
+    }
   });
 </script>

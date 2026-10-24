@@ -508,8 +508,13 @@
   // ?e= is also present.
   onMount(() => {
     const params = new URLSearchParams(window.location.search);
-    const g = params.get('g');
-    const en = params.get('e') ?? params.get('q');
+    // A ?q= in Greek script goes to the Greek box (as aristotle-reader
+    // c32b0631a6 does, 2026-10-24): a search engine's sitelinks box sends
+    // whatever was typed, and Greek in the English box finds nothing.
+    const q = params.get('q');
+    const qGreek = !!q && /[\u0370-\u03FF\u1F00-\u1FFF]/.test(q);
+    const g = params.get('g') ?? (qGreek ? q : null);
+    const en = params.get('e') ?? (qGreek ? null : q);
     if (g) grkQuery = g;
     if (en) engQuery = en;
     if (g || en) doSearch();

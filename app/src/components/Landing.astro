@@ -1,4 +1,5 @@
 ---
+import SkipLink from './SkipLink.astro';
 // A work's landing page, served at the bare /<author>/<work> slug. An overview
 // that describes the work, credits the Greek source + translations, lists the
 // table of contents (linking into the reader), surfaces the "start reading"
@@ -365,6 +366,7 @@ const breadcrumbLd = Astro.site
   <Pwa />
 </head>
 <body>
+  <SkipLink />
   <CommandPalette work={workId} client:load />
   <header class="simple-header">
     <Breadcrumb authorId={work.author} authors={authorOptions} workId={workId} works={workOptions} client:load />
@@ -376,7 +378,7 @@ const breadcrumbLd = Astro.site
     </nav>
   </header>
 
-  <main class="lp-body">
+  <main class="lp-body" id="main" tabindex="-1">
     <p class="lp-eyebrow">{authorName} · {work.abbr}</p>
     <h1 class="lp-title">{work.title}</h1>
     {work.authenticity && work.authenticity !== 'genuine' && (

@@ -734,7 +734,7 @@ describe('CommandPalette.svelte — citation jump', () => {
     const item = await screen.findByText('Go to 4.23');
     expect(fetchColumns).not.toHaveBeenCalled();
 
-    await fireEvent.click(item.closest('button')!);
+    await fireEvent.click(item.closest('[role="option"]')!);
     // 4.23's book (4) is derived straight from the dotted column, not from a
     // columns.json/resolveBekker lookup — see the fetchColumns assertion above.
     expect(onNavigate).toHaveBeenCalledWith(
@@ -772,7 +772,7 @@ describe('CommandPalette.svelte — citation jump', () => {
     await fireEvent.input(input, { target: { value: '12.36' } });
 
     const item = await screen.findByText('Go to 12.36');
-    await fireEvent.click(item.closest('button')!);
+    await fireEvent.click(item.closest('[role="option"]')!);
     expect(onNavigate).toHaveBeenCalledWith(
       expect.stringContaining('/test-author/Marcus/book/12?loc=12.36'),
     );
@@ -793,7 +793,7 @@ describe('CommandPalette.svelte — citation jump', () => {
     await fireEvent.input(input, { target: { value: 'DK 14, 7' } });
 
     const item = await screen.findByText('Go to 7');
-    await fireEvent.click(item.closest('button')!);
+    await fireEvent.click(item.closest('[role="option"]')!);
     expect(onNavigate).toHaveBeenCalledWith(
       expect.stringContaining('/test-author/DkNo/book/1?loc=7'),
     );
@@ -808,7 +808,7 @@ describe('CommandPalette.svelte — citation jump', () => {
     await fireEvent.input(input, { target: { value: 'DK 22 B30' } });
 
     const item = await screen.findByText('Go to B30');
-    await fireEvent.click(item.closest('button')!);
+    await fireEvent.click(item.closest('[role="option"]')!);
     // DkLet and DkFrag are both fixtured at chapter 22 series 'B' (DkFrag is
     // declared later, so it wins the workByDkCitation map above) — either is
     // a valid "a lettered dk work resolved" answer for this test's purpose.
@@ -864,7 +864,7 @@ describe('CommandPalette.svelte — citation jump', () => {
     await fireEvent.input(input, { target: { value: '1.1094-1101' } });
 
     const item = await screen.findByText('Go to 1.1094-1101');
-    await fireEvent.click(item.closest('button')!);
+    await fireEvent.click(item.closest('[role="option"]')!);
     expect(onNavigate).toHaveBeenCalledWith(
       expect.stringContaining('/test-author/Verse/book/1?loc=1.1094-1101'),
     );
@@ -885,7 +885,7 @@ describe('CommandPalette.svelte — citation jump', () => {
     const item = await screen.findByText('Go to 1.101');
     expect(fetchColumns).not.toHaveBeenCalled();
 
-    await fireEvent.click(item.closest('button')!);
+    await fireEvent.click(item.closest('[role="option"]')!);
     expect(onNavigate).toHaveBeenCalledWith(
       expect.stringContaining('/test-author/Verse/book/1?loc=1.101'),
     );
@@ -903,7 +903,7 @@ describe('CommandPalette.svelte — citation jump', () => {
     await fireEvent.input(input, { target: { value: '106-107' } });
 
     const item = await screen.findByText('Go to 106-107');
-    await fireEvent.click(item.closest('button')!);
+    await fireEvent.click(item.closest('[role="option"]')!);
     expect(onNavigate).toHaveBeenCalledWith(
       expect.stringContaining('/test-author/PlayLine/book/1?loc=106-107'),
     );
@@ -924,7 +924,7 @@ describe('CommandPalette.svelte — citation jump', () => {
       await fireEvent.input(input, { target: { value: 'Seven Against Thebes' } });
 
       const title = await screen.findByText('Seven Against Thebes');
-      const btn = title.closest('button')!;
+      const btn = title.closest('[role="option"]')!;
       expect(btn.querySelector('.cp-detail')?.textContent).toBe('resumes at 803');
       expect(btn.querySelector('.cp-detail')?.textContent).not.toContain('--2');
 

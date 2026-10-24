@@ -1,4 +1,5 @@
 ---
+import SkipLink from './SkipLink.astro';
 // The site's home page — the author catalogue.
 import { getWork, workLanding, authorPath, type Work } from '@shared/lib/works';
 import { AUTHORS } from '@shared/lib/authors';
@@ -107,11 +108,12 @@ const structuredData = Astro.site
   <Pwa />
 </head>
 <body class="home">
+  <SkipLink />
   <CommandPalette client:load />
   <div class="wrap">
     <SiteHeader />
 
-    <main>
+    <main id="main" tabindex="-1">
       <h1 class="visually-hidden">{SITE_NAME}</h1>
 
       {/* One row per author (John, 2026-10-23, from the rows mockup: "let's

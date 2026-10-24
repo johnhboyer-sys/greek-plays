@@ -1,4 +1,5 @@
 ---
+import SkipLink from '../../components/SkipLink.astro';
 // An author's page, served at the bare /<author> slug (docs/redesign/
 // HANDOFF-ui-pass2-build.md §5, direction B): the name at the left and the
 // figure at the right on its own ground line, the blurb under the name; then
@@ -126,11 +127,12 @@ const breadcrumbLd = Astro.site
   <Pwa />
 </head>
 <body class="author-page" data-author={author.id}>
+  <SkipLink />
   <CommandPalette client:load />
   <div class="wrap">
     <SiteHeader stack />
 
-    <main>
+    <main id="main" tabindex="-1">
       <div class:list={['hero', { wide }]} style={`--r:${ratio.toFixed(3)}`}>
         <div class="lead"><Figure drawings={figure ? [figure] : []} /></div>
         <div class="hx">

@@ -1,4 +1,5 @@
 ---
+import SkipLink from '../components/SkipLink.astro';
 import ThemeInit from '../components/ThemeInit.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFoot from '../components/SiteFoot.astro';
@@ -53,8 +54,9 @@ const jsonLd = {
   <Pwa />
 </head>
 <body>
+  <SkipLink />
   <div class="wrap"><SiteHeader /></div>
-  <main class="not-found">
+  <main class="not-found" id="main" tabindex="-1">
     {/* John, 2026-10-21 ("custom 404 pages with a funny message"; "all 7
         are good. Use all 7"): a cry from the plays and a joke, one of seven
         at random. */}

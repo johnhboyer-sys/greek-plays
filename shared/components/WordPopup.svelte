@@ -93,6 +93,10 @@
     hom: string;
     gloss: string;
     glossExact: boolean;
+    // The Morpheus lemma is capitalised (Beta Code '*'): a name. Most names
+    // have no LSJ entry and so ship no gloss; the card says what the blank is
+    // (ported from plato-reader 78d2397cd1, 2026-10-24).
+    properName: boolean;
     rows: { text: string; dialect: string }[];
     ref: LemmaRef | null;
   }
@@ -115,6 +119,7 @@
             hom: meta?.hom ?? '',
             gloss: analysis.gloss,
             glossExact: exact,
+            properName: !isLat && analysis.lemma.startsWith('*'),
             rows: [],
             ref: (key && lemmata[key]) || null,
           };
@@ -232,8 +237,14 @@
             on:click={(event) => toggleCard(card, (event.currentTarget as HTMLElement)
               .parentElement?.querySelector('.grammata-mount') as HTMLElement)}
           >
-            <span class="lemma" lang={sourceLang}>{card.head}{#if card.hom}<span class="lemma-hom" lang="en"> ({card.hom})</span>{/if}</span>
-            <span class="gloss">{card.gloss}</span>
+            <span class="lemma" lang={sourceLang}>{card.head}{#if card.hom}<span class="lemma-hom" lang="en">&nbsp;({card.hom})</span>{/if}</span>
+            {#if card.gloss}
+              <span class="gloss">{card.gloss}</span>
+            {:else if card.properName}
+              <!-- Naming the blank is honest; inventing an English rendering of
+                   the name would not be. -->
+              <span class="gloss gloss-note">proper name</span>
+            {/if}
             <dl class="parse-rows">
               {#each card.rows as row}
                 <dt>{parseInWords(row.text)}</dt>

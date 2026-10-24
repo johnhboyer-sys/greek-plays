@@ -89,7 +89,7 @@ function start(source: string) {
     async get(url: string, mode = 'cors') {
       const request = { method: 'GET', url, mode };
       let promise: Promise<unknown> | undefined;
-      handlers.fetch({ request, respondWith: (p: Promise<unknown>) => { promise = p; } });
+      handlers.fetch({ request, respondWith: (p: Promise<unknown>) => { promise = p; }, waitUntil: () => {} });
       if (promise === undefined) return { handled: false, body: null };
       const resolved = await promise;
       return { handled: true, body: (resolved as { body: string } | undefined)?.body ?? null };

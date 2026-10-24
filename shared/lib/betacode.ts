@@ -70,7 +70,10 @@ export function betaToGreek(input: string): string {
           i++;
         }
         // Capital sigma is always Σ, so no final-form handling needed.
-        out.push((base + breath + accent + sub).normalize('NFC').toUpperCase());
+        // Uppercase the BASE letter, then compose: String#toUpperCase on the
+        // composed form expands an iota subscript into a capital iota ("ἍΙδης"
+        // for ᾍδης). Ported from aristotle-reader 25d0d67596, 2026-10-24.
+        out.push((base.toUpperCase() + breath + accent + sub).normalize('NFC'));
       }
       continue;
     }

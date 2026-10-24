@@ -1,4 +1,5 @@
 ---
+import SkipLink from '../components/SkipLink.astro';
 import Search from '@shared/components/Search.svelte';
 import ThemeInit from '../components/ThemeInit.astro';
 import SiteHeader from '../components/SiteHeader.astro';
@@ -63,9 +64,11 @@ const jsonLd = {
   <Pwa />
 </head>
 <body>
+  <SkipLink />
   <h1 class="sr-only">Search</h1>
   <div class="wrap">
     <SiteHeader />
+    <span id="main" tabindex="-1"></span>
     <Search client:load />
     <SiteFoot />
   </div>

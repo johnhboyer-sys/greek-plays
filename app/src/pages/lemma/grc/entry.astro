@@ -1,4 +1,5 @@
 ---
+import SkipLink from '../../../components/SkipLink.astro';
 // One client-rendered Greek lexicon entry. The corpus can grow without adding
 // a static page for every lemma; the index remains the lexicon's directory.
 import ThemeInit from '../../../components/ThemeInit.astro';
@@ -28,7 +29,9 @@ const siteName = SITE_NAME;
   <Pwa />
 </head>
 <body>
+  <SkipLink />
   <div class="wrap"><SiteHeader /></div>
+  <span id="main" tabindex="-1"></span>
   <LemmaEntry client:load lang="grc" />
   <div class="wrap"><SiteFoot /></div>
   <style is:global>
