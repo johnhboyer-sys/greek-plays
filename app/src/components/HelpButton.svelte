@@ -60,7 +60,12 @@
     }
     const first = els[0];
     const last = els[els.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
+    // Focus on the dialog itself (where opening puts it) wraps inside too
+    // (Codex review, 2026-10-24: Shift+Tab from there left the dialog).
+    if (!els.includes(document.activeElement as HTMLElement)) {
+      e.preventDefault();
+      (e.shiftKey ? last : first).focus();
+    } else if (e.shiftKey && document.activeElement === first) {
       e.preventDefault();
       last.focus();
     } else if (!e.shiftKey && document.activeElement === last) {

@@ -30,7 +30,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       <label><input type="radio" name="fb-type" value="feature" checked /> Feature request</label>
       <label><input type="radio" name="fb-type" value="bug" /> Bug / error report</label>
     </div>
-    <textarea id="fb-message" placeholder="Describe the feature or error…"></textarea>
+    <textarea id="fb-message" aria-label="Your message" placeholder="Describe the feature or error…"></textarea>
     <div class="fb-actions">
       <button type="button" class="fb-cancel" id="fb-cancel">Cancel</button>
       <button type="button" class="fb-submit" id="fb-submit">Send</button>
@@ -50,6 +50,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   .fb-box {
     background: var(--paper); color: var(--ink); border: 1.5px solid var(--ink);
     padding: 1.4rem 1.6rem 1.3rem; width: min(440px, calc(100vw - 2rem));
+    max-height: calc(100vh - 2rem); max-height: calc(100dvh - 2rem); overflow-y: auto; box-sizing: border-box;
     font-family: var(--font-ui);
   }
   .fb-box h2 { margin: 0 0 1rem; font: 400 1.35rem var(--font-english); }
@@ -100,7 +101,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     if (e.key !== 'Tab') return;
     const els = Array.from(modal.querySelectorAll<HTMLElement>(
       'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    )).filter((el) => !el.hasAttribute('disabled') && el.tabIndex !== -1);
+    )).filter((el) => !el.hasAttribute('disabled') && el.tabIndex !== -1
+      // Tab stops only at a radio group's checked button (Codex review, 2026-10-24).
+      && !(el instanceof HTMLInputElement && el.type === 'radio' && !el.checked));
     if (els.length === 0) {
       e.preventDefault();
       modal.focus();
@@ -108,7 +111,11 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     }
     const first = els[0];
     const last = els[els.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
+    // Focus on the dialog itself, or anywhere outside its stops, wraps inside.
+    if (!els.includes(document.activeElement as HTMLElement)) {
+      e.preventDefault();
+      (e.shiftKey ? last : first).focus();
+    } else if (e.shiftKey && document.activeElement === first) {
       e.preventDefault();
       last.focus();
     } else if (!e.shiftKey && document.activeElement === last) {

@@ -46,10 +46,14 @@
 
   // Keep the popup inside the viewport (anchored below the marker).
   function clampedPos(x: number, y: number) {
-    const W = 440, H = 360, vw = window.innerWidth, vh = window.innerHeight;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    // The popup is at most 60vh tall (.popup); on a short screen the top
+    // never goes above the viewport, where it hid the close button (Codex
+    // review, 2026-10-24).
+    const W = 440, H = Math.min(360, vh * 0.6);
     return {
       left: Math.max(8, Math.min(x, vw - W - 16)) + 'px',
-      top:  Math.min(y + 8, vh - H - 16) + 'px',
+      top:  Math.max(8, Math.min(y + 8, vh - H - 16)) + 'px',
     };
   }
 

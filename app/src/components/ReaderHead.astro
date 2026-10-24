@@ -82,7 +82,7 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
             <p class="mh">Greek text</p>
             <ul>
               {eds.map((e) => (
-                <li data-ed={e.id} class:list={{ cur: e.id === defaultEd }}><button type="button" data-ed={e.id}>{e.name}</button><span>{e.sub}</span></li>
+                <li data-ed={e.id} class:list={{ cur: e.id === defaultEd }}><button type="button" data-ed={e.id} aria-pressed={String(e.id === defaultEd)}>{e.name}</button><span>{e.sub}</span></li>
               ))}
             </ul>
             {/* DRAFT copy (spec §7.5); the rule is John's, 2026-09-28. */}
@@ -93,7 +93,7 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
             <p class="mh">Translation</p>
             <ul>
               {trs.map((t) => (
-                <li data-tr={t.id} class:list={{ cur: t.id === defaultTrans }}><button type="button" data-tr={t.id}>{t.name}</button><span>{t.sub}</span></li>
+                <li data-tr={t.id} class:list={{ cur: t.id === defaultTrans }}><button type="button" data-tr={t.id} aria-pressed={String(t.id === defaultTrans)}>{t.name}</button><span>{t.sub}</span></li>
               ))}
             </ul>
             {trs.length > 1 && (
@@ -397,10 +397,16 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
       const offered = compare ? compareEditions(eds, [state.compareLeft, state.compareRight]) : null;
       head!.querySelectorAll<HTMLElement>('li[data-ed]').forEach((li) => {
         li.classList.toggle('cur', li.dataset.ed === ed?.id);
+        // The choice as screen readers hear it, not only as styled (Codex review, 2026-10-24).
+        li.querySelector('button')?.setAttribute('aria-pressed', String(li.dataset.ed === ed?.id));
         li.hidden = !!offered && !offered.includes(li.dataset.ed!);
       });
       head!.querySelector<HTMLElement>('.mn-one')?.toggleAttribute('hidden', compare);
-      head!.querySelectorAll<HTMLElement>('li[data-tr]').forEach((li) => li.classList.toggle('cur', !compare && li.dataset.tr === state!.trans));
+      head!.querySelectorAll<HTMLElement>('li[data-tr]').forEach((li) => {
+        const cur = !compare && li.dataset.tr === state!.trans;
+        li.classList.toggle('cur', cur);
+        li.querySelector('button')?.setAttribute('aria-pressed', String(cur));
+      });
       const cmp = head!.querySelector<HTMLElement>('.cmp');
       const on = head!.querySelector<HTMLElement>('.cmp-on');
       if (cmp && on) { cmp.hidden = !compare; on.hidden = compare; }

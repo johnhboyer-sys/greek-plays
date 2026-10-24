@@ -2484,7 +2484,9 @@ describe('Reader.svelte repeated printed refs (Astra lane A, F8)', () => {
     await flush();
     const secondSeg = document.getElementById('col-803--2');
     expect(secondSeg).toBeTruthy();
-    expect((Element.prototype.scrollIntoView as ReturnType<typeof vi.fn>).mock.instances).toContain(secondSeg);
+    // The scroll lands in the second copy, on its line or the cell that shows it.
+    const scrolled = (Element.prototype.scrollIntoView as ReturnType<typeof vi.fn>).mock.instances as unknown as Element[];
+    expect(scrolled.some((el) => secondSeg!.contains(el))).toBe(true);
 
     await wait(4200);
     window.dispatchEvent(new Event('scroll'));

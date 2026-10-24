@@ -44,6 +44,10 @@
   function syncUrl(place: string | null = null) {
     const url = new URL(location.href);
     if (place) { url.searchParams.set('loc', place); url.hash = ''; }
+    // A ?trans=/?view= the page opened with follows the reader's later choice,
+    // or a reload or share brings the old one back (Codex review, 2026-10-24).
+    if (url.searchParams.has('trans')) url.searchParams.set('trans', state.trans);
+    if (url.searchParams.has('view')) url.searchParams.set('view', state.view);
     const own = defaultEdition(meta, state.trans, state.pair);
     const loc = url.searchParams.has('loc');
     const omit = loc || url.hash ? state.ed === 'tlg' && own === 'tlg' : state.ed === own;

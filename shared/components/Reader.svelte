@@ -1378,7 +1378,17 @@
   // scoped to data this component already has in hand once `segments` is
   // populated. Returns null for an unknown/out-of-range ref (a 9999 jump
   // silently does nothing, never a guess).
-  function resolvePlayLineRef(ref: string): RLine | null {
+  // `occ`: the k of a repeated printed ref's later copy (the "--k" a saved
+  // hash carries, citeOf above): only lines inside that copy's segment count
+  // (Codex review, 2026-10-24: "804--2" never resolved).
+  function resolvePlayLineRef(ref: string, occ: number | null = null): RLine | null {
+    if (occ != null) {
+      for (const seg of orderedSegments) {
+        if (!segmentAnchorId(seg).endsWith(`--${occ}`)) continue;
+        const line = (seg.greek as RLine[]).find((l) => l.ref === ref);
+        if (line) return line;
+      }
+    }
     for (const seg of segments) {
       for (const line of seg.greek as RLine[]) {
         if (line.ref === ref) return line;
@@ -1401,13 +1411,21 @@
   // posture. A ref that resolves to nothing (out of range, or before
   // segments have loaded) is a silent no-op, same as scrollToCitation's own
   // "line not present" fallthrough.
-  function scrollToPlayLineRef(ref: string) {
-    const line = resolvePlayLineRef(ref);
-    if (!line) return;
+  // Returns what it scrolled to, so the opening link can settle on it.
+  function scrollToPlayLineRef(ref: string, occ: number | null = null): HTMLElement | null {
+    const line = resolvePlayLineRef(ref, occ);
+    if (!line) return null;
     renderThrough(line);
     suppressArmUntil = Date.now() + 800;
     const el = document.getElementById(playLineDomId(line.ref ?? ref, line.n));
-    if (el) shownFor(el)?.scrollIntoView({ behavior: 'auto', block: 'center' });
+    const shown = el ? shownFor(el) : null;
+    shown?.scrollIntoView({ behavior: 'auto', block: 'center' });
+    return shown;
+  }
+  // A saved hash's occurrence suffix ("804--2"), split from the ref.
+  function splitOcc(hash: string): { ref: string; occ: number | null } {
+    const m = /^(.+)--(\d+)$/.exec(hash);
+    return m ? { ref: m[1], occ: Number(m[2]) } : { ref: hash, occ: null };
   }
 
   // What shows a play line or an English cell on screen: the element itself,
@@ -1496,10 +1514,11 @@
     const hash = window.location.hash.slice(1);
     if (!hash) return;
     if (!playLine) return;
-    const parsed = parseLocation(work, hash);
+    const { ref, occ } = splitOcc(hash);
+    const parsed = parseLocation(work, ref);
     if (!parsed) return;
-    scrollToPlayLineRef(parsed.column);
-    const line = resolvePlayLineRef(parsed.column);
+    scrollToPlayLineRef(parsed.column, occ);
+    const line = resolvePlayLineRef(parsed.column, occ);
     if (line) lastCite = formatCite(work, line.ref ?? parsed.column, null);
   }
 
@@ -3742,10 +3761,14 @@
           // same way a Bekker ref ("#1097a15") always has — parseBekker
           // (bekker-grammar-only) would silently fail every other scheme's
           // line-bearing hash and fall through to the bare-id branch below.
-          const parsedHash = parseLocation(work, hash);
+          const occHash = playLine ? splitOcc(hash) : { ref: hash, occ: null };
+          const parsedHash = parseLocation(work, occHash.ref);
           if (playLine && parsedHash) {
-            scrollToPlayLineRef(parsedHash.column);
-            const line = resolvePlayLineRef(parsedHash.column);
+            // Settled like the other branches: the helper returns only what
+            // it actually scrolled to (Codex review, 2026-10-24: a #1203 link
+            // could slip off screen as fonts loaded).
+            landed = scrollToPlayLineRef(parsedHash.column, occHash.occ);
+            const line = resolvePlayLineRef(parsedHash.column, occHash.occ);
             if (line) {
               lastCite = formatCite(work, line.ref ?? parsedHash.column, null);
               targetId = playLineDomId(line.ref ?? parsedHash.column, line.n);
@@ -3788,10 +3811,10 @@
           }
         }
         // One settle pass on the element this branch actually scrolled to.
-        // The two helper-based hash branches (scrollToPlayLineRef,
-        // scrollToCitation) are deliberately NOT settled: they pick their own
+        // scrollToCitation is deliberately NOT settled: it picks its own
         // target — and may decline to scroll a hidden one — so re-checking an
-        // element from out here could move the page somewhere they did not.
+        // element from out here could move the page somewhere it did not.
+        // scrollToPlayLineRef hands back only the element it scrolled to.
         if (landed) settleDeepLink(landed, landedBlock);
         // Begin live URL tracking once the reader actually scrolls (programmatic
         // jumps above are suppressed), so an opened #citation isn't overwritten.
