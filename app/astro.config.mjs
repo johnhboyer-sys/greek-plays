@@ -18,11 +18,22 @@ import sitemap from '@astrojs/sitemap';
 // integration (or a page) appends a path.
 const siteOrigin = process.env.PUBLIC_SITE_ORIGIN?.replace(/\/+$/, '');
 
+// Redirect shims (/texts/ aliases, /read/.../section-N/, /<author>/<play>/<line>/
+// citations) and the client-only lexicon entry shell stay out of the
+// sitemap (Codex pre-launch review, 2026-10-24).
+function inSitemap(page) {
+  const path = new URL(page).pathname;
+  if (path.startsWith('/texts/') || /\/section-\d+\/?$/.test(path) || path.startsWith('/lemma/grc/entry')) return false;
+  if (path.startsWith('/read/')) return true;
+  const parts = path.split('/').filter(Boolean);
+  return !(parts.length === 3 && parts[2] !== 'book');
+}
+
 export default defineConfig({
   ...(siteOrigin ? { site: siteOrigin } : {}),
   integrations: [
     svelte(),
-    ...(siteOrigin ? [sitemap()] : []),
+    ...(siteOrigin ? [sitemap({ filter: inSitemap })] : []),
   ],
   vite: {
     server: {
