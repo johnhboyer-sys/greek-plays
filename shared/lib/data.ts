@@ -5,6 +5,7 @@ import { linkifyGlossaryRefs } from './glossary';
 import { sanitizeHtml } from './html';
 import { scheme, schemeFor } from './citation';
 import { getWork, workPath } from './works';
+import { memoAsync, memoAsyncBy } from './memo';
 
 export interface Token {
   t: string;   // surface form (Unicode Greek)
@@ -996,4 +997,114 @@ export async function lookupWord(
 ): Promise<{ analyses: Analysis[] }> {
   const allAnalyses = await fetchAnalyses(work, ed);
   return { analyses: allAnalyses[key] ?? [] };
+}
+
+// ── Search step 2 (ported from the Aristotle reader's data.ts, 2026-10-24) ──
+
+// The combo-search lemma picker: fold key -> the headwords a lemma slot can
+// match, commonest first. Sharded by fold-initial letter, so typing into the
+// picker fetches one small file rather than the whole vocabulary. Covers every
+// key in search/lemma.json by construction; the few with no resolvable headword
+// arrive with an empty list and are shown under their fold key. `s` (slug) is
+// present only where the lemma has a page, which is where a gloss comes from.
+export interface LemmaCandidate { h: string; k: string; s?: string; }
+// `n` belongs to the fold key, not to any one headword: the index is
+// accent-folded, so several headwords can share a key that no search can split,
+// and the count a user is shown must be the one their search returns.
+export interface LemmaChoice { n: number; c: LemmaCandidate[]; }
+// Reject rather than resolving empty on a failed fetch: an empty object would
+// be cached as a real (silent) answer, and the picker would report "no lemmas
+// start with that text" for the rest of the session with no way to retry.
+const _picker = memoAsyncBy<string, Record<string, LemmaChoice>>(letter =>
+  fetch(`${ROOT()}/lemma-picker/${letter}.json`).then(async r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status} for lemma-picker/${letter}.json`);
+    const shard = await r.json();
+    const first = Object.values(shard)[0] as LemmaChoice | undefined;
+    if (first && !Array.isArray((first as LemmaChoice).c)) {
+      throw new Error(`lemma-picker/${letter}.json is stale — rebuild the lemma data`);
+    }
+    return shard;
+  }));
+
+export function fetchLemmaPickerShard(letter: string): Promise<Record<string, LemmaChoice>> {
+  return _picker(letter);
+}
+
+// A lemma page's short glosses, fetched only when the picker needs to show one
+// (the pages are a few KB each, so they are never loaded in bulk). A missing
+// page resolves (and caches) [] rather than throwing: the picker shows a row
+// without a gloss, not an error.
+const _glosses = memoAsyncBy<string, string[]>(slug =>
+  fetch(`${ROOT()}/lemmata/${slug}.json`)
+    .then(r => (r.ok ? r.json() : null))
+    .then(d => (d?.glosses ?? []) as string[]));
+
+export function fetchLemmaGlosses(slug: string): Promise<string[]> {
+  return _glosses(slug);
+}
+
+// Recurrent phrases (pipeline stage 8), sharded by the phrase's fold-initial
+// letter. The browse list and the occurrences are separate fetches: browsing
+// needs every phrase, but only an EXPANDED phrase needs its offsets. A row is
+// positional — [length, corpus count, distinctiveness score, works, occurrences
+// straddling a chapter?] (this corpus has no chapters, so the fifth is absent).
+export type NgramRow = [number, number, number, number, number?];
+// 'english' is the primary translation of each play; its occurrences resolve
+// through english-segments.json rather than a play's offsets.json.
+export type NgramStream = 'form' | 'lemma' | 'english';
+
+export interface EnglishSegment {
+  book: number;
+  column: string;
+  base: number;
+  words: number;
+}
+
+const _englishSegments = memoAsync<Record<string, EnglishSegment[]>>(() =>
+  fetch(`${ROOT()}/ngrams/english-segments.json`).then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status} for ngrams/english-segments.json`);
+    return r.json();
+  }));
+
+export function fetchEnglishSegments(): Promise<Record<string, EnglishSegment[]>> {
+  return _englishSegments();
+}
+
+const _ngramFile = memoAsyncBy<string, unknown>(key =>
+  fetch(`${ROOT()}/ngrams/${key}.json`).then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status} for ngrams/${key}.json`);
+    return r.json();
+  }));
+
+export function fetchNgramShard(stream: NgramStream, letter: string): Promise<Record<string, NgramRow>> {
+  return _ngramFile(`${stream}/${letter}`) as Promise<Record<string, NgramRow>>;
+}
+
+// phrase -> play -> global offsets, delta-encoded after the first.
+export function fetchNgramOccurrences(
+  stream: NgramStream,
+  letter: string,
+  n: number,
+): Promise<Record<string, Record<string, number[]>>> {
+  return _ngramFile(`${stream}/occ/${letter}-${n}`) as Promise<Record<string, Record<string, number[]>>>;
+}
+
+// A play's token-offset index, which turns a global occurrence offset into a
+// line. No module-level cache: the phrase index keeps its own per-play map so
+// a failed fetch can be retried there.
+export async function fetchSearchOffsets(work: string): Promise<unknown> {
+  const r = await fetch(`${workBase(work)}/search/offsets.json`);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+
+// Undo the delta encoding: [first, +d, +d, ...] -> absolute global offsets.
+export function decodeOffsets(deltas: number[]): number[] {
+  const out: number[] = [];
+  let at = 0;
+  for (let i = 0; i < deltas.length; i++) {
+    at = i === 0 ? deltas[0] : at + deltas[i];
+    out.push(at);
+  }
+  return out;
 }

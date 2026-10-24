@@ -183,6 +183,32 @@ function lsjHead(key, dir = 'lsj') {
   }
   return _shard.get(cacheKey)[key]?.head ?? null;
 }
+// ── Lemma picker shards ─────────────────────────────────────────────────────
+// The concordance below is a PAGES index: primary analysis only, stopwords
+// dropped, count >= MIN_COUNT. The combo-search lemma picker needs the opposite
+// — every headword a lemma search can actually match — so it is accumulated
+// separately here, by the same rule stage 6 uses to key search/lemma.json:
+// fold(every analysis's lemma), not just the primary one. Built from the same
+// walk, so there is no second pass over the corpus.
+//
+// Emitted sharded by fold-initial letter (the LSJ shard pattern), so opening the
+// picker and typing "aret" fetches one small file, not the whole vocabulary.
+const FOLD = /[^a-z']/g;
+const fold = (beta) => beta.toLowerCase().replace(FOLD, '');
+const picker = new Map();        // fold -> Map(lsjKey -> {lemmaBeta, count})
+const pickerTokens = new Map();  // fold -> tokens a search on that key returns
+function pickerAdd(a) {
+  const key = (a.lsj && a.lsj[0]) || a.lemma;
+  if (!key || !a.lemma) return;
+  const f = fold(a.lemma);
+  if (!f) return;
+  let heads = picker.get(f);
+  if (!heads) { heads = new Map(); picker.set(f, heads); }
+  const e = heads.get(key);
+  if (e) e.count++;
+  else heads.set(key, { lemmaBeta: a.lemma, count: 1 });
+}
+
 // ── Accumulate the concordance ──────────────────────────────────────────────
 // key = primary analysis's lsj[0] (else its lemma beta). One bucket per lemma.
 const lemmata = new Map();
@@ -203,6 +229,19 @@ for (const w of worksGrc) {
         for (const tok of gl.tokens ?? []) {
           const ans = analyses[tok.k];
           if (!ans || ans.length === 0) continue;
+          // For the picker, count this TOKEN once per fold key and once per
+          // (fold key, headword) — never once per analysis, which would inflate
+          // both wherever several analyses share a lemma.
+          const seenPair = new Set();
+          for (const a of ans) {
+            const key = (a.lsj && a.lsj[0]) || a.lemma;
+            const f = a.lemma && fold(a.lemma);
+            if (!key || !f) continue;
+            const pair = `${f}\0${key}`;
+            if (seenPair.has(pair)) continue;
+            seenPair.add(pair);
+            pickerAdd(a);
+          }
           const a0 = ans[0];                              // primary analysis
           const key = (a0.lsj && a0.lsj[0]) || a0.lemma;
           if (!key) continue;
@@ -292,12 +331,59 @@ for (const b of top) {
 writeFileSync(join(DATA, 'lemmata.json'), JSON.stringify(manifest));
 writeFileSync(join(OUT, '_index.json'), JSON.stringify(index));
 
+// ── Emit the picker shards ──────────────────────────────────────────────────
+// One file per fold-initial letter: { fold: { n: tokens, c: [{ h: head,
+// k: lsjKey, s: slug? }] } }.
+//
+// `n` is the fold key's OWN token count, not the sum of its headwords'. The
+// index is accent-folded, so ὅρος, ὄρος and ὀρός are one key that no search can
+// split; the picker offers one choice per key and must show the count that
+// choice actually returns. Headwords are ordered commonest-first. `s` is present
+// only where the lemma has a page — that is where the picker fetches a gloss
+// from, on demand. `h` is always Greek, never Beta Code.
+const PICKER_OUT = join(DATA, 'lemma-picker');
+if (existsSync(PICKER_OUT)) rmSync(PICKER_OUT, { recursive: true });
+mkdirSync(PICKER_OUT, { recursive: true });
+
+// Seed from the search indexes themselves, which are what a lemma slot actually
+// queries: stage 6 goes through key_map and keys a lemma off the stored form
+// when an analysis has none, so `n` is counted from the postings, and a key only
+// the index knows is listed under its fold rather than dropped.
+for (const w of worksGrc) {
+  const p = join(DATA, w, 'search', 'lemma.json');
+  if (!existsSync(p)) continue;
+  for (const [f, posts] of Object.entries(JSON.parse(readFileSync(p, 'utf8')))) {
+    pickerTokens.set(f, (pickerTokens.get(f) ?? 0) + posts.length);
+    if (!picker.has(f)) picker.set(f, new Map());
+  }
+}
+
+const pickerShards = new Map();
+let pickerHeads = 0;
+for (const [f, heads] of picker) {
+  const letter = /[a-z]/.test(f[0]) ? f[0] : '_';
+  const entries = [...heads.entries()]
+    .sort((x, y) => y[1].count - x[1].count)
+    .map(([key, v]) => {
+      const e = { h: lsjHead(key) ?? betaToGreek(v.lemmaBeta), k: key };
+      if (manifest[key]) e.s = manifest[key].slug;
+      return e;
+    });
+  pickerHeads += entries.length;
+  if (!pickerShards.has(letter)) pickerShards.set(letter, {});
+  pickerShards.get(letter)[f] = { n: pickerTokens.get(f) ?? 0, c: entries };
+}
+for (const [letter, data] of pickerShards) {
+  writeFileSync(join(PICKER_OUT, `${letter}.json`), JSON.stringify(data));
+}
+
 // ── Report (Greek) ──────────────────────────────────────────────────────────
 // worksGrc/top may legitimately be empty (public/data exists but carries no
 // built work yet, or none met MIN_COUNT) — an empty manifest/index was still
 // written above, so report that plainly instead of indexing into empty arrays.
 console.log(`[grc] works scanned      : ${worksGrc.length}`);
 console.log(`[grc] tokens resolved    : ${tokenTotal.toLocaleString()}`);
+console.log(`[grc] picker fold keys   : ${picker.size.toLocaleString()} (${pickerHeads.toLocaleString()} headwords, ${pickerShards.size} shards)`);
 console.log(`[grc] distinct lemmata   : ${lemmata.size.toLocaleString()}`);
 console.log(`[grc] pages emitted      : ${top.length.toLocaleString()} (count ≥ ${MIN_COUNT})`);
 if (top.length > 0) {

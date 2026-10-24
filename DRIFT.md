@@ -1072,3 +1072,6 @@ CI had failed on every run since the first push (2026-09-09). The fixes:
 - `pipeline/drama_pipeline/stage9_search_shards.py` — from aristotle-reader `stage9_search_shards.py`; reads lemma/form/english.json, one source per play (this repo's english.json holds every translation).
 - `pipeline/drama_pipeline/{stage7_emit,__main__}.py`, `scripts/build-public.mjs` — emit the new search files; `stage8`/`stage9` commands, run after the per-play builds; build/ngrams cleared with build/dist.
 - `pipeline/tests/{test_stage6_grammar,test_stage6_run,test_token_offset_contract,test_stage8_ngrams,test_search_shards}.py`, `pipeline/tests/fixtures/search_shards.json` — ported from aristotle-reader and adapted.
+- `app/scripts/build-lemmata.mjs` — emits the lemma picker shards (`lemma-picker/<letter>.json`), from aristotle-reader's picker section; heads are always Greek (Beta Code converted), counts seeded from search/lemma.json.
+- `shared/lib/memo.ts` (+ `shared/__tests__/memo.test.ts`) — copied from aristotle-reader; the note about its desktop app dropped.
+- `shared/lib/data.ts` — the picker, gloss, n-gram, English-segment and offsets fetchers from aristotle-reader (through the data root); no lemma-map fetcher (this repo's lemma-map has its own format, read in search.ts). Test: `shared/__tests__/search-data.test.ts`.
