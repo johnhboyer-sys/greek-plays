@@ -1053,3 +1053,4 @@ CI had failed on every run since the first push (2026-09-09). The fixes:
 - `shared/__tests__/registry-golden.test.ts` — 2026-10-23: hash regenerated for the accented Greek titles of Helen, Trojan Women, and Seven Against Thebes.
 - `app/src/lib/author-groups.ts`, `app/src/pages/support.astro` — 2026-10-23: the Oresteia note is just its production line ("City Dionysia, 458 BC · first prize"); the Support page back to its original wording, as the Homer Reader's (John's rulings).
 - `shared/__tests__/registry-golden.test.ts` — 2026-10-23: hash regenerated for 37 play summaries (John's copy review) and Clytemnestra and Polynices in our own copy.
+- `app/src/pages/attribution.astro` — 2026-10-23: Morshead's two books and Lindsay's Lysistrata cited from their title pages and library records (Kegan Paul 1881, Macmillan 1908, Sydney: Fanfrolico Press 1925).

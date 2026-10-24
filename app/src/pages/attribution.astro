@@ -79,15 +79,15 @@ function englishCite(w: Work, t: TranslationRef): Cite {
     case 'coleridge': return { text: 'E. P. Coleridge, The Plays of Euripides, 2 vols. (London: George Bell and Sons, 1891)' };
     case 'buckley': return { text: 'T. A. Buckley, The Tragedies of Euripides (London: Henry G. Bohn, 1850)' };
     case 'morshead': return ATREUS.has(w.id)
-      ? { text: 'E. D. A. Morshead, The House of Atreus: Being the Agamemnon, Libation-Bearers, and Furies of Aeschylus (London, 1881)', href: 'https://en.wikisource.org/wiki/The_House_of_Atreus' }
-      : { text: 'E. D. A. Morshead, Four Plays of Aeschylus (1908)', href: 'https://en.wikisource.org/wiki/Four_Plays_of_Aeschylus_(1908)_Morshead' };
+      ? { text: 'E. D. A. Morshead, The House of Atreus: Being the Agamemnon, Libation-Bearers, and Furies of Aeschylus (London: C. Kegan Paul, 1881)', href: 'https://en.wikisource.org/wiki/The_House_of_Atreus' }
+      : { text: 'E. D. A. Morshead, Four Plays of Aeschylus (London: Macmillan, 1908)', href: 'https://en.wikisource.org/wiki/Four_Plays_of_Aeschylus_(1908)_Morshead' };
     case 'murray-verse': { const m = MURRAY[w.id]; if (m) return { text: `Gilbert Murray, ${m}` }; break; }
     case 'kosmos': { const k = KOSMOS[w.id]; if (k) return { text: `${k[0]}, in the Kosmos Society Sourcebook, ed. Gregory Nagy (Center for Hellenic Studies)`, href: k[1] }; break; }
     case 'johnston': return { text: `Ian Johnston, ${w.title} (Vancouver Island University)`, href: 'https://web.viu.ca/johnstoi/' };
     case 'athenian-society': return { text: 'Aristophanes: The Eleven Comedies, 2 vols. (London: The Athenian Society, 1912)' };
     case 'hickie': return { text: 'W. J. Hickie, The Comedies of Aristophanes, 2 vols. (London: Henry G. Bohn, 1853)' };
     case 'rogers': return { text: 'B. B. Rogers, Aristophanes, 3 vols. (Loeb Classical Library, London: Heinemann; New York: G. P. Putnam’s Sons, 1924)' };
-    case 'lindsay': return { text: 'Jack Lindsay, Lysistrata (Fanfrolico Press, 1925)' };
+    case 'lindsay': return { text: 'Jack Lindsay, Lysistrata (Sydney: Fanfrolico Press, 1925)' };
     case 'arrowsmith': { const a = ARROWSMITH[w.id]; if (a) return { text: `William Arrowsmith, ${w.title}, in The Complete Greek Comedy (Ann Arbor: University of Michigan Press, ${a[0]})`, href: a[1] }; break; }
   }
   throw new Error(`attribution: no citation for translation "${t.id}" on ${w.id}`);
