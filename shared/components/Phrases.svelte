@@ -441,9 +441,12 @@
   }
 
   async function loadPhraseDetails(id: string, item: PhraseItem) {
+    // The stream as it was when the phrase was opened: switching lists while
+    // this loads must not resolve one list's offsets through another's.
+    const forStream = stream;
     details = { ...details, [id]: { loading: true, error: '', works: [] } };
     try {
-      const occurrenceShard = await fetchNgramOccurrences(stream, shardLetter(item.key), item.row[0]);
+      const occurrenceShard = await fetchNgramOccurrences(forStream, shardLetter(item.key), item.row[0]);
       const byWork = occurrenceShard[item.key];
       if (!byWork) throw new Error('Phrase missing from its occurrence shard');
       const entries = Object.entries(byWork).sort(([a], [b]) =>
@@ -451,7 +454,7 @@
       const groups: WorkCitations[] = entries.map(([work, deltas]) => ({
         id: work, title: getWork(work)?.title ?? work, total: deltas.length, citations: [],
       }));
-      const englishSegments = isEnglish ? await fetchEnglishSegments() : null;
+      const englishSegments = forStream === 'english' ? await fetchEnglishSegments() : null;
       await pool(entries, 6, async ([work, deltas], index) => {
         try {
           let citations: Citation[];

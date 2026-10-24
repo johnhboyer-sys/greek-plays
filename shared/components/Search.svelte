@@ -156,6 +156,7 @@
   $: queueLemmaCands(matchMode === 'lemma' ? grkQuery : '');
   function queueLemmaCands(q: string) {
     clearTimeout(lemmaTimer);
+    lemmaRequest++;   // a load for the old words must not land
     lemmaTimer = setTimeout(() => void loadLemmaCands(q), 250);
   }
   async function loadLemmaCands(q: string) {
@@ -176,8 +177,13 @@
   }
   // The ticked folds per typed word, or nothing when every check is on (the
   // engine then resolves the word itself, exactly as before).
+  // Candidates answer the words typed when they were loaded; picks from an
+  // older query must never be sent with a newer one.
+  function candsMatch(cands: TermCands[], q: string): boolean {
+    return cands.map(t => t.term).join(' ') === q.trim().split(/\s+/).filter(Boolean).join(' ');
+  }
   function lemmaPick(): string[][] | undefined {
-    if (matchMode !== 'lemma' || !lemmaCands.some(t => t.cands.some(c => !c.on))) return undefined;
+    if (matchMode !== 'lemma' || !candsMatch(lemmaCands, grkQuery) || !lemmaCands.some(t => t.cands.some(c => !c.on))) return undefined;
     return lemmaCands.map(t => t.cands.filter(c => c.on).map(c => c.fold));
   }
   $: entryCand = lemmaCands.flatMap(t => t.cands).find(c => c.on && c.slug);
@@ -224,8 +230,9 @@
   // and jump-links after the search completes, so they must use the query that
   // produced the results — not whatever is currently typed in the boxes (a user
   // can edit the inputs without re-submitting, then page/retry/export).
-  interface SearchCtx { grkQuery: string; engQuery: string; engTerms: string[]; engForms: boolean; near: boolean; grkAccentTerms: string[]; }
-  let searchCtx: SearchCtx = { grkQuery: '', engQuery: '', engTerms: [], engForms: false, near: false, grkAccentTerms: [] };
+  interface SearchCtx { grkQuery: string; engQuery: string; engTerms: string[]; engForms: boolean; near: boolean; grkRun: number; grkAccentTerms: string[]; }
+  let searchCtx: SearchCtx = { grkQuery: '', engQuery: '', engTerms: [], engForms: false, near: false, grkRun: 1, grkAccentTerms: [] };
+  let unsupportedWorks: string[] = [];
 
   // ── Accent-sensitive Greek matching ────────────────────────────────────────
   // The indexes are accent-folded (λόγος and λογός share a key), which is the
@@ -444,8 +451,20 @@
   // per Greek match position, plus one per English match occurrence. Lets us
   // count the total and lay out pages from the index alone, before any book is
   // fetched (engPositions come from the full English text in meta).
+  // The start of each run of the Greek box's words in a near hit (one hit per
+  // run), so the count and the rows agree.
+  function runStarts(positions: number[], run: number): number[] {
+    const out: number[] = [];
+    const sorted = [...positions].sort((a, b) => a - b);
+    for (let i = 0; i < sorted.length; i++) {
+      out.push(sorted[i]);
+      while (i + 1 < sorted.length && sorted[i + 1] < out[out.length - 1] + run) i++;
+    }
+    return out;
+  }
   function instCount(r: SearchResult): number {
-    return (r.grkMatch ? r.grkPositions.length : 0) + (r.engMatch ? r.engPositions.length : 0);
+    const grk = r.nearPositions ? runStarts(r.grkPositions, searchCtx.grkRun).length : r.grkPositions.length;
+    return (r.grkMatch ? grk : 0) + (r.engMatch ? r.engPositions.length : 0);
   }
 
   // Build the chapter groups for a slice of results: load the books + chapters
@@ -466,6 +485,8 @@
       catch (err) { console.warn(`search: outline failed for ${w} —`, err); failed.push(w); }
     });
     const segMap = new Map<string, Segment>();             // key: work:segId
+    const neighbours = new Map<string, [string | undefined, string | undefined]>();
+    const resultBySeg = new Map(results.map(r => [`${r.work}:${r.ed ?? ''}:${r.meta.id}`, r]));
     const lookups = new Map<string, ReturnType<typeof chapterLookup>>(); // key: work:book
     await pool(wbPairs, 8, async pair => {
       const [w, bStr, pairEd] = pair.split(':');
@@ -482,7 +503,11 @@
       if (!chapters) { failed.push(pair); return; }
       try {
         const data = await fetchBook(w, b, pairEd);
-        for (const s of data.segments) segMap.set(`${w}:${pairEd ?? ''}:${s.id}`, s);
+        data.segments.forEach((s, i) => {
+          segMap.set(`${w}:${pairEd ?? ''}:${s.id}`, s);
+          // A near hit's other term may stand in the passage before or after.
+          neighbours.set(`${w}:${pairEd ?? ''}:${s.id}`, [data.segments[i - 1]?.id, data.segments[i + 1]?.id]);
+        });
         lookups.set(pair, chapterLookup(data, chapters));
       } catch (err) { console.warn(`search: book failed for ${pair} —`, err); failed.push(pair); }
     });
@@ -531,21 +556,36 @@
         if (ctx.grkAccentTerms.length) {
           for (const line of seg.greek) for (const tok of line.tokens) toks.push(tok.t);
         }
-        // A near search: one hit per line holding the first term, the other
-        // terms marked with it (and their own line shown when it is another).
-        const seenNearLine = new Set<GreekLine>();
-        for (const pos of r.grkPositions) {
-          if (ctx.grkAccentTerms.length
-            && !accentTokenMatch(toks[pos] ?? '', ctx.grkAccentTerms)) continue;
-          if (r.nearPositions) {
+        // A near search: one hit per run of the Greek box's words, kept only if
+        // every word of the run passes the accent test, the other terms marked
+        // with it (and their line shown when it is another, even in the next
+        // or previous passage).
+        if (r.nearPositions) {
+          const run = ctx.grkRun;
+          const nearKey = `${r.work}:${r.ed ?? ''}:${r.meta.id}`;
+          const [prevId, nextId] = neighbours.get(nearKey) ?? [];
+          for (const pos of runStarts(r.grkPositions, run)) {
+            if (ctx.grkAccentTerms.length && !Array.from({ length: run }, (_, j) => j)
+              .every(j => accentTokenMatch(toks[pos + j] ?? '', run > 1 ? [ctx.grkAccentTerms[j] ?? ''] : ctx.grkAccentTerms))) continue;
             const sourceLine = lineOfPosition(seg, pos);
-            if (!sourceLine || seenNearLine.has(sourceLine)) continue;
-            seenNearLine.add(sourceLine);
+            if (!sourceLine) continue;
+            let away: { seg: Segment; pos: number; after: boolean } | undefined;
+            if (!r.nearPositions.length) {
+              const next = nextId ? resultBySeg.get(`${r.work}:${r.ed ?? ''}:${nextId}`) : undefined;
+              const prev = prevId ? resultBySeg.get(`${r.work}:${r.ed ?? ''}:${prevId}`) : undefined;
+              const nextSeg = nextId ? segMap.get(`${r.work}:${r.ed ?? ''}:${nextId}`) : undefined;
+              const prevSeg = prevId ? segMap.get(`${r.work}:${r.ed ?? ''}:${prevId}`) : undefined;
+              if (next?.nearPositions?.length && nextSeg) away = { seg: nextSeg, pos: Math.min(...next.nearPositions), after: true };
+              else if (prev?.nearPositions?.length && prevSeg) away = { seg: prevSeg, pos: Math.max(...prev.nearPositions), after: false };
+            }
             const column = sourceLine.ref ?? seg.column;
             const ch = lookup(seg.column, sourceLine.n);
-            add(r.work, r.meta.book, ch, { lang: 'grk', column, line: sourceLine.n, ref: formatCite(r.work, column, sourceLine.n), html: nearKwic(seg, pos, r.grkPositions, r.nearPositions), jumpUrl: jumpFor(r.work, r.meta.book, column, sourceLine.n, undefined, r.ed) });
-            continue;
+            add(r.work, r.meta.book, ch, { lang: 'grk', column, line: sourceLine.n, ref: formatCite(r.work, column, sourceLine.n), html: nearKwic(seg, pos, run, r.nearPositions, away), jumpUrl: jumpFor(r.work, r.meta.book, column, sourceLine.n, undefined, r.ed) });
           }
+        }
+        for (const pos of r.nearPositions ? [] : r.grkPositions) {
+          if (ctx.grkAccentTerms.length
+            && !accentTokenMatch(toks[pos] ?? '', ctx.grkAccentTerms)) continue;
           const sourceLine = lineOfPosition(seg, pos);
           if (!sourceLine) continue;
           const column = schemeFor(r.work).id === 'play-line'
@@ -557,16 +597,12 @@
       }
       if (r.engMatch) {
         // One instance per occurrence in this translation's full text (an
-        // English near hit: one per line, both words marked).
-        const seenEngLine = new Set<GreekLine>();
+        // English near hit: one per occurrence of the English box's words that
+        // has the near word close by; both are marked).
         for (const off of r.engPositions) {
           const text = r.englishText ?? seg.english?.text ?? '';
           const sourceLine = englishLineAt(seg, off, text);
           if (!sourceLine) continue;
-          if (r.engNearPositions) {
-            if (seenEngLine.has(sourceLine)) continue;
-            seenEngLine.add(sourceLine);
-          }
           const playLine = schemeFor(r.work).id === 'play-line';
           const column = playLine ? sourceLine.ref ?? seg.column : seg.column;
           const ch = lookup(seg.column, sourceLine.n);
@@ -665,7 +701,7 @@
   function applyUrl(u: UrlSearch) {
     grkQuery = u.grk; engQuery = u.eng; grkMode = u.grkMode; engMode = u.engMode;
     matchMode = u.matchMode; accentSensitive = u.accent; langOp = u.langOp; engForms = u.engForms;
-    selectedWorks = new Set(u.works.length ? u.works : ALL_WORK_IDS);
+    selectedWorks = new Set(u.works);
     greekEd = editionChoices.some(e => e.id === u.ed) ? u.ed : 'tlg';
     const n = u.near;
     nearKind = !n ? 'none' : n.kind === 'grammatical' ? 'grammatical' : n.kind === 'lemma' ? 'lemma' : 'form';
@@ -683,63 +719,86 @@
   }
   // Picks from a shared address, applied once the LSJ row has its candidates.
   let pendingPick: string[][] | undefined;
-  $: if (pendingPick && lemmaCands.length) {
+  $: if (pendingPick && lemmaCands.length && candsMatch(lemmaCands, grkQuery)) {
     lemmaCands = lemmaCands.map((t, i) => ({ ...t, cands: t.cands.map(c => ({ ...c, on: pendingPick![i]?.length ? pendingPick![i].includes(c.fold) : true })) }));
     pendingPick = undefined;
   }
   onMount(() => {
     const u = decodeSearchUrl(window.location.search, ALL_WORK_IDS);
     applyUrl(u);
-    if (hasSearch(u)) doSearch(undefined, u.lemmaPick);
-    const onPop = () => { const v = decodeSearchUrl(window.location.search, ALL_WORK_IDS); applyUrl(v); if (hasSearch(v)) doSearch(undefined, v.lemmaPick, true); };
+    if (hasSearch(u)) doSearch(undefined, u.lemmaPick, 'replace');
+    const onPop = () => {
+      const v = decodeSearchUrl(window.location.search, ALL_WORK_IDS);
+      applyUrl(v);
+      if (hasSearch(v)) doSearch(undefined, v.lemmaPick, 'none');
+      else clearSearch();
+    };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   });
 
-  async function doSearch(e?: Event, picks?: string[][], fromHistory = false) {
+  // history: 'push' for a search the reader ran, 'replace' to normalise the
+  // address a page opened with, 'none' for a search Back or Forward restored.
+  async function doSearch(e?: Event, picks?: string[][], history_: 'push' | 'replace' | 'none' = 'push') {
     e?.preventDefault();
     if (!grkQuery.trim() && !engQuery.trim()) return;
     const id = ++searchRun;
+    runId++;   // a page still loading for an older search must not land
     loading = true;
     error = '';
     pageError = '';
     csvNote = '';
     failedWorks = [];
+    unsupportedWorks = [];
     searched = false;
+    // Every input is read now, before the first await: a Back or a new search
+    // during the lookups below must not mix its state into this one.
+    const q = {
+      grk: grkQuery, eng: engQuery, grkMode, engMode, matchMode, accent: accentSensitive, langOp, engForms, ed: greekEd,
+      works: WORKS.map(w => w.id).filter(w => selectedWorks.has(w)),
+      nearText: nearText.trim(),
+      engNear: engQuery.trim() && engNearText.trim()
+        ? { term: engNearText.trim(), relation: engNearRel, window: engNearWindow } : undefined,
+      pick: picks ?? lemmaPick(),
+    };
+    const nearP = q.grk.trim() ? nearSlot() : Promise.resolve(undefined);
     try {
-      const works = WORKS.map(w => w.id).filter(id => selectedWorks.has(id));
-      const near = grkQuery.trim() ? await nearSlot() : undefined;
-      const engNear = engQuery.trim() && engNearText.trim()
-        ? { term: engNearText.trim(), relation: engNearRel, window: engNearWindow } : undefined;
-      const pick = picks ?? lemmaPick();
-      const advanced: AdvancedSearch = { engForms, ...(pick ? { lemmaPick: pick } : {}), ...(near ? { near } : {}), ...(engNear ? { engNear } : {}) };
+      const near = await nearP;
+      if (id !== searchRun) return;
+      const advanced: AdvancedSearch = { engForms: q.engForms, ...(q.pick ? { lemmaPick: q.pick } : {}), ...(near ? { near } : {}), ...(q.engNear ? { engNear: q.engNear } : {}) };
       // The address holds the search, so it can be shared and reopened.
       const url: UrlSearch = {
-        grk: grkQuery, eng: engQuery, grkMode, engMode, matchMode, accent: accentSensitive, langOp, engForms,
-        works, ed: greekEd, ...advanced, ...(near?.kind === 'lemma' ? { nearText: nearText.trim() } : {}),
+        grk: q.grk, eng: q.eng, grkMode: q.grkMode, engMode: q.engMode, matchMode: q.matchMode, accent: q.accent,
+        langOp: q.langOp, engForms: q.engForms, works: q.works, ed: q.ed, ...advanced,
+        ...(near?.kind === 'lemma' ? { nearText: q.nearText } : {}),
       };
       const qs = encodeSearchUrl(url, ALL_WORK_IDS);
-      if (!fromHistory && qs !== window.location.search.replace(/^\?/, '')) {
-        history.pushState(null, '', `${window.location.pathname}${qs ? `?${qs}` : ''}`);
+      if (history_ !== 'none' && qs !== window.location.search.replace(/^\?/, '')) {
+        const next = `${window.location.pathname}${qs ? `?${qs}` : ''}`;
+        if (history_ === 'push') history.pushState(null, '', next);
+        else history.replaceState(null, '', next);
       }
+      const grkWords = q.grk.trim().split(/\s+/).filter(Boolean);
       // Snapshot the submitted query for all deferred (per-page / CSV) rendering.
       searchCtx = {
-        grkQuery: grkQuery.trim(),
-        engQuery: engQuery.trim(),
-        engTerms: [...engQuery.trim().split(/\s+/), ...(engNear ? engNear.term.split(/\s+/) : [])].filter(Boolean),
-        engForms,
+        grkQuery: q.grk.trim(),
+        engQuery: q.eng.trim(),
+        engTerms: [...q.eng.trim().split(/\s+/), ...(q.engNear ? q.engNear.term.split(/\s+/) : [])].filter(Boolean),
+        engForms: q.engForms,
         near: !!near,
-        grkAccentTerms: accentSensitive
+        // A near search takes the Greek box as one run of words.
+        grkRun: near ? grkWords.length : 1,
+        grkAccentTerms: q.accent
           // Beta Code terms compare as Greek; a trailing * stays a wildcard.
-          ? grkQuery.trim().split(/\s+/).filter(Boolean)
-            .map(t => { const w = t.length > 1 && t.endsWith('*'); return accentNorm(betaToGreek(w ? t.slice(0, -1) : t)) + (w ? '*' : ''); })
+          ? grkWords.map(t => { const w = t.length > 1 && t.endsWith('*'); return accentNorm(betaToGreek(w ? t.slice(0, -1) : t)) + (w ? '*' : ''); })
           : [],
       };
-      const { results, failed } = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode, greekEd, advanced);
+      const { results, failed, unsupported } = await search(q.grk, q.eng, q.grkMode, q.engMode, q.langOp, q.works, q.matchMode, q.ed, advanced);
       if (id !== searchRun) return;
       resultEds = new Map(results.filter((r) => r.ed).map((r) => [r.work, r.ed!]));
       resultPlays = new Set(results.map((r) => r.work)).size;
       failedWorks = failed;
+      unsupportedWorks = unsupported ?? [];
       totalInstances = results.reduce((n, r) => n + instCount(r), 0);
       pages = paginate(results);
       searched = true;
@@ -752,26 +811,51 @@
     }
   }
 
+  // Back to an address with no search: clear the results, and let nothing
+  // still running land on the page.
+  function clearSearch() {
+    searchRun++; runId++;
+    loading = false; searched = false; error = ''; pageError = ''; csvNote = '';
+    pages = []; groups = []; pageIdx = 0; totalInstances = 0; failedWorks = []; unsupportedWorks = [];
+  }
+
   // A play's Greek hit shows its whole verse line, the match marked (UI pass
   // 2, spec §8.1: "the lines under it, each with its number ... and the
   // matched word marked").
-  // A near hit: the first term's line with every matched token marked, then the
-  // line of the nearest other term when it stands on another line.
-  function nearKwic(seg: Segment, pos: number, first: number[], others: number[]): string {
-    const marked = new Set([...first, ...others]);
-    const lines: { line: GreekLine; start: number }[] = [];
-    let start = 0;
-    for (const line of seg.greek) { lines.push({ line, start }); start += line.tokens.length; }
+  // A near hit: the line of the run starting at `pos`, its words and the other
+  // terms marked, then the line of the nearest other term when it stands on
+  // another line, or (`away`) in the passage before or after.
+  function nearKwic(seg: Segment, pos: number, run: number, others: number[], away?: { seg: Segment; pos: number; after: boolean }): string {
+    const linesOf = (sg: Segment) => {
+      const out: { line: GreekLine; start: number }[] = [];
+      let start = 0;
+      for (const line of sg.greek) { out.push({ line, start }); start += line.tokens.length; }
+      return out;
+    };
+    const render = (l: { line: GreekLine; start: number }, marked: Set<number>) => l.line.tokens
+      .map((tok, k) => (marked.has(l.start + k) ? `<mark>${esc(tok.t)}</mark>` : esc(tok.t))).join(' ');
+    const lines = linesOf(seg);
     const lineOf = (p: number) => lines.findIndex(l => p >= l.start && p < l.start + l.line.tokens.length);
-    const render = (i: number) => lines[i].line.tokens
-      .map((tok, k) => (marked.has(lines[i].start + k) ? `<mark>${esc(tok.t)}</mark>` : esc(tok.t))).join(' ');
+    const marked = new Set([...Array.from({ length: run }, (_, j) => pos + j), ...others]);
     const home = lineOf(pos);
     if (home < 0) return greekKwic(seg, [pos]);
-    const homeEnd = lines[home].start + lines[home].line.tokens.length;
-    const near = others.filter(o => o < lines[home].start || o >= homeEnd)
-      .sort((a, b) => Math.abs(a - pos) - Math.abs(b - pos))[0];
-    const shown = near === undefined || others.some(o => o >= lines[home].start && o < homeEnd) ? [home] : [home, lineOf(near)].filter(i => i >= 0).sort((a, b) => a - b);
-    return shown.map(render).join(' <span class="sep">/</span> ');
+    const inLine = (p: number) => p >= lines[home].start && p < lines[home].start + lines[home].line.tokens.length;
+    const parts = [home];
+    if (!others.some(inLine)) {
+      const nearest = others.slice().sort((a, b) => Math.abs(a - pos) - Math.abs(b - pos))[0];
+      const at = nearest === undefined ? -1 : lineOf(nearest);
+      if (at >= 0) parts.push(at);
+    }
+    const html = parts.sort((a, b) => a - b).map(i => render(lines[i], marked));
+    if (away) {
+      const awayLines = linesOf(away.seg);
+      const l = awayLines.find(x => away.pos >= x.start && away.pos < x.start + x.line.tokens.length);
+      if (l) {
+        const text = render(l, new Set([away.pos]));
+        if (away.after) html.push(text); else html.unshift(text);
+      }
+    }
+    return html.join(' <span class="sep">/</span> ');
   }
 
   function lineKwic(seg: Segment, pos: number): string {
@@ -1137,6 +1221,7 @@
           {/if}
           <span class="v"><select aria-label="Words or line" value={nearUnit} on:change={(e) => (nearUnit = e.currentTarget.value as 'words' | 'line')}><option value="words">words</option><option value="line">on the same line</option></select><i aria-hidden="true">▾</i></span>
           {#if nearRel === 'near'}<label class="ck"><input type="checkbox" bind:checked={nearOrdered} />In this order</label>{/if}
+          {#if grkQuery.trim().split(/\s+/).length > 1}<span class="mn">the Greek words count as one phrase</span>{/if}
         {/if}
       </p>
       {#if nearKind === 'grammatical'}
@@ -1238,6 +1323,9 @@
   {#if error}
     <p class="search-error">{error}</p>
   {:else if searched}
+    {#if unsupportedWorks.length}
+      <p class="search-note warn">Near searches each play’s main text. In {failedPlaysPhrase(unsupportedWorks)} the chosen edition was searched without it; choose “Each play’s main text” to apply it there.</p>
+    {/if}
     {#if failedWorks.length}
       <p class="search-note warn">
         Some plays could not be searched: {failedPlaysPhrase(failedWorks)}.
@@ -1381,6 +1469,8 @@
   .sum { color: var(--ink); }
   .lsj .lem span[lang="grc"] { font: 400 1.08rem var(--font-greek); }
   .lsj .gl { color: var(--mid); }
+  /* A long gloss wraps inside its check rather than pushing the page sideways. */
+  .lsj .ck { white-space: normal; max-width: 100%; }
   /* A word typed into a row: the boxes' underline, smaller. */
   .fld-sm {
     font: 400 1.08rem var(--font-english); color: var(--ink); background: none; border: 0;
