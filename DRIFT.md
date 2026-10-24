@@ -1075,3 +1075,7 @@ CI had failed on every run since the first push (2026-09-09). The fixes:
 - `app/scripts/build-lemmata.mjs` — emits the lemma picker shards (`lemma-picker/<letter>.json`), from aristotle-reader's picker section; heads are always Greek (Beta Code converted), counts seeded from search/lemma.json.
 - `shared/lib/memo.ts` (+ `shared/__tests__/memo.test.ts`) — copied from aristotle-reader; the note about its desktop app dropped.
 - `shared/lib/data.ts` — the picker, gloss, n-gram, English-segment and offsets fetchers from aristotle-reader (through the data root); no lemma-map fetcher (this repo's lemma-map has its own format, read in search.ts). Test: `shared/__tests__/search-data.test.ts`.
+- `shared/lib/search-advanced.ts` — new, from aristotle-reader `shared/lib/search.ts` (offsets, grammar search, combo/proximity, phrase variants, stage-9 shards, English forms); no chapter unit; near window default 10 words; a phrase slot may carry per-position options read from the lemma index; lemma-map read in this repo's format.
+- `shared/lib/search.ts` — `search()` takes an optional `AdvancedSearch` (lemma picks, Greek near, shape, English forms, English near); reference-text lookups read the stage-9 shards when listed; plain calls unchanged.
+- `shared/lib/search-url.ts` — new, after aristotle-reader's `search-url.ts`, for this search's state (keeps ?g=, ?e=, ?q=).
+- `shared/__tests__/search-{advanced,combo,grammar,shards,url,variants}.test.ts` — ported from aristotle-reader and adapted; `search.test.ts` allows the shard fetches.

@@ -470,6 +470,7 @@ describe('PUBLIC_DATA_ROOT build-time root override', () => {
     });
     await fresh.search('logos', '', 'all', 'all', 'and', ['TRoot']);
     expect(urls.length).toBeGreaterThan(0);
-    expect(urls.every((u) => u.startsWith('https://data.example.com/v1/TRoot/search/'))).toBe(true);
+    expect(urls.every((u) => u.startsWith('https://data.example.com/v1/TRoot/search/')
+      || u === 'https://data.example.com/v1/search-shards/index.json')).toBe(true);
   });
 });

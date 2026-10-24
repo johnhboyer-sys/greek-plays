@@ -12,6 +12,19 @@
 import { getWork } from './works';
 import { betaToGreek } from './betacode';
 import { editionBase } from './data';
+import { queryIndexes, comboSearchWork, grammarSearchWork, englishForms, englishTermMatcher,
+  COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX,
+  type SlotKind, type SlotRelation, type GrammarQuery, type ComboSlot, type QueryIndexes } from './search-advanced';
+
+export interface AdvancedSearch {
+  lemmaPick?: string[][];
+  near?: { kind: SlotKind; terms?: string[]; query?: GrammarQuery;
+    relation: SlotRelation; window: number; unit: 'words' | 'line'; ordered: boolean };
+  shape?: GrammarQuery;
+  engForms?: boolean;
+  engNear?: { term: string; relation: SlotRelation; window: number };
+}
+
 
 // Honour Astro's base path. BASE_URL may lack a trailing slash, so strip + join.
 // Same root precedence as data.ts (see its longer doc comment): a build-time
@@ -22,7 +35,7 @@ import { editionBase } from './data';
 const DEFAULT_ROOT = import.meta.env.PUBLIC_DATA_ROOT
   ? import.meta.env.PUBLIC_DATA_ROOT.replace(/\/+$/, '')
   : `${import.meta.env.BASE_URL.replace(/\/$/, '')}/data`;
-const ROOT = () =>
+export const ROOT = () =>
   (globalThis as { __READER_DATA_ROOT__?: string }).__READER_DATA_ROOT__ ?? DEFAULT_ROOT;
 const searchBase = (work: string, ed?: string) => `${editionBase(work, ed)}/search`;
 
@@ -38,8 +51,8 @@ export interface SegMeta {
   english_slots?: Record<string, string>;
 }
 
-type GrkIndex = Record<string, [number, number][]>; // fold → [[seg_idx, pos], ...]
-type EngIndex = Record<string, (number | [number, string])[]>;
+export type GrkIndex = Record<string, [number, number][]>; // fold → [[seg_idx, pos], ...]
+export type EngIndex = Record<string, (number | [number, string])[]>;
 
 // Greek search can match by dictionary headword ('lemma', every inflected form)
 // or by the exact surface form as written ('form').
@@ -87,14 +100,14 @@ async function lemmaTerms(terms: string[]): Promise<[string, string][][]> {
 
 const _fileCache = new Map<string, Promise<unknown>>();
 
-function loadIndex<T>(work: string, file: string, ed?: string): Promise<T> {
+export function loadIndex<T>(work: string, file: string, ed?: string): Promise<T> {
   const useEd = file === 'english.json' ? 'tlg' : ed;
   const key = `${work}/${useEd ?? 'tlg'}/${file}`;
   const cached = _fileCache.get(key);
   if (cached) return cached as Promise<T>;
   const p = fetch(`${searchBase(work, useEd)}/${file}`).then(r => {
     if (!r.ok) throw new Error(`HTTP ${r.status} for ${key}`);
-    return r.json();
+    return file.endsWith('.bin') ? r.arrayBuffer() : r.json();
   });
   // Evict on failure so a transient drop can be retried — a rejected promise
   // must NOT stay cached (that would poison every later search in the tab).
@@ -116,7 +129,7 @@ export function invalidateSearchIndex(work: string): void {
 // Run `fn` over `items` with at most `limit` in flight at once (bounds the
 // concurrent-fetch burst). Rejections propagate; callers that want per-item
 // tolerance pass an `fn` that catches.
-async function pool<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+export async function pool<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
   const out: R[] = new Array(items.length);
   let next = 0;
   const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
@@ -243,7 +256,8 @@ function engMatchTerm(word: string, term: string): boolean {
   if (!c || c === '*') return false;
   return c.endsWith('*') ? word.startsWith(c.slice(0, -1)) : word === c;
 }
-export function englishOccurrences(text: string, terms: string[], mode: SearchMode): number[] {
+export function englishOccurrences(text: string, terms: string[], mode: SearchMode, forms = false): number[] {
+  const matchers = terms.map(term => forms ? englishTermMatcher([term], true) : (word: string) => engMatchTerm(word, term));
   const low = text.toLowerCase();
   const re = /[a-z']+/g;
   const toks: { w: string; i: number }[] = [];
@@ -254,13 +268,38 @@ export function englishOccurrences(text: string, terms: string[], mode: SearchMo
     for (let i = 0; i + terms.length <= toks.length; i++) {
       let ok = true;
       for (let j = 0; j < terms.length; j++) {
-        if (!engMatchTerm(toks[i + j].w, terms[j])) { ok = false; break; }
+        if (!matchers[j](toks[i + j].w)) { ok = false; break; }
       }
       if (ok) out.push(toks[i].i);
     }
     return out;
   }
-  return toks.filter(t => terms.some(term => engMatchTerm(t.w, term))).map(t => t.i);
+  return toks.filter(t => matchers.some(match => match(t.w))).map(t => t.i);
+}
+
+// English proximity uses token distances but returns character offsets for KWIC.
+export function englishNearOccurrences(text: string, terms: string[], mode: SearchMode,
+  near: NonNullable<AdvancedSearch['engNear']>, forms = false): number[] {
+  const tokens = [...text.toLowerCase().matchAll(/[a-z']+/g)].map(m => ({ word: m[0], at: m.index! }));
+  const runs = (query: string[], phrase: boolean): number[][] => {
+    if (!query.length) return [];
+    const tests = query.map(term => forms ? englishTermMatcher([term], true) : (word: string) => engMatchTerm(word, term));
+    if (!phrase) return tokens.flatMap((t, i) => tests.some(test => test(t.word)) ? [[i]] : []);
+    return tokens.flatMap((_, i) => i + query.length <= tokens.length && tests.every((test, j) => test(tokens[i + j].word))
+      ? [query.map((_, j) => i + j)] : []);
+  };
+  const anchors = runs(terms, mode === 'phrase');
+  const others = runs(near.term.trim().split(/\s+/).filter(Boolean), true);
+  const window = Math.max(1, Math.min(Number.isFinite(near.window) ? near.window : COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX));
+  const hits = new Set<number>();
+  for (const a of anchors) for (const b of others) {
+    if (a.some(i => b.includes(i))) continue;
+    if (near.relation === 'before' && b[b.length - 1] >= a[0]) continue;
+    if (near.relation === 'after' && b[0] <= a[a.length - 1]) continue;
+    if (Math.abs(a[0] - b[0]) > window) continue;
+    for (const i of [...a, ...b]) hits.add(tokens[i].at);
+  }
+  return [...hits].sort((a, b) => a - b);
 }
 
 // -- Public search API ----------------------------------------------------
@@ -275,6 +314,8 @@ export interface SearchResult {
   engMatch: boolean;
   grkPositions: number[]; // token positions in the segment where a Greek term matched
   engPositions: number[]; // char offsets in the segment's English where a term matched
+  nearPositions?: number[];
+  grammar?: { values: Record<string, string[]>; certain: boolean }[];
   slotId?: string;
   englishText?: string;
   // The Greek edition whose indexes this hit came from; absent for the
@@ -289,6 +330,7 @@ export interface SearchResponse {
   // the skipped plays instead of looking complete.
   failed: string[];
   lemmata?: string[];
+  unsupported?: string[];
 }
 
 // Positions of a single term across segments: seg_idx → [token positions].
@@ -361,22 +403,24 @@ async function searchWork(
   lang: SourceLanguage,
   resolved: string[][],
   ed?: string,
+  advanced?: AdvancedSearch,
+  indexes?: QueryIndexes,
+  greekOverride?: SearchResult[],
 ): Promise<SearchResult[]> {
   // Fetch only what this query needs: meta always; the lemma OR form Greek
   // index iff there are Greek terms; the English index iff there are English
   // terms. Kick them off together, then await.
   const metaP = loadIndex<SegMeta[]>(work, 'meta.json', ed);
-  const grkP: Promise<GrkIndex | null> = grkTerms.length
-    ? loadIndex<GrkIndex>(work, matchMode === 'form' ? 'form.json' : 'lemma.json', ed)
+  const grkP: Promise<GrkIndex | null> = grkTerms.length && !greekOverride
+    ? (!ed && lang === 'grc' && indexes ? indexes.greek(work) : loadIndex<GrkIndex>(work, matchMode === 'form' ? 'form.json' : 'lemma.json', ed))
     : Promise.resolve(null);
   const engP: Promise<EngIndex | null> = engTerms.length
-    ? loadIndex<EngIndex>(work, 'english.json')
+    ? (indexes ? indexes.english(work) : loadIndex<EngIndex>(work, 'english.json'))
     : Promise.resolve(null);
-  const meta = await metaP;
-  const grkIdx = await grkP;
-  const engIdx = await engP;
+  const [meta, grkIdx, engIdx] = await Promise.all([metaP, grkP, engP]);
 
-  let grkHits: Set<number> | null = null;
+  const override = greekOverride ? new Map(greekOverride.map(r => [r.meta.id, r])) : null;
+  let grkHits: Set<number> | null = override ? new Set(meta.flatMap((m, i) => override.has(m.id) ? [i] : [])) : null;
   let engHits: Set<string> | null = null;
 
   if (grkTerms.length > 0 && grkIdx) {
@@ -396,7 +440,7 @@ async function searchWork(
   }
 
   if (engTerms.length > 0 && engIdx) {
-    const postings = engTerms.map(t => engPosting(engIdx, t));
+    const postings = engTerms.map(t => (advanced?.engForms ? englishForms(t.toLowerCase().replace(/[^a-z'*]/g, '')) : [t]).reduce((set, form) => union(set, engPosting(engIdx, form)), new Set<string>()));
     if (engMode === 'any') {
       engHits = postings.reduce(union);
     } else {
@@ -407,10 +451,22 @@ async function searchWork(
         engHits = new Set([...engHits].filter(key => {
           const [raw, slot] = key.split('\u0000');
           const m = meta[Number(raw)];
-          return englishOccurrences(m.english_slots?.[slot] ?? m.english_head, engTerms, 'phrase').length > 0;
+          return englishOccurrences(m.english_slots?.[slot] ?? m.english_head, engTerms, 'phrase', advanced?.engForms).length > 0;
         }));
       }
     }
+  }
+
+  if (engHits && engIdx && advanced?.engNear?.term.trim()) {
+    const near = advanced.engNear;
+    const nearTerms = near.term.trim().split(/\s+/);
+    const nearCandidates = nearTerms.map(t => (advanced.engForms ? englishForms(t.toLowerCase().replace(/[^a-z'*]/g, '')) : [t])
+      .reduce((set, form) => union(set, engPosting(engIdx, form)), new Set<string>())).reduce(intersect);
+    engHits = new Set([...intersect(engHits, nearCandidates)].filter(key => {
+      const [raw, slot] = key.split('\u0000');
+      const m = meta[Number(raw)];
+      return englishNearOccurrences(m.english_slots?.[slot] ?? m.english_head, engTerms, engMode, near, advanced.engForms).length > 0;
+    }));
   }
 
   const englishSegments = new Set([...(engHits ?? [])].map(key => Number(key.split('\u0000')[0])));
@@ -433,9 +489,13 @@ async function searchWork(
         meta: meta[si],
         grkMatch: index === 0 && (grkHits?.has(si) ?? false),
         engMatch: !!key,
-        grkPositions: grkPos.get(si) ?? [],
+        grkPositions: override?.get(meta[si].id)?.grkPositions ?? grkPos.get(si) ?? [],
+        ...(override?.get(meta[si].id)?.nearPositions ? { nearPositions: override.get(meta[si].id)!.nearPositions } : {}),
+        ...(override?.get(meta[si].id)?.grammar ? { grammar: override.get(meta[si].id)!.grammar } : {}),
         // Each offset belongs to this translation's full text.
-        engPositions: key ? englishOccurrences(englishText, engTerms, engMode) : [],
+        engPositions: key ? (advanced?.engNear?.term.trim()
+          ? englishNearOccurrences(englishText, engTerms, engMode, advanced.engNear, advanced.engForms)
+          : englishOccurrences(englishText, engTerms, engMode, advanced?.engForms)) : [],
         ...(slotId ? { slotId, englishText } : {}),
         ...(ed ? { ed } : {}),
       };
@@ -454,16 +514,29 @@ export async function search(
   works: string[],
   matchMode: MatchMode = DEFAULT_MATCH_MODE,
   ed?: string,
+  advanced?: AdvancedSearch,
 ): Promise<SearchResponse> {
-  if (!grkQuery.trim() && !engQuery.trim()) return { results: [], failed: [] };
+  if (!grkQuery.trim() && !engQuery.trim() && !Object.keys(advanced?.shape ?? {}).length) return { results: [], failed: [] };
   if (!works.length) return { results: [], failed: [] };
 
   // Strip a leading '*' (Beta Code capital marker, e.g. *a)nqrwpos); the fold
   // form is caseless, and a leading wildcard would match everything anyway.
   const grkTerms = grkQuery.trim().split(/\s+/).filter(Boolean).map(t => t.replace(/^\*+/, ''));
   const engTerms = engQuery.trim().split(/\s+/).filter(Boolean);
-  const resolvedPairs = matchMode === 'lemma' ? await lemmaTerms(grkTerms) : [];
+  const resolvedPairs = matchMode === 'lemma' ? await Promise.all(grkTerms.map(async (term, i) => {
+    const picked = advanced?.lemmaPick?.[i];
+    return picked?.length ? picked.map(fold => [fold, displayLemma(fold)] as [string, string]) : (await lemmaTerms([term]))[0];
+  })) : [];
   const resolved = matchMode === 'lemma' ? resolvedPairs.map(group => group.map(([fold]) => fold)) : grkTerms.map(t => [t]);
+
+  const englishKeys = [...engTerms, ...(advanced?.engNear?.term.trim().split(/\s+/).filter(Boolean) ?? [])];
+  const indexes = queryIndexes(matchMode, resolved.flat(), advanced?.engForms ? englishKeys.flatMap(t => englishForms(t.toLowerCase().replace(/[^a-z'*]/g, ''))) : englishKeys);
+  const comboTerms = [...resolved.flat(), ...advanced?.near?.terms ?? []];
+  const comboIndexes = advanced?.near && grkTerms.length ? {
+    lemma: queryIndexes('lemma', comboTerms, [], true),
+    form: queryIndexes('form', comboTerms, [], true),
+  } : undefined;
+  const unsupported = new Set<string>();
 
   // Bound how many works load at once, and let a single work's failed index
   // load drop just that work (logged) instead of rejecting the whole search.
@@ -483,7 +556,22 @@ export async function search(
       // differ from an edition's, so any query with English terms, and any play
       // without that edition, searches the reference as before.
       const useEd = ed && ed !== 'tlg' && !engTerms.length && getWork(w)?.greekEditions?.some(e => e.id === ed) ? ed : undefined;
-      return await searchWork(w, grkTerms, engTerms, grkMode, engMode, langOp, matchMode, lang, resolved, useEd);
+      const heldEdition = ed && ed !== 'tlg' && getWork(w)?.greekEditions?.some(e => e.id === ed);
+      if (heldEdition && (advanced?.near || advanced?.shape)) unsupported.add(w);
+      let greekOverride: SearchResult[] | undefined;
+      if (!heldEdition && grkTerms.length && advanced?.near) {
+        const first: ComboSlot = grkTerms.length > 1
+          ? { kind: 'phrase', terms: grkTerms, options: resolved, match: matchMode }
+          : { kind: matchMode, terms: resolved.flat() };
+        const near = advanced.near;
+        greekOverride = await comboSearchWork(w, [first, near], {
+          window: Math.max(1, Math.min(Number.isFinite(near.window) ? near.window : COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX)),
+          unit: near.unit, ordered: near.ordered,
+        }, comboIndexes);
+      } else if (!heldEdition && !grkTerms.length && Object.keys(advanced?.shape ?? {}).length) {
+        greekOverride = await grammarSearchWork(w, advanced!.shape!);
+      }
+      return await searchWork(w, grkTerms, engTerms, grkMode, engMode, langOp, matchMode, lang, resolved, useEd, advanced, indexes, greekOverride);
     } catch (err) {
       console.warn(`search: skipping ${w} —`, err);
       failedSet.add(w);
@@ -499,6 +587,7 @@ export async function search(
   }
   return {
     results: perWork.flat(), failed: works.filter((w) => failedSet.has(w)),
+    ...(advanced && unsupported.size ? { unsupported: works.filter(w => unsupported.has(w)) } : {}),
     ...(matchMode === 'lemma' && grkTerms.length
       ? { lemmata: [...new Set(resolvedPairs.flat().filter(([fold]) => !fold.includes('*')).map(([, display]) => display))] } : {}),
   };
