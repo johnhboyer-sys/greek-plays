@@ -121,7 +121,7 @@ const structuredData = Astro.site
           too; the name is the link for keyboards and screen readers. */}
       {playwrights.map(({ author, works }) => (
         <section class="row">
-          <a class="fl" href={`${base}${authorPath(author.id)}`} tabindex="-1" aria-hidden="true" style={`--r:${figRatio(author.id)}`}><Figure slug={author.id} /></a>
+          <a class="fl" data-a={author.id} href={`${base}${authorPath(author.id)}`} tabindex="-1" aria-hidden="true" style={`--r:${figRatio(author.id)}`}><Figure slug={author.id} /></a>
           <div class="nm">
             <span class="gk" lang="grc">{author.nativeName}</span>
             <a class="en" href={`${base}${authorPath(author.id)}`}>{author.name}</a>
@@ -181,6 +181,9 @@ const structuredData = Astro.site
       .gk { font-size: 1.15rem; color: var(--clay-text); }
       .en { font-size: 1.75rem; }
       .plays { flex: 1 1 100%; columns: 2; padding-top: .2rem; }
+      /* Euphorbos reads heavy under the .4px phone hairline (John,
+         2026-10-24: "slightly lighter weight" for mobile). */
+      .row .fl[data-a="sophocles"] :global(.fig) { stroke-width: .3px; }
     }
   </style>
 </body>
