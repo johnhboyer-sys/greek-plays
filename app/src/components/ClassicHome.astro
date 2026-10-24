@@ -144,6 +144,10 @@ const structuredData = Astro.site
     }
     .fl { flex: 0 0 auto; display: block; color: inherit; }
     .row :global(.fb) { border-bottom: 0; }
+    /* The figure's own max-width (100% of a box sized by the figure) left
+       it 0 wide on phones, where the names' column flexes: no cap here,
+       the row already leaves it room. */
+    .row :global(.fig) { max-width: none; }
     .nm { flex: 0 0 auto; min-width: 11.5rem; padding-bottom: .9rem; }
     .gk { display: block; font: 400 1.5rem/1.1 var(--font-greek); color: var(--clay-deep); }
     .en { display: block; font: 400 2.6rem/1.05 var(--font-english); color: var(--ink); text-decoration: none; }
