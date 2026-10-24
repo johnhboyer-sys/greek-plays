@@ -392,6 +392,15 @@ def run(manifest: Manifest) -> Path:
     # seg_base_offset[seg_idx] + token_pos, so no posting has to change and no
     # reverse map is needed. Counts EVERY stage3 token, keyless ones included,
     # so it stays in step with token_pos.
+    # The printed citation of each line (the spine's `ref`: "106-107" for a
+    # lyric pair, "1290" for a line the editor transposed). `n` is the
+    # running line number, which is what nearness is measured on, but a hit is
+    # cited and linked by its ref, as the reader prints it.
+    spine_path = BUILD_DIR / "stage1" / "greek_spine.json"
+    spine_refs: dict[str, list] = {}
+    if spine_path.exists():
+        for spine_seg in json.loads(spine_path.read_text(encoding="utf-8")).get("segments", []):
+            spine_refs[spine_seg.get("id")] = [ln.get("ref") for ln in spine_seg.get("lines", [])]
     seg_base_offset: list[int] = []
     seg_coords: list[dict] = []
     running = 0
@@ -406,9 +415,17 @@ def run(manifest: Manifest) -> Path:
             for l in seg["lines"]
         ]
         running += sum(r[1] for r in line_runs)
-        seg_coords.append(
-            {"book": seg["book"], "column": seg["column"], "line_runs": line_runs}
-        )
+        coords = {"book": seg["book"], "column": seg["column"], "line_runs": line_runs}
+        # The spine and the tokens document are parallel line for line (stage 7
+        # checks it), so a line's ref is looked up by position: a number is not
+        # a key (a column can print the same number twice).
+        refs = spine_refs.get(seg["id"], [])
+        if len(refs) != len(seg["lines"]):
+            refs = [None] * len(seg["lines"])
+        if any(r is not None and r != str(l.get("n")) for r, l in zip(refs, seg["lines"])):
+            # Only where some line's printed ref differs from its number.
+            coords["refs"] = [r if r is not None else str(l.get("n")) for r, l in zip(refs, seg["lines"])]
+        seg_coords.append(coords)
     token_count = running
 
     # A segment is keyed (book, column) and so never straddles a book: each

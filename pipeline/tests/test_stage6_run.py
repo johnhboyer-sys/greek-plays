@@ -243,6 +243,20 @@ def test_offsets_preserve_transposed_and_noninteger_line_labels(tmp_path, monkey
     assert [run[0] for run in got["offsets"]["segments"][0]["line_runs"]] == labels
 
 
+def test_offsets_carry_printed_refs_only_where_they_differ(tmp_path, monkeypatch):
+    # A lyric pair printed as one line ("106-107") is cited by its ref, while
+    # nearness is still measured on the running number n.
+    spine = copy.deepcopy(_SPINE)
+    for line, ref in zip(spine["segments"][0]["lines"], ["4", "106-107", "5", "6"]):
+        line["ref"] = ref
+    for line in spine["segments"][1]["lines"]:
+        line["ref"] = "20"
+    got = _build(tmp_path, monkeypatch, spine=spine)
+    segs = got["offsets"]["segments"]
+    assert segs[0]["refs"] == ["4", "106-107", "5", "6"]
+    assert "refs" not in segs[1] and "refs" not in segs[2]
+
+
 def test_edition_emits_grammar_and_offsets_without_corpus_stream(tmp_path, monkeypatch):
     got = _build(tmp_path, monkeypatch, edition=True)
     assert got["grammar"]["token_count"] == got["offsets"]["token_count"]

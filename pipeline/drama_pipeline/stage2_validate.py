@@ -76,6 +76,11 @@ def check_offsets(offsets: dict, segments: list[dict]) -> dict:
                     f"seg {i} ({seg['id']}): line_runs do not match stage3 lines "
                     f"(expected {expected_runs!r}, got {coords[i]['line_runs']!r})"
                 )
+            refs = coords[i].get("refs")
+            if refs is not None and len(refs) != len(seg["lines"]):
+                problems.append(
+                    f"seg {i} ({seg['id']}): {len(refs)} refs for {len(seg['lines'])} lines"
+                )
 
     # Round-trip a sample: global -> (seg, pos) must return the original.
     def to_local(g: int) -> tuple[int, int]:
