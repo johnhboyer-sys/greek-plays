@@ -30,6 +30,7 @@ describe('generated registry golden value', () => {
     // (coleridge → paley, way → way-loeb).
     // Regenerated 2026-10-22: Oedipus Tyrannus' argument, the set-up only (John's pick).
     // Regenerated 2026-10-23: Helen's, Trojan Women's, and Seven's Greek titles accented (John).
-    expect(hash).toBe('b8d046215cf606737375870e0b80416c119ee7f930addd8792239c677e7c263d');
+    // Regenerated 2026-10-23: 37 play summaries from John's copy review; Clytemnestra and Polynices in our own copy.
+    expect(hash).toBe('e3efa7ac73f17e7bd7b422a33a364c6e24f2b3927a4bfb5bef743a2146a5c37a');
   });
 });
