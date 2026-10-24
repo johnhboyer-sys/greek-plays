@@ -13,11 +13,13 @@ export interface UrlSearch extends AdvancedSearch {
   engForms: boolean;
   works: string[];
   ed: string;
+  // The near word as typed, when a lemma near term holds its resolved headwords.
+  nearText?: string;
 }
 
 export const emptyUrlSearch = (allWorks: string[]): UrlSearch => ({
   grk: '', eng: '', grkMode: 'all', engMode: 'all', matchMode: DEFAULT_MATCH_MODE,
-  accent: false, langOp: 'and', engForms: false, works: [...allWorks], ed: 'tlg',
+  accent: false, langOp: 'and', engForms: true, works: [...allWorks], ed: 'tlg',
 });
 
 export const hasSearch = (s: UrlSearch): boolean => !!(s.grk.trim() || s.eng.trim() || Object.keys(s.shape ?? {}).length);
@@ -32,7 +34,7 @@ export function encodeSearchUrl(s: UrlSearch, allWorks: string[]): string {
   if (s.matchMode !== DEFAULT_MATCH_MODE) p.set('m', s.matchMode);
   if (s.accent) p.set('acc', '1');
   if (s.langOp !== 'and') p.set('op', s.langOp);
-  if (s.engForms) p.set('ef', '1');
+  if (!s.engForms) p.set('ef', '0');
   if (s.ed && s.ed !== 'tlg') p.set('ed', s.ed);
   const chosen = new Set(s.works);
   if (allWorks.some(w => !chosen.has(w))) {
@@ -40,6 +42,7 @@ export function encodeSearchUrl(s: UrlSearch, allWorks: string[]): string {
     const outside = allWorks.filter(w => !chosen.has(w)).join(',');
     p.set('w', inside && outside.length + 1 < inside.length ? `-${outside}` : inside);
   }
+  if (s.nearText?.trim()) p.set('nt', s.nearText.trim());
   for (const key of ['lemmaPick', 'near', 'shape', 'engNear'] as const) {
     if (s[key] !== undefined) p.set(key, JSON.stringify(s[key]));
   }
@@ -76,7 +79,7 @@ export function decodeSearchUrl(search: string | URLSearchParams, allWorks: stri
   if (p.get('m') === 'lemma' || p.get('m') === 'form') s.matchMode = p.get('m') as MatchMode;
   s.accent = p.get('acc') === '1';
   s.langOp = p.get('op') === 'or' ? 'or' : 'and';
-  s.engForms = p.get('ef') === '1';
+  s.engForms = p.get('ef') !== '0';
   const ed = p.get('ed');
   if (ed && /^[a-z0-9_-]+$/i.test(ed)) s.ed = ed;
   const w = p.get('w');
@@ -97,6 +100,8 @@ export function decodeSearchUrl(search: string | URLSearchParams, allWorks: stri
       relation: relation(near.relation), window: windowSize(near.window), unit: near.unit === 'line' ? 'line' : 'words', ordered: near.ordered === true,
     };
   }
+  const nt = (p.get('nt') ?? '').trim();
+  if (nt && s.near?.kind === 'lemma') s.nearText = nt;
   const en = json('engNear');
   if (record(en) && typeof en.term === 'string' && en.term.trim()) s.engNear = {
     term: en.term.trim(), relation: relation(en.relation), window: windowSize(en.window),

@@ -277,9 +277,11 @@ export function englishOccurrences(text: string, terms: string[], mode: SearchMo
   return toks.filter(t => matchers.some(match => match(t.w))).map(t => t.i);
 }
 
-// English proximity uses token distances but returns character offsets for KWIC.
+// English proximity uses token distances but returns character offsets for KWIC:
+// `anchors` are where each matching run of the English box's words starts (one
+// per hit, so a hit counts once), `partners` where each near word's run starts.
 export function englishNearOccurrences(text: string, terms: string[], mode: SearchMode,
-  near: NonNullable<AdvancedSearch['engNear']>, forms = false): number[] {
+  near: NonNullable<AdvancedSearch['engNear']>, forms = false): { anchors: number[]; partners: number[] } {
   const tokens = [...text.toLowerCase().matchAll(/[a-z']+/g)].map(m => ({ word: m[0], at: m.index! }));
   const runs = (query: string[], phrase: boolean): number[][] => {
     if (!query.length) return [];
@@ -291,15 +293,18 @@ export function englishNearOccurrences(text: string, terms: string[], mode: Sear
   const anchors = runs(terms, mode === 'phrase');
   const others = runs(near.term.trim().split(/\s+/).filter(Boolean), true);
   const window = Math.max(1, Math.min(Number.isFinite(near.window) ? near.window : COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX));
-  const hits = new Set<number>();
+  const hitAnchors = new Set<number>();
+  const hitPartners = new Set<number>();
   for (const a of anchors) for (const b of others) {
     if (a.some(i => b.includes(i))) continue;
     if (near.relation === 'before' && b[b.length - 1] >= a[0]) continue;
     if (near.relation === 'after' && b[0] <= a[a.length - 1]) continue;
     if (Math.abs(a[0] - b[0]) > window) continue;
-    for (const i of [...a, ...b]) hits.add(tokens[i].at);
+    hitAnchors.add(tokens[a[0]].at);
+    hitPartners.add(tokens[b[0]].at);
   }
-  return [...hits].sort((a, b) => a - b);
+  const sorted = (set: Set<number>) => [...set].sort((x, y) => x - y);
+  return { anchors: sorted(hitAnchors), partners: sorted(hitPartners) };
 }
 
 // -- Public search API ----------------------------------------------------
@@ -314,7 +319,8 @@ export interface SearchResult {
   engMatch: boolean;
   grkPositions: number[]; // token positions in the segment where a Greek term matched
   engPositions: number[]; // char offsets in the segment's English where a term matched
-  nearPositions?: number[];
+  nearPositions?: number[];    // a Greek near search: the other terms' token positions
+  engNearPositions?: number[]; // an English near search: where the near words stand
   grammar?: { values: Record<string, string[]>; certain: boolean }[];
   slotId?: string;
   englishText?: string;
@@ -465,7 +471,7 @@ async function searchWork(
     engHits = new Set([...intersect(engHits, nearCandidates)].filter(key => {
       const [raw, slot] = key.split('\u0000');
       const m = meta[Number(raw)];
-      return englishNearOccurrences(m.english_slots?.[slot] ?? m.english_head, engTerms, engMode, near, advanced.engForms).length > 0;
+      return englishNearOccurrences(m.english_slots?.[slot] ?? m.english_head, engTerms, engMode, near, advanced.engForms).anchors.length > 0;
     }));
   }
 
@@ -493,9 +499,10 @@ async function searchWork(
         ...(override?.get(meta[si].id)?.nearPositions ? { nearPositions: override.get(meta[si].id)!.nearPositions } : {}),
         ...(override?.get(meta[si].id)?.grammar ? { grammar: override.get(meta[si].id)!.grammar } : {}),
         // Each offset belongs to this translation's full text.
-        engPositions: key ? (advanced?.engNear?.term.trim()
-          ? englishNearOccurrences(englishText, engTerms, engMode, advanced.engNear, advanced.engForms)
-          : englishOccurrences(englishText, engTerms, engMode, advanced?.engForms)) : [],
+        ...(key && advanced?.engNear?.term.trim()
+          ? (({ anchors, partners }) => ({ engPositions: anchors, engNearPositions: partners }))(
+            englishNearOccurrences(englishText, engTerms, engMode, advanced.engNear, advanced.engForms))
+          : { engPositions: key ? englishOccurrences(englishText, engTerms, engMode, advanced?.engForms) : [] }),
         ...(slotId ? { slotId, englishText } : {}),
         ...(ed ? { ed } : {}),
       };

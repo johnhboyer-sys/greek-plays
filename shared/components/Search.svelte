@@ -1,7 +1,9 @@
 <script lang="ts">
   import { tick, onMount } from 'svelte';
-  import { search, type SearchMode, type LangOp, type MatchMode, type SearchResult } from '../lib/search';
-  import { fetchBook, fetchChapters, fetchSections, readerHref, type Segment, type GreekLine, type ChapterRef, type SectionRef, type TranslationCredit } from '../lib/data';
+  import { search, greekFold, type SearchMode, type LangOp, type MatchMode, type SearchResult, type AdvancedSearch } from '../lib/search';
+  import { COMBO_WINDOW_DEFAULT, englishForms, type SlotKind, type SlotRelation } from '../lib/search-advanced';
+  import { decodeSearchUrl, encodeSearchUrl, hasSearch, type UrlSearch } from '../lib/search-url';
+  import { fetchBook, fetchChapters, fetchSections, readerHref, dataRoot, fetchLemmaPickerShard, fetchLemmaGlosses, lemmaEntryHref, type Segment, type GreekLine, type ChapterRef, type SectionRef, type TranslationCredit } from '../lib/data';
   import { highlightPrefixMatches } from '../lib/text';
   import { editionPicker } from '../lib/edition-picker';
   import { WORKS, getWork, workPath, WORK_ORDER } from '../lib/works';
@@ -62,7 +64,138 @@
     ? [...new Map(WORKS.flatMap(w => (w.greekEditions ?? []).filter(e => e.id !== 'tlg')
         .map(e => [e.id, { id: e.id, label: e.short.replace(/\s*\(\d{4}\)$/, '') }] as const))).values()]
     : [];
-  let searchedLemmata: string[] = [];
+  // ── Search step 2: the Aristotle reader's advanced search, in B's rows ──
+  // English: "Any form of the word" lets each word match its plural and
+  // possessive (man, men, man's), as the Aristotle reader's English does.
+  let engForms = true;
+
+  // LSJ: the headwords each typed Greek word can belong to, offered as checks
+  // while the reader types (any form of the word only). One check per fold key:
+  // the index is accent-folded, so headwords sharing a key cannot be split.
+  interface LemmaCand { fold: string; heads: string[]; gloss: string; n: number; slug?: string; on: boolean }
+  interface TermCands { term: string; cands: LemmaCand[] }
+  let lemmaCands: TermCands[] = [];
+  let lemmaRequest = 0;
+
+  // Near: a second Greek term placed against the first (the Greek box).
+  type NearKind = 'none' | 'grammatical' | 'form' | 'lemma';
+  let nearKind: NearKind = 'none';
+  let nearText = '';
+  let nearRel: SlotRelation = 'near';
+  let nearWindow = COMBO_WINDOW_DEFAULT;
+  let nearUnit: 'words' | 'line' = 'words';
+  let nearOrdered = false;
+  const WINDOW_OPTS = [1, 2, 3, 5, 10, 15, 20, 30, 50];
+
+  // Shape: the second term's grammar. The vocabulary is Morpheus's, nothing
+  // inferred: there is no part-of-speech field, so "a verb form" only chooses
+  // which categories are offered, and the parse decides what matches.
+  type ShapeClass = 'verb' | 'noun' | 'word';
+  let shapeClass: ShapeClass = 'verb';
+  let shape: Record<string, string> = {};
+  const SHAPE_CATS: Record<ShapeClass, { key: string; any: string; values: [string, string][] }[]> = {
+    verb: [
+      { key: 'tense', any: 'any tense', values: [['pres', 'present'], ['imperf', 'imperfect'], ['fut', 'future'], ['aor', 'aorist'], ['perf', 'perfect'], ['plup', 'pluperfect'], ['futperf', 'future perfect']] },
+      { key: 'mood', any: 'any mood', values: [['ind', 'indicative'], ['subj', 'subjunctive'], ['opt', 'optative'], ['imperat', 'imperative'], ['inf', 'infinitive'], ['part', 'participle']] },
+      { key: 'voice', any: 'any voice', values: [['act', 'active'], ['mid', 'middle'], ['pass', 'passive'], ['mp', 'middle or passive']] },
+      { key: 'person', any: 'any person', values: [['1st', 'first person'], ['2nd', 'second person'], ['3rd', 'third person']] },
+      { key: 'number', any: 'any number', values: [['sg', 'singular'], ['pl', 'plural'], ['dual', 'dual']] },
+    ],
+    noun: [
+      { key: 'case', any: 'any case', values: [['nom', 'nominative'], ['gen', 'genitive'], ['dat', 'dative'], ['acc', 'accusative'], ['voc', 'vocative']] },
+      { key: 'number', any: 'any number', values: [['sg', 'singular'], ['pl', 'plural'], ['dual', 'dual']] },
+      { key: 'gender', any: 'any gender', values: [['masc', 'masculine'], ['fem', 'feminine'], ['neut', 'neuter']] },
+      { key: 'degree', any: 'any degree', values: [['comp', 'comparative'], ['superl', 'superlative']] },
+    ],
+    word: [
+      { key: 'marker', any: 'any class', values: [['adverb', 'adverb'], ['particle', 'particle'], ['prep', 'preposition'], ['conj', 'conjunction'], ['interrog', 'interrogative'], ['exclam', 'exclamation'], ['indecl', 'indeclinable'], ['numeral', 'numeral']] },
+    ],
+  };
+  // A function, not a reactive value: a search reopened from the address runs
+  // before reactive values catch up with the state it restored.
+  const shapeQueryOf = (cls: ShapeClass, sh: Record<string, string>) =>
+    Object.fromEntries(SHAPE_CATS[cls].filter(c => sh[c.key]).map(c => [c.key, sh[c.key]]));
+  $: shapeQuery = shapeQueryOf(shapeClass, shape);
+
+  // English near: a second English word, in the same translation.
+  let engNearText = '';
+  let engNearRel: SlotRelation = 'near';
+  let engNearWindow = COMBO_WINDOW_DEFAULT;
+
+  // The headwords a typed word can belong to (this repo's lemma-map shards).
+  const lemmaMapCache = new Map<string, Promise<Record<string, (string | [string, string])[]>>>();
+  function lemmaMapShard(letter: string) {
+    let p = lemmaMapCache.get(letter);
+    if (!p) {
+      p = fetch(`${dataRoot()}/lemma-map/${letter}.json`).then(r => (r.ok ? r.json() : {}));
+      p.catch(() => lemmaMapCache.delete(letter));
+      lemmaMapCache.set(letter, p);
+    }
+    return p;
+  }
+  async function headFolds(term: string): Promise<string[]> {
+    const fold = greekFold(term.replace(/^\*+/, ''));
+    if (!fold || term.includes('*')) return [];
+    const shard = await lemmaMapShard(/[a-z]/.test(fold[0]) ? fold[0] : '_');
+    const heads = (shard[fold] ?? []).map(e => (typeof e === 'string' ? e : e[0]));
+    return heads.length ? [...new Set(heads)] : [fold];
+  }
+  async function candidatesFor(term: string, keep: Map<string, boolean>): Promise<LemmaCand[]> {
+    const folds = await headFolds(term);
+    return Promise.all(folds.map(async fold => {
+      let n = 0; let heads: string[] = [betaToGreek(fold)]; let slug: string | undefined;
+      try {
+        const choice = (await fetchLemmaPickerShard(/[a-z]/.test(fold[0]) ? fold[0] : '_'))[fold];
+        if (choice) { n = choice.n; if (choice.c.length) heads = choice.c.map(c => c.h); slug = choice.c.find(c => c.s)?.s; }
+      } catch { /* no picker data: the check still searches */ }
+      const gloss = slug ? (await fetchLemmaGlosses(slug).catch(() => [] as string[]))[0] ?? '' : '';
+      return { fold, heads, gloss, n, slug, on: keep.get(fold) ?? true };
+    })).then(list => list.sort((a, b) => b.n - a.n));
+  }
+  let lemmaTimer: ReturnType<typeof setTimeout> | undefined;
+  $: queueLemmaCands(matchMode === 'lemma' ? grkQuery : '');
+  function queueLemmaCands(q: string) {
+    clearTimeout(lemmaTimer);
+    lemmaTimer = setTimeout(() => void loadLemmaCands(q), 250);
+  }
+  async function loadLemmaCands(q: string) {
+    const id = ++lemmaRequest;
+    const terms = q.trim().split(/\s+/).filter(Boolean);
+    const keep = new Map(lemmaCands.flatMap(t => t.cands.map(c => [c.fold, c.on] as const)));
+    const next = await Promise.all(terms.map(async term => ({ term, cands: await candidatesFor(term, keep).catch(() => []) })));
+    if (id === lemmaRequest) lemmaCands = next;
+  }
+  function toggleCand(ti: number, fold: string) {
+    const t = lemmaCands[ti];
+    const c = t.cands.find(x => x.fold === fold);
+    if (!c) return;
+    // Keep at least one headword per word: none ticked would search nothing.
+    if (c.on && t.cands.filter(x => x.on).length === 1) return;
+    c.on = !c.on;
+    lemmaCands = lemmaCands;
+  }
+  // The ticked folds per typed word, or nothing when every check is on (the
+  // engine then resolves the word itself, exactly as before).
+  function lemmaPick(): string[][] | undefined {
+    if (matchMode !== 'lemma' || !lemmaCands.some(t => t.cands.some(c => !c.on))) return undefined;
+    return lemmaCands.map(t => t.cands.filter(c => c.on).map(c => c.fold));
+  }
+  $: entryCand = lemmaCands.flatMap(t => t.cands).find(c => c.on && c.slug);
+
+  async function nearSlot(): Promise<AdvancedSearch['near']> {
+    if (nearKind === 'none') return undefined;
+    const base = { relation: nearRel, window: nearWindow, unit: nearUnit, ordered: nearRel === 'near' && nearOrdered };
+    if (nearKind === 'grammatical') {
+      const query = shapeQueryOf(shapeClass, shape);
+      return Object.keys(query).length ? { kind: 'grammatical', query, ...base } : undefined;
+    }
+    const words = nearText.trim().split(/\s+/).filter(Boolean);
+    if (!words.length) return undefined;
+    if (words.length > 1) return { kind: 'phrase' as SlotKind, terms: words, ...base };
+    if (nearKind === 'form') return { kind: 'form', terms: words, ...base };
+    const folds = await headFolds(words[0]);
+    return { kind: 'lemma', terms: folds.length ? folds : [greekFold(words[0])], ...base };
+  }
   let resultPlays = 0;                    // plays with a hit, for the count line
   // Which works to search. Default: all. Selected in the collapsible panel below.
   let selectedWorks = new Set<string>(WORKS.map(w => w.id));
@@ -91,8 +224,8 @@
   // and jump-links after the search completes, so they must use the query that
   // produced the results — not whatever is currently typed in the boxes (a user
   // can edit the inputs without re-submitting, then page/retry/export).
-  interface SearchCtx { grkQuery: string; engQuery: string; engTerms: string[]; grkAccentTerms: string[]; }
-  let searchCtx: SearchCtx = { grkQuery: '', engQuery: '', engTerms: [], grkAccentTerms: [] };
+  interface SearchCtx { grkQuery: string; engQuery: string; engTerms: string[]; engForms: boolean; near: boolean; grkAccentTerms: string[]; }
+  let searchCtx: SearchCtx = { grkQuery: '', engQuery: '', engTerms: [], engForms: false, near: false, grkAccentTerms: [] };
 
   // ── Accent-sensitive Greek matching ────────────────────────────────────────
   // The indexes are accent-folded (λόγος and λογός share a key), which is the
@@ -398,9 +531,21 @@
         if (ctx.grkAccentTerms.length) {
           for (const line of seg.greek) for (const tok of line.tokens) toks.push(tok.t);
         }
+        // A near search: one hit per line holding the first term, the other
+        // terms marked with it (and their own line shown when it is another).
+        const seenNearLine = new Set<GreekLine>();
         for (const pos of r.grkPositions) {
           if (ctx.grkAccentTerms.length
             && !accentTokenMatch(toks[pos] ?? '', ctx.grkAccentTerms)) continue;
+          if (r.nearPositions) {
+            const sourceLine = lineOfPosition(seg, pos);
+            if (!sourceLine || seenNearLine.has(sourceLine)) continue;
+            seenNearLine.add(sourceLine);
+            const column = sourceLine.ref ?? seg.column;
+            const ch = lookup(seg.column, sourceLine.n);
+            add(r.work, r.meta.book, ch, { lang: 'grk', column, line: sourceLine.n, ref: formatCite(r.work, column, sourceLine.n), html: nearKwic(seg, pos, r.grkPositions, r.nearPositions), jumpUrl: jumpFor(r.work, r.meta.book, column, sourceLine.n, undefined, r.ed) });
+            continue;
+          }
           const sourceLine = lineOfPosition(seg, pos);
           if (!sourceLine) continue;
           const column = schemeFor(r.work).id === 'play-line'
@@ -411,18 +556,24 @@
         }
       }
       if (r.engMatch) {
-        // One instance per occurrence in this translation's full text.
+        // One instance per occurrence in this translation's full text (an
+        // English near hit: one per line, both words marked).
+        const seenEngLine = new Set<GreekLine>();
         for (const off of r.engPositions) {
           const text = r.englishText ?? seg.english?.text ?? '';
           const sourceLine = englishLineAt(seg, off, text);
           if (!sourceLine) continue;
+          if (r.engNearPositions) {
+            if (seenEngLine.has(sourceLine)) continue;
+            seenEngLine.add(sourceLine);
+          }
           const playLine = schemeFor(r.work).id === 'play-line';
           const column = playLine ? sourceLine.ref ?? seg.column : seg.column;
           const ch = lookup(seg.column, sourceLine.n);
           add(r.work, r.meta.book, ch, {
             lang: 'eng', column, line: sourceLine.n,
             ref: playLine ? formatCite(r.work, column, sourceLine.n) : seg.column,
-            html: englishKwicAt(text, off, ctx.engTerms),
+            html: englishKwicAt(text, off, ctx.engTerms, ctx.engForms),
             jumpUrl: jumpFor(r.work, r.meta.book, column, sourceLine.n, r.slotId),
             credit: [getWork(r.work)?.translations.find(t => t.id === r.slotId)?.short,
               (!r.slotId || r.slotId === getWork(r.work)?.translations.find(t => t.slot === 'english')?.id)
@@ -506,21 +657,46 @@
   // generic term our SearchAction structured data advertises to search
   // engines (sitelinks searchbox) — route it to English, unless an explicit
   // ?e= is also present.
+  // The address holds the whole search (search-url.ts), so a search can be
+  // shared, bookmarked and stepped through with Back. ?g=, ?e= and ?q= (the
+  // palette's and search engines' handoffs) decode into the same state; a ?q=
+  // in Greek script goes to the Greek box.
+  const ALL_WORK_IDS = WORKS.map(w => w.id);
+  function applyUrl(u: UrlSearch) {
+    grkQuery = u.grk; engQuery = u.eng; grkMode = u.grkMode; engMode = u.engMode;
+    matchMode = u.matchMode; accentSensitive = u.accent; langOp = u.langOp; engForms = u.engForms;
+    selectedWorks = new Set(u.works.length ? u.works : ALL_WORK_IDS);
+    greekEd = editionChoices.some(e => e.id === u.ed) ? u.ed : 'tlg';
+    const n = u.near;
+    nearKind = !n ? 'none' : n.kind === 'grammatical' ? 'grammatical' : n.kind === 'lemma' ? 'lemma' : 'form';
+    nearText = n && n.kind !== 'grammatical' && n.kind !== 'lemma' ? (n.terms ?? []).join(' ') : n?.kind === 'lemma' ? (u.nearText ?? betaToGreek(n.terms?.[0] ?? '')) : '';
+    nearRel = n?.relation ?? 'near'; nearWindow = n?.window ?? COMBO_WINDOW_DEFAULT;
+    nearUnit = n?.unit ?? 'words'; nearOrdered = n?.ordered ?? false;
+    if (n?.query) {
+      shape = { ...n.query };
+      shapeClass = (Object.keys(n.query) as string[]).some(k => ['tense', 'mood', 'voice', 'person'].includes(k)) ? 'verb'
+        : 'marker' in n.query ? 'word' : 'noun';
+    }
+    engNearText = u.engNear?.term ?? ''; engNearRel = u.engNear?.relation ?? 'near';
+    engNearWindow = u.engNear?.window ?? COMBO_WINDOW_DEFAULT;
+    pendingPick = u.lemmaPick;
+  }
+  // Picks from a shared address, applied once the LSJ row has its candidates.
+  let pendingPick: string[][] | undefined;
+  $: if (pendingPick && lemmaCands.length) {
+    lemmaCands = lemmaCands.map((t, i) => ({ ...t, cands: t.cands.map(c => ({ ...c, on: pendingPick![i]?.length ? pendingPick![i].includes(c.fold) : true })) }));
+    pendingPick = undefined;
+  }
   onMount(() => {
-    const params = new URLSearchParams(window.location.search);
-    // A ?q= in Greek script goes to the Greek box (as aristotle-reader
-    // c32b0631a6 does, 2026-10-24): a search engine's sitelinks box sends
-    // whatever was typed, and Greek in the English box finds nothing.
-    const q = params.get('q');
-    const qGreek = !!q && /[\u0370-\u03FF\u1F00-\u1FFF]/.test(q);
-    const g = params.get('g') ?? (qGreek ? q : null);
-    const en = params.get('e') ?? (qGreek ? null : q);
-    if (g) grkQuery = g;
-    if (en) engQuery = en;
-    if (g || en) doSearch();
+    const u = decodeSearchUrl(window.location.search, ALL_WORK_IDS);
+    applyUrl(u);
+    if (hasSearch(u)) doSearch(undefined, u.lemmaPick);
+    const onPop = () => { const v = decodeSearchUrl(window.location.search, ALL_WORK_IDS); applyUrl(v); if (hasSearch(v)) doSearch(undefined, v.lemmaPick, true); };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
   });
 
-  async function doSearch(e?: Event) {
+  async function doSearch(e?: Event, picks?: string[][], fromHistory = false) {
     e?.preventDefault();
     if (!grkQuery.trim() && !engQuery.trim()) return;
     const id = ++searchRun;
@@ -532,20 +708,35 @@
     searched = false;
     try {
       const works = WORKS.map(w => w.id).filter(id => selectedWorks.has(id));
+      const near = grkQuery.trim() ? await nearSlot() : undefined;
+      const engNear = engQuery.trim() && engNearText.trim()
+        ? { term: engNearText.trim(), relation: engNearRel, window: engNearWindow } : undefined;
+      const pick = picks ?? lemmaPick();
+      const advanced: AdvancedSearch = { engForms, ...(pick ? { lemmaPick: pick } : {}), ...(near ? { near } : {}), ...(engNear ? { engNear } : {}) };
+      // The address holds the search, so it can be shared and reopened.
+      const url: UrlSearch = {
+        grk: grkQuery, eng: engQuery, grkMode, engMode, matchMode, accent: accentSensitive, langOp, engForms,
+        works, ed: greekEd, ...advanced, ...(near?.kind === 'lemma' ? { nearText: nearText.trim() } : {}),
+      };
+      const qs = encodeSearchUrl(url, ALL_WORK_IDS);
+      if (!fromHistory && qs !== window.location.search.replace(/^\?/, '')) {
+        history.pushState(null, '', `${window.location.pathname}${qs ? `?${qs}` : ''}`);
+      }
       // Snapshot the submitted query for all deferred (per-page / CSV) rendering.
       searchCtx = {
         grkQuery: grkQuery.trim(),
         engQuery: engQuery.trim(),
-        engTerms: engQuery.trim().split(/\s+/).filter(Boolean),
+        engTerms: [...engQuery.trim().split(/\s+/), ...(engNear ? engNear.term.split(/\s+/) : [])].filter(Boolean),
+        engForms,
+        near: !!near,
         grkAccentTerms: accentSensitive
           // Beta Code terms compare as Greek; a trailing * stays a wildcard.
           ? grkQuery.trim().split(/\s+/).filter(Boolean)
             .map(t => { const w = t.length > 1 && t.endsWith('*'); return accentNorm(betaToGreek(w ? t.slice(0, -1) : t)) + (w ? '*' : ''); })
           : [],
       };
-      const { results, failed, lemmata } = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode, greekEd);
+      const { results, failed } = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode, greekEd, advanced);
       if (id !== searchRun) return;
-      searchedLemmata = lemmata ?? [];
       resultEds = new Map(results.filter((r) => r.ed).map((r) => [r.work, r.ed!]));
       resultPlays = new Set(results.map((r) => r.work)).size;
       failedWorks = failed;
@@ -564,6 +755,25 @@
   // A play's Greek hit shows its whole verse line, the match marked (UI pass
   // 2, spec §8.1: "the lines under it, each with its number ... and the
   // matched word marked").
+  // A near hit: the first term's line with every matched token marked, then the
+  // line of the nearest other term when it stands on another line.
+  function nearKwic(seg: Segment, pos: number, first: number[], others: number[]): string {
+    const marked = new Set([...first, ...others]);
+    const lines: { line: GreekLine; start: number }[] = [];
+    let start = 0;
+    for (const line of seg.greek) { lines.push({ line, start }); start += line.tokens.length; }
+    const lineOf = (p: number) => lines.findIndex(l => p >= l.start && p < l.start + l.line.tokens.length);
+    const render = (i: number) => lines[i].line.tokens
+      .map((tok, k) => (marked.has(lines[i].start + k) ? `<mark>${esc(tok.t)}</mark>` : esc(tok.t))).join(' ');
+    const home = lineOf(pos);
+    if (home < 0) return greekKwic(seg, [pos]);
+    const homeEnd = lines[home].start + lines[home].line.tokens.length;
+    const near = others.filter(o => o < lines[home].start || o >= homeEnd)
+      .sort((a, b) => Math.abs(a - pos) - Math.abs(b - pos))[0];
+    const shown = near === undefined || others.some(o => o >= lines[home].start && o < homeEnd) ? [home] : [home, lineOf(near)].filter(i => i >= 0).sort((a, b) => a - b);
+    return shown.map(render).join(' <span class="sep">/</span> ');
+  }
+
   function lineKwic(seg: Segment, pos: number): string {
     let start = 0;
     for (const line of seg.greek) {
@@ -603,7 +813,7 @@
   // English keyword-in-context: a character window around the match at char
   // offset `pos` in the full chunk text, with all query terms highlighted.
   const ENG_WINDOW = 140;
-  function englishKwicAt(text: string, pos: number, terms: string[]): string {
+  function englishKwicAt(text: string, pos: number, terms: string[], forms = false): string {
     if (!text) return '';
     const earliest = pos >= 0 && pos < text.length ? pos : 0;
     let start = Math.max(0, earliest - ENG_WINDOW);
@@ -616,7 +826,7 @@
       const sp = text.lastIndexOf(' ', end);
       if (sp > earliest) end = sp;
     }
-    let html = highlightEnglish(text.slice(start, end), terms);
+    let html = highlightEnglish(text.slice(start, end), forms ? [...new Set(terms.flatMap(t => englishForms(t.toLowerCase())))] : terms);
     if (start > 0) html = '… ' + html;
     if (end < text.length) html = html + ' …';
     return html;
@@ -847,8 +1057,9 @@
      two boxes at the left, Greek over English, searched together; every control
      to their right, one row each (John, 2026-10-20: "Put all the controls to the
      right of search boxes"); the plays head their hits, each hit a whole line.
-     Only what this engine answers is shown: the Near and Shape rows and the
-     phrase index wait for step 2, the port of the Aristotle reader's search. -->
+     Search step 2 (2026-10-24) adds the Aristotle reader's advanced search in
+     these rows: the LSJ checks, Near and Shape for the Greek, English forms
+     and English near, the phrase index, and the search kept in the address. -->
 <main class="search-page">
   <form class="search-form" on:submit={doSearch} novalidate>
     <div class="boxes">
@@ -881,6 +1092,7 @@
       />
       <p class="act">
         <button type="submit" class="go search-btn" disabled={loading}>{loading ? 'Searching…' : 'Search'}</button>
+        <a class="ln" href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/search/phrases`}>Phrase index</a>
         <a class="ln" href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/search/how`}>How to search</a>
       </p>
     </div>
@@ -898,13 +1110,60 @@
         {/if}
         <span class="mn">* wildcard · <button type="button" class="ln" on:click={openHelp} aria-haspopup="dialog">Beta Code</button> works</span>
       </p>
-      {#if searchedLemmata.length}
-        <p class="row lsj"><span class="mn">LSJ</span>{#each searchedLemmata as lemma}<span class="lem" lang="grc">{lemma}</span>{/each}</p>
+      {#if matchMode === 'lemma' && lemmaCands.some(t => t.cands.length)}
+        <!-- The headwords each typed word can belong to; untick one to leave it out. -->
+        <p class="row lsj">
+          <span class="mn">LSJ</span>
+          {#each lemmaCands as t, ti}
+            {#each t.cands as c (c.fold)}
+              <label class="ck lem" title={c.n ? `${c.n.toLocaleString('en-US')} times in the plays` : undefined}><input type="checkbox" checked={c.on} on:change={() => toggleCand(ti, c.fold)} /><span lang="grc">{c.heads.join(', ')}</span>{#if c.gloss}<span class="gl">{` — ${c.gloss}`}</span>{/if}</label>
+            {/each}
+          {/each}
+          {#if entryCand?.slug}<a class="ln" href={lemmaEntryHref(import.meta.env.BASE_URL.replace(/\/$/, ''), 'grc', entryCand.slug)}>the entries</a>{/if}
+        </p>
+      {/if}
+      <p class="row">
+        <span class="mn">Near</span>
+        <span class="v"><select aria-label="Near the Greek: what" value={nearKind} on:change={(e) => (nearKind = e.currentTarget.value as NearKind)}><option value="none">nothing else</option><option value="grammatical">a grammatical shape</option><option value="lemma">any form of a word</option><option value="form">a word as typed</option></select><i aria-hidden="true">▾</i></span>
+        {#if nearKind === 'form' || nearKind === 'lemma'}
+          <input class="fld-sm greek-input" lang="grc" type="search" aria-label="The near word" placeholder="θεός" bind:value={nearText} on:keydown={onEnter} autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" />
+        {/if}
+        {#if nearKind !== 'none'}
+          <span class="v"><select aria-label="Where it stands" value={nearRel} on:change={(e) => (nearRel = e.currentTarget.value as SlotRelation)}><option value="near">near</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
+          <span class="mn">it,</span>
+          {#if nearUnit === 'words'}
+            <span class="mn">within</span>
+            <span class="v"><select aria-label="Within how many words" value={String(nearWindow)} on:change={(e) => (nearWindow = Number(e.currentTarget.value))}>{#each WINDOW_OPTS as n}<option value={String(n)}>{n}</option>{/each}</select><i aria-hidden="true">▾</i></span>
+          {/if}
+          <span class="v"><select aria-label="Words or line" value={nearUnit} on:change={(e) => (nearUnit = e.currentTarget.value as 'words' | 'line')}><option value="words">words</option><option value="line">on the same line</option></select><i aria-hidden="true">▾</i></span>
+          {#if nearRel === 'near'}<label class="ck"><input type="checkbox" bind:checked={nearOrdered} />In this order</label>{/if}
+        {/if}
+      </p>
+      {#if nearKind === 'grammatical'}
+        <p class="row">
+          <span class="mn">Shape</span>
+          <span class="v"><select aria-label="Kind of word" value={shapeClass} on:change={(e) => { shapeClass = e.currentTarget.value as ShapeClass; shape = {}; }}><option value="verb">a verb form</option><option value="noun">a noun or adjective form</option><option value="word">a word class</option></select><i aria-hidden="true">▾</i></span>
+          {#each SHAPE_CATS[shapeClass] as cat (cat.key)}
+            <span class="v"><select aria-label={cat.key} value={shape[cat.key] ?? ''} on:change={(e) => (shape = { ...shape, [cat.key]: e.currentTarget.value })}><option value="">{cat.any}</option>{#each cat.values as [v, l]}<option value={v}>{l}</option>{/each}</select><i aria-hidden="true">▾</i></span>
+          {/each}
+          {#if !Object.keys(shapeQuery).length}<span class="mn">choose at least one</span>{/if}
+        </p>
       {/if}
       <p class="row gap">
         <span class="mn">English</span>
         <span class="v"><select aria-label="English words" value={engMode} on:change={(e) => (engMode = e.currentTarget.value as SearchMode)}>{#each MODE_OPTS as opt}<option value={opt.v}>{opt.l}</option>{/each}</select><i aria-hidden="true">▾</i></span>
+        <span class="v" title="Any form of the word also matches its plural and possessive: man, men, man’s"><select aria-label="English forms" value={String(engForms)} on:change={(e) => (engForms = e.currentTarget.value === 'true')}><option value="true">Any form of the word</option><option value="false">Only as typed</option></select><i aria-hidden="true">▾</i></span>
         <span class="mn">in every translation</span>
+      </p>
+      <p class="row">
+        <span class="mn">Near</span>
+        <input class="fld-sm" type="search" aria-label="Another English word" placeholder="another word" bind:value={engNearText} on:keydown={onEnter} autocomplete="off" />
+        {#if engNearText.trim()}
+          <span class="v"><select aria-label="Where the English word stands" value={engNearRel} on:change={(e) => (engNearRel = e.currentTarget.value as SlotRelation)}><option value="near">near</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
+          <span class="mn">it, within</span>
+          <span class="v"><select aria-label="Within how many English words" value={String(engNearWindow)} on:change={(e) => (engNearWindow = Number(e.currentTarget.value))}>{#each WINDOW_OPTS as n}<option value={String(n)}>{n}</option>{/each}</select><i aria-hidden="true">▾</i></span>
+          <span class="mn">words</span>
+        {/if}
       </p>
       <p class="row gap">
         <span class="mn">Together</span>
@@ -1120,7 +1379,18 @@
   .ck:has(input:checked)::before { content: "☑ "; color: var(--clay-text); }
   .ck:has(input:focus-visible) { outline: 2px solid var(--clay); outline-offset: 2px; }
   .sum { color: var(--ink); }
-  .lsj .lem { font: 400 1.08rem var(--font-greek); color: var(--ink); }
+  .lsj .lem span[lang="grc"] { font: 400 1.08rem var(--font-greek); }
+  .lsj .gl { color: var(--mid); }
+  /* A word typed into a row: the boxes' underline, smaller. */
+  .fld-sm {
+    font: 400 1.08rem var(--font-english); color: var(--ink); background: none; border: 0;
+    border-bottom: 1px solid var(--line); border-radius: 0; padding: 0 0 .05rem; width: 9rem; max-width: 100%;
+    appearance: none; -webkit-appearance: none;
+  }
+  .fld-sm.greek-input { font-family: var(--font-greek); }
+  .fld-sm::placeholder { color: var(--mid); font-style: italic; }
+  .fld-sm:focus { outline: none; border-bottom-color: var(--clay-text); }
+  .search-page :global(.sep) { color: var(--mid); }
   .choose { display: grid; grid-template-columns: max-content 1fr; gap: .4rem 1rem; align-items: baseline; margin: .2rem 0 0 5.6rem; }
   .choose .who { font: 400 1.05rem var(--font-english); color: var(--ink); margin: 0; }
   .choose .plays { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin: 0; font: 400 .95rem var(--font-ui); }

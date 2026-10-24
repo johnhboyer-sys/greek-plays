@@ -77,3 +77,10 @@ Element.prototype.animate = vi.fn(() => ({
     return realFetch(input, init);
   }) as typeof fetch;
 }
+
+// The search keeps its state in the address (search-url.ts); start every test
+// at a clean one, so one test's search is not reopened by the next.
+import { beforeEach as resetUrlBeforeEach } from 'vitest';
+resetUrlBeforeEach(() => {
+  if (typeof history !== 'undefined') history.replaceState(null, '', '/');
+});

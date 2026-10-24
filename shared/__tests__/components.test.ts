@@ -547,6 +547,8 @@ describe('Search.svelte partial index failures (Astra lane A, F10)', () => {
     await fireEvent.click(twoUi.getByRole('button', { name: 'Search' }));
     await waitFor(() => expect(two.container.textContent).toContain('Some plays could not be searched: Agamemnon, Frogs.'));
     two.unmount();
+    // The first search is in the address now; start the second from a clean one.
+    history.replaceState(null, '', '/');
 
     mockSearch.mockImplementation(async () => ({
       results: [hit],
@@ -571,6 +573,23 @@ describe('Search.svelte partial index failures (Astra lane A, F10)', () => {
     await fireEvent.click(ui.getByRole('button', { name: 'Search' }));
     await waitFor(() => expect(container.querySelector('.result-count')).toBeTruthy());
     expect(container.textContent).not.toContain('Some plays could not be searched');
+  });
+
+  it('reopens a shared address: the rows are restored and the search runs with them', async () => {
+    const { search } = await import('../lib/search');
+    const mockSearch = search as unknown as ReturnType<typeof vi.fn>;
+    mockSearch.mockClear();
+    mockSearch.mockImplementation(async () => ({ results: [hit], failed: [] }));
+    const near = { kind: 'grammatical', query: { mood: 'opt' }, relation: 'after', window: 1, unit: 'words', ordered: false };
+    history.replaceState(null, '', `/search?g=${encodeURIComponent('μή')}&e=sword&ef=0&near=${encodeURIComponent(JSON.stringify(near))}`);
+    const { container } = render(Search);
+    await waitFor(() => expect(mockSearch).toHaveBeenCalled());
+    const args = mockSearch.mock.calls[0];
+    expect(args[0]).toBe('μή');
+    expect(args[1]).toBe('sword');
+    expect(args[8]).toMatchObject({ engForms: false, near: { kind: 'grammatical', query: { mood: 'opt' }, relation: 'after', window: 1 } });
+    expect((container.querySelector('select[aria-label="Near the Greek: what"]') as HTMLSelectElement).value).toBe('grammatical');
+    expect((container.querySelector('select[aria-label="mood"]') as HTMLSelectElement).value).toBe('opt');
   });
 });
 

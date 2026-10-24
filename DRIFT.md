@@ -1079,3 +1079,6 @@ CI had failed on every run since the first push (2026-09-09). The fixes:
 - `shared/lib/search.ts` — `search()` takes an optional `AdvancedSearch` (lemma picks, Greek near, shape, English forms, English near); reference-text lookups read the stage-9 shards when listed; plain calls unchanged.
 - `shared/lib/search-url.ts` — new, after aristotle-reader's `search-url.ts`, for this search's state (keeps ?g=, ?e=, ?q=).
 - `shared/__tests__/search-{advanced,combo,grammar,shards,url,variants}.test.ts` — ported from aristotle-reader and adapted; `search.test.ts` allows the shard fetches.
+- `shared/components/Search.svelte` — search step 2 rows in B's layout: LSJ headword checks with glosses (from the picker data), Near (word, form, headword or grammatical shape; near/before/after; words or same line; in this order), Shape, English any form, English near, a Phrase index link; the whole search in the address (pushState, Back reopens). `shared/__tests__/setup.ts` resets the address per test.
+- `shared/components/Phrases.svelte`, `app/src/pages/search/phrases.astro` — new, the phrase index: aristotle-reader `Phrases.svelte`'s logic in B's search layout; lines cited by printed ref and linked into the reader.
+- `app/src/pages/search/how.astro` — the new controls, sharing a search, and the phrase index explained.

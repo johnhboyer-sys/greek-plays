@@ -55,11 +55,33 @@ const canonical = Astro.site ? new URL(`${base}/search/how/`, Astro.site).href :
         <dt>Wildcard</dt>
         <dd>Use <code>*</code> for a wildcard: <code>fron*</code> matches φρόνησις, φρόνιμος, etc.</dd>
         <dt>LSJ</dt>
-        <dd>After a search for any form of a word, the headwords it matched.</dd>
+        <dd>With any form of a word, the dictionary headwords the word can belong to, each with its meaning and how often it occurs. Untick one to leave it out: <span lang="grc">πόλεις</span> can be a form of <span lang="grc">πόλις</span> or of <span lang="grc">πολέω</span>.</dd>
+        <dt>Near</dt>
+        <dd>A second word, form, headword or grammatical shape that must stand near the Greek you typed: before it, after it, or either side, within so many words or on the same line. In this order keeps the two in the order given.</dd>
+        <dt>Shape</dt>
+        <dd>The grammar of that second term: tense, mood, voice, person and number for a verb form; case, number, gender and degree for a noun or adjective; or a word class such as particle or preposition. Leave a category at “any” to accept every value. The parses are Morpheus’s, and a form it reads more than one way matches each of its readings.</dd>
+        <dt>English near</dt>
+        <dd>A second English word within so many words of the first, in the same translation.</dd>
         <dt>Together</dt>
         <dd>With both boxes filled: lines where both the Greek and the English match, or lines where either does.</dd>
         <dt>In</dt>
         <dd>Every play, one author's plays, or the plays you choose.</dd>
+      </dl>
+
+      <h2 id="share">Sharing a search</h2>
+      <p>The address in your browser holds the whole search, every control included. Copy it to share the search or come back to it.</p>
+
+      <h2 id="phrases">The phrase index</h2>
+      <p>Every run of two to five words that occurs at least twice in the plays, counted. <a href={`${base}/search/phrases`}>Open the phrase index</a></p>
+      <dl>
+        <dt>Greek words as written, Greek words in any form</dt>
+        <dd>As written counts <span lang="grc">ὦ τέκνον</span> and <span lang="grc">ὦ τέκνα</span> apart; in any form counts them together, by headword. Type the words as they stand on the page either way.</dd>
+        <dt>English</dt>
+        <dd>The phrases of each play’s main translation. A phrase found in many plays is the poets’ habit; one found in a single play may be its translator’s.</dd>
+        <dt>Most distinctive first</dt>
+        <dd>How much more often the phrase occurs than its words would by chance. It orders the list and hides nothing.</dd>
+        <dt>The lines</dt>
+        <dd>Choose a phrase to see the lines it stands in, by play; each number opens the reader at that line.</dd>
       </dl>
 
       <h2>How to type Greek</h2>
@@ -97,6 +119,7 @@ const canonical = Astro.site ? new URL(`${base}/search/how/`, Astro.site).href :
     .how .lede a { font: 400 1rem var(--font-ui); color: var(--mid); margin-left: .6rem; }
     .how dt { font: 400 1rem var(--font-ui); color: var(--ink); margin-top: .9rem; }
     .how dd { margin: .1rem 0 0; }
+    .how [lang="grc"] { font-family: var(--font-greek); }
     .how code { font: 400 .95rem ui-monospace, Menlo, monospace; }
     .how ul { list-style: none; margin: .4rem 0; padding: 0; }
     .how .letters { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: .2rem 1.5rem; }

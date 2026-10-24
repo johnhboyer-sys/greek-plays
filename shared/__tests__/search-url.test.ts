@@ -1,9 +1,9 @@
 import { expect, it } from 'vitest';
 import { decodeSearchUrl, encodeSearchUrl, emptyUrlSearch, hasSearch, type UrlSearch } from '../lib/search-url';
 const works = ['A', 'B', 'C'];
-it('keeps defaults aligned with the current simple search', () => {
+it('keeps defaults aligned with the search form', () => {
   const state = emptyUrlSearch(works);
-  expect(state.matchMode).toBe('form'); expect(state.engForms).toBe(false);
+  expect(state.matchMode).toBe('form'); expect(state.engForms).toBe(true);
   expect(state.ed).toBe('tlg'); expect(hasSearch(state)).toBe(false);
   expect(encodeSearchUrl(state, works)).toBe('');
 });
@@ -19,6 +19,11 @@ it('round-trips the full state', () => {
     near: { kind: 'grammatical', query: { case: 'nom' }, relation: 'after', window: 13, unit: 'line', ordered: true },
     shape: { mood: 'opt' }, engNear: { term: 'child', relation: 'before', window: 8 } };
   expect(decodeSearchUrl(encodeSearchUrl(state, works), works)).toEqual(state);
+});
+it('writes English "only as typed" and reads it back', () => {
+  const query = encodeSearchUrl({ ...emptyUrlSearch(works), eng: 'man', engForms: false }, works);
+  expect(query).toBe('e=man&ef=0');
+  expect(decodeSearchUrl(query, works).engForms).toBe(false);
 });
 it('omits all works and the reference edition', () => {
   const query = encodeSearchUrl({ ...emptyUrlSearch(works), grk: 'logos' }, works);

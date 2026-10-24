@@ -96,12 +96,12 @@ it('never joins English terms from different translations', async () => {
   const out = await run('', 'man', { engNear: { term: 'child', relation: 'near', window: 50 } });
   expect(out.results.some(r => r.meta.id === 'c')).toBe(false);
 });
-it('highlights every word of both English runs at character offsets', () => {
-  expect(englishNearOccurrences('old man sees young child and old man', ['old', 'man'], 'phrase', { term: 'young child', relation: 'after', window: 4 })).toEqual([0, 4, 13, 19]);
+it('locates each English near hit once, by where its runs start', () => {
+  expect(englishNearOccurrences('old man sees young child and old man', ['old', 'man'], 'phrase', { term: 'young child', relation: 'after', window: 4 })).toEqual({ anchors: [0], partners: [13] });
 });
 it('English near also uses expanded forms', async () => {
   const out = await run('', 'man', { engForms: true, engNear: { term: 'child', relation: 'after', window: 2 } });
-  expect(out.results.map(r => [r.meta.id, r.slotId, r.engPositions])).toEqual([['a', 'primary', [0, 9]]]);
+  expect(out.results.map(r => [r.meta.id, r.slotId, r.engPositions, r.engNearPositions])).toEqual([['a', 'primary', [0], [9]]]);
 });
 it('shares the per-play offsets cache and retries a failed binary load', async () => {
   expect(await loadOffsets('Advanced')).toBe(await loadOffsets('Advanced'));
