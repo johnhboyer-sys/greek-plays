@@ -18,14 +18,13 @@ export const AUTHOR_GROUPS: Record<string, AuthorGroup> = {
     title: 'Oresteia',
     works: ['agamemnon', 'libation-bearers', 'eumenides'],
     ordinals: true,
-    note: 'Three plays staged together',
-    fromProduction: true,
+    note: 'Staged together at the City Dionysia in 458 BC, where they won first prize.',
   },
   sophocles: {
     title: 'Oedipus cycle',
     works: ['oedipus-tyrannus', 'oedipus-coloneus', 'antigone'],
     ordinals: false,
-    note: 'Three plays on Oedipus and his children, written years apart and not staged together. Listed in story order.',
+    note: 'Written years apart, not as a trilogy. Listed in the order of the story.',
   },
 };
 

@@ -29,6 +29,7 @@ describe('generated registry golden value', () => {
     // Regenerated 2026-10-01: P4 pilot adds Paley's and Way's Greek to Medea
     // (coleridge → paley, way → way-loeb).
     // Regenerated 2026-10-22: Oedipus Tyrannus' argument, the set-up only (John's pick).
-    expect(hash).toBe('db256dc821f74cfa9b4ff9d9557e4e39dd524f603381abd7ea7f0dbd22c130da');
+    // Regenerated 2026-10-23: Helen's, Trojan Women's, and Seven's Greek titles accented (John).
+    expect(hash).toBe('b8d046215cf606737375870e0b80416c119ee7f930addd8792239c677e7c263d');
   });
 });

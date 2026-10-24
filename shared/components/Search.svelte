@@ -936,14 +936,14 @@
           <h2>How to type Greek</h2>
           <button type="button" class="help-close" on:click={closeHelp} aria-label="Close">×</button>
         </div>
-        <p class="help-intro">The Greek box accepts Greek letters <em>or</em> Beta Code, a plain-ASCII transliteration. Tick β Beta Code beside the box and what you type turns Greek as you go; Shift makes a capital. Each Greek letter is one Latin key:</p>
+        <p class="help-intro">The Greek box takes Greek letters or Beta Code, Greek typed in Latin letters. Turn on β Beta Code to see Greek as you type; Shift gives a capital. One key for each letter:</p>
         <ul class="beta-grid">
           {#each BETA_LETTERS as L}
             <li><code>{L.beta}</code><span class="gk" lang="grc">{L.greek}</span><span class="nm">{L.name}</span></li>
           {/each}
         </ul>
-        <h3>Accents and breathings, optional, ignored unless Accents matter is on</h3>
-        <p class="help-sub">Type the mark right after the vowel:</p>
+        <h3>Accents and breathings (optional)</h3>
+        <p class="help-sub">Type the mark after the vowel:</p>
         <ul class="mark-list">
           {#each BETA_MARKS as M}
             <li><code>{M.beta}</code><span class="gk" lang="grc">{M.example}</span><span class="nm">{M.name}</span></li>
@@ -955,7 +955,7 @@
             <li><code>{E.beta}</code><span class="gk" lang="grc">{E.greek}</span></li>
           {/each}
         </ul>
-        <p class="help-foot">Long vowels are distinct: <code>h</code> = η (not <code>e</code> = ε), <code>w</code> = ω (not <code>o</code> = ο). Type them exactly. Accents and breathings may be included or left off. <a class="ln" href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/search/how`}>How to search</a></p>
+        <p class="help-foot"><code>h</code> is η and <code>w</code> is ω; <code>e</code> and <code>o</code> are ε and ο. <a class="ln" href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/search/how`}>How to search</a></p>
       </div>
     </div>
   {/if}

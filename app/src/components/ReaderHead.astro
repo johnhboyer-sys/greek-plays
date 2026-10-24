@@ -86,9 +86,8 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
               ))}
             </ul>
             {/* DRAFT copy (spec §7.5); the rule is John's, 2026-09-28. */}
-            {editionsOn && eds.length > 1 && <p class="mn mn-one">Both and English views show each translation beside the Greek its translator used. The Greek view takes any edition.</p>}
-            {/* DRAFT copy (John, 2026-10-23: compare chooses its Greek). */}
-            {editionsOn && eds.length > 1 && <p class="mn mn-cmp" hidden>A comparison shows the reference text, or the edition both translators used.</p>}
+            {/* John, 2026-10-23: shorter; the compare note nixed. */}
+            {editionsOn && eds.length > 1 && <p class="mn mn-one">Each translation comes with the Greek its translator used. The Greek view can show any edition.</p>}
           </div>
           <div>
             <p class="mh">Translation</p>
@@ -401,7 +400,6 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
         li.hidden = !!offered && !offered.includes(li.dataset.ed!);
       });
       head!.querySelector<HTMLElement>('.mn-one')?.toggleAttribute('hidden', compare);
-      head!.querySelector<HTMLElement>('.mn-cmp')?.toggleAttribute('hidden', !compare);
       head!.querySelectorAll<HTMLElement>('li[data-tr]').forEach((li) => li.classList.toggle('cur', !compare && li.dataset.tr === state!.trans));
       const cmp = head!.querySelector<HTMLElement>('.cmp');
       const on = head!.querySelector<HTMLElement>('.cmp-on');
