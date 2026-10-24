@@ -95,6 +95,16 @@
   const WORK_ORDER = new Map(WORKS.map((work, index) => [work.id, index]));
   const countFormat = new Intl.NumberFormat('en-US');
 
+  // Two plays share a title (Electra): name the author beside such a title.
+  const TITLE_COUNT = new Map<string, number>();
+  for (const w of WORKS) TITLE_COUNT.set(w.title, (TITLE_COUNT.get(w.title) ?? 0) + 1);
+  function playTitle(work: string): string {
+    const w = getWork(work);
+    if (!w) return work;
+    const author = AUTHORS.find((a) => a.id === w.author)?.name;
+    return (TITLE_COUNT.get(w.title) ?? 0) > 1 && author ? `${w.title} (${author})` : w.title;
+  }
+
   const AUTHOR_SCOPES = AUTHORS
     .map((a) => ({ id: a.id, name: a.name, ids: WORKS.filter((w) => w.author === a.id).map((w) => w.id) }))
     .filter((a) => a.ids.length > 0);
@@ -452,7 +462,7 @@
       const entries = Object.entries(byWork).sort(([a], [b]) =>
         (WORK_ORDER.get(a) ?? Number.MAX_SAFE_INTEGER) - (WORK_ORDER.get(b) ?? Number.MAX_SAFE_INTEGER));
       const groups: WorkCitations[] = entries.map(([work, deltas]) => ({
-        id: work, title: getWork(work)?.title ?? work, total: deltas.length, citations: [],
+        id: work, title: playTitle(work), total: deltas.length, citations: [],
       }));
       const englishSegments = forStream === 'english' ? await fetchEnglishSegments() : null;
       await pool(entries, 6, async ([work, deltas], index) => {
@@ -490,7 +500,8 @@
     }
   }
 
-  const letterLabel = (l: string) => (isEnglish ? l : betaToGreek(l));
+  // A lone s is a word-initial sigma, not a final one.
+  const letterLabel = (l: string) => (isEnglish ? l : l === 's' ? 'σ' : betaToGreek(l));
 </script>
 
 <div class="phrases-page">
@@ -582,7 +593,7 @@
 
   <p class="letters" aria-label="Phrases beginning with">
     {#each BROWSE_LETTERS as l}
-      <button type="button" class:on={normalizedPrefix === l} lang={isEnglish ? 'en' : 'grc'} on:click={() => { prefix = isEnglish ? l : betaToGreek(l); page = 0; }}>{letterLabel(l)}</button>
+      <button type="button" class:on={normalizedPrefix === l} lang={isEnglish ? 'en' : 'grc'} on:click={() => { prefix = letterLabel(l); page = 0; }}>{letterLabel(l)}</button>
     {/each}
   </p>
 
