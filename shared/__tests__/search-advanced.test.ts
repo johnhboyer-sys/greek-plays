@@ -155,3 +155,12 @@ it('treats a quoted lone * as no word, with or without English forms', async () 
   expect(englishOccurrences('old man', ['old', "'*'"], 'phrase', true)).toEqual([]);
   expect(englishOccurrences('old man', ['old', "'*'"], 'phrase', false)).toEqual([]);
 });
+
+it('places further Near terms against the first word, each with its own relation', async () => {
+  // Tokens: 0 logos, 1 kalos | 2 qea, 3 logos | (book 2) 4 qea.
+  const hits = async (more: AdvancedSearch['nearMore']) => (await run('kalos', '', { near: near(), nearMore: more })).results
+    .flatMap(r => (r.nearHits ?? []).map(h => [r.meta.id, h.pos, h.partners.map(p => `${p.segId}:${p.pos}`).sort()]));
+  expect(await hits([{ kind: 'form', terms: ['logos'], relation: 'after' }])).toEqual([['a', 1, ['b:0', 'b:1']]]);
+  expect(await hits([{ kind: 'form', terms: ['logos'], relation: 'before' }])).toEqual([['a', 1, ['a:0', 'b:0']]]);
+  expect(await hits([{ kind: 'grammatical', query: { case: 'voc' }, relation: 'before' }])).toEqual([]);
+});

@@ -575,6 +575,23 @@ describe('Search.svelte partial index failures (Astra lane A, F10)', () => {
     expect(container.textContent).not.toContain('Some plays could not be searched');
   });
 
+  it('reopens a third Near term from the address and searches with it', async () => {
+    const { search } = await import('../lib/search');
+    const mockSearch = search as unknown as ReturnType<typeof vi.fn>;
+    mockSearch.mockClear();
+    mockSearch.mockImplementation(async () => ({ results: [hit], failed: [] }));
+    history.replaceState(null, '', `/search?g=${encodeURIComponent('ὦ')}&n=f&nt=${encodeURIComponent('τέκνον')}&nr=a&nw=3&no=1&n2=g&ng2=case.voc`);
+    const { container } = render(Search);
+    await waitFor(() => expect(mockSearch).toHaveBeenCalled());
+    expect(mockSearch.mock.calls[0][8]).toMatchObject({
+      near: { kind: 'form', terms: ['τέκνον'], relation: 'after', window: 3, ordered: true },
+      nearMore: [{ kind: 'grammatical', query: { case: 'voc' }, relation: 'near' }],
+    });
+    expect((container.querySelector('select[aria-label="Term 3: what"]') as HTMLSelectElement).value).toBe('grammatical');
+    expect((container.querySelector('select[aria-label="Term 3: case"]') as HTMLSelectElement).value).toBe('voc');
+    expect(container.textContent).toContain('In this order');
+  });
+
   it('reopens a shared address: the rows are restored and the search runs with them', async () => {
     const { search } = await import('../lib/search');
     const mockSearch = search as unknown as ReturnType<typeof vi.fn>;

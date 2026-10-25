@@ -152,11 +152,15 @@ describe('searchCombo', () => {
     expect(positions(two.results[0])).toEqual([5, 12]);
   });
 
-  it('lets two DIFFERENT slots match the same token', async () => {
+  it('never lets one word answer two terms, even different ones', async () => {
+    // A word is not near itself: lemma alpha + form alpha needs two alphas.
     const { results } = await searchCombo(
       [{ kind: 'lemma', terms: ['alpha'] }, slot('alpha')], opts({ window: 5 }), ['CD3'],
     );
-    expect(positions(results[0])).toEqual([2]);
+    expect(results).toHaveLength(0);
+    // kappa stands at 5 and 12: two different words, so it is found.
+    const two = await searchCombo([{ kind: 'lemma', terms: ['kappa'] }, slot('kappa')], opts({ window: 8 }), ['CD4']);
+    expect(positions(two.results[0])).toEqual([5, 12]);
   });
 
   it('unions the heads a lemma slot carries', async () => {

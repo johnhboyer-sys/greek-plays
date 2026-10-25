@@ -74,3 +74,15 @@ it('counts a shape-only query as a search', () => {
   expect(hasSearch(state)).toBe(true);
   expect(decodeSearchUrl(encodeSearchUrl(state, works), works)).toEqual(state);
 });
+it('round-trips further Near terms, each with its own kind and relation', () => {
+  const state: UrlSearch = { ...emptyUrlSearch(works), grk: 'ὦ',
+    near: { kind: 'form', terms: ['τέκνον'], relation: 'after', window: 3, unit: 'words', ordered: true },
+    nearMore: [{ kind: 'grammatical', query: { case: 'voc' }, relation: 'near' }, { kind: 'lemma', terms: ['qeos'], relation: 'before' }],
+    nearMoreText: ['', 'θεῶν'] };
+  const query = encodeSearchUrl(state, works);
+  expect(decodeURIComponent(query)).toBe('g=ὦ&n=f&nt=τέκνον&nr=a&nw=3&no=1&n2=g&ng2=case.voc&n3=l&nt3=θεῶν&nr3=b');
+  const back = decodeSearchUrl(query, works);
+  expect(back.nearMore).toEqual([{ kind: 'grammatical', query: { case: 'voc' }, relation: 'near' }, { kind: 'lemma', terms: ['θεῶν'], relation: 'before' }]);
+  expect(back.nearMoreText).toEqual(['', 'θεῶν']);
+  expect(decodeSearchUrl('g=x&n2=f&nt2=y', works).nearMore).toBeUndefined();   // no first term, no more
+});

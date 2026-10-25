@@ -18,6 +18,9 @@ import { queryIndexes, comboSearchWork, grammarSearchWork, englishForms, english
 
 export interface AdvancedSearch {
   lemmaPick?: string[][];
+  // More Greek terms placed against the first, each with its own relation;
+  // they share near's window, unit and order.
+  nearMore?: { kind: SlotKind; terms?: string[]; query?: GrammarQuery; relation: SlotRelation }[];
   near?: { kind: SlotKind; terms?: string[]; query?: GrammarQuery;
     relation: SlotRelation; window: number; unit: 'words' | 'line'; ordered: boolean };
   shape?: GrammarQuery;
@@ -596,7 +599,7 @@ export async function search(
 
   const englishKeys = [...engTerms, ...(advanced?.engNear?.term.trim().split(/\s+/).filter(Boolean) ?? [])];
   const indexes = queryIndexes(matchMode, resolved.flat(), advanced?.engForms ? englishKeys.flatMap(t => englishForms(englishQueryWord(t))) : englishKeys);
-  const comboTerms = [...resolved.flat(), ...advanced?.near?.terms ?? []];
+  const comboTerms = [...resolved.flat(), ...advanced?.near?.terms ?? [], ...(advanced?.nearMore ?? []).flatMap(t => t.terms ?? [])];
   const comboIndexes = advanced?.near && grkTerms.length ? {
     lemma: queryIndexes('lemma', comboTerms, [], true),
     form: queryIndexes('form', comboTerms, [], true),
@@ -629,7 +632,7 @@ export async function search(
           ? { kind: 'phrase', terms: grkTerms, options: resolved, match: matchMode }
           : { kind: matchMode, terms: resolved.flat() };
         const near = advanced.near;
-        greekOverride = await comboSearchWork(w, [first, near], {
+        greekOverride = await comboSearchWork(w, [first, near, ...(advanced.nearMore ?? [])], {
           window: Math.max(1, Math.min(Number.isFinite(near.window) ? near.window : COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX)),
           unit: near.unit, ordered: near.ordered,
         }, comboIndexes);

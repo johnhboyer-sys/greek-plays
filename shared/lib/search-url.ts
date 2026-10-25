@@ -15,6 +15,8 @@ export interface UrlSearch extends AdvancedSearch {
   ed: string;
   // The near word as typed, when a lemma near term holds its resolved headwords.
   nearText?: string;
+  // The same for each further Near term, by position in nearMore.
+  nearMoreText?: string[];
 }
 
 export const emptyUrlSearch = (allWorks: string[]): UrlSearch => ({
@@ -56,6 +58,14 @@ export function encodeSearchUrl(s: UrlSearch, allWorks: string[]): string {
     if (s.near.unit === 'line') p.set('nu', 'l');
     if (s.near.ordered) p.set('no', '1');
   }
+  // Further terms: n2/nt2/nr2/ng2, n3/…, each placed against the first word.
+  (s.near ? s.nearMore ?? [] : []).slice(0, MAX_NEAR_MORE).forEach((t, i) => {
+    const k = i + 2;
+    p.set(`n${k}`, KIND_CODE[t.kind]);
+    if (t.kind === 'grammatical') p.set(`ng${k}`, encodeGrammar(t.query ?? {}));
+    else p.set(`nt${k}`, (t.kind === 'lemma' && s.nearMoreText?.[i]?.trim()) || (t.terms ?? []).join(' '));
+    if (t.relation !== 'near') p.set(`nr${k}`, t.relation[0]);
+  });
   if (s.shape) p.set('sh', encodeGrammar(s.shape));
   if (s.engNear) {
     p.set('en', s.engNear.term);
@@ -65,6 +75,8 @@ export function encodeSearchUrl(s: UrlSearch, allWorks: string[]): string {
   return p.toString();
 }
 
+// At most three Near terms in all: the first and two more.
+export const MAX_NEAR_MORE = 2;
 const KIND_CODE: Record<SlotKind, string> = { grammatical: 'g', lemma: 'l', form: 'f', phrase: 'p' };
 // Maps, not objects: a key like "constructor" must find nothing.
 const CODE_KIND = new Map<string, SlotKind>([['g', 'grammatical'], ['l', 'lemma'], ['f', 'form'], ['p', 'phrase']]);
@@ -123,6 +135,23 @@ export function decodeSearchUrl(search: string | URLSearchParams, allWorks: stri
         unit: p.get('nu') === 'l' ? 'line' : 'words', ordered: p.get('no') === '1',
       };
       if (kind === 'lemma') s.nearText = text;
+      const more: NonNullable<UrlSearch['nearMore']> = [];
+      const moreText: string[] = [];
+      for (let k = 2; k < 2 + MAX_NEAR_MORE; k++) {
+        const mk = CODE_KIND.get(p.get(`n${k}`) ?? '');
+        if (!mk) break;
+        const mq = decodeGrammar(p.get(`ng${k}`));
+        const mt = (p.get(`nt${k}`) ?? '').trim();
+        const mterms = mt.split(/\s+/).filter(Boolean);
+        if (mk === 'grammatical' ? !mq : !mterms.length) break;
+        more.push({ kind: mk, ...(mk === 'grammatical' ? { query: mq } : { terms: mterms }),
+          relation: RELATION_CODE.get(p.get(`nr${k}`) ?? 'n') ?? 'near' });
+        moreText.push(mk === 'lemma' ? mt : '');
+      }
+      if (more.length) {
+        s.nearMore = more;
+        if (moreText.some(Boolean)) s.nearMoreText = moreText;
+      }
     }
   }
   const en = (p.get('en') ?? '').trim();

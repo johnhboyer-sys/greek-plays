@@ -2,7 +2,7 @@
   import { tick, onMount } from 'svelte';
   import { search, greekFold, englishWords, type SearchMode, type LangOp, type MatchMode, type SearchResult, type AdvancedSearch } from '../lib/search';
   import { COMBO_WINDOW_DEFAULT, type SlotKind, type SlotRelation } from '../lib/search-advanced';
-  import { decodeSearchUrl, encodeSearchUrl, hasSearch, type UrlSearch } from '../lib/search-url';
+  import { decodeSearchUrl, encodeSearchUrl, hasSearch, MAX_NEAR_MORE, type UrlSearch } from '../lib/search-url';
   import { fetchBook, fetchChapters, fetchSections, readerHref, dataRoot, fetchLemmaPickerShard, fetchLemmaGlosses, lemmaEntryHref, type Segment, type GreekLine, type ChapterRef, type SectionRef, type TranslationCredit } from '../lib/data';
   import { editionPicker } from '../lib/edition-picker';
   import { WORKS, getWork, workPath, WORK_ORDER } from '../lib/works';
@@ -83,6 +83,13 @@
   let nearRel: SlotRelation = 'near';
   let nearWindow = COMBO_WINDOW_DEFAULT;
   let nearUnit: 'words' | 'line' = 'words';
+  // Further Greek terms (at most MAX_NEAR_MORE), each placed against the
+  // first word with its own "near", "before" or "after"; they share the
+  // distance above. "In this order" keeps all the terms in sequence.
+  interface MoreTerm { kind: Exclude<NearKind, 'none'>; text: string; rel: SlotRelation; shapeClass: ShapeClass; shape: Record<string, string> }
+  let nearMore: MoreTerm[] = [];
+  let nearOrdered = false;
+  const newTerm = (): MoreTerm => ({ kind: 'lemma', text: '', rel: 'near', shapeClass: 'verb', shape: {} });
   const WINDOW_OPTS = [1, 2, 3, 5, 10, 15, 20, 30, 50];
 
   // Shape: the second term's grammar. The vocabulary is Morpheus's, nothing
@@ -186,21 +193,31 @@
   }
   $: entryCand = lemmaCands.flatMap(t => t.cands).find(c => c.on && c.slug);
 
-  async function nearSlot(): Promise<AdvancedSearch['near']> {
-    if (nearKind === 'none') return undefined;
-    // With two terms, "after" already fixes the order, so the page has no
-    // "In this order" check (John, 2026-10-25).
-    const base = { relation: nearRel, window: nearWindow, unit: nearUnit, ordered: false };
-    if (nearKind === 'grammatical') {
-      const query = shapeQueryOf(shapeClass, shape);
-      return Object.keys(query).length ? { kind: 'grammatical', query, ...base } : undefined;
+  // One Near term as the engine takes it, or nothing if it is not filled in.
+  async function termSlot(kind: NearKind, text: string, cls: ShapeClass, sh: Record<string, string>):
+    Promise<{ kind: SlotKind; terms?: string[]; query?: Record<string, string> } | undefined> {
+    if (kind === 'none') return undefined;
+    if (kind === 'grammatical') {
+      const query = shapeQueryOf(cls, sh);
+      return Object.keys(query).length ? { kind: 'grammatical', query } : undefined;
     }
-    const words = nearText.trim().split(/\s+/).filter(Boolean);
+    const words = text.trim().split(/\s+/).filter(Boolean);
     if (!words.length) return undefined;
-    if (words.length > 1) return { kind: 'phrase' as SlotKind, terms: words, ...base };
-    if (nearKind === 'form') return { kind: 'form', terms: words, ...base };
+    if (words.length > 1) return { kind: 'phrase', terms: words };
+    if (kind === 'form') return { kind: 'form', terms: words };
     const folds = await headFolds(words[0]);
-    return { kind: 'lemma', terms: folds.length ? folds : [greekFold(words[0])], ...base };
+    return { kind: 'lemma', terms: folds.length ? folds : [greekFold(words[0])] };
+  }
+  // The Near terms read now, before any await: a later Back must not mix in.
+  function nearSlots(): Promise<{ near?: AdvancedSearch['near']; nearMore?: AdvancedSearch['nearMore'] }> {
+    const first = termSlot(nearKind, nearText, shapeClass, shape);
+    const more = nearMore.map(t => termSlot(t.kind, t.text, t.shapeClass, t.shape).then(slot => slot && { ...slot, relation: t.rel }));
+    const base = { relation: nearRel, window: nearWindow, unit: nearUnit, ordered: nearMore.length > 0 && nearOrdered };
+    return Promise.all([first, ...more]).then(([f, ...m]) => {
+      if (!f) return {};
+      const filled = m.filter((x): x is NonNullable<typeof x> => !!x);
+      return { near: { ...f, ...base }, ...(filled.length ? { nearMore: filled } : {}) };
+    });
   }
   let resultPlays = 0;                    // plays with a hit, for the count line
   // Which works to search. Default: all. Selected in the collapsible panel below.
@@ -694,6 +711,14 @@
     nearText = n && n.kind !== 'grammatical' && n.kind !== 'lemma' ? (n.terms ?? []).join(' ') : n?.kind === 'lemma' ? (u.nearText ?? betaToGreek(n.terms?.[0] ?? '')) : '';
     nearRel = n?.relation ?? 'near'; nearWindow = n?.window ?? COMBO_WINDOW_DEFAULT;
     nearUnit = n?.unit ?? 'words';
+    nearOrdered = !!n?.ordered;
+    nearMore = (u.nearMore ?? []).map((t, i) => ({
+      kind: t.kind === 'grammatical' ? 'grammatical' : t.kind === 'lemma' ? 'lemma' : 'form',
+      text: t.kind === 'grammatical' ? '' : t.kind === 'lemma' ? (u.nearMoreText?.[i] || betaToGreek(t.terms?.[0] ?? '')) : (t.terms ?? []).join(' '),
+      rel: t.relation,
+      shapeClass: !t.query ? 'verb' : Object.keys(t.query).some(k => ['tense', 'mood', 'voice', 'person'].includes(k)) ? 'verb' : 'marker' in t.query ? 'word' : 'noun',
+      shape: { ...(t.query ?? {}) },
+    }));
     if (n?.query) {
       shape = { ...n.query };
       shapeClass = (Object.keys(n.query) as string[]).some(k => ['tense', 'mood', 'voice', 'person'].includes(k)) ? 'verb'
@@ -748,20 +773,22 @@
       grk: grkQuery, eng: engQuery, grkMode, engMode, matchMode, accent: accentSensitive, langOp, engForms, ed: greekEd,
       works: WORKS.map(w => w.id).filter(w => selectedWorks.has(w)),
       nearText: nearText.trim(),
+      nearMoreText: nearMore.map(t => (t.kind === 'lemma' ? t.text.trim() : '')),
       engNear: engQuery.trim() && engNearText.trim()
         ? { term: engNearText.trim(), relation: engNearRel, window: engNearWindow } : undefined,
       pick: picks ?? lemmaPick(),
     };
-    const nearP = q.grk.trim() ? nearSlot() : Promise.resolve(undefined);
+    const nearP = q.grk.trim() ? nearSlots() : Promise.resolve({} as Awaited<ReturnType<typeof nearSlots>>);
     try {
-      const near = await nearP;
+      const { near, nearMore: more } = await nearP;
       if (id !== searchRun) return;
-      const advanced: AdvancedSearch = { engForms: q.engForms, ...(q.pick ? { lemmaPick: q.pick } : {}), ...(near ? { near } : {}), ...(q.engNear ? { engNear: q.engNear } : {}) };
+      const advanced: AdvancedSearch = { engForms: q.engForms, ...(q.pick ? { lemmaPick: q.pick } : {}), ...(near ? { near } : {}), ...(more ? { nearMore: more } : {}), ...(q.engNear ? { engNear: q.engNear } : {}) };
       // The address holds the search, so it can be shared and reopened.
       const url: UrlSearch = {
         grk: q.grk, eng: q.eng, grkMode: q.grkMode, engMode: q.engMode, matchMode: q.matchMode, accent: q.accent,
         langOp: q.langOp, engForms: q.engForms, works: q.works, ed: q.ed, ...advanced,
         ...(near?.kind === 'lemma' ? { nearText: q.nearText } : {}),
+        ...(more?.some(t => t.kind === 'lemma') ? { nearMoreText: q.nearMoreText } : {}),
       };
       const qs = encodeSearchUrl(url, ALL_WORK_IDS);
       if (history_ !== 'none' && qs !== window.location.search.replace(/^\?/, '')) {
@@ -814,9 +841,9 @@
   // A play's Greek hit shows its whole verse line, the match marked (UI pass
   // 2, spec §8.1: "the lines under it, each with its number ... and the
   // matched word marked").
-  // A near hit: the line of the run starting at `pos`, its words and the other
-  // terms marked, then the line of the nearest other term when it stands on
-  // another line, or (`away`) in the passage before or after.
+  // A near hit: every line holding the run starting at `pos` or one of the
+  // other terms' words, all marked, then (`away`) the lines of any that stand
+  // in the passage before or after.
   function nearKwic(seg: Segment, pos: number, run: number, others: number[], away: { seg: Segment; positions: number[]; after: boolean }[] = []): string {
     const linesOf = (sg: Segment) => {
       const out: { line: GreekLine; start: number }[] = [];
@@ -831,13 +858,8 @@
     const marked = new Set([...Array.from({ length: run }, (_, j) => pos + j), ...others]);
     const home = lineOf(pos);
     if (home < 0) return greekKwic(seg, [pos]);
-    const inLine = (p: number) => p >= lines[home].start && p < lines[home].start + lines[home].line.tokens.length;
-    const parts = [home];
-    if (!others.some(inLine)) {
-      const nearest = others.slice().sort((a, b) => Math.abs(a - pos) - Math.abs(b - pos))[0];
-      const at = nearest === undefined ? -1 : lineOf(nearest);
-      if (at >= 0) parts.push(at);
-    }
+    // Every line that holds one of this hit's words, in order.
+    const parts = [...new Set([home, ...others.map(lineOf).filter(i => i >= 0)])];
     const html = parts.sort((a, b) => a - b).map(i => render(lines[i], marked));
     // Partners in another passage: every line they stand on, all marked.
     for (const a of away) {
@@ -1268,6 +1290,35 @@
             <span class="v"><select aria-label={cat.key} value={shape[cat.key] ?? ''} on:change={(e) => (shape = { ...shape, [cat.key]: e.currentTarget.value })}><option value="">{cat.any}</option>{#each cat.values as [v, l]}<option value={v}>{l}</option>{/each}</select><i aria-hidden="true">▾</i></span>
           {/each}
           {#if !Object.keys(shapeQuery).length}<span class="mn">choose at least one</span>{/if}
+        </p>
+      {/if}
+      {#if nearKind !== 'none'}
+        {#each nearMore as t, i}
+          <p class="row">
+            <span class="mn">and</span>
+            <span class="v"><select aria-label={`Term ${i + 3}: what`} value={t.kind} on:change={(e) => { t.kind = e.currentTarget.value as MoreTerm['kind']; nearMore = nearMore; }}><option value="grammatical">a grammatical shape</option><option value="lemma">any form of a word</option><option value="form">a word as typed</option></select><i aria-hidden="true">▾</i></span>
+            {#if t.kind !== 'grammatical'}
+              <input class="fld-sm greek-input" lang="grc" type="search" aria-label={`Term ${i + 3}: word`} placeholder="θεός" bind:value={t.text} on:keydown={onEnter} autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" />
+            {/if}
+            <span class="v"><select aria-label={`Term ${i + 3}: where it stands`} value={t.rel} on:change={(e) => { t.rel = e.currentTarget.value as SlotRelation; nearMore = nearMore; }}><option value="near">near</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
+            <span class="mn">the Greek word</span>
+            <button type="button" class="ln" on:click={() => { nearMore = nearMore.filter((_, j) => j !== i); }}>remove</button>
+          </p>
+          {#if t.kind === 'grammatical'}
+            <p class="row">
+              <span class="mn">Shape</span>
+              <span class="v"><select aria-label={`Term ${i + 3}: kind of word`} value={t.shapeClass} on:change={(e) => { t.shapeClass = e.currentTarget.value as ShapeClass; t.shape = {}; nearMore = nearMore; }}><option value="verb">a verb form</option><option value="noun">a noun or adjective form</option><option value="word">a word class</option></select><i aria-hidden="true">▾</i></span>
+              {#each SHAPE_CATS[t.shapeClass] as cat (cat.key)}
+                <span class="v"><select aria-label={`Term ${i + 3}: ${cat.key}`} value={t.shape[cat.key] ?? ''} on:change={(e) => { t.shape = { ...t.shape, [cat.key]: e.currentTarget.value }; nearMore = nearMore; }}><option value="">{cat.any}</option>{#each cat.values as [v, l]}<option value={v}>{l}</option>{/each}</select><i aria-hidden="true">▾</i></span>
+              {/each}
+              {#if !Object.keys(shapeQueryOf(t.shapeClass, t.shape)).length}<span class="mn">choose at least one</span>{/if}
+            </p>
+          {/if}
+        {/each}
+        <p class="row">
+          <span class="mn"></span>
+          {#if nearMore.length < MAX_NEAR_MORE}<button type="button" class="ln" on:click={() => { nearMore = [...nearMore, newTerm()]; }}>add a term</button>{/if}
+          {#if nearMore.length}<label class="ck"><input type="checkbox" bind:checked={nearOrdered} />In this order</label>{/if}
         </p>
       {/if}
       <p class="row gap">

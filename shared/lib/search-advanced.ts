@@ -682,23 +682,22 @@ export function comboWindows(
       const take: SlotHit[] = [anchor];
       let cursor = anchor.start + anchor.span;   // for the whole-query order lock
       let ok = true;
-      const used = new Map<string, Set<number>>();
-      const claim = (s: number, at: number): boolean => {
-        const id = identities[s];
-        if (!id) return true;
-        let taken = used.get(id);
-        if (!taken) { taken = new Set(); used.set(id, taken); }
-        if (taken.has(at)) return false;
-        taken.add(at);
+      // Every term must match a word of its own: "θεῶν near a genitive" is
+      // not answered by θεῶν itself, nor two terms by one word. (aristotle-
+      // reader only kept identical terms apart; `identities` is now unused.)
+      const taken = new Set<number>();
+      const claim = (_s: number, at: number, span = 1): boolean => {
+        for (let k = 0; k < span; k++) if (taken.has(at + k)) return false;
+        for (let k = 0; k < span; k++) taken.add(at + k);
         return true;
       };
-      claim(0, anchor.start);
+      claim(0, anchor.start, anchor.span);
       for (let s = 1; s < feasible.length; s++) {
         const relation = relations[s] ?? 'near';
         const from = opts.ordered ? Math.max(s0, cursor) : s0;
         const window = feasible[s].filter(h => h.start >= from && h.start <= limit);
         const ordered = relation === 'before' ? [...window].reverse() : window;
-        const pick = ordered.find(h => claim(s, h.start));
+        const pick = ordered.find(h => claim(s, h.start, h.span));
         if (!pick) { ok = false; break; }
         take.push(pick);
         cursor = pick.start + pick.span;
