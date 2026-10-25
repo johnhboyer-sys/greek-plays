@@ -763,15 +763,41 @@ export async function comboSearchWork(
   );
 
   const bySeg = new Map<number, SearchResult>();
+  const resultAt = (si: number): SearchResult => {
+    let result = bySeg.get(si);
+    if (!result) {
+      result = { work, meta: meta[si], grkMatch: true, engMatch: false,
+        grkPositions: [], nearPositions: [], engPositions: [], grammar: [], nearHits: [] };
+      bySeg.set(si, result);
+    }
+    return result;
+  };
+  // Each window as the reader sees it: the first term's run, filed under the
+  // passage it starts in, with the other terms that answered it, wherever they
+  // stand (the merged position lists below cannot say which word answered which).
+  const hitByStart = new Map<number, NonNullable<SearchResult['nearHits']>[number]>();
+  for (const w of windows) {
+    const anchor = w.hits[0];
+    if (!anchor) continue;
+    const [asi, apos] = locate(base, anchor.start);
+    let hit = hitByStart.get(anchor.start);
+    if (!hit) {
+      hit = { pos: apos, span: anchor.span, partners: [] };
+      hitByStart.set(anchor.start, hit);
+      resultAt(asi).nearHits!.push(hit);
+    }
+    for (const h of w.hits.slice(1)) for (let k = 0; k < h.span; k++) {
+      const [psi, ppos] = locate(base, h.start + k);
+      const segId = meta[psi].id;
+      if (!hit.partners.some(p => p.segId === segId && p.pos === ppos)) {
+        hit.partners.push({ segId, pos: ppos, before: h.start + k < anchor.start });
+      }
+    }
+  }
   for (const w of windows) for (const [slot, h] of w.hits.entries()) {
     for (let k = 0; k < h.span; k++) {
       const [si, pos] = locate(base, h.start + k);
-      let result = bySeg.get(si);
-      if (!result) {
-        result = { work, meta: meta[si], grkMatch: true, engMatch: false,
-          grkPositions: [], nearPositions: [], engPositions: [], grammar: [] };
-        bySeg.set(si, result);
-      }
+      const result = resultAt(si);
       const positions = slot === 0 ? result.grkPositions : result.nearPositions!;
       const previous = positions.indexOf(pos);
       const info = { values: h.values ?? {}, certain: h.certain };
@@ -790,6 +816,7 @@ export async function comboSearchWork(
     const order = result.nearPositions!.map((p, i) => [p, i] as const).sort((a, b) => a[0] - b[0]);
     result.nearPositions = order.map(([p]) => p);
     result.grammar = order.map(([, i]) => result.grammar![i]);
+    result.nearHits!.sort((a, b) => a.pos - b.pos);
   }
   return [...bySeg.keys()].sort((a, b) => a - b).map(si => bySeg.get(si)!);
 }

@@ -320,6 +320,10 @@ export interface SearchResult {
   grkPositions: number[]; // token positions in the segment where a Greek term matched
   engPositions: number[]; // char offsets in the segment's English where a term matched
   nearPositions?: number[];    // a Greek near search: the other terms' token positions
+  // A Greek near search: one entry per hit whose first term starts in this
+  // passage — its run, and the other terms' tokens that answered it, which may
+  // stand in another passage (segId) before or after it.
+  nearHits?: { pos: number; span: number; partners: { segId: string; pos: number; before: boolean }[] }[];
   engNearPositions?: number[]; // an English near search: where the near words stand
   grammar?: { values: Record<string, string[]>; certain: boolean }[];
   slotId?: string;
@@ -497,6 +501,7 @@ async function searchWork(
         engMatch: !!key,
         grkPositions: override?.get(meta[si].id)?.grkPositions ?? grkPos.get(si) ?? [],
         ...(override?.get(meta[si].id)?.nearPositions ? { nearPositions: override.get(meta[si].id)!.nearPositions } : {}),
+        ...(override?.get(meta[si].id)?.nearHits ? { nearHits: override.get(meta[si].id)!.nearHits } : {}),
         ...(override?.get(meta[si].id)?.grammar ? { grammar: override.get(meta[si].id)!.grammar } : {}),
         // Each offset belongs to this translation's full text.
         ...(key && advanced?.engNear?.term.trim()

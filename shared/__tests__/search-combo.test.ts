@@ -31,6 +31,7 @@ const form: Record<string, [number, number][]> = {
   lambda: [[0, 18]],
   mu: [[1, 9]],    // global 29, last token of 1001a
   nu: [[2, 0]],    // global 30, first token of 1001b
+  feu: [[0, 14], [0, 15], [0, 16]],   // φεῦ φεῦ φεῦ: two overlapping runs of φεῦ φεῦ
 };
 
 function json(data: unknown) {
@@ -54,6 +55,21 @@ describe('searchCombo', () => {
     });
   });
   afterEach(() => vi.restoreAllMocks());
+
+  it('reports each hit with its own run and the partner that answered it, across passages', async () => {
+    const out = await searchCombo([slot('mu'), { ...slot('nu'), relation: 'after' as const }], opts({ window: 1 }), ['N1']);
+    const first = out.results.find(r => r.meta.id === '2:1001a');
+    expect(first?.nearHits).toEqual([{ pos: 9, span: 1, partners: [{ segId: '2:1001b', pos: 0, before: false }] }]);
+    // The partner's passage has no hit of its own to show.
+    expect(out.results.find(r => r.meta.id === '2:1001b')?.nearHits).toEqual([]);
+  });
+
+  it('keeps overlapping runs of a phrase apart: φεῦ φεῦ φεῦ holds two hits of φεῦ φεῦ', async () => {
+    const out = await searchCombo([{ kind: 'phrase' as const, terms: ['feu', 'feu'] }, slot('zeta')], opts({ window: 5 }), ['N2']);
+    const hits = out.results.find(r => r.meta.id === '1:1000a')?.nearHits ?? [];
+    expect(hits.map(h => [h.pos, h.span])).toEqual([[14, 2], [15, 2]]);
+    expect(hits.every(h => h.partners.some(p => p.pos === 12 && p.before))).toBe(true);
+  });
 
   it('needs at least two usable slots', async () => {
     await expect(searchCombo([slot('alpha')], opts(), ['C1'])).resolves.toEqual({ results: [], failed: [] });
