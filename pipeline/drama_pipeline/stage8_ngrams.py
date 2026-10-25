@@ -45,6 +45,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from .config import BUILD_DIR
+from .stage5_lsj import shard_letter
 from .stage6_search import english_words
 
 NS = (2, 3, 4, 5)
@@ -143,7 +144,7 @@ def _accented_heads(head_votes: dict[str, Counter]) -> dict[str, str]:
     out: dict[str, str] = {}
     for folded, votes in head_votes.items():
         key = sorted(votes.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
-        letter = next((c for c in key.lower() if "a" <= c <= "z"), "_")
+        letter = shard_letter(key)   # stage 5's own rule for where a key lives
         if letter not in shards:
             path = BUILD_DIR / "dist" / "lsj" / f"{letter}.json"
             shards[letter] = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}

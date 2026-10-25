@@ -193,3 +193,18 @@ def test_phrases_carry_their_accented_display():
     assert _display("lemma", "pros zzz", {}, {}, heads) == ["πρός", None]
     assert _display("lemma", "yyy zzz", {}, {}, heads) is None
     assert _display("english", "by the gods", {}, {}, heads) is None
+
+
+def test_accented_heads_find_capitalised_keys_where_stage5_files_them(tmp_path, monkeypatch):
+    # Stage 5 skips capitals when it chooses a key's shard: Ba/qrakos is in a.json.
+    from collections import Counter
+    import json as _json
+    from drama_pipeline import stage8_ngrams
+    from drama_pipeline.stage5_lsj import shard_letter
+    monkeypatch.setattr(stage8_ngrams, "BUILD_DIR", tmp_path)
+    lsj = tmp_path / "dist" / "lsj"
+    lsj.mkdir(parents=True)
+    for key, head in (("Ba/qrakos", "Βάθρακος"), ("*Seilhniko/s", "Σειληνικός")):
+        (lsj / f"{shard_letter(key)}.json").write_text(_json.dumps({key: {"head": head}}), encoding="utf-8")
+    heads = stage8_ngrams._accented_heads({"baqrakos": Counter({"Ba/qrakos": 1}), "seilhnikos": Counter({"*Seilhniko/s": 1})})
+    assert heads == {"baqrakos": "Βάθρακος", "seilhnikos": "Σειληνικός"}

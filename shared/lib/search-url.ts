@@ -66,8 +66,9 @@ export function encodeSearchUrl(s: UrlSearch, allWorks: string[]): string {
 }
 
 const KIND_CODE: Record<SlotKind, string> = { grammatical: 'g', lemma: 'l', form: 'f', phrase: 'p' };
-const CODE_KIND: Record<string, SlotKind> = { g: 'grammatical', l: 'lemma', f: 'form', p: 'phrase' };
-const RELATION_CODE: Record<string, SlotRelation> = { n: 'near', b: 'before', a: 'after' };
+// Maps, not objects: a key like "constructor" must find nothing.
+const CODE_KIND = new Map<string, SlotKind>([['g', 'grammatical'], ['l', 'lemma'], ['f', 'form'], ['p', 'phrase']]);
+const RELATION_CODE = new Map<string, SlotRelation>([['n', 'near'], ['b', 'before'], ['a', 'after']]);
 // The categories the grammar index holds (pipeline stage 6's _FEATURES).
 const GRAMMAR_KEYS = new Set(['case', 'number', 'gender', 'person', 'tense', 'mood', 'voice', 'degree', 'marker']);
 const encodeGrammar = (q: GrammarQuery) => Object.entries(q).map(([k, v]) => `${k}.${v}`).join('~');
@@ -109,7 +110,7 @@ export function decodeSearchUrl(search: string | URLSearchParams, allWorks: stri
   if (lp !== null) s.lemmaPick = lp.split('~').map(t => t.split('.').map(f => f.trim()).filter(f => /^[a-z']+$/.test(f)));
   const shape = decodeGrammar(p.get('sh'));
   if (shape) s.shape = shape;
-  const kind = CODE_KIND[p.get('n') ?? ''];
+  const kind = CODE_KIND.get(p.get('n') ?? '');
   if (kind) {
     const query = decodeGrammar(p.get('ng'));
     const text = (p.get('nt') ?? '').trim();
@@ -117,7 +118,7 @@ export function decodeSearchUrl(search: string | URLSearchParams, allWorks: stri
     if (kind === 'grammatical' ? !!query : !!terms.length) {
       s.near = {
         kind, ...(kind === 'grammatical' ? { query } : { terms }),
-        relation: RELATION_CODE[p.get('nr') ?? 'n'] ?? 'near',
+        relation: RELATION_CODE.get(p.get('nr') ?? 'n') ?? 'near',
         window: windowSize(Number(p.get('nw') ?? COMBO_WINDOW_DEFAULT)),
         unit: p.get('nu') === 'l' ? 'line' : 'words', ordered: p.get('no') === '1',
       };
@@ -126,7 +127,7 @@ export function decodeSearchUrl(search: string | URLSearchParams, allWorks: stri
   }
   const en = (p.get('en') ?? '').trim();
   if (en) s.engNear = {
-    term: en, relation: RELATION_CODE[p.get('enr') ?? 'n'] ?? 'near',
+    term: en, relation: RELATION_CODE.get(p.get('enr') ?? 'n') ?? 'near',
     window: windowSize(Number(p.get('enw') ?? COMBO_WINDOW_DEFAULT)),
   };
   return s;

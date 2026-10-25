@@ -65,6 +65,9 @@ it('clamps windows and drops invalid values', () => {
   expect(state.lemmaPick).toEqual([['logos'], []]);
   expect(decodeSearchUrl('g=x&n=zz&nt=y', works).near).toBeUndefined();
   expect(decodeSearchUrl('g=x&n=g', works).near).toBeUndefined();
+  expect(decodeSearchUrl('g=x&n=constructor&nt=y', works).near).toBeUndefined();
+  expect(decodeSearchUrl('g=x&n=f&nt=y&nr=constructor', works).near?.relation).toBe('near');
+  expect(decodeSearchUrl('e=x&en=y&enr=__proto__', works).engNear?.relation).toBe('near');
 });
 it('counts a shape-only query as a search', () => {
   const state = { ...emptyUrlSearch(works), shape: { mood: 'opt' } };
