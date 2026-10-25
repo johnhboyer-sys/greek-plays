@@ -375,15 +375,13 @@ greek_editions:
     # breathing lost).
     text_fixes:
       - { ref: "4", find: "Ἰλίῳ", replace: "Ἰλίᾳ", note: "scan p. 151 prints Ἰλίᾳ χθονὶ (feminine, with χθονί); the OCR read Ἰλίῳ" }
-      - { ref: "21", find: "ᾔτουν", replace: "ἤτουν", note: "scan p. 151 prints ἤτουν with no iota subscript" }
       - { ref: "38", find: "ηὐγένει’", replace: "ηὑγένει’", note: "scan p. 152 prints ηὑγένει’ (ἡ εὐγένεια) with the rough breathing; the OCR read it smooth" }
       - { ref: "43", find: "ἀνὴρ", replace: "ἁνὴρ", note: "scan p. 152 prints ἁνὴρ (ὁ ἀνήρ); the OCR read the breathing smooth" }
-      - { ref: "74", find: "τἀν", replace: "τἂν", note: "scan p. 153 prints τἂν (coronis and grave); the OCR dropped the accent" }
       - { ref: "88", find: "οἶδας", replace: "οὖδας", note: "scan p. 153 prints οὖδας (the ground); οἶδας is another word" }
       - { ref: "119", find: "πολῖται", replace: "πολιῆται", note: "scan p. 154 prints πολιῆται; πολῖται breaks the metre" }
       - { ref: "140", find: "κρατὸς ἔ-", replace: "κρατὸς ἑ-", note: "scan p. 155 prints ἑ-|λοῦσ’ (ἑλοῦσα) with the rough breathing; the OCR read it smooth" }
       - { ref: "143", find: "ἰακχάν;", replace: "ἰακχὰν,", note: "scan p. 155 prints ἰακχὰν, (grave, then a comma); the OCR read an acute and a question mark" }
-      - { ref: "298", find: "τὰν", replace: "τἂν", note: "scan p. 159 prints τἂν (τὰ ἐν) with the coronis; the OCR lost it" }
+      - { ref: "298", find: "τὰν", replace: "τἀν", note: "scan p. 159 prints τἀν, coronis and no accent (Opus crop check 2026-10-24)" }
       - { ref: "349", find: "ἀνὴρ", replace: "ἁνὴρ", note: "scan p. 161 prints ἁνὴρ (ὁ ἀνήρ, the man spoken of); the OCR read the breathing smooth" }
       - { ref: "364", find: "ἀνήρ", replace: "ἁνὴρ", note: "scan p. 161 prints ἁνὴρ (ὁ ἀνήρ) with a grave; the OCR read a smooth breathing and an acute" }
       - { ref: "378", find: "ἀγαθός", replace: "ἁγαθός", note: "scan p. 161 prints ἁγαθός (ὁ ἀγαθός); the OCR read the breathing smooth" }
@@ -392,26 +390,20 @@ greek_editions:
       - { ref: "425", find: "τοῖσδε", replace: "τοῦσδε", note: "scan p. 163 prints τοῦσδε, object of πληρῶσαι" }
       - { ref: "476", find: "ἔπαλλοι", replace: "ἔπαλλον", note: "scan p. 164 prints ἔπαλλον; ἔπαλλοι is no form" }
       - { ref: "644", find: "ξυνηκ’", replace: "ξυνῆχ’", note: "scan p. 169 prints ξυνῆχ’ (ξυνῆκα elided before the rough breathing of ὕποπτος); ξυνηκ’ is no form" }
-      - { ref: "652", find: "λεχώ", replace: "λεχῶ", note: "scan p. 169 prints λεχῶ (accusative of λεχώ)" }
       - { ref: "674", find: "βωμῶν ἢ", replace: "βωμῶν ἣ", note: "scan p. 170 prints ἣ (the relative, Hera who rules the altars); ἢ (or) breaks the sense" }
       - { ref: "691", find: "θνῄσκοντος", replace: "θνήσκοντος", note: "scan p. 170 prints θνήσκοντος with no iota subscript" }
       - { ref: "692", find: "τῷδε", replace: "τῶνδε", note: "scan p. 170 prints τῶνδε" }
       - { ref: "700", find: "κλῃδὼν", replace: "κληδὼν", note: "scan p. 170 prints κληδὼν with no iota subscript" }
       - { ref: "758", find: "ἐπισχε", replace: "ἔπισχε", note: "scan p. 172 prints ἔπισχε; the OCR lost the breathing and accent" }
       - { ref: "761", find: "Μυκηινίδες", replace: "Μυκηνίδες", note: "scan p. 172 prints Μυκηνίδες; Μυκηινίδες is no word" }
-      - { ref: "775", find: "ᾖμεν", replace: "ἦμεν", note: "scan p. 172 prints ἦμεν with no iota subscript" }
       - { ref: "791", find: "αἱρέτω", replace: "αἰρέτω", note: "scan p. 173 prints αἰρέτω (smooth breathing: lift, ἀείρω); the OCR read it rough" }
-      - { ref: "800", find: "ᾖρον", replace: "ἦρον", note: "scan p. 173 prints ἦρον with no iota subscript" }
       - { ref: "835", find: "πευστήριαν", replace: "πευστηρίαν", note: "scan p. 174 prints πευστηρίαν; πευστήριαν is a misplaced accent" }
-      - { ref: "844", find: "ᾖξαν", replace: "ἦξαν", note: "scan p. 174 prints ἦξαν with no iota subscript" }
       - { ref: "846", find: "ἀντίπρωρα", replace: "ἀντίπρῳρα", note: "scan p. 174 prints ἀντίπρῳρα; the OCR lost the iota subscript" }
       - { ref: "890", find: "Ηλέκτρα", replace: "Ἠλέκτρα", note: "scan p. 176 prints Ἠλέκτρα; the OCR lost the breathing" }
       - { ref: "898", find: "πήξας’", replace: "πήξασ’", note: "scan p. 176 prints πήξασ’ (πήξασα elided); the masculine πήξας does not agree with Electra" }
       - { ref: "967", find: "ἢ φονεύσομεν", replace: "ἦ φονεύσομεν", note: "scan p. 178 prints ἦ (question particle); ἢ (or) breaks the sense" }
       - { ref: "983", find: "ἀλλ’ ἢ", replace: "ἀλλ’ ἦ", note: "scan p. 178 prints ἦ (question particle); ἢ (or) breaks the sense" }
       - { ref: "994", find: "ἶσα", replace: "ἴσα", note: "scan p. 179 prints ἴσα; the OCR read the acute as a circumflex" }
-      - { ref: "1009", find: "ᾑρημένων", replace: "ἡρημένων", note: "scan p. 179 prints ἡρημένων with no iota subscript" }
-      - { ref: "1009", find: "ᾑρήμεθα", replace: "ἡρήμεθα", note: "scan p. 179 prints ἡρήμεθα with no iota subscript" }
       - { ref: "1025", find: "ἣ δῶμ’", replace: "ἢ δῶμ’", note: "scan p. 180 prints ἢ (or), answering κεἰ μὲν; the relative ἣ breaks the sense" }
       - { ref: "1025", find: "ἐκσῴζων", replace: "ἐκσώζων", note: "scan p. 180 prints ἐκσώζων with no iota subscript" }
       - { ref: "1029", find: "ἔκατι", replace: "ἕκατι", note: "scan p. 180 prints ἕκατι with the rough breathing; the OCR read it smooth" }

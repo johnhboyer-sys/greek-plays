@@ -303,10 +303,9 @@ greek_editions:
       - { ref: "217", find: "σημαίνων", replace: "σημανῶν", note: "scan p. 243 prints σημανῶν (future participle, purpose); σημαίνων breaks the trimeter" }
       - { ref: "243", find: "μόνη", replace: "μόνῃ", note: "scan p. 244 prints μόνῃ; the OCR lost the iota subscript" }
       - { ref: "252", find: "οὓς", replace: "ὃς", note: "scan p. 244 prints ὃς; the plural οὓς has no antecedent" }
-      - { ref: "273", find: "φῂς", replace: "φὴς", note: "scan p. 244 prints φὴς, no iota subscript" }
       - { ref: "280", find: "παράψυχη", replace: "παραψυχὴ", note: "scan p. 245 prints παραψυχὴ; παράψυχη is a misplaced accent" }
       - { ref: "295", find: "ταὐτὸν", replace: "ταυτὸν", note: "scan p. 245 prints ταυτὸν with no coronis (Paley's spelling, as at 748 and 966)" }
-      - { ref: "321", find: "φῄς", replace: "φὴς", note: "scan p. 246 prints φὴς, no iota subscript" }
+      - { ref: "321", find: "φῄς", replace: "φῂς", note: "scan p. 246 prints φῂς, grave and iota subscript (Opus crop check 2026-10-24)" }
       - { ref: "347", find: "χρήζουσ’", replace: "χρῄζουσ’", note: "scan p. 247 prints χρῄζουσ’; the OCR lost the iota subscript" }
       - { ref: "352", find: "γάμων", replace: "νάμων", note: "scan p. 247 prints νάμων, a printer's slip for γάμων kept as printed (Greek editions match the scan)" }
       - { ref: "441", find: "[ὡς", replace: "[ὣς", note: "scan p. 249 prints ὣς (thus), with its grave accent" }
@@ -341,11 +340,9 @@ greek_editions:
       - { ref: "1070", find: "ἐπάξας", replace: "ἐπᾴξας", note: "scan p. 266 prints ἐπᾴξας (from ἐπαΐσσω); ἐπάξας is another verb" }
       - { ref: "1090", find: "εὔιππον", replace: "εὔιππόν", note: "scan p. 266 prints εὔιππόν, accented before the enclitic τ’" }
       - { ref: "1112", find: "ᾔσμεν", replace: "ᾖσμεν", note: "scan p. 267 prints ᾖσμεν (circumflex); ᾔσμεν is a misplaced accent" }
-      - { ref: "1122", find: "φῄς", replace: "φής", note: "scan p. 267 prints φής, no iota subscript" }
       - { ref: "1124", find: "ἢ γὰρ", replace: "ἦ γὰρ", note: "scan p. 267 prints ἦ (question particle); ἢ (or) breaks the sense" }
       - { ref: "1155", find: "ἄλλαι", replace: "αλλαι", note: "scan p. 268 prints αλλαι with no breathing or accent, a printer's slip kept as printed (Greek editions match the scan)" }
       - { ref: "1194", find: "ὑπώλοντ’", replace: "ἀπώλοντ’", note: "scan p. 269 prints ἀπώλοντ’; ὑπώλοντ’ is no word" }
-      - { ref: "1219", find: "φῂς", replace: "φὴς", note: "scan p. 270 prints φὴς, no iota subscript" }
       - { ref: "1221", find: "πατρώας", replace: "πατρῴας", note: "scan p. 270 prints πατρῴας; the OCR lost the iota subscript" }
       - { ref: "1226", find: "ἀγαθοὶ", replace: "ἁγαθοὶ", note: "scan p. 270 prints ἁγαθοὶ (οἱ ἀγαθοί) with the rough breathing; the OCR read it smooth" }
       - { ref: "1238", find: "φεῦ φεῦ", replace: "φεῖ φεῦ", note: "scan p. 271 prints φεῖ φεῦ, a printer's slip kept as printed (Greek editions match the scan)" }
