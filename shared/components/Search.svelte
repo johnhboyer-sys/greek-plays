@@ -209,14 +209,23 @@
     return { kind: 'lemma', terms: folds.length ? folds : [greekFold(words[0])] };
   }
   // The Near terms read now, before any await: a later Back must not mix in.
-  function nearSlots(): Promise<{ near?: AdvancedSearch['near']; nearMore?: AdvancedSearch['nearMore'] }> {
+  // Each further term keeps its typed word beside it (nearMoreText), so an
+  // empty row dropped here cannot shift one term's word onto another.
+  function nearSlots(): Promise<{ near?: AdvancedSearch['near']; nearMore?: AdvancedSearch['nearMore']; nearMoreText?: string[] }> {
     const first = termSlot(nearKind, nearText, shapeClass, shape);
-    const more = nearMore.map(t => termSlot(t.kind, t.text, t.shapeClass, t.shape).then(slot => slot && { ...slot, relation: t.rel }));
+    const more = nearMore.map(t => {
+      const { rel, text, kind } = t;   // read now, not after the lookup
+      return termSlot(kind, text, t.shapeClass, { ...t.shape }).then(slot => slot && { slot: { ...slot, relation: rel }, text: kind === 'lemma' ? text.trim() : '' });
+    });
     const base = { relation: nearRel, window: nearWindow, unit: nearUnit, ordered: nearMore.length > 0 && nearOrdered };
     return Promise.all([first, ...more]).then(([f, ...m]) => {
       if (!f) return {};
-      const filled = m.filter((x): x is NonNullable<typeof x> => !!x);
-      return { near: { ...f, ...base }, ...(filled.length ? { nearMore: filled } : {}) };
+      const filled = (m as ({ slot: NonNullable<AdvancedSearch['nearMore']>[number]; text: string } | undefined)[])
+        .filter((x): x is NonNullable<typeof x> => !!x);
+      return {
+        near: { ...f, ...base },
+        ...(filled.length ? { nearMore: filled.map(x => x.slot), nearMoreText: filled.map(x => x.text) } : {}),
+      };
     });
   }
   let resultPlays = 0;                    // plays with a hit, for the count line
@@ -773,14 +782,13 @@
       grk: grkQuery, eng: engQuery, grkMode, engMode, matchMode, accent: accentSensitive, langOp, engForms, ed: greekEd,
       works: WORKS.map(w => w.id).filter(w => selectedWorks.has(w)),
       nearText: nearText.trim(),
-      nearMoreText: nearMore.map(t => (t.kind === 'lemma' ? t.text.trim() : '')),
       engNear: engQuery.trim() && engNearText.trim()
         ? { term: engNearText.trim(), relation: engNearRel, window: engNearWindow } : undefined,
       pick: picks ?? lemmaPick(),
     };
     const nearP = q.grk.trim() ? nearSlots() : Promise.resolve({} as Awaited<ReturnType<typeof nearSlots>>);
     try {
-      const { near, nearMore: more } = await nearP;
+      const { near, nearMore: more, nearMoreText: moreText } = await nearP;
       if (id !== searchRun) return;
       const advanced: AdvancedSearch = { engForms: q.engForms, ...(q.pick ? { lemmaPick: q.pick } : {}), ...(near ? { near } : {}), ...(more ? { nearMore: more } : {}), ...(q.engNear ? { engNear: q.engNear } : {}) };
       // The address holds the search, so it can be shared and reopened.
@@ -788,7 +796,7 @@
         grk: q.grk, eng: q.eng, grkMode: q.grkMode, engMode: q.engMode, matchMode: q.matchMode, accent: q.accent,
         langOp: q.langOp, engForms: q.engForms, works: q.works, ed: q.ed, ...advanced,
         ...(near?.kind === 'lemma' ? { nearText: q.nearText } : {}),
-        ...(more?.some(t => t.kind === 'lemma') ? { nearMoreText: q.nearMoreText } : {}),
+        ...(more?.some(t => t.kind === 'lemma') ? { nearMoreText: moreText } : {}),
       };
       const qs = encodeSearchUrl(url, ALL_WORK_IDS);
       if (history_ !== 'none' && qs !== window.location.search.replace(/^\?/, '')) {

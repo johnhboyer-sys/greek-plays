@@ -302,3 +302,14 @@ describe('slot identity', () => {
 });
 
 function positions(r: { grkPositions: number[]; nearPositions?: number[] }): number[] { return [...new Set([...r.grkPositions, ...r.nearPositions ?? []])].sort((a, b) => a - b); }
+
+describe('comboWindows backtracking', () => {
+  it('finds a match a greedy first pick would block', async () => {
+    const { comboWindows } = await import('../lib/search-advanced');
+    // Term 2 can use 1 or 2, term 3 only 1: taking 1 for term 2 must be undone.
+    const off = { token_count: 10, seg_base_offset: [0], segments: [{ book: 1, column: '1', line_runs: [[1, 10]] }], book_bounds: [{ book: 1, start: 0 }] } as never;
+    const hit = (start: number) => ({ start, span: 1, certain: true });
+    const windows = comboWindows([[hit(0)], [hit(1), hit(2)], [hit(1)]], { window: 3, unit: 'words', ordered: false }, off);
+    expect(windows.map(w => w.hits.map(h => h.start))).toEqual([[0, 2, 1]]);
+  });
+});

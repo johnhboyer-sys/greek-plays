@@ -679,29 +679,32 @@ export function comboWindows(
     for (const s0 of [...starts].sort((a, b) => a - b)) {
       if (opts.unit === 'words' && anchor.start - s0 > opts.window) continue;
       const limit = opts.unit === 'words' ? s0 + opts.window : unitHi;
-      const take: SlotHit[] = [anchor];
-      let cursor = anchor.start + anchor.span;   // for the whole-query order lock
-      let ok = true;
       // Every term must match a word of its own: "θεῶν near a genitive" is
       // not answered by θεῶν itself, nor two terms by one word. (aristotle-
       // reader only kept identical terms apart; `identities` is now unused.)
+      // The choice backtracks: a word one term takes may be the only word a
+      // later term can use, while another choice would satisfy them all.
       const taken = new Set<number>();
-      const claim = (_s: number, at: number, span = 1): boolean => {
-        for (let k = 0; k < span; k++) if (taken.has(at + k)) return false;
-        for (let k = 0; k < span; k++) taken.add(at + k);
-        return true;
-      };
-      claim(0, anchor.start, anchor.span);
-      for (let s = 1; s < feasible.length; s++) {
+      const free = (h: SlotHit) => { for (let k = 0; k < h.span; k++) if (taken.has(h.start + k)) return false; return true; };
+      const hold = (h: SlotHit, on: boolean) => { for (let k = 0; k < h.span; k++) { if (on) taken.add(h.start + k); else taken.delete(h.start + k); } };
+      hold(anchor, true);
+      const take: SlotHit[] = [anchor];
+      const place = (s: number, cursor: number): boolean => {
+        if (s === feasible.length) return true;
         const relation = relations[s] ?? 'near';
         const from = opts.ordered ? Math.max(s0, cursor) : s0;
         const window = feasible[s].filter(h => h.start >= from && h.start <= limit);
-        const ordered = relation === 'before' ? [...window].reverse() : window;
-        const pick = ordered.find(h => claim(s, h.start, h.span));
-        if (!pick) { ok = false; break; }
-        take.push(pick);
-        cursor = pick.start + pick.span;
-      }
+        for (const h of relation === 'before' ? [...window].reverse() : window) {
+          if (!free(h)) continue;
+          hold(h, true);
+          take.push(h);
+          if (place(s + 1, h.start + h.span)) return true;
+          take.pop();
+          hold(h, false);
+        }
+        return false;
+      };
+      const ok = place(1, anchor.start + anchor.span);
       if (ok) { chosen = take; break; }
     }
     if (!chosen) continue;
