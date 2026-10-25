@@ -1,10 +1,9 @@
 <script lang="ts">
   import { tick, onMount } from 'svelte';
-  import { search, greekFold, type SearchMode, type LangOp, type MatchMode, type SearchResult, type AdvancedSearch } from '../lib/search';
-  import { COMBO_WINDOW_DEFAULT, englishForms, type SlotKind, type SlotRelation } from '../lib/search-advanced';
+  import { search, greekFold, englishWords, type SearchMode, type LangOp, type MatchMode, type SearchResult, type AdvancedSearch } from '../lib/search';
+  import { COMBO_WINDOW_DEFAULT, englishTermMatcher, type SlotKind, type SlotRelation } from '../lib/search-advanced';
   import { decodeSearchUrl, encodeSearchUrl, hasSearch, type UrlSearch } from '../lib/search-url';
   import { fetchBook, fetchChapters, fetchSections, readerHref, dataRoot, fetchLemmaPickerShard, fetchLemmaGlosses, lemmaEntryHref, type Segment, type GreekLine, type ChapterRef, type SectionRef, type TranslationCredit } from '../lib/data';
-  import { highlightPrefixMatches } from '../lib/text';
   import { editionPicker } from '../lib/edition-picker';
   import { WORKS, getWork, workPath, WORK_ORDER } from '../lib/works';
   import { getAuthor, AUTHORS } from '../lib/authors';
@@ -890,14 +889,24 @@
       const sp = text.lastIndexOf(' ', end);
       if (sp > earliest) end = sp;
     }
-    let html = highlightEnglish(text.slice(start, end), forms ? [...new Set(terms.flatMap(t => englishForms(t.toLowerCase())))] : terms);
+    let html = markEnglish(text.slice(start, end), terms, forms);
     if (start > 0) html = '… ' + html;
     if (end < text.length) html = html + ' …';
     return html;
   }
 
-  function highlightEnglish(text: string, terms: string[]): string {
-    return highlightPrefixMatches(text, terms);
+  // Mark the words the search matched, split and folded as the index splits
+  // them: a typed they'd marks they’d, Aeschylus marks Æschylus.
+  function markEnglish(text: string, terms: string[], forms: boolean): string {
+    const match = englishTermMatcher(terms, forms);
+    let out = '';
+    let at = 0;
+    for (const w of englishWords(text)) {
+      if (!match(w.word)) continue;
+      out += esc(text.slice(at, w.start)) + '<mark>' + esc(text.slice(w.start, w.end)) + '</mark>';
+      at = w.end;
+    }
+    return out + esc(text.slice(at));
   }
 
   // Compact attribution for a search hit (finding 1, Sol review): a search
