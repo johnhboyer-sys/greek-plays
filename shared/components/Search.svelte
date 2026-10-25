@@ -83,7 +83,6 @@
   let nearRel: SlotRelation = 'near';
   let nearWindow = COMBO_WINDOW_DEFAULT;
   let nearUnit: 'words' | 'line' = 'words';
-  let nearOrdered = false;
   const WINDOW_OPTS = [1, 2, 3, 5, 10, 15, 20, 30, 50];
 
   // Shape: the second term's grammar. The vocabulary is Morpheus's, nothing
@@ -189,7 +188,9 @@
 
   async function nearSlot(): Promise<AdvancedSearch['near']> {
     if (nearKind === 'none') return undefined;
-    const base = { relation: nearRel, window: nearWindow, unit: nearUnit, ordered: nearRel === 'near' && nearOrdered };
+    // With two terms, "after" already fixes the order, so the page has no
+    // "In this order" check (John, 2026-10-25).
+    const base = { relation: nearRel, window: nearWindow, unit: nearUnit, ordered: false };
     if (nearKind === 'grammatical') {
       const query = shapeQueryOf(shapeClass, shape);
       return Object.keys(query).length ? { kind: 'grammatical', query, ...base } : undefined;
@@ -692,7 +693,7 @@
     nearKind = !n ? 'none' : n.kind === 'grammatical' ? 'grammatical' : n.kind === 'lemma' ? 'lemma' : 'form';
     nearText = n && n.kind !== 'grammatical' && n.kind !== 'lemma' ? (n.terms ?? []).join(' ') : n?.kind === 'lemma' ? (u.nearText ?? betaToGreek(n.terms?.[0] ?? '')) : '';
     nearRel = n?.relation ?? 'near'; nearWindow = n?.window ?? COMBO_WINDOW_DEFAULT;
-    nearUnit = n?.unit ?? 'words'; nearOrdered = n?.ordered ?? false;
+    nearUnit = n?.unit ?? 'words';
     if (n?.query) {
       shape = { ...n.query };
       shapeClass = (Object.keys(n.query) as string[]).some(k => ['tense', 'mood', 'voice', 'person'].includes(k)) ? 'verb'
@@ -1256,7 +1257,6 @@
             <span class="v"><select aria-label="Within how many words" value={String(nearWindow)} on:change={(e) => (nearWindow = Number(e.currentTarget.value))}>{#each WINDOW_OPTS as n}<option value={String(n)}>{n}</option>{/each}</select><i aria-hidden="true">▾</i></span>
           {/if}
           <span class="v"><select aria-label="Words or line" value={nearUnit} on:change={(e) => (nearUnit = e.currentTarget.value as 'words' | 'line')}><option value="words">words</option><option value="line">on the same line</option></select><i aria-hidden="true">▾</i></span>
-          {#if nearRel === 'near'}<label class="ck"><input type="checkbox" bind:checked={nearOrdered} />In this order</label>{/if}
           {#if grkQuery.trim().split(/\s+/).length > 1}<span class="mn">searched as one phrase</span>{/if}
         {/if}
       </p>
