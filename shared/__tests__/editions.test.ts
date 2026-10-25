@@ -181,8 +181,11 @@ describe('a comparison\'s Greek text (John, 2026-10-23)', () => {
     expect(compareEdition(eum, mixed)).toBe('tlg');
     expect(defaultEdition(eum, 'compare', shared)).toBe('smyth-loeb');
     expect(defaultEdition(eum, 'kosmos')).toBe('smyth-loeb');
-    // Hecuba: every translation on Murray's OCT, the reference text Diggle's.
-    expect(compareEdition(getWork('hecuba')!, ['coleridge', 'way'])).toBe('murray-oct');
+    // Ion: every translation on Murray's OCT, the reference text Diggle's.
+    expect(compareEdition(getWork('ion')!, ['coleridge', 'way'])).toBe('murray-oct');
+    // Hecuba: Coleridge on Paley, Way on his own Loeb text: no shared text,
+    // so the reference text (chunk 1 editions, 2026-10-24).
+    expect(compareEdition(getWork('hecuba')!, ['coleridge', 'way'])).toBe('tlg');
   });
   it.each([
     ['no ?ed=: the pair\'s default', { trans: 'compare', view: 'both', pair: shared }, { ed: 'smyth-loeb', trans: 'compare', view: 'both', pair: shared }],

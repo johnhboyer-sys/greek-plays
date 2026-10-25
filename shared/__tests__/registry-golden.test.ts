@@ -31,6 +31,8 @@ describe('generated registry golden value', () => {
     // Regenerated 2026-10-22: Oedipus Tyrannus' argument, the set-up only (John's pick).
     // Regenerated 2026-10-23: Helen's, Trojan Women's, and Seven's Greek titles accented (John).
     // Regenerated 2026-10-23: 37 play summaries from John's copy review; Clytemnestra and Polynices in our own copy.
-    expect(hash).toBe('e3efa7ac73f17e7bd7b422a33a364c6e24f2b3927a4bfb5bef743a2146a5c37a');
+    // Regenerated 2026-10-24: Paley's and Way's Greek for Hecuba and Electra
+    // (chunk 1; coleridge → paley, way → way-loeb).
+    expect(hash).toBe('1d5023d93abe60e6bd7637498a4c85ceb286698adb078c9dc8d895844bac9f1c');
   });
 });
