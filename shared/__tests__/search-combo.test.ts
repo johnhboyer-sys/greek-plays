@@ -176,14 +176,27 @@ describe('searchCombo', () => {
     expect(results).toHaveLength(0);
   });
 
-  it('gives the same unordered result however the slots are ordered', async () => {
-    for (const order of [['alpha', 'beta', 'epsilon'], ['beta', 'alpha', 'epsilon'], ['epsilon', 'beta', 'alpha']]) {
-      const slots = order.map((t) => slot(t));
-      const tight = await searchCombo(slots, opts({ window: 5 }), [`CO5-${order[0]}`]);
-      expect(tight.results, `W=5 with ${order.join(',')}`).toHaveLength(0);
-      const loose = await searchCombo(slots, opts({ window: 6 }), [`CO6-${order[0]}`]);
-      expect(loose.results, `W=6 with ${order.join(',')}`).toHaveLength(1);
-    }
+  it('measures each term from the first word on its own', async () => {
+    // alpha 2, beta 4, epsilon 8. From alpha, epsilon is 6 words on: W=6 is needed.
+    const fromAlpha = (w: number) => searchCombo([slot('alpha'), slot('beta'), slot('epsilon')], opts({ window: w }), [`CO-a${w}`]);
+    expect((await fromAlpha(5)).results).toHaveLength(0);
+    expect((await fromAlpha(6)).results).toHaveLength(1);
+    // From beta, alpha is 2 before and epsilon 4 after: W=4 is enough, though
+    // the three span 7 words (aristotle-reader fitted them all into W).
+    const fromBeta = (w: number) => searchCombo([slot('beta'), slot('alpha'), slot('epsilon')], opts({ window: w }), [`CO-b${w}`]);
+    expect((await fromBeta(3)).results).toHaveLength(0);
+    expect((await fromBeta(4)).results).toHaveLength(1);
+    // The order of the further terms does not matter.
+    expect((await searchCombo([slot('beta'), slot('epsilon'), slot('alpha')], opts({ window: 4 }), ['CO-c4'])).results).toHaveLength(1);
+  });
+
+  it('measures a phrase before the first word from its last word', async () => {
+    // delta beta covers 3-4; epsilon at 8 is 4 words after the phrase's end.
+    const { results } = await searchCombo(
+      [slot('epsilon'), { kind: 'phrase', terms: ['delta', 'beta'], relation: 'before' }],
+      opts({ window: 4 }), ['CR8'],
+    );
+    expect(positions(results[0])).toEqual([3, 4, 8]);
   });
 
   it('keeps a phrase inside the unit it is measured in', async () => {

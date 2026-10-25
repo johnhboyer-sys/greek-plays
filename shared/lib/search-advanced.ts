@@ -645,68 +645,71 @@ export function comboWindows(
   };
 
   const out: { start: number; end: number; hits: SlotHit[] }[] = [];
+  const maxSpan = sorted.map(hits => hits.reduce((m, h) => Math.max(m, h.span), 1));
   for (const anchor of sorted[0]) {
     const [unitLo, unitHi] = structural(anchor.start);
     if (anchor.start + anchor.span > unitHi) continue;   // the anchor's own run must fit
+    const anchorEnd = anchor.start + anchor.span;        // exclusive
 
-    const reach = opts.unit === 'words' ? opts.window : total;
-    const lo = Math.max(unitLo, anchor.start - reach);
-    const hi = Math.min(unitHi, anchor.start + reach + 1);
-    const feasible: SlotHit[][] = [[anchor]];
+    // Each term is measured from the first word on its own (John, 2026-10-25:
+    // "how far away it should be"): the words between them, counted from the
+    // nearer end of each, so a phrase before the first word is measured from
+    // its last word. One word after the first word is 1 away. ("aristotle-
+    // reader instead fitted every term into one stretch of N words.")
+    const gap = (h: SlotHit) => (h.start >= anchorEnd ? h.start - anchorEnd + 1 : anchor.start - (h.start + h.span) + 1);
+    const candidates: SlotHit[][] = [];
     let possible = true;
     for (let s = 1; s < sorted.length && possible; s++) {
       const relation = relations[s] ?? 'near';
-      const from = relation === 'after' ? Math.max(lo, anchor.start + anchor.span) : lo;
-      const to = relation === 'before' ? Math.min(hi, anchor.start + 1) : hi;
+      const reach = opts.unit === 'words' ? opts.window : total;
+      const from = Math.max(unitLo, anchor.start - reach - maxSpan[s]);
       const picks: SlotHit[] = [];
       for (let i = lowerBound(sorted[s], from); i < sorted[s].length; i++) {
         const h = sorted[s][i];
-        if (h.start >= to) break;
-        if (h.start + h.span > unitHi) continue;
-        if (relation === 'before' && h.start + h.span > anchor.start) continue;
+        if (h.start >= unitHi || h.start > anchor.start + reach + anchor.span) break;
+        if (h.start < unitLo || h.start + h.span > unitHi) continue;
+        const after = h.start >= anchorEnd;
+        const before = h.start + h.span <= anchor.start;
+        if (!after && !before) continue;                 // overlaps the first word
+        if (relation === 'after' && !after) continue;
+        if (relation === 'before' && !before) continue;
+        if (opts.unit === 'words' && gap(h) > opts.window) continue;
         picks.push(h);
       }
       if (!picks.length) possible = false;
-      else feasible.push(picks);
+      // Nearest first, so a hit marks the closest word that answers it.
+      else candidates.push(picks.sort((x, y) => gap(x) - gap(y) || x.start - y.start));
     }
     if (!possible) continue;
 
-    const starts = new Set<number>([anchor.start]);
-    for (const picks of feasible) for (const h of picks) {
-      if (h.start <= anchor.start) starts.add(h.start);
-    }
-    let chosen: SlotHit[] | null = null;
-    for (const s0 of [...starts].sort((a, b) => a - b)) {
-      if (opts.unit === 'words' && anchor.start - s0 > opts.window) continue;
-      const limit = opts.unit === 'words' ? s0 + opts.window : unitHi;
-      // Every term must match a word of its own: "θεῶν near a genitive" is
-      // not answered by θεῶν itself, nor two terms by one word. (aristotle-
-      // reader only kept identical terms apart; `identities` is now unused.)
-      // The choice backtracks: a word one term takes may be the only word a
-      // later term can use, while another choice would satisfy them all.
-      const taken = new Set<number>();
-      const free = (h: SlotHit) => { for (let k = 0; k < h.span; k++) if (taken.has(h.start + k)) return false; return true; };
-      const hold = (h: SlotHit, on: boolean) => { for (let k = 0; k < h.span; k++) { if (on) taken.add(h.start + k); else taken.delete(h.start + k); } };
-      hold(anchor, true);
-      const take: SlotHit[] = [anchor];
-      const place = (s: number, cursor: number): boolean => {
-        if (s === feasible.length) return true;
-        const relation = relations[s] ?? 'near';
-        const from = opts.ordered ? Math.max(s0, cursor) : s0;
-        const window = feasible[s].filter(h => h.start >= from && h.start <= limit);
-        for (const h of relation === 'before' ? [...window].reverse() : window) {
-          if (!free(h)) continue;
-          hold(h, true);
-          take.push(h);
-          if (place(s + 1, h.start + h.span)) return true;
-          take.pop();
-          hold(h, false);
-        }
-        return false;
-      };
-      const ok = place(1, anchor.start + anchor.span);
-      if (ok) { chosen = take; break; }
-    }
+    // Every term must match a word of its own: "θεῶν near a genitive" is not
+    // answered by θεῶν itself, nor two terms by one word. (aristotle-reader
+    // only kept identical terms apart; `identities` is now unused.) The choice
+    // backtracks, since a word one term takes may be the only word a later
+    // term can use. Without "In this order" the term with the fewest
+    // candidates is placed first, which keeps a failing search short.
+    const taken = new Set<number>();
+    const free = (h: SlotHit) => { for (let k = 0; k < h.span; k++) if (taken.has(h.start + k)) return false; return true; };
+    const hold = (h: SlotHit, on: boolean) => { for (let k = 0; k < h.span; k++) { if (on) taken.add(h.start + k); else taken.delete(h.start + k); } };
+    hold(anchor, true);
+    const order = candidates.map((_, i) => i);
+    if (!opts.ordered) order.sort((a, b) => candidates[a].length - candidates[b].length);
+    const picked: SlotHit[] = new Array(candidates.length);
+    const place = (k: number, cursor: number): boolean => {
+      if (k === order.length) return true;
+      const s = order[k];
+      for (const h of candidates[s]) {
+        if (opts.ordered && h.start < cursor) continue;
+        if (!free(h)) continue;
+        hold(h, true);
+        picked[s] = h;
+        if (place(k + 1, h.start + h.span)) return true;
+        hold(h, false);
+      }
+      return false;
+    };
+    // In order, every term follows the one before it, starting after the first word.
+    const chosen: SlotHit[] | null = place(0, anchorEnd) ? [anchor, ...picked] : null;
     if (!chosen) continue;
     out.push({
       start: Math.min(...chosen.map(h => h.start)),
