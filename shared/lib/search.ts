@@ -222,10 +222,67 @@ function grkPosting(idx: GrkIndex, term: string, lang: SourceLanguage): Set<numb
   return result;
 }
 
+// ── What an English word is (ported from the Aristotle reader's search.ts) ──
+// stage6's english_words() is the mirror on the index side. The page prints
+// elision with U+2019 (they’d) and quotes with U+2018/U+2019: elision marks
+// become a straight apostrophe, an apostrophe at a word's edge is a quotation
+// mark, and ligatures and accents fold (Æschylus is "aeschylus").
+const ENGLISH_QUOTES = /[\u2018\u2019\u02bc]/g;
+const INDEX_APOSTROPHE = /[\u2019\u02bc]/g;
+const EN_FOOTNOTE = /\[\^[0-9A-Za-z_.*\u2020]+\]/y;
+const EN_SIDENOTE = /\[\[(?:s|fig)[0-9]+\]\]/y;
+function englishLetterFold(input: string): string {
+  return input.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\u00e6/g, 'ae').replace(/\u0153/g, 'oe');
+}
+// A typed English term as the index keys it; a trailing * stays a wildcard.
+export function englishQueryWord(term: string): string {
+  return englishLetterFold(term.toLowerCase().replace(ENGLISH_QUOTES, "'"))
+    .replace(/[^a-z'*]/g, '').replace(/^'+|'+$/g, '');
+}
+export interface EnglishWord { word: string; start: number; end: number }
+/** The words of a stretch of English as the index counts them, each with the
+ * span it occupies in `text` as given, so a match can be marked on the page. */
+export function englishWords(text: string): EnglishWord[] {
+  const out: EnglishWord[] = [];
+  let word = '';
+  let offsets: number[] = [];
+  let ends: number[] = [];
+  const close = () => {
+    let a = 0;
+    let b = word.length;
+    while (a < b && word[a] === "'") a++;
+    while (b > a && word[b - 1] === "'") b--;
+    if (a < b) out.push({ word: word.slice(a, b), start: offsets[a], end: ends[b - 1] });
+    word = '';
+    offsets = [];
+    ends = [];
+  };
+  for (let i = 0; i < text.length;) {
+    if (text[i] === '[') {
+      EN_FOOTNOTE.lastIndex = i;
+      if (EN_FOOTNOTE.test(text)) { i = EN_FOOTNOTE.lastIndex; continue; }
+      EN_SIDENOTE.lastIndex = i;
+      if (EN_SIDENOTE.test(text)) { close(); i = EN_SIDENOTE.lastIndex; continue; }
+    }
+    // Folded a character at a time: æ gives two letters, both at this
+    // character, and a combining accent gives none.
+    const folded = englishLetterFold(text[i].replace(INDEX_APOSTROPHE, "'").toLowerCase());
+    if (!folded && ends.length) ends[ends.length - 1] = i + 1;
+    for (const ch of folded) {
+      if ((ch >= 'a' && ch <= 'z') || ch === "'") { word += ch; offsets.push(i); ends.push(i + 1); }
+      else close();
+    }
+    i++;
+  }
+  close();
+  return out;
+}
+
 function engPosting(idx: EngIndex, term: string): Set<string> {
   const keys = (posts: (number | [number, string])[]) => posts.map(p =>
     typeof p === 'number' ? `${p}\u0000` : `${p[0]}\u0000${p[1]}`);
-  const word = term.toLowerCase().replace(/[^a-z'*]/g, '');
+  const word = englishQueryWord(term);
   if (!word || word === '*') return new Set(Object.values(idx).flatMap(keys));
   if (word.endsWith('*')) {
     const prefix = word.slice(0, -1);
@@ -252,17 +309,13 @@ function union<T>(a: Set<T>, b: Set<T>): Set<T> {
 // start offset; 'all'/'any' return every matching token. One offset = one
 // rendered occurrence, so repeats past the old 500-char cap now count and show.
 function engMatchTerm(word: string, term: string): boolean {
-  const c = term.toLowerCase().replace(/[^a-z'*]/g, '');
+  const c = englishQueryWord(term);
   if (!c || c === '*') return false;
   return c.endsWith('*') ? word.startsWith(c.slice(0, -1)) : word === c;
 }
 export function englishOccurrences(text: string, terms: string[], mode: SearchMode, forms = false): number[] {
   const matchers = terms.map(term => forms ? englishTermMatcher([term], true) : (word: string) => engMatchTerm(word, term));
-  const low = text.toLowerCase();
-  const re = /[a-z']+/g;
-  const toks: { w: string; i: number }[] = [];
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(low)) !== null) toks.push({ w: m[0], i: m.index });
+  const toks = englishWords(text).map(w => ({ w: w.word, i: w.start }));
   if (mode === 'phrase' && terms.length > 1) {
     const out: number[] = [];
     for (let i = 0; i + terms.length <= toks.length; i++) {
@@ -282,7 +335,7 @@ export function englishOccurrences(text: string, terms: string[], mode: SearchMo
 // per hit, so a hit counts once), `partners` where each near word's run starts.
 export function englishNearOccurrences(text: string, terms: string[], mode: SearchMode,
   near: NonNullable<AdvancedSearch['engNear']>, forms = false): { anchors: number[]; partners: number[] } {
-  const tokens = [...text.toLowerCase().matchAll(/[a-z']+/g)].map(m => ({ word: m[0], at: m.index! }));
+  const tokens = englishWords(text).map(w => ({ word: w.word, at: w.start }));
   const runs = (query: string[], phrase: boolean): number[][] => {
     if (!query.length) return [];
     const tests = query.map(term => forms ? englishTermMatcher([term], true) : (word: string) => engMatchTerm(word, term));
@@ -450,7 +503,7 @@ async function searchWork(
   }
 
   if (engTerms.length > 0 && engIdx) {
-    const postings = engTerms.map(t => (advanced?.engForms ? englishForms(t.toLowerCase().replace(/[^a-z'*]/g, '')) : [t]).reduce((set, form) => union(set, engPosting(engIdx, form)), new Set<string>()));
+    const postings = engTerms.map(t => (advanced?.engForms ? englishForms(englishQueryWord(t)) : [t]).reduce((set, form) => union(set, engPosting(engIdx, form)), new Set<string>()));
     if (engMode === 'any') {
       engHits = postings.reduce(union);
     } else {
@@ -470,7 +523,7 @@ async function searchWork(
   if (engHits && engIdx && advanced?.engNear?.term.trim()) {
     const near = advanced.engNear;
     const nearTerms = near.term.trim().split(/\s+/);
-    const nearCandidates = nearTerms.map(t => (advanced.engForms ? englishForms(t.toLowerCase().replace(/[^a-z'*]/g, '')) : [t])
+    const nearCandidates = nearTerms.map(t => (advanced.engForms ? englishForms(englishQueryWord(t)) : [t])
       .reduce((set, form) => union(set, engPosting(engIdx, form)), new Set<string>())).reduce(intersect);
     engHits = new Set([...intersect(engHits, nearCandidates)].filter(key => {
       const [raw, slot] = key.split('\u0000');
@@ -542,7 +595,7 @@ export async function search(
   const resolved = matchMode === 'lemma' ? resolvedPairs.map(group => group.map(([fold]) => fold)) : grkTerms.map(t => [t]);
 
   const englishKeys = [...engTerms, ...(advanced?.engNear?.term.trim().split(/\s+/).filter(Boolean) ?? [])];
-  const indexes = queryIndexes(matchMode, resolved.flat(), advanced?.engForms ? englishKeys.flatMap(t => englishForms(t.toLowerCase().replace(/[^a-z'*]/g, ''))) : englishKeys);
+  const indexes = queryIndexes(matchMode, resolved.flat(), advanced?.engForms ? englishKeys.flatMap(t => englishForms(englishQueryWord(t))) : englishKeys);
   const comboTerms = [...resolved.flat(), ...advanced?.near?.terms ?? []];
   const comboIndexes = advanced?.near && grkTerms.length ? {
     lemma: queryIndexes('lemma', comboTerms, [], true),

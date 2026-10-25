@@ -140,3 +140,12 @@ it('keeps shard and binary requests under the runtime data root', async () => {
     else globals.__READER_DATA_ROOT__ = previous;
   }
 });
+
+it('reads English words as the index keys them: ligatures, curly elision, edge quotes', async () => {
+  const { englishOccurrences, englishWords } = await import('../lib/search');
+  const text = 'Æschylus said they’d come, ‘friend’.';
+  expect(englishWords(text).map(w => w.word)).toEqual(['aeschylus', 'said', "they'd", 'come', 'friend']);
+  expect(englishOccurrences(text, ['Aeschylus'], 'all')).toEqual([0]);
+  expect(englishOccurrences(text, ["they'd"], 'all')).toEqual([14]);
+  expect(englishOccurrences(text, ['they’d'], 'all')).toEqual([14]);
+});

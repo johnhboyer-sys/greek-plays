@@ -351,7 +351,9 @@ def run(manifest: Manifest) -> Path:
     for seg in segments:
         si = seg_idx[seg["id"]]
         for slot_id, chunks in slot_chunks.items():
-            for word in _EN_WORD.findall(slot_text(chunks.get(seg["id"])).lower()):
+            # The same words the phrase index (stage 8) and the reader count:
+            # curly apostrophes made straight, æ as ae, edge quotes dropped.
+            for word in english_words(slot_text(chunks.get(seg["id"]))):
                 eng_posts[word].add((si, slot_id))
     english_idx = {w: [list(pair) for pair in sorted(pairs)] for w, pairs in eng_posts.items()}
 

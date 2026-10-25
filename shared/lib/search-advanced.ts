@@ -1,5 +1,5 @@
 // Reference-text grammar, proximity, phrase variants, and corpus shard lookups.
-import { ROOT, loadIndex, pool, greekFold, type GrkIndex, type EngIndex,
+import { ROOT, loadIndex, pool, greekFold, englishWords, englishQueryWord, type GrkIndex, type EngIndex,
   type SegMeta, type SearchResult, type SearchResponse } from './search';
 import { memoAsyncBy } from './memo';
 type SearchOutcome = SearchResponse;
@@ -128,7 +128,7 @@ export function englishForms(word: string): string[] {
 export function englishTermMatcher(terms: string[], forms = false): (word: string) => boolean {
   const tests = terms.map(t => {
     if (t === '*') return () => true;
-    const pattern = compilePattern(t.toLowerCase().replace(/[^a-z'*]/g, ''), s => s.toLowerCase().replace(/[^a-z']/g, ''));
+    const pattern = compilePattern(englishQueryWord(t), s => s.toLowerCase().replace(/[^a-z']/g, ''));
     if (!pattern) return () => false;
     if (!('exact' in pattern)) return pattern.test;
     if (!forms) return (w: string) => w === pattern.exact;
@@ -235,7 +235,7 @@ export interface QueryIndexes {
 }
 function indexPattern(term: string, english: boolean): CompiledPattern | null {
   if (english) {
-    const word = term.toLowerCase().replace(/[^a-z'*]/g, '');
+    const word = englishQueryWord(term);
     if (!word || word === '*') return { prefix: '', test: () => true };
     return word.endsWith('*') ? { prefix: word.slice(0, -1), test: k => k.startsWith(word.slice(0, -1)) } : { exact: word };
   }
@@ -265,7 +265,7 @@ export function queryIndexes(greekStream: 'lemma' | 'form', grkTerms: string[], 
       const ordered: Record<string, unknown> = Object.create(null);
       const meta = await loadIndex<SegMeta[]>(work, 'meta.json');
       for (const segment of meta) for (const text of [segment.english_head, ...Object.values(segment.english_slots ?? {})]) {
-        for (const word of text.toLowerCase().match(/[a-z']+/g) ?? []) {
+        for (const { word } of englishWords(text)) {
           if (Object.hasOwn(idx, word)) ordered[word] = idx[word];
         }
       }
