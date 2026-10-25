@@ -34,3 +34,23 @@ def test_published_slots_and_lemma_map(tmp_path, monkeypatch):
     shard = json.loads((tmp_path / "dist/lemma-map/q.json").read_text())
     assert shard["qeous"] == [["qea", "qea/"], ["qeos", "qeo/s"]]
     assert shard["qeos"] == [["qeos", "qeo/s"]]
+
+
+def test_english_index_keys_words_as_the_reader_and_phrase_index_do(tmp_path, monkeypatch):
+    # Æschylus is "aeschylus", they’d (U+2019) is one word, and an edge quote
+    # is punctuation: the index, stage 8 and the reader count the same words.
+    monkeypatch.setattr(stage6_search, "BUILD_DIR", tmp_path)
+    for stage in ("stage1", "stage3", "stage4"):
+        (tmp_path / stage).mkdir()
+    def write(path, value):
+        path.write_text(json.dumps(value, ensure_ascii=False), encoding="utf-8")
+    write(tmp_path / "stage3/tokens.json", {"segments": [{
+        "id": "1:1", "book": 1, "column": "1", "lines": [{"n": 1, "tokens": [{"k": "qeou/s", "t": "θεούς"}]}]
+    }]})
+    write(tmp_path / "stage4/key_map.json", {"qeou/s": "qeou/s"})
+    write(tmp_path / "stage4/analyses.json", {"qeou/s": [{"lemma": "qeo/s"}]})
+    write(tmp_path / "stage1/english_chunks.json", {"chunks": [{"id": "1:1", "text": "Æschylus said they’d come, ‘friend’."}]})
+    manifest = Manifest({"work": {"id": "tiny"}, "english": {"primary": {"id": "first"}}}, tmp_path / "tiny.yaml")
+    english = json.loads((stage6_search.run(manifest) / "english.json").read_text())
+    assert {"aeschylus", "they'd", "friend"} <= set(english)
+    assert "schylus" not in english and "d" not in english

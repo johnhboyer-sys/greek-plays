@@ -1,0 +1,44 @@
+---
+import SkipLink from '../../components/SkipLink.astro';
+// The phrase index (search step 2): every run of two to five words that recurs
+// in the plays, from pipeline stage 8. DRAFT copy: John approves.
+import Phrases from '@shared/components/Phrases.svelte';
+import ThemeInit from '../../components/ThemeInit.astro';
+import Pwa from '../../components/Pwa.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFoot from '../../components/SiteFoot.astro';
+import { SITE_NAME } from '../../lib/site';
+import '@shared/styles/global.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const pageTitle = `Phrase index — ${SITE_NAME}`;
+const description = 'Every phrase of two to five words that recurs in the Greek plays, in Greek or in English, with the lines it stands in.';
+const canonical = Astro.site ? new URL(`${base}/search/phrases/`, Astro.site).href : undefined;
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <ThemeInit />
+  <title>{pageTitle}</title>
+  <meta name="description" content={description} />
+  {canonical && <link rel="canonical" href={canonical} />}
+  <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700&family=Alegreya+Sans+SC:wght@500;700&family=Cardo:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <Pwa />
+</head>
+<body>
+  <SkipLink />
+  <h1 class="sr-only">Phrase index</h1>
+  <div class="wrap">
+    <SiteHeader />
+    <span id="main" tabindex="-1"></span>
+    <Phrases client:load />
+    <SiteFoot />
+  </div>
+</body>
+</html>

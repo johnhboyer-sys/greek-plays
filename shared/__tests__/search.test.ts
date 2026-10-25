@@ -381,6 +381,53 @@ describe('Search.svelte play-line result routing', () => {
     expect(container.querySelector('.inst-snippet')?.textContent).toContain('plenteous');
   });
 
+  it('marks only the words of the matched phrase, not the same words elsewhere', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(url => {
+      const path = String(url);
+      if (path.endsWith('/agamemnon/search/meta.json')) return json([
+        { id: '1:1', book: 1, column: '1', head: 'θεούς', tokens: 'qeous', english_head: 'old man, old woman' },
+      ]);
+      if (path.endsWith('/agamemnon/search/english.json')) return json({ old: [[0, 'smyth']], man: [[0, 'smyth']], woman: [[0, 'smyth']] });
+      if (path.endsWith('/agamemnon/chapters.json')) return json({});
+      if (path.endsWith('/agamemnon/book-01.json')) return json({ book: 1, segments: [{
+        id: '1:1', column: '1', english: { text: 'old man, old woman' },
+        greek: [{ n: 1, ref: '1', text: 'θεούς', tokens: [{ t: 'θεούς', o: 0, k: 'qeous' }] }],
+      }] });
+      return Promise.resolve({ ok: false, status: 404, json: async () => ({}) } as Response);
+    });
+    const { getByLabelText, getByRole, container } = render(Search);
+    await fireEvent.change(container.querySelector('select[aria-label="English words"]') as HTMLSelectElement, { target: { value: 'phrase' } });
+    await fireEvent.input(getByLabelText('English'), { target: { value: 'old man' } });
+    await fireEvent.click(getByRole('button', { name: 'Search' }));
+    await waitFor(() => expect(container.querySelector('.inst-snippet mark')).toBeTruthy());
+    expect(container.querySelectorAll('.instance')).toHaveLength(1);
+    expect([...container.querySelectorAll('.inst-snippet mark')].map(m => m.textContent)).toEqual(['old', 'man']);
+  });
+
+  it('shows an English near hit whole, however far the near word stands', async () => {
+    const far = 'man ' + 'quietly '.repeat(40) + 'child';
+    vi.spyOn(globalThis, 'fetch').mockImplementation(url => {
+      const path = String(url);
+      if (path.endsWith('/agamemnon/search/meta.json')) return json([
+        { id: '1:1', book: 1, column: '1', head: 'θεούς', tokens: 'qeous', english_head: far },
+      ]);
+      if (path.endsWith('/agamemnon/search/english.json')) return json({ man: [[0, 'smyth']], child: [[0, 'smyth']], quietly: [[0, 'smyth']] });
+      if (path.endsWith('/agamemnon/chapters.json')) return json({});
+      if (path.endsWith('/agamemnon/book-01.json')) return json({ book: 1, segments: [{
+        id: '1:1', column: '1', english: { text: far },
+        greek: [{ n: 1, ref: '1', text: 'θεούς', tokens: [{ t: 'θεούς', o: 0, k: 'qeous' }] }],
+      }] });
+      return Promise.resolve({ ok: false, status: 404, json: async () => ({}) } as Response);
+    });
+    const { getByLabelText, getByRole, container } = render(Search);
+    await fireEvent.input(getByLabelText('English'), { target: { value: 'man' } });
+    await fireEvent.input(container.querySelector('input[aria-label="Another English word"]') as HTMLInputElement, { target: { value: 'child' } });
+    await fireEvent.change(container.querySelector('select[aria-label="Within how many English words"]') as HTMLSelectElement, { target: { value: '50' } });
+    await fireEvent.click(getByRole('button', { name: 'Search' }));
+    await waitFor(() => expect(container.querySelector('.inst-snippet mark')).toBeTruthy());
+    expect([...container.querySelectorAll('.inst-snippet mark')].map(m => m.textContent)).toEqual(['man', 'child']);
+  });
+
   it('loads an empty chapter outline and cites the matching printed line ref', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
       const path = String(url);
@@ -470,6 +517,7 @@ describe('PUBLIC_DATA_ROOT build-time root override', () => {
     });
     await fresh.search('logos', '', 'all', 'all', 'and', ['TRoot']);
     expect(urls.length).toBeGreaterThan(0);
-    expect(urls.every((u) => u.startsWith('https://data.example.com/v1/TRoot/search/'))).toBe(true);
+    expect(urls.every((u) => u.startsWith('https://data.example.com/v1/TRoot/search/')
+      || u === 'https://data.example.com/v1/search-shards/index.json')).toBe(true);
   });
 });

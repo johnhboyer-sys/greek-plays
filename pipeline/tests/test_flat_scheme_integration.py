@@ -109,8 +109,10 @@ def _stage_artifacts(build: Path) -> None:
     _write_json(build / "stage5" / "lemma_map.json", {})
     _write_json(build / "stage5" / "summary.json", {"lsj_entries_kept": 0})
     _write_json(build / "stage5" / "missing_lemmata.json", [])
-    for name in ("lemma.json", "form.json", "english.json", "meta.json"):
+    for name in ("lemma.json", "form.json", "english.json", "meta.json",
+                 "offsets.json", "grammar-dict.json"):
         _write_json(build / "stage6" / name, {})
+    (build / "stage6" / "grammar-col.bin").write_bytes(b"")
 
 
 def test_flat_work_through_real_stage_entry_points(tmp_path, monkeypatch):

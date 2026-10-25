@@ -354,7 +354,7 @@ _STAGES = {
 
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="drama_pipeline")
-    parser.add_argument("stage", choices=[*_STAGES, "all"])
+    parser.add_argument("stage", choices=[*_STAGES, "stage8", "stage9", "all"])
     parser.add_argument(
         "--work", default="EN",
         help="work slug = manifest filename stem (default: EN)",
@@ -366,6 +366,15 @@ def main(argv=None):
     )
     parser.add_argument("--edition", help="Greek edition id")
     args = parser.parse_args(argv)
+    if args.stage in {"stage8", "stage9"}:
+        if args.stage == "stage8":
+            from .stage8_ngrams import run
+        else:
+            from .stage9_search_shards import run
+        out_dir = run()
+        summary = json.loads((out_dir / "summary.json").read_text())
+        print(f"{args.stage}: " + json.dumps(summary))
+        return
     manifest = Manifest.for_work(args.work, public=args.public)
     if args.edition:
         manifest = manifest.for_edition(args.edition)

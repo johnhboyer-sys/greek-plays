@@ -95,6 +95,8 @@ if (!inv.ok) {
 }
 console.log('\nCleaning generated public build output');
 rmSync(join(ROOT, 'build', 'dist'), { recursive: true, force: true });
+// Stage 8 merges every stream left here, so a stale one must not survive.
+rmSync(join(ROOT, 'build', 'ngrams'), { recursive: true, force: true });
 rmSync(join(ROOT, 'app', 'dist'), { recursive: true, force: true });
 
 if (works.length === 0) {
@@ -152,6 +154,15 @@ if (alignConfigs.length) {
       cwd: join(ROOT, 'pipeline'),
     });
   }
+}
+
+// Corpus phrase counts need every reference stream and emitted translation.
+// Search shards copy the finished per-work indexes. Both require a corpus.
+if (works.length) {
+  console.log('\nBuilding corpus phrase index');
+  run(PY, ['-m', 'drama_pipeline', 'stage8'], { cwd: join(ROOT, 'pipeline') });
+  console.log('\nBuilding corpus search shards');
+  run(PY, ['-m', 'drama_pipeline', 'stage9'], { cwd: join(ROOT, 'pipeline') });
 }
 
 // Cross-corpus citation index (Lyceum P3 stage 3, docs/p3-plan.md Settled
