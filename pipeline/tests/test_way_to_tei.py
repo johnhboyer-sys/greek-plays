@@ -325,3 +325,63 @@ def test_a_stanza_sung_before_any_speaker_is_named_closes_at_the_first_named_out
                        ("2", None, VERSE[1], None, "s1"),
                        ("3", "ΜΗΔΕΙΑ", VERSE[2], None, None))
     assert _divs(W.write_tei("t", lines)) == [("strophe", ["1", "2"])]
+
+
+def test_a_folio_set_before_the_footnotes_is_the_folio(play):
+    # Hec. p. 338: the folio shares the foot's row with the first footnote,
+    # and the OCR sets it on a row of its own before the note.
+    play(["ΜΗΔΕΙΑ", VERSE[0], "284"],
+         ["MEDEA", "Would God that Argo's hull", "285"],
+         ["ΜΗΔΕΙΑ", VERSE[1], VERSE[2], "286", "¹ Beck: for εἰσ’ of MSS."],
+         ["MEDEA", "Would God that Argo's hull", "287"],
+         ["ΜΗΔΕΙΑ", VERSE[3], "40", "¹ Beck: for εἰσ’ of MSS."])   # not the next page: a margin number
+    rows, log, stops, _ = rows_of()
+    assert [(r["kind"], r["page"]) for r in rows] == [
+        ("verse", 284), ("verse", 286), ("verse", 286), ("verse", 288), ("num", 288)]
+    assert "leaf 4: folio 286 read before the footnotes" in log
+    assert "leaf 6: no folio read, page 288 inferred" in log
+    assert [s["reason"] for s in stops] == ["footnote", "footnote"]
+
+
+def test_a_misread_folio_takes_the_page_the_scan_prints(play, monkeypatch):
+    monkeypatch.setitem(W.FOLIO_FIXES, "t", {4: (286, "scan leaf 4 prints 286")})
+    play(["ΜΗΔΕΙΑ", VERSE[0], "284"],
+         ["MEDEA", "Would God that Argo's hull", "285"],
+         ["ΜΗΔΕΙΑ", VERSE[1], "276"])   # Hec. leaf 284: 262 read as 252
+    rows, log, _, _ = rows_of()
+    assert [r["page"] for r in rows] == [284, 286]
+    assert any("page 286 by hand" in x for x in log)
+
+
+def test_a_printed_fix_drops_a_number_the_ocr_set_on_a_row_of_its_own(play, monkeypatch, tmp_path):
+    # Hec. p. 348: the OCR set 1290 on a row of its own at the foot; the
+    # scan prints it against a verse row above.
+    play(["ΜΗΔΕΙΑ", VERSE[0], VERSE[1], "2", "284"])
+    ref = [{"n": str(k), "text": VERSE[k - 1], "parts": []} for k in (1, 2)]
+    monkeypatch.setattr(W, "murray_lines", lambda slug: ref)
+    monkeypatch.setattr(J, "tlg_lines", lambda slug: ref)
+    monkeypatch.setattr(W, "murray_stanzas", lambda slug: {})
+    monkeypatch.setattr(W, "OUT", tmp_path / "out")
+    monkeypatch.setattr(W, "DUMP", tmp_path / "dump")
+    monkeypatch.setitem(W.PRINTED_FIXES, "t", {4: (2, "scan prints 2 here"), 5: (None, "the OCR moved 2 here")})
+    rep = W.convert("t")
+    tei = (tmp_path / "out" / "t.xml").read_text(encoding="utf-8")
+    assert '<l n="2" rend="margin-2">' in tei and "margin-apart" not in tei
+    assert rep["dropped_numbers"] == [(5, 2, "the OCR moved 2 here")] and rep["margin_bad"] == []
+    monkeypatch.setitem(W.PRINTED_FIXES, "t", {5: (3, "a number row cannot take a number")})
+    with pytest.raises(SystemExit):
+        W.convert("t")
+
+
+def test_a_dash_at_a_rows_end_after_a_greek_letter_is_the_word_division_hyphen():
+    c = {}
+    assert W.parse_row("οὐδέποτ᾽ ἀστένακτος ἀδάκρυτος ἁ–", c)["text"] == "οὐδέποτ’ ἀστένακτος ἀδάκρυτος ἁ-"
+    assert W.parse_row("κᾆτ’ ἐκ γαληνῶν—πῶς δοκεῖς ;—προσφθεγμάτων", c)["text"] == "κᾆτ’ ἐκ γαληνῶν—πῶς δοκεῖς ;—προσφθεγμάτων"
+    assert W.parse_row("ἔθνῃσκε, — ", c)["text"] == "ἔθνῃσκε, —"
+
+
+def test_a_strophe_mark_whose_breathing_the_ocr_lost_still_labels_its_row():
+    c = {}
+    r = W.parse_row('λέγεται, τάδε δὲ πίστιν <p align="right">αντ. β\'</p>', c)
+    assert r["strophe"] == ("antistrophe", 2) and r["text"] == "λέγεται, τάδε δὲ πίστιν"
+    assert W.parse_row("*αντ. α'*", c) == {"kind": "label", "strophe": ("antistrophe", 1)}

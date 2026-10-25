@@ -315,8 +315,8 @@ greek_editions:
     editor: "A. S. Way"
     year: 1912
     status: public-domain-us
-    note: "Loeb, Heinemann, 1st printing 1912 (scan: 1946 printing, archive.org euripidesway04euriuoft, title page leaf 9, verso leaf 10 'First printed 1912'); published before 1931. Text from John's Genie OCR."
-    sources: [ocr/way-loeb/medea.xml]
+    note: "Loeb, Heinemann, 1st printing 1912 (scans: vol. 4 1946 printing, archive.org euripidesway04euriuoft, title page leaf 9, verso leaf 10 'First printed 1912'; vol. 1 1925 printing, archive.org euripidesway01euriuoft, title page leaf 9, leaf 6 'First printed 1912'; vol. 2 1929 printing, archive.org euripideswitheng02euri, title page leaf 7, leaf 8 'First printed 1912'); published before 1931. Text from John's Genie OCR."
+    sources: [ocr/way-loeb/medea.xml, ocr/way-loeb/hecuba.xml, ocr/way-loeb/electra-eur.xml]
   - id: smyth-loeb
     editor: "H. W. Smyth"
     year: 1926

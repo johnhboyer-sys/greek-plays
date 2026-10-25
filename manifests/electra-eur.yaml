@@ -234,8 +234,9 @@ registry:
     full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
   greekEditions:
     - { id: tlg, short: "Diggle (1981)", full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)", editor: Diggle, year: 1981, kind: tlg, licence: public-domain-us }
-    - { id: murray-oct, short: "Murray (1913)", full: "Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)", editor: Gilbert Murray, year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["way", "murray-verse"] }
+    - { id: murray-oct, short: "Murray (1913)", full: "Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)", editor: Gilbert Murray, year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["murray-verse"] }
     - { id: paley, short: "Paley (1876)", full: "F. A. Paley, Euripides, vol. 2 (New York: Harper & Brothers, 1876)", editor: "F. A. Paley", year: 1876, kind: ocr-tei, licence: public-domain-us, pairs: [coleridge] }
+    - { id: way-loeb, short: "Way (1912)", full: "A. S. Way, Euripides, vol. 2 (Loeb Classical Library, Heinemann, 1912)", editor: "A. S. Way", year: 1912, kind: ocr-tei, licence: public-domain-us, pairs: [way] }
   translations:
     - id: coleridge
       edition: paley
@@ -245,7 +246,7 @@ registry:
       slot: english
       alignment: line
     - id: way
-      edition: murray-oct
+      edition: way-loeb
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -278,7 +279,7 @@ greek_editions:
       encoding: cc-by-sa-4.0
       credit: Perseus Digital Library, Tufts University
       source_url: https://github.com/PerseusDL/canonical-greekLit
-    pairs: [way, murray-verse]
+    pairs: [murray-verse]
     citation:
       title_labels: []
       lacunae: {'1': [538a, '1153', '1154', 1181b]}
@@ -426,3 +427,89 @@ greek_editions:
       - { ref: "1257", find: "κάρα", replace: "κάρᾳ", note: "scan p. 186 prints κάρᾳ; the OCR lost the iota subscript" }
       - { ref: "1341", find: "Ηλέκτρας", replace: "Ἠλέκτρας", note: "scan p. 188 prints Ἠλέκτρας; the OCR lost the breathing" }
       - { ref: "1348", find: "πρώρας", replace: "πρῴρας", note: "scan p. 188 prints πρῴρας; the OCR lost the iota subscript" }
+  # Way's own Greek, from John's Genie OCR of the Loeb volume (archive.org
+  # euripideswitheng02euri, vol. 2: Electra, Orestes, Iphigeneia in Taurica,
+  # Andromache, Cyclops). The copy scanned is the 1929 printing: title page
+  # (leaf 7) "LONDON : WILLIAM HEINEMANN / NEW YORK : G. P. PUTNAM'S SONS /
+  # MCMXXIX"; leaf 8 "First printed 1912 / Reprinted, 1916, 1919, 1924,
+  # 1929." The TEI is sources/ocr/way-loeb/electra-eur.xml, made by
+  # scripts/ocr/way_to_tei.py and numbered by Way's printed margin numbers,
+  # Murray and the TLG filling between them (the Jebb ruling).
+  # Credit and label approved by John, 2026-10-01.
+  - id: way-loeb
+    label:
+      short: "Way (1912)"
+      full: "A. S. Way, Euripides, vol. 2 (Loeb Classical Library, Heinemann, 1912)"
+    editor: "A. S. Way"
+    year: 1912
+    source:
+      kind: ocr-tei
+      path: ocr/way-loeb/electra-eur.xml
+      expect: { title: "Ἠλέκτρα", editor: "A. S. Way" }
+    licence:
+      text: public-domain-us
+      encoding: none
+      credit: "Greek text: A. S. Way, Heinemann, 1912"
+      source_url: https://archive.org/details/euripideswitheng02euri
+    pairs: [way]
+    citation:
+      title_labels: []
+      lacunae: { "1": [] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1355, sha256: "3ce9051a9eb117a2408c7aeb9fe21149205b44a4b6437889bf0090b0530658d1" }
+    speakers:
+      sigla:
+        "—": null
+        "ΑΥΤΟΥΡΓΟΣ": Peasant
+        "ΗΛΕΚΤΡΑ": Electra
+        "ΟΡΕΣΤΗΣ": Orestes
+        "ΧΟΡΟΣ": Chorus
+        "ΠΡΕΣΒΥΣ": Old Man
+        "ΑΓΓΕΛΟΣ": Messenger
+        "ΚΛΥΤΑΙΜΝΗΣΤΡΑ": Clytemnestra
+        "ΚΑΣΤΩΡ": Castor
+      overrides: []
+    edition_only: []
+    alignment: { way: { covered: [] } }
+    gaps: []
+    # OCR misreads corrected to what the scan prints (archive.org
+    # euripideswitheng02euri, page as printed, leaf = page + 20): Greek
+    # editions match the scan (John, 2026-10-01), lost iota subscripts included.
+    text_fixes:
+      - { ref: "9", find: "θνήσκει", replace: "θνῄσκει", note: "scan p. 6 prints θνῄσκει; the OCR lost the iota subscript" }
+      - { ref: "26", find: "γενναῖῳ", replace: "γενναίῳ", note: "scan p. 8 prints γενναίῳ; the OCR read the acute as a circumflex" }
+      - { ref: "122", find: "Ἁίδα", replace: "Ἀΐδα", note: "scan p. 14 prints Ἀΐδα (smooth breathing, diaeresis); the OCR read a rough breathing and lost the diaeresis" }
+      - { ref: "226", find: "μείνας’", replace: "μείνασ’", note: "scan p. 22 prints μείνασ’ (μείνασα elided); the masculine μείνας does not agree with Electra" }
+      - { ref: "305", find: "πίνω", replace: "πίνῳ", note: "scan p. 32 prints πίνῳ, dative with ὅσῳ βέβριθ’; the OCR lost the iota subscript" }
+      - { ref: "327", find: "ἐνθρώσκει", replace: "ἐνθρῴσκει", note: "scan p. 32 prints ἐνθρῴσκει; the OCR lost the iota subscript" }
+      - { ref: "410", find: "Τανάον", replace: "Ταναὸν", note: "scan p. 38 prints Ταναὸν; the OCR set the accent on the wrong syllable" }
+      - { ref: "436", find: "πρώραις", replace: "πρῴραις", note: "scan p. 40 prints πρῴραις; the OCR lost the iota subscript" }
+      - { ref: "439", find: "κούφον", replace: "κοῦφον", note: "scan p. 40 prints κοῦφον; the OCR read the circumflex as an acute" }
+      - { ref: "440", find: "Τρῳίας", replace: "Τρωΐας", note: "scan p. 40 prints Τρωΐας; the OCR set an iota subscript where the scan prints a diaeresis" }
+      - { ref: "531", find: "χεγάσιν", replace: "γεγῶσιν", note: "scan p. 48 prints γεγῶσιν; χεγάσιν is no word" }
+      - { ref: "546", find: "ξυναυξάνοινθ’", replace: "ξυναύξοινθ’", note: "scan p. 48 prints ξυναύξοινθ’; the OCR's ξυναυξάνοινθ’ adds a syllable the trimeter has no room for" }
+      - { ref: "570", find: "γεραί,", replace: "γεραί’,", note: "scan p. 52 prints γεραί’ (γεραιέ elided); the OCR lost the elision mark" }
+      - { ref: "625", find: "ἔορτιν", replace: "ἔροτιν", note: "scan p. 56 prints ἔροτιν; ἔορτιν is no word" }
+      - { ref: "639", find: "πίπτον", replace: "πῖπτον", note: "scan p. 58 prints πῖπτον; the OCR read the circumflex as an acute" }
+      - { ref: "654", find: "δέκ’", replace: "δέχ’", note: "scan p. 60 prints δέχ’ (δέκα before the rough breathing of ἡλίους); δέκ’ breaks the elision" }
+      - { ref: "761", find: "Μυκη νίδες", replace: "Μυκηνίδες", note: "scan p. 70 prints Μυκηνίδες as one word; the OCR split it" }
+      - { ref: "800", find: "ἦρον", replace: "ᾖρον", note: "scan p. 74 prints ᾖρον (imperfect of αἴρω); the OCR lost the iota subscript" }
+      - { ref: "843", find: "ἐσφάδαζε", replace: "ἐσφάδᾳζε", note: "scan p. 76 prints ἐσφάδᾳζε; the OCR lost the iota subscript" }
+      - { ref: "896", find: "χρήζεις", replace: "χρῄζεις", note: "scan p. 80 prints χρῄζεις; the OCR lost the iota subscript" }
+      - { ref: "898", find: "πήξας’", replace: "πήξασ’", note: "scan p. 80 prints πήξασ’ (πήξασα elided); the masculine πήξας does not agree with Electra" }
+      - { ref: "905", find: "χρήζεις", replace: "χρῄζεις", note: "scan p. 82 prints χρῄζεις; the OCR lost the iota subscript" }
+      - { ref: "994", find: "ἶσα", replace: "ἴσα", note: "scan p. 88 prints ἴσα; ἶσα is no form" }
+      - { ref: "1041", find: "λάθρα", replace: "λάθρᾳ", note: "scan p. 92 prints λάθρᾳ; the OCR lost the iota subscript" }
+      - { ref: "1049", find: "χρήζεις", replace: "χρῄζεις", note: "scan p. 92 prints χρῄζεις; the OCR lost the iota subscript" }
+      - { ref: "1079", find: "χρήζουσαν", replace: "χρῄζουσαν", note: "scan p. 96 prints χρῄζουσαν; the OCR lost the iota subscript" }
+      - { ref: "1089", find: "ἐπηγάγω", replace: "ἐπηνέγκω", note: "scan p. 96 prints ἐπηνέγκω; the OCR swapped in another word" }
+      - { ref: "1151", find: "θριγκοὺ", replace: "θριγκοὶ", note: "scan p. 102 prints θριγκοὶ, nominative plural with ἀντάϋσε; θριγκοὺ is no form" }
+      - { ref: "1157", find: "χρόνιον", replace: "χρονιον", note: "scan p. 102 prints χρονιον, unaccented (Way's misprint, kept as printed); the OCR supplied the accent" }
+      - { ref: "1168", find: "ὤμῳξα", replace: "ᾤμωξα", note: "scan p. 102 prints ᾤμωξα; the OCR set the iota subscript on the wrong vowel" }
+      - { ref: "1216", find: "παρήδων", replace: "παρῄδων", note: "scan p. 106 prints παρῄδων; the OCR lost the iota subscript" }
+      - { ref: "1242", find: '"Αργος', replace: "Ἄργος", note: "scan p. 108 prints Ἄργος (smooth breathing and acute before the capital); the OCR read the marks as a double quote" }
+      - { ref: "1250", find: '"Αργος', replace: "Ἄργος", note: "scan p. 108 prints Ἄργος (smooth breathing and acute before the capital); the OCR read the marks as a double quote" }
+      - { ref: "1341", find: "Ηλέκτρας", replace: "Ἠλέκτρας", note: "scan p. 116 prints Ἠλέκτρας; the OCR lost the smooth breathing" }
+      - { ref: "1348", find: "πρώρας", replace: "πρῴρας", note: "scan p. 116 prints πρῴρας; the OCR lost the iota subscript" }
