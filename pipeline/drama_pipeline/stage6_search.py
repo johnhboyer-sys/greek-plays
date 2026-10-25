@@ -470,6 +470,10 @@ def run(manifest: Manifest) -> Path:
     # whose accented headword the LSJ shards hold.
     surface_stream: list[str | None] = []
     head_keys: dict[str, defaultdict] = defaultdict(lambda: defaultdict(int))
+    # Stage 4's analyses carry no LSJ keys yet; stage 5 left lemma -> keys.
+    lemma_map_path = BUILD_DIR / "stage5" / "lemma_map.json"
+    lsj_by_lemma = (json.loads(lemma_map_path.read_text(encoding="utf-8"))
+                    if lemma_map_path.exists() else {})
     for seg in segments:
         for line in seg["lines"]:
             for tok in line["tokens"]:
@@ -492,7 +496,7 @@ def run(manifest: Manifest) -> Path:
                 lemma_stream.append(lemmas or None)
                 for a in entries:
                     folded = fold_lemma(a["lemma"]) if a["lemma"] else fold_lemma(stored)
-                    lsj_key = (a.get("lsj") or [None])[0]
+                    lsj_key = (a.get("lsj") or lsj_by_lemma.get(a["lemma"] or "") or [None])[0]
                     if folded and lsj_key:
                         head_keys[folded][lsj_key] += 1
                 sig = signature(entries)
