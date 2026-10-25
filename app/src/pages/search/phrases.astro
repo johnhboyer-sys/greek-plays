@@ -12,7 +12,7 @@ import '@shared/styles/global.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const pageTitle = `Phrase index — ${SITE_NAME}`;
-const description = 'Every phrase of two to five words that recurs in the Greek plays, in Greek or in English, with the lines it stands in.';
+const description = 'Phrases of two to five words that recur in the Greek plays, in Greek or English, with their line numbers.';
 const canonical = Astro.site ? new URL(`${base}/search/phrases/`, Astro.site).href : undefined;
 ---
 <html lang="en">

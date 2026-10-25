@@ -1239,7 +1239,7 @@
               <label class="ck lem" title={c.n ? `${c.n.toLocaleString('en-US')} times in the plays` : undefined}><input type="checkbox" checked={c.on} on:change={() => toggleCand(ti, c.fold)} /><span lang="grc">{c.heads.join(', ')}</span>{#if c.gloss}<span class="gl">{` — ${c.gloss}`}</span>{/if}</label>
             {/each}
           {/each}
-          {#if entryCand?.slug}<a class="ln" href={lemmaEntryHref(import.meta.env.BASE_URL.replace(/\/$/, ''), 'grc', entryCand.slug)}>the entries</a>{/if}
+          {#if entryCand?.slug}<a class="ln" href={lemmaEntryHref(import.meta.env.BASE_URL.replace(/\/$/, ''), 'grc', entryCand.slug)}>LSJ entry</a>{/if}
         </p>
       {/if}
       <p class="row">
@@ -1257,7 +1257,7 @@
           {/if}
           <span class="v"><select aria-label="Words or line" value={nearUnit} on:change={(e) => (nearUnit = e.currentTarget.value as 'words' | 'line')}><option value="words">words</option><option value="line">on the same line</option></select><i aria-hidden="true">▾</i></span>
           {#if nearRel === 'near'}<label class="ck"><input type="checkbox" bind:checked={nearOrdered} />In this order</label>{/if}
-          {#if grkQuery.trim().split(/\s+/).length > 1}<span class="mn">the Greek words count as one phrase</span>{/if}
+          {#if grkQuery.trim().split(/\s+/).length > 1}<span class="mn">searched as one phrase</span>{/if}
         {/if}
       </p>
       {#if nearKind === 'grammatical'}
@@ -1273,7 +1273,7 @@
       <p class="row gap">
         <span class="mn">English</span>
         <span class="v"><select aria-label="English words" value={engMode} on:change={(e) => (engMode = e.currentTarget.value as SearchMode)}>{#each MODE_OPTS as opt}<option value={opt.v}>{opt.l}</option>{/each}</select><i aria-hidden="true">▾</i></span>
-        <span class="v" title="Any form of the word also matches its plural and possessive: man, men, man’s"><select aria-label="English forms" value={String(engForms)} on:change={(e) => (engForms = e.currentTarget.value === 'true')}><option value="true">Any form of the word</option><option value="false">Only as typed</option></select><i aria-hidden="true">▾</i></span>
+        <span class="v" title="Any form also finds plurals and possessives: man, men, man’s"><select aria-label="English forms" value={String(engForms)} on:change={(e) => (engForms = e.currentTarget.value === 'true')}><option value="true">Any form of the word</option><option value="false">Only as typed</option></select><i aria-hidden="true">▾</i></span>
         <span class="mn">in every translation</span>
       </p>
       <p class="row">
@@ -1360,7 +1360,7 @@
     <p class="search-error">{error}</p>
   {:else if searched}
     {#if unsupportedWorks.length}
-      <p class="search-note warn">Near searches each play’s main text. In {failedPlaysPhrase(unsupportedWorks)} the chosen edition was searched without it; choose “Each play’s main text” to apply it there.</p>
+      <p class="search-note warn">Near uses each play’s main Greek text. These plays were searched in the chosen edition without Near: {failedPlaysPhrase(unsupportedWorks)}.</p>
     {/if}
     {#if failedWorks.length}
       <p class="search-note warn">

@@ -55,13 +55,13 @@ const canonical = Astro.site ? new URL(`${base}/search/how/`, Astro.site).href :
         <dt>Wildcard</dt>
         <dd>Use <code>*</code> for a wildcard: <code>fron*</code> matches φρόνησις, φρόνιμος, etc.</dd>
         <dt>LSJ</dt>
-        <dd>With any form of a word, the dictionary headwords the word can belong to, each with its meaning and how often it occurs. Untick one to leave it out: <span lang="grc">πόλεις</span> can be a form of <span lang="grc">πόλις</span> or of <span lang="grc">πολέω</span>.</dd>
+        <dd>Shows the dictionary headwords your word can come from. Untick a headword to leave it out. Example: <span lang="grc">πόλεις</span> can come from <span lang="grc">πόλις</span> or <span lang="grc">πολύς</span>.</dd>
         <dt>Near</dt>
-        <dd>A second word, form, headword or grammatical shape that must stand near the Greek you typed: before it, after it, or either side, within so many words or on the same line. In this order keeps the two in the order given.</dd>
+        <dd>Finds the Greek you typed with a second word or grammatical form close by. Choose before, after, or either side, and how many words apart, or the same line. Tick In this order to keep the order.</dd>
         <dt>Shape</dt>
-        <dd>The grammar of that second term: tense, mood, voice, person and number for a verb form; case, number, gender and degree for a noun or adjective; or a word class such as particle or preposition. Leave a category at “any” to accept every value. The parses are Morpheus’s, and a form it reads more than one way matches each of its readings.</dd>
+        <dd>Sets the grammar of the second word, for example an aorist optative or a genitive plural. Categories left at “any” are not checked. The parses come from Morpheus; a form with more than one parse matches each of them.</dd>
         <dt>English near</dt>
-        <dd>A second English word within so many words of the first, in the same translation.</dd>
+        <dd>Finds the English you typed with a second English word close by, in the same translation.</dd>
         <dt>Together</dt>
         <dd>With both boxes filled: lines where both the Greek and the English match, or lines where either does.</dd>
         <dt>In</dt>
@@ -69,19 +69,19 @@ const canonical = Astro.site ? new URL(`${base}/search/how/`, Astro.site).href :
       </dl>
 
       <h2 id="share">Sharing a search</h2>
-      <p>The address in your browser holds the whole search, every control included. Copy it to share the search or come back to it.</p>
+      <p>The page address holds the whole search. Copy it to share or bookmark the search.</p>
 
       <h2 id="phrases">The phrase index</h2>
-      <p>Every run of two to five words that occurs at least twice in the plays, counted. <a href={`${base}/search/phrases`}>Open the phrase index</a></p>
+      <p>Lists every phrase of two to five words that occurs at least twice in the plays. <a href={`${base}/search/phrases`}>Open the phrase index</a></p>
       <dl>
-        <dt>Greek words as written, Greek words in any form</dt>
-        <dd>As written counts <span lang="grc">ὦ τέκνον</span> and <span lang="grc">ὦ τέκνα</span> apart; in any form counts them together, by headword. Type the words as they stand on the page either way.</dd>
+        <dt>Greek, as written; Greek, any form</dt>
+        <dd>As written keeps <span lang="grc">ὦ τέκνον</span> and <span lang="grc">ὦ τέκνα</span> apart. Any form counts them together. Type the words as printed.</dd>
         <dt>English</dt>
-        <dd>The phrases of each play’s main translation. A phrase found in many plays is the poets’ habit; one found in a single play may be its translator’s.</dd>
+        <dd>Phrases in each play’s main translation.</dd>
         <dt>Most distinctive first</dt>
-        <dd>How much more often the phrase occurs than its words would by chance. It orders the list and hides nothing.</dd>
-        <dt>The lines</dt>
-        <dd>Choose a phrase to see the lines it stands in, by play; each number opens the reader at that line.</dd>
+        <dd>Puts first the phrases whose words occur together more often than chance predicts.</dd>
+        <dt>Lines</dt>
+        <dd>Click a phrase to list its lines by play. Click a line number to open it in the reader.</dd>
       </dl>
 
       <h2>How to type Greek</h2>
