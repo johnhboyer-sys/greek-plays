@@ -465,11 +465,17 @@ def run(manifest: Manifest) -> Path:
     # no index can key, which breaks the stream: an n-gram may not span it.
     form_stream: list[str | None] = []
     lemma_stream: list[list[str] | None] = []
+    # For the phrase index's display (stage 8): each token as printed, accents
+    # and all, and the dictionary key each headword fold is most often read as,
+    # whose accented headword the LSJ shards hold.
+    surface_stream: list[str | None] = []
+    head_keys: dict[str, defaultdict] = defaultdict(lambda: defaultdict(int))
     for seg in segments:
         for line in seg["lines"]:
             for tok in line["tokens"]:
                 key = tok.get("k")
                 form_stream.append(fold_lemma(key) or None if key else None)
+                surface_stream.append(tok.get("t") if key else None)
                 if not key:
                     column.append(SIG_UNKEYED)
                     lemma_stream.append(None)
@@ -484,6 +490,11 @@ def run(manifest: Manifest) -> Path:
                     for a in entries
                 } - {""})
                 lemma_stream.append(lemmas or None)
+                for a in entries:
+                    folded = fold_lemma(a["lemma"]) if a["lemma"] else fold_lemma(stored)
+                    lsj_key = (a.get("lsj") or [None])[0]
+                    if folded and lsj_key:
+                        head_keys[folded][lsj_key] += 1
                 sig = signature(entries)
                 if not sig:
                     column.append(SIG_UNANALYSED)
@@ -553,6 +564,11 @@ def run(manifest: Manifest) -> Path:
                     "chapter_bounds": chapter_bounds,
                     "form": form_stream,
                     "lemma": lemma_stream,
+                    "surface": surface_stream,
+                    "heads": {
+                        folded: sorted(keys.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
+                        for folded, keys in head_keys.items()
+                    },
                 },
                 ensure_ascii=False,
             ),

@@ -25,6 +25,22 @@ it('writes English "only as typed" and reads it back', () => {
   expect(query).toBe('e=man&ef=0');
   expect(decodeSearchUrl(query, works).engForms).toBe(false);
 });
+it('writes Near, picks and English near as short readable parameters', () => {
+  const state: UrlSearch = { ...emptyUrlSearch(works), grk: 'μή', eng: 'sword', lemmaPick: [['polis'], ['qeos', 'qea']],
+    near: { kind: 'grammatical', query: { mood: 'opt' }, relation: 'after', window: 1, unit: 'words', ordered: false },
+    engNear: { term: 'hand', relation: 'near', window: 5 } };
+  const query = encodeSearchUrl(state, works);
+  expect(decodeURIComponent(query)).toBe('g=μή&e=sword&lp=polis~qeos.qea&n=g&ng=mood.opt&nr=a&nw=1&en=hand&enw=5');
+  expect(query).not.toMatch(/%7B|%22/);   // no JSON
+  expect(decodeSearchUrl(query, works)).toEqual(state);
+});
+it('keeps the typed word of a headword Near term', () => {
+  const state: UrlSearch = { ...emptyUrlSearch(works), grk: 'ὦ', nearText: 'τέκνα',
+    near: { kind: 'lemma', terms: ['teknon'], relation: 'near', window: 10, unit: 'line', ordered: true } };
+  const back = decodeSearchUrl(encodeSearchUrl(state, works), works);
+  expect(back.nearText).toBe('τέκνα');
+  expect(back.near).toMatchObject({ kind: 'lemma', unit: 'line', ordered: true });
+});
 it('omits all works and the reference edition', () => {
   const query = encodeSearchUrl({ ...emptyUrlSearch(works), grk: 'logos' }, works);
   expect(query).toBe('g=logos');
@@ -40,13 +56,15 @@ it('supports an exclusion list and filters unknown work ids', () => {
 it('ignores junk values and malformed JSON', () => {
   expect(decodeSearchUrl('g=x&gm=no&em=no&m=no&acc=yes&op=no&ed=..%2Fx&lemmaPick=bad&near=[]&shape=1&engNear={}', works)).toEqual({ ...emptyUrlSearch(works), grk: 'x' });
 });
-it('clamps windows and drops invalid nested values', () => {
-  const p = new URLSearchParams({ g: 'x', near: JSON.stringify({ kind: 'form', terms: [1, 'x'], window: 999, relation: 'junk', unit: 'chapter', ordered: 'yes' }),
-    engNear: JSON.stringify({ term: 'word', window: -3 }), shape: JSON.stringify({ case: 'nom', bad: ['x'], 'bad.key': 'x' }), lemmaPick: JSON.stringify([['logos', 1], null]) });
+it('clamps windows and drops invalid values', () => {
+  const p = new URLSearchParams({ g: 'x', n: 'f', nt: 'x', nw: '999', nr: 'junk', nu: 'chapter', no: 'yes',
+    en: 'word', enw: '-3', sh: 'case.nom~bad~bad.key.x~<b>.x', lp: "logos.LOGOS.1~" });
   const state = decodeSearchUrl(p, works);
   expect(state.near).toEqual({ kind: 'form', terms: ['x'], window: 50, relation: 'near', unit: 'words', ordered: false });
   expect(state.engNear?.window).toBe(1); expect(state.shape).toEqual({ case: 'nom' });
   expect(state.lemmaPick).toEqual([['logos'], []]);
+  expect(decodeSearchUrl('g=x&n=zz&nt=y', works).near).toBeUndefined();
+  expect(decodeSearchUrl('g=x&n=g', works).near).toBeUndefined();
 });
 it('counts a shape-only query as a search', () => {
   const state = { ...emptyUrlSearch(works), shape: { mood: 'opt' } };

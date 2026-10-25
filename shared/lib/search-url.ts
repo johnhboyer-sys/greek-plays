@@ -42,26 +42,44 @@ export function encodeSearchUrl(s: UrlSearch, allWorks: string[]): string {
     const outside = allWorks.filter(w => !chosen.has(w)).join(',');
     p.set('w', inside && outside.length + 1 < inside.length ? `-${outside}` : inside);
   }
-  if (s.nearText?.trim()) p.set('nt', s.nearText.trim());
-  for (const key of ['lemmaPick', 'near', 'shape', 'engNear'] as const) {
-    if (s[key] !== undefined) p.set(key, JSON.stringify(s[key]));
+  // Short, readable parameters rather than JSON, so a shared link stays short:
+  // lp=polis.polew~qeos (ticked headwords, per typed word); n=g|l|f|p (near
+  // kind) with nt (its words), nr=b|a, nw, nu=l, no=1, ng=mood.opt~tense.aor;
+  // sh (a shape alone, same form as ng); en, enr, enw (English near).
+  if (s.lemmaPick) p.set('lp', s.lemmaPick.map(folds => folds.join('.')).join('~'));
+  if (s.near) {
+    p.set('n', KIND_CODE[s.near.kind]);
+    if (s.near.kind === 'grammatical') p.set('ng', encodeGrammar(s.near.query ?? {}));
+    else p.set('nt', (s.near.kind === 'lemma' && s.nearText?.trim()) || (s.near.terms ?? []).join(' '));
+    if (s.near.relation !== 'near') p.set('nr', s.near.relation[0]);
+    if (s.near.window !== COMBO_WINDOW_DEFAULT) p.set('nw', String(s.near.window));
+    if (s.near.unit === 'line') p.set('nu', 'l');
+    if (s.near.ordered) p.set('no', '1');
+  }
+  if (s.shape) p.set('sh', encodeGrammar(s.shape));
+  if (s.engNear) {
+    p.set('en', s.engNear.term);
+    if (s.engNear.relation !== 'near') p.set('enr', s.engNear.relation[0]);
+    if (s.engNear.window !== COMBO_WINDOW_DEFAULT) p.set('enw', String(s.engNear.window));
   }
   return p.toString();
 }
 
-const modes = ['all', 'any', 'phrase'] as const;
-const kinds: SlotKind[] = ['lemma', 'form', 'phrase', 'grammatical'];
-const relations: SlotRelation[] = ['near', 'before', 'after'];
-const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
-const strings = (v: unknown): string[] => Array.isArray(v) ? v.filter((s): s is string => typeof s === 'string' && !!s.trim()).map(s => s.trim()) : [];
-function grammar(v: unknown): GrammarQuery | undefined {
-  if (!record(v)) return;
-  const pairs = Object.entries(v).filter(([k, x]) => /^[a-z][a-z_]*$/i.test(k) && typeof x === 'string' && /^[a-z0-9_-]+$/i.test(x));
+const KIND_CODE: Record<SlotKind, string> = { grammatical: 'g', lemma: 'l', form: 'f', phrase: 'p' };
+const CODE_KIND: Record<string, SlotKind> = { g: 'grammatical', l: 'lemma', f: 'form', p: 'phrase' };
+const RELATION_CODE: Record<string, SlotRelation> = { n: 'near', b: 'before', a: 'after' };
+// The categories the grammar index holds (pipeline stage 6's _FEATURES).
+const GRAMMAR_KEYS = new Set(['case', 'number', 'gender', 'person', 'tense', 'mood', 'voice', 'degree', 'marker']);
+const encodeGrammar = (q: GrammarQuery) => Object.entries(q).map(([k, v]) => `${k}.${v}`).join('~');
+function decodeGrammar(v: string | null): GrammarQuery | undefined {
+  if (!v) return;
+  const pairs = v.split('~').map(pair => pair.split('.'))
+    .filter(parts => parts.length === 2 && GRAMMAR_KEYS.has(parts[0]) && /^[a-z0-9_]+$/i.test(parts[1]));
   return pairs.length ? Object.fromEntries(pairs) as GrammarQuery : undefined;
 }
+const modes = ['all', 'any', 'phrase'] as const;
 const windowSize = (v: unknown) => typeof v === 'number' && Number.isFinite(v)
   ? Math.max(1, Math.min(Math.trunc(v), COMBO_WINDOW_MAX)) : COMBO_WINDOW_DEFAULT;
-const relation = (v: unknown): SlotRelation => relations.includes(v as SlotRelation) ? v as SlotRelation : 'near';
 
 export function decodeSearchUrl(search: string | URLSearchParams, allWorks: string[]): UrlSearch {
   const p = typeof search === 'string' ? new URLSearchParams(search) : search;
@@ -87,24 +105,29 @@ export function decodeSearchUrl(search: string | URLSearchParams, allWorks: stri
     const named = new Set(w.replace(/^-/, '').split(',').map(x => x.trim()));
     s.works = allWorks.filter(id => w.startsWith('-') ? !named.has(id) : named.has(id));
   }
-  const json = (key: string): unknown => { try { return JSON.parse(p.get(key) ?? 'null'); } catch { return null; } };
-  const picked = json('lemmaPick');
-  if (Array.isArray(picked)) s.lemmaPick = picked.map(strings);
-  const shape = grammar(json('shape'));
+  const lp = p.get('lp');
+  if (lp !== null) s.lemmaPick = lp.split('~').map(t => t.split('.').map(f => f.trim()).filter(f => /^[a-z']+$/.test(f)));
+  const shape = decodeGrammar(p.get('sh'));
   if (shape) s.shape = shape;
-  const near = json('near');
-  if (record(near) && kinds.includes(near.kind as SlotKind)) {
-    const terms = strings(near.terms), query = grammar(near.query);
-    if (near.kind === 'grammatical' ? !!query : !!terms.length) s.near = {
-      kind: near.kind as SlotKind, ...(terms.length ? { terms } : {}), ...(query ? { query } : {}),
-      relation: relation(near.relation), window: windowSize(near.window), unit: near.unit === 'line' ? 'line' : 'words', ordered: near.ordered === true,
-    };
+  const kind = CODE_KIND[p.get('n') ?? ''];
+  if (kind) {
+    const query = decodeGrammar(p.get('ng'));
+    const text = (p.get('nt') ?? '').trim();
+    const terms = text.split(/\s+/).filter(Boolean);
+    if (kind === 'grammatical' ? !!query : !!terms.length) {
+      s.near = {
+        kind, ...(kind === 'grammatical' ? { query } : { terms }),
+        relation: RELATION_CODE[p.get('nr') ?? 'n'] ?? 'near',
+        window: windowSize(Number(p.get('nw') ?? COMBO_WINDOW_DEFAULT)),
+        unit: p.get('nu') === 'l' ? 'line' : 'words', ordered: p.get('no') === '1',
+      };
+      if (kind === 'lemma') s.nearText = text;
+    }
   }
-  const nt = (p.get('nt') ?? '').trim();
-  if (nt && s.near?.kind === 'lemma') s.nearText = nt;
-  const en = json('engNear');
-  if (record(en) && typeof en.term === 'string' && en.term.trim()) s.engNear = {
-    term: en.term.trim(), relation: relation(en.relation), window: windowSize(en.window),
+  const en = (p.get('en') ?? '').trim();
+  if (en) s.engNear = {
+    term: en, relation: RELATION_CODE[p.get('enr') ?? 'n'] ?? 'near',
+    window: windowSize(Number(p.get('enw') ?? COMBO_WINDOW_DEFAULT)),
   };
   return s;
 }

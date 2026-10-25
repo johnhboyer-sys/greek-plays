@@ -580,8 +580,7 @@ describe('Search.svelte partial index failures (Astra lane A, F10)', () => {
     const mockSearch = search as unknown as ReturnType<typeof vi.fn>;
     mockSearch.mockClear();
     mockSearch.mockImplementation(async () => ({ results: [hit], failed: [] }));
-    const near = { kind: 'grammatical', query: { mood: 'opt' }, relation: 'after', window: 1, unit: 'words', ordered: false };
-    history.replaceState(null, '', `/search?g=${encodeURIComponent('μή')}&e=sword&ef=0&near=${encodeURIComponent(JSON.stringify(near))}`);
+    history.replaceState(null, '', `/search?g=${encodeURIComponent('μή')}&e=sword&ef=0&n=g&ng=mood.opt&nr=a&nw=1`);
     const { container } = render(Search);
     await waitFor(() => expect(mockSearch).toHaveBeenCalled());
     const args = mockSearch.mock.calls[0];

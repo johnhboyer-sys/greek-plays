@@ -135,6 +135,49 @@ def _english_stream(work: str) -> tuple[list[list[str]], list[int], list[dict]]:
     return stream, bounds, segments
 
 
+def _accented_heads(head_votes: dict[str, Counter]) -> dict[str, str]:
+    """fold -> the accented headword of the dictionary key it is most often
+    read as, from the LSJ shards stage 5 left in build/dist/lsj (Unicode heads,
+    so no Beta Code is shown)."""
+    shards: dict[str, dict] = {}
+    out: dict[str, str] = {}
+    for folded, votes in head_votes.items():
+        key = sorted(votes.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
+        letter = next((c for c in key.lower() if "a" <= c <= "z"), "_")
+        if letter not in shards:
+            path = BUILD_DIR / "dist" / "lsj" / f"{letter}.json"
+            shards[letter] = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+        entry = shards[letter].get(key)
+        head = entry.get("head") if isinstance(entry, dict) else None
+        if head:
+            out[folded] = head
+    return out
+
+
+def _display(stream_name: str, gram: str, at_by_work: dict, surfaces: dict, heads: dict):
+    """How the phrase index shows a phrase, or None to show its key."""
+    words = gram.split(" ")
+    if stream_name == "form":
+        seen: Counter = Counter()
+        for work, starts in at_by_work.items():
+            surface = surfaces.get(work)
+            if surface is None:
+                continue
+            for at in starts:
+                printed = surface[at:at + len(words)]
+                if len(printed) == len(words) and all(printed):
+                    seen[" ".join(printed)] += 1
+        if not seen:
+            return None
+        return sorted(seen.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
+    if stream_name == "lemma":
+        shown = [heads.get(w) for w in words]
+        if not any(shown):
+            return None
+        return " ".join(shown) if all(shown) else shown
+    return None
+
+
 def run() -> Path:
     source = BUILD_DIR / "ngrams"
     files = sorted(source.glob("*.json"))
@@ -154,6 +197,10 @@ def run() -> Path:
     # offset -> citation for the English stream, the counterpart of the Greek
     # offsets.json the reader already fetches.
     english_segments: dict[str, list[dict]] = {}
+    # For display: each work's tokens as printed (stage 6's surface stream), and
+    # every work's votes for the dictionary key each headword fold is read as.
+    surfaces: dict[str, list] = {}
+    head_votes: dict[str, Counter] = defaultdict(Counter)
 
     for path in files:
         doc = json.loads(path.read_text(encoding="utf-8"))
@@ -166,6 +213,10 @@ def run() -> Path:
             )
         books = [b["start"] for b in doc["book_bounds"]]
         chapters = {c["start"] for c in doc["chapter_bounds"]}
+        if doc.get("surface") is not None:
+            surfaces[work] = doc["surface"]
+        for folded, key in (doc.get("heads") or {}).items():
+            head_votes[folded][key] += 1
         for stream_name in GREEK_STREAMS:
             # One list of options per position, so both streams n-gram the
             # same way: the form stream simply never has more than one.
@@ -203,6 +254,8 @@ def run() -> Path:
                 counts[ENGLISH_STREAM][gram] += 1
                 offsets[ENGLISH_STREAM][gram][work].append(at)
 
+    heads = _accented_heads(head_votes)
+
     summary: dict = {"works": len(works), "streams": {}}
     out_root = BUILD_DIR / "dist" / "ngrams"
     for stream_name in STREAMS:
@@ -232,8 +285,15 @@ def run() -> Path:
             # chapter (the query-time toggle needs to be able to say so).
             row = [n, count, round(score, 1), len(per_work)]
             straddle = straddles[stream_name][gram]
-            if straddle:
+            display = _display(stream_name, gram, offsets[stream_name][gram], surfaces, heads)
+            if straddle or display is not None:
                 row.append(straddle)
+            # The phrase as a reader expects to see it, accents and all: the
+            # commonest printed spelling of a written phrase, the accented
+            # headwords of an any-form phrase (a word with no LSJ headword is
+            # null, and the page spells it from its key).
+            if display is not None:
+                row.append(display)
             shards[letter][gram] = row
             occ_shards[(letter, n)][gram] = per_work
 

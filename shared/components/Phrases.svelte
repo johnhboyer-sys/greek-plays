@@ -501,6 +501,15 @@
   }
 
   // A lone s is a word-initial sigma, not a final one.
+  // The phrase as the plays print it (stage 8's display), else from its key.
+  function shownPhrase(item: PhraseItem): string {
+    const display = item.row[5];
+    if (typeof display === 'string') return display;
+    const words = item.key.split(' ');
+    if (Array.isArray(display)) return words.map((w, i) => display[i] ?? betaToGreek(w)).join(' ');
+    return betaToGreek(item.key);
+  }
+
   const letterLabel = (l: string) => (isEnglish ? l : l === 's' ? 'σ' : betaToGreek(l));
 </script>
 
@@ -637,7 +646,7 @@
             aria-controls={`phrase-details-${id}`}
             on:click={() => togglePhrase(item)}
           >
-            <span class="ph" class:gk={!isEnglish} lang={isEnglish ? 'en' : 'grc'}>{isEnglish ? item.key : betaToGreek(item.key)}</span>
+            <span class="ph" class:gk={!isEnglish} lang={isEnglish ? 'en' : 'grc'}>{isEnglish ? item.key : shownPhrase(item)}</span>
             <span class="nums">{countFormat.format(item.row[1])} times{item.row[3] > 1 ? ` in ${item.row[3]} plays` : ', one play'}</span>
           </button>
           {#if isExpanded}
