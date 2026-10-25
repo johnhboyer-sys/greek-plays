@@ -149,3 +149,9 @@ it('reads English words as the index keys them: ligatures, curly elision, edge q
   expect(englishOccurrences(text, ["they'd"], 'all')).toEqual([14]);
   expect(englishOccurrences(text, ['they’d'], 'all')).toEqual([14]);
 });
+
+it('treats a quoted lone * as no word, with or without English forms', async () => {
+  const { englishOccurrences } = await import('../lib/search');
+  expect(englishOccurrences('old man', ['old', "'*'"], 'phrase', true)).toEqual([]);
+  expect(englishOccurrences('old man', ['old', "'*'"], 'phrase', false)).toEqual([]);
+});

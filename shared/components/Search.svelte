@@ -594,7 +594,7 @@
           add(r.work, r.meta.book, ch, {
             lang: 'eng', column, line: sourceLine.n,
             ref: playLine ? formatCite(r.work, column, sourceLine.n) : seg.column,
-            html: englishKwicAt(text, off, spans),
+            html: englishKwicAt(text, off, spans, hitRange(text, off, ctx, r.engNearPositions)),
             jumpUrl: jumpFor(r.work, r.meta.book, column, sourceLine.n, r.slotId),
             credit: [getWork(r.work)?.translations.find(t => t.id === r.slotId)?.short,
               (!r.slotId || r.slotId === getWork(r.work)?.translations.find(t => t.slot === 'english')?.id)
@@ -907,18 +907,35 @@
     return out;
   }
 
-  function englishKwicAt(text: string, pos: number, spans: [number, number][]): string {
+  // The stretch a row must show whole: its own run (a phrase may be long) and,
+  // for a near hit, the nearest near word's run, however far off it stands.
+  function hitRange(text: string, off: number, ctx: SearchCtx, partners?: number[]): [number, number] {
+    const words = englishWords(text);
+    const at = new Map(words.map((w, i) => [w.start, i]));
+    const runEnd = (s: number, run: number) => words[(at.get(s) ?? -1) + run - 1]?.end ?? s;
+    let from = off;
+    let to = runEnd(off, ctx.engMode === 'phrase' ? ctx.engBoxWords : 1);
+    if (partners?.length) {
+      const p = partners.reduce((best, x) => (Math.abs(x - off) < Math.abs(best - off) ? x : best));
+      from = Math.min(from, p);
+      to = Math.max(to, runEnd(p, ctx.engNearWords));
+    }
+    return [from, to];
+  }
+
+  function englishKwicAt(text: string, pos: number, spans: [number, number][], range: [number, number] = [pos, pos]): string {
     if (!text) return '';
-    const earliest = pos >= 0 && pos < text.length ? pos : 0;
+    const earliest = range[0] >= 0 && range[0] < text.length ? range[0] : 0;
+    const latest = Math.min(text.length, Math.max(earliest, range[1]));
     let start = Math.max(0, earliest - ENG_WINDOW);
-    let end = Math.min(text.length, earliest + ENG_WINDOW);
+    let end = Math.min(text.length, latest + ENG_WINDOW);
     if (start > 0) {
       const sp = text.indexOf(' ', start);
       if (sp >= 0 && sp < earliest) start = sp + 1;
     }
     if (end < text.length) {
       const sp = text.lastIndexOf(' ', end);
-      if (sp > earliest) end = sp;
+      if (sp > latest) end = sp;
     }
     let html = markSpans(text, start, end, spans);
     if (start > 0) html = '… ' + html;
