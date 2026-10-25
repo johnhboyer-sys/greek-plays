@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tick, onMount } from 'svelte';
   import { search, greekFold, englishWords, type SearchMode, type LangOp, type MatchMode, type SearchResult, type AdvancedSearch } from '../lib/search';
-  import { COMBO_WINDOW_DEFAULT, englishTermMatcher, type SlotKind, type SlotRelation } from '../lib/search-advanced';
+  import { COMBO_WINDOW_DEFAULT, type SlotKind, type SlotRelation } from '../lib/search-advanced';
   import { decodeSearchUrl, encodeSearchUrl, hasSearch, type UrlSearch } from '../lib/search-url';
   import { fetchBook, fetchChapters, fetchSections, readerHref, dataRoot, fetchLemmaPickerShard, fetchLemmaGlosses, lemmaEntryHref, type Segment, type GreekLine, type ChapterRef, type SectionRef, type TranslationCredit } from '../lib/data';
   import { editionPicker } from '../lib/edition-picker';
@@ -229,8 +229,8 @@
   // and jump-links after the search completes, so they must use the query that
   // produced the results — not whatever is currently typed in the boxes (a user
   // can edit the inputs without re-submitting, then page/retry/export).
-  interface SearchCtx { grkQuery: string; engQuery: string; engTerms: string[]; engForms: boolean; near: boolean; grkAccentTerms: string[]; }
-  let searchCtx: SearchCtx = { grkQuery: '', engQuery: '', engTerms: [], engForms: false, near: false, grkAccentTerms: [] };
+  interface SearchCtx { grkQuery: string; engQuery: string; engTerms: string[]; engForms: boolean; engMode: SearchMode; engBoxWords: number; engNearWords: number; near: boolean; grkAccentTerms: string[]; }
+  let searchCtx: SearchCtx = { grkQuery: '', engQuery: '', engTerms: [], engForms: false, engMode: 'all', engBoxWords: 1, engNearWords: 1, near: false, grkAccentTerms: [] };
   let unsupportedWorks: string[] = [];
 
   // ── Accent-sensitive Greek matching ────────────────────────────────────────
@@ -552,12 +552,19 @@
           if (!sourceLine) continue;
           // The partners that answered this hit, in this passage or another.
           const here = hit.partners.filter(p => p.segId === r.meta.id).map(p => p.pos);
-          const away = hit.partners.filter(p => p.segId !== r.meta.id)
-            .map(p => ({ seg: segMap.get(`${r.work}:${r.ed ?? ''}:${p.segId}`), pos: p.pos, after: !p.before }))
-            .filter((p): p is { seg: Segment; pos: number; after: boolean } => !!p.seg);
+          const awayBySeg = new Map<string, { seg: Segment; positions: number[]; after: boolean }>();
+          for (const p of hit.partners) {
+            if (p.segId === r.meta.id) continue;
+            const sg = segMap.get(`${r.work}:${r.ed ?? ''}:${p.segId}`);
+            if (!sg) continue;
+            const entry = awayBySeg.get(p.segId) ?? { seg: sg, positions: [], after: !p.before };
+            entry.positions.push(p.pos);
+            awayBySeg.set(p.segId, entry);
+          }
+          const away = [...awayBySeg.values()];
           const column = sourceLine.ref ?? seg.column;
           const ch = lookup(seg.column, sourceLine.n);
-          add(r.work, r.meta.book, ch, { lang: 'grk', column, line: sourceLine.n, ref: formatCite(r.work, column, sourceLine.n), html: nearKwic(seg, hit.pos, run, here, here.length ? undefined : away[0]), jumpUrl: jumpFor(r.work, r.meta.book, column, sourceLine.n, undefined, r.ed) });
+          add(r.work, r.meta.book, ch, { lang: 'grk', column, line: sourceLine.n, ref: formatCite(r.work, column, sourceLine.n), html: nearKwic(seg, hit.pos, run, here, away), jumpUrl: jumpFor(r.work, r.meta.book, column, sourceLine.n, undefined, r.ed) });
         }
         for (const pos of r.nearHits ? [] : r.grkPositions) {
           if (ctx.grkAccentTerms.length
@@ -575,8 +582,10 @@
         // One instance per occurrence in this translation's full text (an
         // English near hit: one per occurrence of the English box's words that
         // has the near word close by; both are marked).
+        const engText = r.englishText ?? seg.english?.text ?? '';
+        const spans = matchedSpans(engText, r, ctx);
         for (const off of r.engPositions) {
-          const text = r.englishText ?? seg.english?.text ?? '';
+          const text = engText;
           const sourceLine = englishLineAt(seg, off, text);
           if (!sourceLine) continue;
           const playLine = schemeFor(r.work).id === 'play-line';
@@ -585,7 +594,7 @@
           add(r.work, r.meta.book, ch, {
             lang: 'eng', column, line: sourceLine.n,
             ref: playLine ? formatCite(r.work, column, sourceLine.n) : seg.column,
-            html: englishKwicAt(text, off, ctx.engTerms, ctx.engForms),
+            html: englishKwicAt(text, off, spans),
             jumpUrl: jumpFor(r.work, r.meta.book, column, sourceLine.n, r.slotId),
             credit: [getWork(r.work)?.translations.find(t => t.id === r.slotId)?.short,
               (!r.slotId || r.slotId === getWork(r.work)?.translations.find(t => t.slot === 'english')?.id)
@@ -766,6 +775,9 @@
         engQuery: q.eng.trim(),
         engTerms: [...q.eng.trim().split(/\s+/), ...(q.engNear ? q.engNear.term.split(/\s+/) : [])].filter(Boolean),
         engForms: q.engForms,
+        engMode: q.engMode,
+        engBoxWords: Math.max(1, q.eng.trim().split(/\s+/).filter(Boolean).length),
+        engNearWords: q.engNear ? Math.max(1, q.engNear.term.split(/\s+/).filter(Boolean).length) : 1,
         near: !!near,
         grkAccentTerms: q.accent
           // Beta Code terms compare as Greek; a trailing * stays a wildcard.
@@ -804,7 +816,7 @@
   // A near hit: the line of the run starting at `pos`, its words and the other
   // terms marked, then the line of the nearest other term when it stands on
   // another line, or (`away`) in the passage before or after.
-  function nearKwic(seg: Segment, pos: number, run: number, others: number[], away?: { seg: Segment; pos: number; after: boolean }): string {
+  function nearKwic(seg: Segment, pos: number, run: number, others: number[], away: { seg: Segment; positions: number[]; after: boolean }[] = []): string {
     const linesOf = (sg: Segment) => {
       const out: { line: GreekLine; start: number }[] = [];
       let start = 0;
@@ -826,13 +838,13 @@
       if (at >= 0) parts.push(at);
     }
     const html = parts.sort((a, b) => a - b).map(i => render(lines[i], marked));
-    if (away) {
-      const awayLines = linesOf(away.seg);
-      const l = awayLines.find(x => away.pos >= x.start && away.pos < x.start + x.line.tokens.length);
-      if (l) {
-        const text = render(l, new Set([away.pos]));
-        if (away.after) html.push(text); else html.unshift(text);
-      }
+    // Partners in another passage: every line they stand on, all marked.
+    for (const a of away) {
+      const marks = new Set(a.positions);
+      const awayHtml = linesOf(a.seg)
+        .filter(x => a.positions.some(p => p >= x.start && p < x.start + x.line.tokens.length))
+        .map(x => render(x, marks));
+      if (a.after) html.push(...awayHtml); else html.unshift(...awayHtml);
     }
     return html.join(' <span class="sep">/</span> ');
   }
@@ -876,7 +888,26 @@
   // English keyword-in-context: a character window around the match at char
   // offset `pos` in the full chunk text, with all query terms highlighted.
   const ENG_WINDOW = 140;
-  function englishKwicAt(text: string, pos: number, terms: string[], forms = false): string {
+  // The words a hit really matched, as [start, end) spans of the text: each
+  // run of the English box's words (one word, or the whole phrase), and each
+  // near word's run. Matching words outside a hit are left unmarked.
+  function matchedSpans(text: string, r: SearchResult, ctx: SearchCtx): [number, number][] {
+    const words = englishWords(text);
+    const at = new Map(words.map((w, i) => [w.start, i]));
+    const out: [number, number][] = [];
+    const add = (starts: number[], run: number) => {
+      for (const s of starts) {
+        const i = at.get(s);
+        if (i === undefined) continue;
+        for (const w of words.slice(i, i + run)) out.push([w.start, w.end]);
+      }
+    };
+    add(r.engPositions, ctx.engMode === 'phrase' ? ctx.engBoxWords : 1);
+    add(r.engNearPositions ?? [], ctx.engNearWords);
+    return out;
+  }
+
+  function englishKwicAt(text: string, pos: number, spans: [number, number][]): string {
     if (!text) return '';
     const earliest = pos >= 0 && pos < text.length ? pos : 0;
     let start = Math.max(0, earliest - ENG_WINDOW);
@@ -889,24 +920,23 @@
       const sp = text.lastIndexOf(' ', end);
       if (sp > earliest) end = sp;
     }
-    let html = markEnglish(text.slice(start, end), terms, forms);
+    let html = markSpans(text, start, end, spans);
     if (start > 0) html = '… ' + html;
     if (end < text.length) html = html + ' …';
     return html;
   }
 
-  // Mark the words the search matched, split and folded as the index splits
-  // them: a typed they'd marks they’d, Aeschylus marks Æschylus.
-  function markEnglish(text: string, terms: string[], forms: boolean): string {
-    const match = englishTermMatcher(terms, forms);
+  // The text from start to end, escaped, with the given spans marked.
+  function markSpans(text: string, start: number, end: number, spans: [number, number][]): string {
     let out = '';
-    let at = 0;
-    for (const w of englishWords(text)) {
-      if (!match(w.word)) continue;
-      out += esc(text.slice(at, w.start)) + '<mark>' + esc(text.slice(w.start, w.end)) + '</mark>';
-      at = w.end;
+    let at = start;
+    for (const [a, b] of [...spans].sort((x, y) => x[0] - y[0])) {
+      if (b <= at || a >= end) continue;
+      const from = Math.max(a, at);
+      out += esc(text.slice(at, from)) + '<mark>' + esc(text.slice(from, Math.min(b, end))) + '</mark>';
+      at = Math.min(b, end);
     }
-    return out + esc(text.slice(at));
+    return out + esc(text.slice(at, end));
   }
 
   // Compact attribution for a search hit (finding 1, Sol review): a search

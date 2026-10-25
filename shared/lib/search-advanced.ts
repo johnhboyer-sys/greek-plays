@@ -127,7 +127,8 @@ export function englishForms(word: string): string[] {
  * by the same rule the index lookup uses; with `forms`, any form of it. */
 export function englishTermMatcher(terms: string[], forms = false): (word: string) => boolean {
   const tests = terms.map(t => {
-    if (t === '*') return () => true;
+    // A lone * is not a word: it counts and marks nothing, as engMatchTerm.
+    if (t === '*') return () => false;
     const pattern = compilePattern(englishQueryWord(t), s => s.toLowerCase().replace(/[^a-z']/g, ''));
     if (!pattern) return () => false;
     if (!('exact' in pattern)) return pattern.test;
