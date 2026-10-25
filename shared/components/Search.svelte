@@ -1233,7 +1233,7 @@
       {#if matchMode === 'lemma' && lemmaCands.some(t => t.cands.length)}
         <!-- The headwords each typed word can belong to; untick one to leave it out. -->
         <p class="row lsj">
-          <span class="mn">LSJ</span>
+          <span class="mn">Lemma search</span>
           {#each lemmaCands as t, ti}
             {#each t.cands as c (c.fold)}
               <label class="ck lem" title={c.n ? `${c.n.toLocaleString('en-US')} times in the plays` : undefined}><input type="checkbox" checked={c.on} on:change={() => toggleCand(ti, c.fold)} /><span lang="grc">{c.heads.join(', ')}</span>{#if c.gloss}<span class="gl">{` — ${c.gloss}`}</span>{/if}</label>
