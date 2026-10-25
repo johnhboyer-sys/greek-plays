@@ -353,3 +353,56 @@ def test_converting_leaves_jebbs_globals_exactly_as_they_were(monkeypatch, tmp_p
         P.convert("t")
     assert seen["fixes"] == {3: ("4", "a hand fix")}   # lent for the call
     assert _jebb_state() == before
+
+
+# ---------------------------------------------------- Hecuba and Electra rules
+def test_row_fixes_mend_a_running_head_before_it_is_read(play):
+    # Hecuba p. 255: the OCR read its head as 'EKABH. 253'.
+    text = play([["ΜΗΔΕΙΑ. 254", V[0]], ["ΜΗΔΕΙΑ. 253", V[1]]])
+    head = text.index("ΜΗΔΕΙΑ. 253") + 1
+    play([["ΜΗΔΕΙΑ. 254", V[0]], ["ΜΗΔΕΙΑ. 253", V[1]]], row_fixes={head: ("253", "255", "scan")})
+    rows, log, _ = P.extract("t")
+    assert [r["page"] for r in rows] == [254, 255]
+    assert not any("follows" in x for x in log)
+
+
+@pytest.mark.parametrize("mark", ["II.—20", "ΙΙ.—22", "Il. — 10", "Π.—15"])
+def test_a_sheet_signature_at_a_pages_foot_is_dropped(play, mark):
+    play([["ΜΗΔΕΙΑ. 43", V[0], V[1], mark], ["44 ΕΥΡΙΠΙΔΟΥ", V[2]]])
+    rows, _, dropped = P.extract("t")
+    assert [r.get("text") for r in rows] == [V[0], V[1], V[2]]
+    assert dropped == [{"src": 5, "page": 43, "reason": "signature mark at the page's foot", "text": mark}]
+
+
+@pytest.mark.parametrize("rows,number", [
+    (["-ΗΛΕΚΤΡΑ. 153", V[0]], 153),
+    (["· ΗΛΕΚΤΡΑ. 183", V[0]], 183),
+    ([". ΗΛΕΚΤΡΑ. 157", V[0]], 157),
+    (["160.", "ΕΥΡΙΠΙΔΟΥ", V[0]], 160),
+])
+def test_specks_around_a_running_head_are_ignored(rows, number):
+    ne = list(enumerate(rows, 1))
+    assert P.read_head(ne, "ΗΛΕΚΤΡΑ", None)[:2] == (True, number)
+
+
+def test_five_letter_labels_open_a_row_and_split_an_antilabe():
+    # Hecuba: ΠΟΛΥΜ. (Polymestor) and ΠΟΛΥΞ. (Polyxena).
+    r = P.parse_row("**ΠΟΛΥΜ.** ἀλγεῖς ἀκούων; ΑΓ. οὐκ ἐφέξετε στόμα;")
+    assert r["speaker"] == "ΠΟΛΥΜ."
+    assert P.split_shares(r["text"], r["speaker"]) == [("ΠΟΛΥΜ.", "ἀλγεῖς ἀκούων;"), ("ΑΓ.", "οὐκ ἐφέξετε στόμα;")]
+    r = P.parse_row("ΑΓ. οὗτος, τί πάσχεις; ΠΟΛΥΞ. πρὸς θεῶν σε λίσσομαι,")
+    assert P.split_shares(r["text"], r["speaker"])[1] == ("ΠΟΛΥΞ.", "πρὸς θεῶν σε λίσσομαι,")
+
+
+def test_a_breathing_set_apart_before_a_capital_joins_it():
+    # Hecuba p. 250: ’Αρτέμιδος, ’Αργείων.
+    r = P.parse_row("σὺν Δηλιάσιν τε κούραις ’Αρτέμιδός τε θεᾶς")
+    assert "Ἀρτέμιδός" in r["text"]
+    assert P.parse_row("ὑπ’ ’Αργείων· ἐγὼ δ’")["text"] == "ὑπ’ Ἀργείων· ἐγὼ δ’"
+
+
+def test_paleys_own_asterisk_before_a_word_is_kept():
+    # Hecuba 1090 '\*τ’' (scan p. 266); Electra 144 '* Ἀΐδα' (scan p. 155).
+    assert P.parse_row("εὔιππον \\*τ᾽ Ἄρει τε κάτοχον γένος. 1090")["text"] == "εὔιππον *τ’ Ἄρει τε κάτοχον γένος."
+    assert P.parse_row("* Ἀΐδα, πάτερ,")["text"] == "*Ἀΐδα, πάτερ,"
+    assert P.parse_row("*ἀντ. α'.* " + V[0])["text"] == V[0]

@@ -305,6 +305,12 @@ greek_editions:
     status: public-domain-us
     note: "Harper & Brothers, New York, 1878 (archive.org euripidesexrecen01euri, title page leaf 9; no reprint statement on its verso); published before 1931. Text from John's Genie OCR."
     sources: [ocr/paley/medea.xml]
+  - id: paley
+    editor: "F. A. Paley"
+    year: 1876
+    status: public-domain-us
+    note: "Harper & Brothers, New York, 1876 (archive.org euripidesexrecen02euri, vol. 2, title page leaf 9: 'NEW YORK: HARPER AND BROTHERS, FRANKLIN SQUARE. M.DCCC.LXXVI.'); published before 1931. Text from John's Genie OCR."
+    sources: [ocr/paley/hecuba.xml, ocr/paley/electra-eur.xml]
   - id: way-loeb
     editor: "A. S. Way"
     year: 1912
