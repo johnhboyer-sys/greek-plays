@@ -1413,7 +1413,7 @@
               <input class="fld-sm greek-input" lang="grc" type="search" aria-label="Near: word" placeholder="θεός" bind:value={nearText} on:keydown={onEnter} autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" />
             {/if}
             {#if nearKind !== 'none'}
-              <span class="v"><select aria-label="Near: where" value={nearRel} on:change={(e) => (nearRel = e.currentTarget.value as SlotRelation)}><option value="near">either</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
+              <span class="v"><select aria-label="Near: where" value={nearRel} on:change={(e) => (nearRel = e.currentTarget.value as SlotRelation)}><option value="near">on either side of</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
               <span class="mn">the Greek word</span>
               {#if grkQuery.trim().split(/\s+/).length > 1}<span class="mn">(searched as one phrase)</span>{/if}
             {/if}
@@ -1444,7 +1444,7 @@
                 {#if t.kind !== 'grammatical'}
                   <input class="fld-sm greek-input" lang="grc" type="search" aria-label={`Term ${i + 3}: word`} placeholder="θεός" bind:value={t.text} on:keydown={onEnter} autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" />
                 {/if}
-                <span class="v"><select aria-label={`Term ${i + 3}: where`} value={t.rel} on:change={(e) => { t.rel = e.currentTarget.value as SlotRelation; nearMore = nearMore; }}><option value="near">either</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
+                <span class="v"><select aria-label={`Term ${i + 3}: where`} value={t.rel} on:change={(e) => { t.rel = e.currentTarget.value as SlotRelation; nearMore = nearMore; }}><option value="near">on either side of</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
                 <span class="mn">the Greek word</span>
                 <button type="button" class="ln" on:click={() => removeTerm(i)}>remove</button>
               </p>
@@ -1480,7 +1480,7 @@
             <span class="mn">English near</span>
             <input class="fld-sm" type="search" aria-label="English near: word" placeholder="another word" bind:value={engNearText} on:keydown={onEnter} autocomplete="off" />
             {#if engNearText.trim()}
-              <span class="v"><select aria-label="English near: where" value={engNearRel} on:change={(e) => (engNearRel = e.currentTarget.value as SlotRelation)}><option value="near">either</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
+              <span class="v"><select aria-label="English near: where" value={engNearRel} on:change={(e) => (engNearRel = e.currentTarget.value as SlotRelation)}><option value="near">on either side of</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
               <span class="mn">the English words,</span>
               <span class="v"><select aria-label="English near: how many words" value={String(engNearWindow)} on:change={(e) => (engNearWindow = Number(e.currentTarget.value))}>{#each WINDOW_OPTS as n}<option value={String(n)}>{n}</option>{/each}</select><i aria-hidden="true">▾</i></span>
               <span class="mn">words away</span>
