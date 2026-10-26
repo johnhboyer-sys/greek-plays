@@ -206,19 +206,23 @@
   let pendingNearPicks: Record<number, { text: string; picks: string[] }> = {};
   const nearCandTimers: Record<number, ReturnType<typeof setTimeout>> = {};
   const nearCandRequest: Record<number, number> = {};
+  // The word a row holds now (0 = the first term).
+  const rowWord = (row: number) => (row === 0 ? (nearKind === 'lemma' ? nearText : '') : (nearMore[row - 1]?.kind === 'lemma' ? nearMore[row - 1].text : '')).trim();
   function queueNearCands(row: number, kind: NearKind, text: string) {
     const word = text.trim();
+    // Any change to the row cancels a lookup still in flight for it.
+    const id = (nearCandRequest[row] ?? 0) + 1;
+    nearCandRequest[row] = id;
     clearTimeout(nearCandTimers[row]);
     if (kind !== 'lemma' || !word || /\s/.test(word)) {
       if (nearCands[row]) { const { [row]: _gone, ...rest } = nearCands; nearCands = rest; }
       return;
     }
     if (nearCands[row]?.text === word) return;
-    const id = (nearCandRequest[row] ?? 0) + 1;
-    nearCandRequest[row] = id;
     nearCandTimers[row] = setTimeout(async () => {
       const cands = await candidatesFor(word, new Map()).catch(() => [] as LemmaCand[]);
-      if (nearCandRequest[row] !== id) return;
+      // Land only on the row that asked, still holding the same word.
+      if (nearCandRequest[row] !== id || rowWord(row) !== word) return;
       const pending = pendingNearPicks[row];
       if (pending && pending.text === word) {
         for (const c of cands) c.on = pending.picks.includes(c.fold);
@@ -240,13 +244,23 @@
     nearCands = { ...nearCands };
   }
   function removeTerm(i: number) {
-    nearMore = nearMore.filter((_, j) => j !== i);
-    const shifted: Record<number, NearCands> = {};
-    for (const [k, v] of Object.entries(nearCands)) {
-      const row = Number(k);
-      if (row <= i) shifted[row] = v; else if (row > i + 1) shifted[row - 1] = v;
+    // Rows after the removed one move up one: their checks and any picks from
+    // a shared link move with them, and lookups in flight for them are dropped.
+    const shift = <T,>(rows: Record<number, T>): Record<number, T> => {
+      const out: Record<number, T> = {};
+      for (const [k, v] of Object.entries(rows)) {
+        const row = Number(k);
+        if (row <= i) out[row] = v; else if (row > i + 1) out[row - 1] = v;
+      }
+      return out;
+    };
+    for (let row = i + 1; row <= nearMore.length; row++) {
+      nearCandRequest[row] = (nearCandRequest[row] ?? 0) + 1;
+      clearTimeout(nearCandTimers[row]);
     }
-    nearCands = shifted;
+    nearCands = shift(nearCands);
+    pendingNearPicks = shift(pendingNearPicks);
+    nearMore = nearMore.filter((_, j) => j !== i);
   }
   // The ticked headwords of a lemma row, when some are unticked (for the address).
   function nearPicksOf(row: number, text: string): string[] | undefined {
