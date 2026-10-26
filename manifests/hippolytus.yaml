@@ -134,6 +134,17 @@ citation:
   lacunae:
     "1": []
 
+  # Diogenes labels the lines after TLG's range "532-533" by bumping the
+  # last digits of that label ("532-534" ... "532-539"); they are 534-539.
+  # 535-539 agree with Murray; 534 (Ἔρως ὁ Διὸς παῖς) follows TLG's count.
+  ref_fixes:
+    "532-534": "534"
+    "532-535": "535"
+    "532-536": "536"
+    "532-537": "537"
+    "532-538": "538"
+    "532-539": "539"
+
   transpositions:
     "1": 
       - { start: "104", end: "105", before: "107" }
