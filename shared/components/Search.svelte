@@ -1481,7 +1481,7 @@
               <span class="v"><select aria-label="Distance: how many" value={String(nearWindow)} on:change={(e) => (nearWindow = Number(e.currentTarget.value))}>{#each (nearUnit === 'line' ? LINE_OPTS : WINDOW_OPTS) as n}<option value={String(n)}>{n}</option>{/each}</select><i aria-hidden="true">▾</i></span>
               <span class="v"><select aria-label="Distance: words or lines" value={nearUnit} on:change={(e) => { nearUnit = e.currentTarget.value as 'words' | 'line'; nearWindow = nearUnit === 'line' ? Math.min(nearWindow, 1) : Math.max(nearWindow, 1); }}><option value="words">words</option><option value="line">lines</option></select><i aria-hidden="true">▾</i></span>
               <span class="mn">away{nearUnit === 'line' && nearWindow === 0 ? ' (the same line)' : ''}</span>
-              {#if nearMore.length < MAX_NEAR_MORE}<button type="button" class="ln" on:click={() => { nearMore = [...nearMore, newTerm()]; }}>add a term</button>{/if}
+              {#if nearMore.length < MAX_NEAR_MORE}<button type="button" class="ln" on:click={() => { nearMore = [...nearMore, newTerm()]; }}>add a word</button>{/if}
               {#if nearMore.length}<label class="ck"><input type="checkbox" bind:checked={nearOrdered} />In this order</label>{/if}
             </p>
           {/if}
