@@ -90,6 +90,11 @@
   let nearMore: MoreTerm[] = [];
   let nearOrdered = false;
   const newTerm = (): MoreTerm => ({ kind: 'lemma', text: '', rel: 'near', shapeClass: 'verb', shape: {} });
+  // "Advanced search ›" (John, 2026-10-26): the Near controls and English
+  // near open from it; a search reopened with them opens it.
+  let advOpen = false;
+  // Distance in lines runs 0 (the same line) to 10.
+  const LINE_OPTS = [0, 1, 2, 3, 5, 10];
   const WINDOW_OPTS = [1, 2, 3, 5, 10, 15, 20, 30, 50];
 
   // Shape: the second term's grammar. The vocabulary is Morpheus's, nothing
@@ -193,8 +198,66 @@
   }
   $: entryCand = lemmaCands.flatMap(t => t.cands).find(c => c.on && c.slug);
 
+  // Headword checks for a "lemma" Near term, by row (0 = the first term),
+  // as the Lemma search row offers them for the Greek box.
+  interface NearCands { text: string; cands: LemmaCand[] }
+  let nearCands: Record<number, NearCands> = {};
+  // Picks from a shared address, by row, until that row's checks load.
+  let pendingNearPicks: Record<number, { text: string; picks: string[] }> = {};
+  const nearCandTimers: Record<number, ReturnType<typeof setTimeout>> = {};
+  const nearCandRequest: Record<number, number> = {};
+  function queueNearCands(row: number, kind: NearKind, text: string) {
+    const word = text.trim();
+    clearTimeout(nearCandTimers[row]);
+    if (kind !== 'lemma' || !word || /\s/.test(word)) {
+      if (nearCands[row]) { const { [row]: _gone, ...rest } = nearCands; nearCands = rest; }
+      return;
+    }
+    if (nearCands[row]?.text === word) return;
+    const id = (nearCandRequest[row] ?? 0) + 1;
+    nearCandRequest[row] = id;
+    nearCandTimers[row] = setTimeout(async () => {
+      const cands = await candidatesFor(word, new Map()).catch(() => [] as LemmaCand[]);
+      if (nearCandRequest[row] !== id) return;
+      const pending = pendingNearPicks[row];
+      if (pending && pending.text === word) {
+        for (const c of cands) c.on = pending.picks.includes(c.fold);
+        if (!cands.some(c => c.on)) for (const c of cands) c.on = true;
+        const { [row]: _done, ...rest } = pendingNearPicks;
+        pendingNearPicks = rest;
+      }
+      nearCands = { ...nearCands, [row]: { text: word, cands } };
+    }, 250);
+  }
+  $: queueNearCands(0, nearKind, nearText);
+  $: nearMore.forEach((t, i) => queueNearCands(i + 1, t.kind, t.text));
+  function toggleNearCand(row: number, fold: string) {
+    const nc = nearCands[row];
+    const c = nc?.cands.find(x => x.fold === fold);
+    if (!nc || !c) return;
+    if (c.on && nc.cands.filter(x => x.on).length === 1) return;   // keep one
+    c.on = !c.on;
+    nearCands = { ...nearCands };
+  }
+  function removeTerm(i: number) {
+    nearMore = nearMore.filter((_, j) => j !== i);
+    const shifted: Record<number, NearCands> = {};
+    for (const [k, v] of Object.entries(nearCands)) {
+      const row = Number(k);
+      if (row <= i) shifted[row] = v; else if (row > i + 1) shifted[row - 1] = v;
+    }
+    nearCands = shifted;
+  }
+  // The ticked headwords of a lemma row, when some are unticked (for the address).
+  function nearPicksOf(row: number, text: string): string[] | undefined {
+    const nc = nearCands[row];
+    if (nc && nc.text === text.trim() && nc.cands.some(c => !c.on)) return nc.cands.filter(c => c.on).map(c => c.fold);
+    const pending = pendingNearPicks[row];
+    return pending && pending.text === text.trim() ? pending.picks : undefined;
+  }
+
   // One Near term as the engine takes it, or nothing if it is not filled in.
-  async function termSlot(kind: NearKind, text: string, cls: ShapeClass, sh: Record<string, string>):
+  async function termSlot(kind: NearKind, text: string, cls: ShapeClass, sh: Record<string, string>, picks?: string[]):
     Promise<{ kind: SlotKind; terms?: string[]; query?: Record<string, string> } | undefined> {
     if (kind === 'none') return undefined;
     if (kind === 'grammatical') {
@@ -205,26 +268,32 @@
     if (!words.length) return undefined;
     if (words.length > 1) return { kind: 'phrase', terms: words };
     if (kind === 'form') return { kind: 'form', terms: words };
+    if (picks?.length) return { kind: 'lemma', terms: picks };
     const folds = await headFolds(words[0]);
     return { kind: 'lemma', terms: folds.length ? folds : [greekFold(words[0])] };
   }
   // The Near terms read now, before any await: a later Back must not mix in.
   // Each further term keeps its typed word beside it (nearMoreText), so an
   // empty row dropped here cannot shift one term's word onto another.
-  function nearSlots(): Promise<{ near?: AdvancedSearch['near']; nearMore?: AdvancedSearch['nearMore']; nearMoreText?: string[] }> {
-    const first = termSlot(nearKind, nearText, shapeClass, shape);
-    const more = nearMore.map(t => {
+  function nearSlots(): Promise<{ near?: AdvancedSearch['near']; nearMore?: AdvancedSearch['nearMore']; nearMoreText?: string[]; nearPicks?: (string[] | null)[] }> {
+    const firstPicks = nearKind === 'lemma' ? nearPicksOf(0, nearText) : undefined;
+    const first = termSlot(nearKind, nearText, shapeClass, shape, firstPicks);
+    const more = nearMore.map((t, i) => {
       const { rel, text, kind } = t;   // read now, not after the lookup
-      return termSlot(kind, text, t.shapeClass, { ...t.shape }).then(slot => slot && { slot: { ...slot, relation: rel }, text: kind === 'lemma' ? text.trim() : '' });
+      const picks = kind === 'lemma' ? nearPicksOf(i + 1, text) : undefined;
+      return termSlot(kind, text, t.shapeClass, { ...t.shape }, picks).then(slot => slot && { slot: { ...slot, relation: rel }, text: kind === 'lemma' ? text.trim() : '', picks: picks ?? null });
     });
     const base = { relation: nearRel, window: nearWindow, unit: nearUnit, ordered: nearMore.length > 0 && nearOrdered };
     return Promise.all([first, ...more]).then(([f, ...m]) => {
       if (!f) return {};
-      const filled = (m as ({ slot: NonNullable<AdvancedSearch['nearMore']>[number]; text: string } | undefined)[])
+      const filled = (m as ({ slot: NonNullable<AdvancedSearch['nearMore']>[number]; text: string; picks: string[] | null } | undefined)[])
         .filter((x): x is NonNullable<typeof x> => !!x);
+      // Picks line up with the terms kept, so an empty row cannot shift them.
+      const picks = [firstPicks ?? null, ...filled.map(x => x.picks)];
       return {
         near: { ...f, ...base },
         ...(filled.length ? { nearMore: filled.map(x => x.slot), nearMoreText: filled.map(x => x.text) } : {}),
+        ...(picks.some(Boolean) ? { nearPicks: picks } : {}),
       };
     });
   }
@@ -736,6 +805,17 @@
     engNearText = u.engNear?.term ?? ''; engNearRel = u.engNear?.relation ?? 'near';
     engNearWindow = u.engNear?.window ?? COMBO_WINDOW_DEFAULT;
     pendingPick = u.lemmaPick ? { query: u.grk, picks: u.lemmaPick } : undefined;
+    // A headword Near term carries its ticked headwords as its terms.
+    const picks: Record<number, { text: string; picks: string[] }> = {};
+    if (n?.kind === 'lemma' && u.nearText && u.nearPicks?.[0]?.length) picks[0] = { text: u.nearText.trim(), picks: u.nearPicks[0] };
+    (u.nearMore ?? []).forEach((t, i) => {
+      const text = u.nearMoreText?.[i];
+      const p = u.nearPicks?.[i + 1];
+      if (t.kind === 'lemma' && text && p?.length) picks[i + 1] = { text: text.trim(), picks: p };
+    });
+    pendingNearPicks = picks;
+    nearCands = {};
+    if (n || u.engNear) advOpen = true;
   }
   // Picks from a shared address, applied once the LSJ row has its candidates.
   // They belong to the words they were saved with: typing other words first
@@ -788,7 +868,7 @@
     };
     const nearP = q.grk.trim() ? nearSlots() : Promise.resolve({} as Awaited<ReturnType<typeof nearSlots>>);
     try {
-      const { near, nearMore: more, nearMoreText: moreText } = await nearP;
+      const { near, nearMore: more, nearMoreText: moreText, nearPicks: morePicks } = await nearP;
       if (id !== searchRun) return;
       const advanced: AdvancedSearch = { engForms: q.engForms, ...(q.pick ? { lemmaPick: q.pick } : {}), ...(near ? { near } : {}), ...(more ? { nearMore: more } : {}), ...(q.engNear ? { engNear: q.engNear } : {}) };
       // The address holds the search, so it can be shared and reopened.
@@ -797,6 +877,7 @@
         langOp: q.langOp, engForms: q.engForms, works: q.works, ed: q.ed, ...advanced,
         ...(near?.kind === 'lemma' ? { nearText: q.nearText } : {}),
         ...(more?.some(t => t.kind === 'lemma') ? { nearMoreText: moreText } : {}),
+        ...(morePicks ? { nearPicks: morePicks } : {}),
       };
       const qs = encodeSearchUrl(url, ALL_WORK_IDS);
       if (history_ !== 'none' && qs !== window.location.search.replace(/^\?/, '')) {
@@ -1273,77 +1354,11 @@
           {#if entryCand?.slug}<a class="ln" href={lemmaEntryHref(import.meta.env.BASE_URL.replace(/\/$/, ''), 'grc', entryCand.slug)}>LSJ entry</a>{/if}
         </p>
       {/if}
-      <p class="row">
-        <span class="mn">Near</span>
-        <span class="v"><select aria-label="Near the Greek: what" value={nearKind} on:change={(e) => (nearKind = e.currentTarget.value as NearKind)}><option value="none">nothing else</option><option value="grammatical">a grammatical shape</option><option value="lemma">any form of a word</option><option value="form">a word as typed</option></select><i aria-hidden="true">▾</i></span>
-        {#if nearKind === 'form' || nearKind === 'lemma'}
-          <input class="fld-sm greek-input" lang="grc" type="search" aria-label="The near word" placeholder="θεός" bind:value={nearText} on:keydown={onEnter} autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" />
-        {/if}
-        {#if nearKind !== 'none'}
-          <span class="v"><select aria-label="Where it stands" value={nearRel} on:change={(e) => (nearRel = e.currentTarget.value as SlotRelation)}><option value="near">near</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
-          <span class="mn">it,</span>
-          {#if nearUnit === 'words'}
-            <span class="mn">within</span>
-            <span class="v"><select aria-label="Within how many words" value={String(nearWindow)} on:change={(e) => (nearWindow = Number(e.currentTarget.value))}>{#each WINDOW_OPTS as n}<option value={String(n)}>{n}</option>{/each}</select><i aria-hidden="true">▾</i></span>
-          {/if}
-          <span class="v"><select aria-label="Words or line" value={nearUnit} on:change={(e) => (nearUnit = e.currentTarget.value as 'words' | 'line')}><option value="words">words</option><option value="line">on the same line</option></select><i aria-hidden="true">▾</i></span>
-          {#if grkQuery.trim().split(/\s+/).length > 1}<span class="mn">searched as one phrase</span>{/if}
-        {/if}
-      </p>
-      {#if nearKind === 'grammatical'}
-        <p class="row">
-          <span class="mn">Shape</span>
-          <span class="v"><select aria-label="Kind of word" value={shapeClass} on:change={(e) => { shapeClass = e.currentTarget.value as ShapeClass; shape = {}; }}><option value="verb">a verb form</option><option value="noun">a noun or adjective form</option><option value="word">a word class</option></select><i aria-hidden="true">▾</i></span>
-          {#each SHAPE_CATS[shapeClass] as cat (cat.key)}
-            <span class="v"><select aria-label={cat.key} value={shape[cat.key] ?? ''} on:change={(e) => (shape = { ...shape, [cat.key]: e.currentTarget.value })}><option value="">{cat.any}</option>{#each cat.values as [v, l]}<option value={v}>{l}</option>{/each}</select><i aria-hidden="true">▾</i></span>
-          {/each}
-          {#if !Object.keys(shapeQuery).length}<span class="mn">choose at least one</span>{/if}
-        </p>
-      {/if}
-      {#if nearKind !== 'none'}
-        {#each nearMore as t, i}
-          <p class="row">
-            <span class="mn">and</span>
-            <span class="v"><select aria-label={`Term ${i + 3}: what`} value={t.kind} on:change={(e) => { t.kind = e.currentTarget.value as MoreTerm['kind']; nearMore = nearMore; }}><option value="grammatical">a grammatical shape</option><option value="lemma">any form of a word</option><option value="form">a word as typed</option></select><i aria-hidden="true">▾</i></span>
-            {#if t.kind !== 'grammatical'}
-              <input class="fld-sm greek-input" lang="grc" type="search" aria-label={`Term ${i + 3}: word`} placeholder="θεός" bind:value={t.text} on:keydown={onEnter} autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" />
-            {/if}
-            <span class="v"><select aria-label={`Term ${i + 3}: where it stands`} value={t.rel} on:change={(e) => { t.rel = e.currentTarget.value as SlotRelation; nearMore = nearMore; }}><option value="near">near</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
-            <span class="mn">the Greek word</span>
-            <button type="button" class="ln" on:click={() => { nearMore = nearMore.filter((_, j) => j !== i); }}>remove</button>
-          </p>
-          {#if t.kind === 'grammatical'}
-            <p class="row">
-              <span class="mn">Shape</span>
-              <span class="v"><select aria-label={`Term ${i + 3}: kind of word`} value={t.shapeClass} on:change={(e) => { t.shapeClass = e.currentTarget.value as ShapeClass; t.shape = {}; nearMore = nearMore; }}><option value="verb">a verb form</option><option value="noun">a noun or adjective form</option><option value="word">a word class</option></select><i aria-hidden="true">▾</i></span>
-              {#each SHAPE_CATS[t.shapeClass] as cat (cat.key)}
-                <span class="v"><select aria-label={`Term ${i + 3}: ${cat.key}`} value={t.shape[cat.key] ?? ''} on:change={(e) => { t.shape = { ...t.shape, [cat.key]: e.currentTarget.value }; nearMore = nearMore; }}><option value="">{cat.any}</option>{#each cat.values as [v, l]}<option value={v}>{l}</option>{/each}</select><i aria-hidden="true">▾</i></span>
-              {/each}
-              {#if !Object.keys(shapeQueryOf(t.shapeClass, t.shape)).length}<span class="mn">choose at least one</span>{/if}
-            </p>
-          {/if}
-        {/each}
-        <p class="row">
-          <span class="mn"></span>
-          {#if nearMore.length < MAX_NEAR_MORE}<button type="button" class="ln" on:click={() => { nearMore = [...nearMore, newTerm()]; }}>add a term</button>{/if}
-          {#if nearMore.length}<label class="ck"><input type="checkbox" bind:checked={nearOrdered} />In this order</label>{/if}
-        </p>
-      {/if}
       <p class="row gap">
         <span class="mn">English</span>
         <span class="v"><select aria-label="English words" value={engMode} on:change={(e) => (engMode = e.currentTarget.value as SearchMode)}>{#each MODE_OPTS as opt}<option value={opt.v}>{opt.l}</option>{/each}</select><i aria-hidden="true">▾</i></span>
         <span class="v" title="Any form also finds plurals and possessives: man, men, man’s"><select aria-label="English forms" value={String(engForms)} on:change={(e) => (engForms = e.currentTarget.value === 'true')}><option value="true">Any form of the word</option><option value="false">Only as typed</option></select><i aria-hidden="true">▾</i></span>
         <span class="mn">in every translation</span>
-      </p>
-      <p class="row">
-        <span class="mn">Near</span>
-        <input class="fld-sm" type="search" aria-label="Another English word" placeholder="another word" bind:value={engNearText} on:keydown={onEnter} autocomplete="off" />
-        {#if engNearText.trim()}
-          <span class="v"><select aria-label="Where the English word stands" value={engNearRel} on:change={(e) => (engNearRel = e.currentTarget.value as SlotRelation)}><option value="near">near</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
-          <span class="mn">it, within</span>
-          <span class="v"><select aria-label="Within how many English words" value={String(engNearWindow)} on:change={(e) => (engNearWindow = Number(e.currentTarget.value))}>{#each WINDOW_OPTS as n}<option value={String(n)}>{n}</option>{/each}</select><i aria-hidden="true">▾</i></span>
-          <span class="mn">words</span>
-        {/if}
       </p>
       <p class="row gap">
         <span class="mn">Together</span>
@@ -1369,6 +1384,94 @@
             </p>
           {/each}
           <p class="plays"><button type="button" class="ln" on:click={selectAll} disabled={allSelected}>All plays</button></p>
+        </div>
+      {/if}
+      <p class="row gap">
+        <button type="button" class="adv" aria-expanded={advOpen} aria-controls="advanced" on:click={() => (advOpen = !advOpen)}>Advanced search <span class="chev" aria-hidden="true">›</span></button>
+        {#if !advOpen && (nearKind !== 'none' || engNearText.trim())}<span class="mn">Near is on</span>{/if}
+      </p>
+      {#if advOpen}
+        <div id="advanced" class="adv-rows">
+          <p class="row">
+            <span class="mn">Near</span>
+            <span class="v"><select aria-label="Near: kind of term" value={nearKind} on:change={(e) => (nearKind = e.currentTarget.value as NearKind)}><option value="none">none</option><option value="form">exact word</option><option value="lemma">lemma</option><option value="grammatical">word form</option></select><i aria-hidden="true">▾</i></span>
+            {#if nearKind === 'form' || nearKind === 'lemma'}
+              <input class="fld-sm greek-input" lang="grc" type="search" aria-label="Near: word" placeholder="θεός" bind:value={nearText} on:keydown={onEnter} autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" />
+            {/if}
+            {#if nearKind !== 'none'}
+              <span class="v"><select aria-label="Near: where" value={nearRel} on:change={(e) => (nearRel = e.currentTarget.value as SlotRelation)}><option value="near">either</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
+              <span class="mn">the Greek word</span>
+              {#if grkQuery.trim().split(/\s+/).length > 1}<span class="mn">(searched as one phrase)</span>{/if}
+            {/if}
+          </p>
+          {#if nearKind === 'lemma' && nearCands[0]?.cands.length}
+            <p class="row lsj">
+              <span class="mn">Lemma</span>
+              {#each nearCands[0].cands as c (c.fold)}
+                <label class="ck lem" title={c.n ? `${c.n.toLocaleString('en-US')} times in the plays` : undefined}><input type="checkbox" checked={c.on} on:change={() => toggleNearCand(0, c.fold)} /><span lang="grc">{c.heads.join(', ')}</span>{#if c.gloss}<span class="gl">{` — ${c.gloss}`}</span>{/if}</label>
+              {/each}
+            </p>
+          {/if}
+          {#if nearKind === 'grammatical'}
+            <p class="row">
+              <span class="mn">Form</span>
+              <span class="v"><select aria-label="Form: kind of word" value={shapeClass} on:change={(e) => { shapeClass = e.currentTarget.value as ShapeClass; shape = {}; }}><option value="verb">a verb form</option><option value="noun">a noun or adjective form</option><option value="word">a word class</option></select><i aria-hidden="true">▾</i></span>
+              {#each SHAPE_CATS[shapeClass] as cat (cat.key)}
+                <span class="v"><select aria-label={`Form: ${cat.key}`} value={shape[cat.key] ?? ''} on:change={(e) => (shape = { ...shape, [cat.key]: e.currentTarget.value })}><option value="">{cat.any}</option>{#each cat.values as [v, l]}<option value={v}>{l}</option>{/each}</select><i aria-hidden="true">▾</i></span>
+              {/each}
+              {#if !Object.keys(shapeQuery).length}<span class="mn">choose at least one</span>{/if}
+            </p>
+          {/if}
+          {#if nearKind !== 'none'}
+            {#each nearMore as t, i}
+              <p class="row">
+                <span class="mn">and</span>
+                <span class="v"><select aria-label={`Term ${i + 3}: kind of term`} value={t.kind} on:change={(e) => { t.kind = e.currentTarget.value as MoreTerm['kind']; nearMore = nearMore; }}><option value="form">exact word</option><option value="lemma">lemma</option><option value="grammatical">word form</option></select><i aria-hidden="true">▾</i></span>
+                {#if t.kind !== 'grammatical'}
+                  <input class="fld-sm greek-input" lang="grc" type="search" aria-label={`Term ${i + 3}: word`} placeholder="θεός" bind:value={t.text} on:keydown={onEnter} autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" />
+                {/if}
+                <span class="v"><select aria-label={`Term ${i + 3}: where`} value={t.rel} on:change={(e) => { t.rel = e.currentTarget.value as SlotRelation; nearMore = nearMore; }}><option value="near">either</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
+                <span class="mn">the Greek word</span>
+                <button type="button" class="ln" on:click={() => removeTerm(i)}>remove</button>
+              </p>
+              {#if t.kind === 'lemma' && nearCands[i + 1]?.cands.length}
+                <p class="row lsj">
+                  <span class="mn">Lemma</span>
+                  {#each nearCands[i + 1].cands as c (c.fold)}
+                    <label class="ck lem" title={c.n ? `${c.n.toLocaleString('en-US')} times in the plays` : undefined}><input type="checkbox" checked={c.on} on:change={() => toggleNearCand(i + 1, c.fold)} /><span lang="grc">{c.heads.join(', ')}</span>{#if c.gloss}<span class="gl">{` — ${c.gloss}`}</span>{/if}</label>
+                  {/each}
+                </p>
+              {/if}
+              {#if t.kind === 'grammatical'}
+                <p class="row">
+                  <span class="mn">Form</span>
+                  <span class="v"><select aria-label={`Term ${i + 3}: kind of word`} value={t.shapeClass} on:change={(e) => { t.shapeClass = e.currentTarget.value as ShapeClass; t.shape = {}; nearMore = nearMore; }}><option value="verb">a verb form</option><option value="noun">a noun or adjective form</option><option value="word">a word class</option></select><i aria-hidden="true">▾</i></span>
+                  {#each SHAPE_CATS[t.shapeClass] as cat (cat.key)}
+                    <span class="v"><select aria-label={`Term ${i + 3}: ${cat.key}`} value={t.shape[cat.key] ?? ''} on:change={(e) => { t.shape = { ...t.shape, [cat.key]: e.currentTarget.value }; nearMore = nearMore; }}><option value="">{cat.any}</option>{#each cat.values as [v, l]}<option value={v}>{l}</option>{/each}</select><i aria-hidden="true">▾</i></span>
+                  {/each}
+                  {#if !Object.keys(shapeQueryOf(t.shapeClass, t.shape)).length}<span class="mn">choose at least one</span>{/if}
+                </p>
+              {/if}
+            {/each}
+            <p class="row">
+              <span class="mn">Distance</span>
+              <span class="v"><select aria-label="Distance: how many" value={String(nearWindow)} on:change={(e) => (nearWindow = Number(e.currentTarget.value))}>{#each (nearUnit === 'line' ? LINE_OPTS : WINDOW_OPTS) as n}<option value={String(n)}>{n}</option>{/each}</select><i aria-hidden="true">▾</i></span>
+              <span class="v"><select aria-label="Distance: words or lines" value={nearUnit} on:change={(e) => { nearUnit = e.currentTarget.value as 'words' | 'line'; nearWindow = nearUnit === 'line' ? Math.min(nearWindow, 1) : Math.max(nearWindow, 1); }}><option value="words">words</option><option value="line">lines</option></select><i aria-hidden="true">▾</i></span>
+              <span class="mn">away{nearUnit === 'line' && nearWindow === 0 ? ' (the same line)' : ''}</span>
+              {#if nearMore.length < MAX_NEAR_MORE}<button type="button" class="ln" on:click={() => { nearMore = [...nearMore, newTerm()]; }}>add a term</button>{/if}
+              {#if nearMore.length}<label class="ck"><input type="checkbox" bind:checked={nearOrdered} />In this order</label>{/if}
+            </p>
+          {/if}
+          <p class="row gap">
+            <span class="mn">English near</span>
+            <input class="fld-sm" type="search" aria-label="English near: word" placeholder="another word" bind:value={engNearText} on:keydown={onEnter} autocomplete="off" />
+            {#if engNearText.trim()}
+              <span class="v"><select aria-label="English near: where" value={engNearRel} on:change={(e) => (engNearRel = e.currentTarget.value as SlotRelation)}><option value="near">either</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
+              <span class="mn">the English words,</span>
+              <span class="v"><select aria-label="English near: how many words" value={String(engNearWindow)} on:change={(e) => (engNearWindow = Number(e.currentTarget.value))}>{#each WINDOW_OPTS as n}<option value={String(n)}>{n}</option>{/each}</select><i aria-hidden="true">▾</i></span>
+              <span class="mn">words away</span>
+            {/if}
+          </p>
         </div>
       {/if}
     </div>
@@ -1576,6 +1679,13 @@
   .fld-sm::placeholder { color: var(--mid); font-style: italic; }
   .fld-sm:focus { outline: none; border-bottom-color: var(--clay-text); }
   .search-page :global(.sep) { color: var(--mid); }
+  /* "Advanced search ›": a link-like toggle; the chevron turns when open. */
+  .adv { font: 500 1rem var(--font-ui); color: var(--clay-text); }
+  .adv .chev { display: inline-block; margin-left: .15em; transition: transform .15s ease; }
+  .adv[aria-expanded="true"] .chev { transform: rotate(90deg); }
+  .adv:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { .adv .chev { transition: none; } }
+  .adv-rows { display: flex; flex-direction: column; gap: .55rem; }
   .choose { display: grid; grid-template-columns: max-content 1fr; gap: .4rem 1rem; align-items: baseline; margin: .2rem 0 0 5.6rem; }
   .choose .who { font: 400 1.05rem var(--font-english); color: var(--ink); margin: 0; }
   .choose .plays { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin: 0; font: 400 .95rem var(--font-ui); }

@@ -104,9 +104,9 @@ describe('searchCombo', () => {
 
 
   it('measures by line when the unit is a line', async () => {
-    const { results } = await searchCombo([slot('alpha'), slot('beta')], opts({ unit: 'line' }), ['C10']);
+    const { results } = await searchCombo([slot('alpha'), slot('beta')], opts({ unit: 'line', window: 0 }), ['C10']);
     expect(positions(results[0])).toEqual([2, 4]);
-    const none = await searchCombo([slot('alpha'), slot('epsilon')], opts({ unit: 'line' }), ['C11']);
+    const none = await searchCombo([slot('alpha'), slot('epsilon')], opts({ unit: 'line', window: 0 }), ['C11']);
     expect(none.results).toHaveLength(0);
   });
 
@@ -202,7 +202,7 @@ describe('searchCombo', () => {
   it('keeps a phrase inside the unit it is measured in', async () => {
     const { results } = await searchCombo(
       [{ kind: 'phrase', terms: ['delta', 'beta'] }, slot('alpha')],
-      opts({ unit: 'line' }), ['CO7'],
+      opts({ unit: 'line', window: 0 }), ['CO7'],
     );
     expect(positions(results[0])).toEqual([2, 3, 4]);
   });
@@ -338,5 +338,21 @@ describe('which word a grammatical term marks', () => {
     // Only the ambiguous one in reach: the line still matches.
     const only = comboWindows([[hit(5)], [hit(4, false)]], { window: 3, unit: 'words', ordered: false }, off);
     expect(only).toHaveLength(1);
+  });
+});
+
+describe('lines away', () => {
+  it('counts lines either side of the first word, 0 being its own line', async () => {
+    const { comboWindows } = await import('../lib/search-advanced');
+    // Five lines of two tokens: line k holds tokens 2k and 2k+1.
+    const off = { token_count: 10, seg_base_offset: [0], segments: [{ book: 1, column: '1', line_runs: [[1, 2], [2, 2], [3, 2], [4, 2], [5, 2]] }], book_bounds: [{ book: 1, start: 0 }] } as never;
+    const hit = (start: number) => ({ start, span: 1, certain: true });
+    const found = (n: number, partner: number) =>
+      comboWindows([[hit(4)], [hit(partner)]], { window: n, unit: 'line', ordered: false }, off).length;
+    expect(found(0, 5)).toBe(1);   // same line
+    expect(found(0, 6)).toBe(0);   // next line
+    expect(found(1, 6)).toBe(1);
+    expect(found(1, 1)).toBe(0);   // two lines back
+    expect(found(2, 1)).toBe(1);
   });
 });

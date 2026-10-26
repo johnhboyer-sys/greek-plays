@@ -16,7 +16,7 @@ it('does not let q replace explicit g or e, even when empty', () => {
 it('round-trips the full state', () => {
   const state: UrlSearch = { ...emptyUrlSearch(works), grk: 'λόγος', eng: 'word', grkMode: 'phrase', engMode: 'any', matchMode: 'lemma', accent: true,
     langOp: 'or', engForms: true, works: ['B'], ed: 'alt', lemmaPick: [['logos', 'logon'], []],
-    near: { kind: 'grammatical', query: { case: 'nom' }, relation: 'after', window: 13, unit: 'line', ordered: true },
+    near: { kind: 'grammatical', query: { case: 'nom' }, relation: 'after', window: 2, unit: 'line', ordered: true },
     shape: { mood: 'opt' }, engNear: { term: 'child', relation: 'before', window: 8 } };
   expect(decodeSearchUrl(encodeSearchUrl(state, works), works)).toEqual(state);
 });

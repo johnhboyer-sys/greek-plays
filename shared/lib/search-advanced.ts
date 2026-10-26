@@ -640,7 +640,16 @@ export function comboWindows(
     let hi = total;
     const clamp = ([s, e]: [number, number]) => { if (s > lo) lo = s; if (e < hi) hi = e; };
     clamp(unitRange(bookStarts, at, total));                       // never cross a book
-    if (opts.unit === 'line' && lines) clamp(unitRange(lines, at, total));
+    // In lines: the anchor's line and `window` lines either side (0 = the
+    // same line), counted as the edition prints them (John, 2026-10-26:
+    // "x number of lines away").
+    if (opts.unit === 'line' && lines) {
+      let a = 0;
+      let b = lines.length - 1;
+      while (a < b) { const m = (a + b + 1) >> 1; if (lines[m] <= at) a = m; else b = m - 1; }
+      const n = Math.max(0, Math.trunc(opts.window) || 0);
+      clamp([lines[Math.max(0, a - n)], a + n + 1 < lines.length ? lines[a + n + 1] : total]);
+    }
     return [lo, hi];
   };
 
@@ -843,7 +852,10 @@ export async function searchCombo(
 
   const bounded: ComboOptions = {
     ...opts,
-    window: Math.max(1, Math.min(Number.isFinite(opts.window) ? opts.window : COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX)),
+    // Words: 1 to 50. Lines: 0 (the same line) to 10.
+    window: opts.unit === 'line'
+      ? Math.max(0, Math.min(Number.isFinite(opts.window) ? Math.trunc(opts.window) : 0, 10))
+      : Math.max(1, Math.min(Number.isFinite(opts.window) ? opts.window : COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX)),
   };
   const indexes = comboIndexes(usable);
   const failed: string[] = [];

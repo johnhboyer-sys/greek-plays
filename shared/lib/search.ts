@@ -633,7 +633,10 @@ export async function search(
           : { kind: matchMode, terms: resolved.flat() };
         const near = advanced.near;
         greekOverride = await comboSearchWork(w, [first, near, ...(advanced.nearMore ?? [])], {
-          window: Math.max(1, Math.min(Number.isFinite(near.window) ? near.window : COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX)),
+          // Words: 1 to 50. Lines: 0 (the same line) to 10.
+          window: near.unit === 'line'
+            ? Math.max(0, Math.min(Number.isFinite(near.window) ? Math.trunc(near.window) : 0, 10))
+            : Math.max(1, Math.min(Number.isFinite(near.window) ? near.window : COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX)),
           unit: near.unit, ordered: near.ordered,
         }, comboIndexes);
       } else if (!heldEdition && !grkTerms.length && Object.keys(advanced?.shape ?? {}).length) {

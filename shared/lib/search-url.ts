@@ -17,6 +17,9 @@ export interface UrlSearch extends AdvancedSearch {
   nearText?: string;
   // The same for each further Near term, by position in nearMore.
   nearMoreText?: string[];
+  // The ticked headwords of a "lemma" Near term, by row (0 = the first term),
+  // where some were unticked: nf, nf2, nf3 as folds joined by "."
+  nearPicks?: (string[] | null)[];
 }
 
 export const emptyUrlSearch = (allWorks: string[]): UrlSearch => ({
@@ -53,8 +56,9 @@ export function encodeSearchUrl(s: UrlSearch, allWorks: string[]): string {
     p.set('n', KIND_CODE[s.near.kind]);
     if (s.near.kind === 'grammatical') p.set('ng', encodeGrammar(s.near.query ?? {}));
     else p.set('nt', (s.near.kind === 'lemma' && s.nearText?.trim()) || (s.near.terms ?? []).join(' '));
+    if (s.nearPicks?.[0]?.length) p.set('nf', s.nearPicks[0].join('.'));
     if (s.near.relation !== 'near') p.set('nr', s.near.relation[0]);
-    if (s.near.window !== COMBO_WINDOW_DEFAULT) p.set('nw', String(s.near.window));
+    if (s.near.unit === 'line' ? s.near.window !== 0 : s.near.window !== COMBO_WINDOW_DEFAULT) p.set('nw', String(s.near.window));
     if (s.near.unit === 'line') p.set('nu', 'l');
     if (s.near.ordered) p.set('no', '1');
   }
@@ -64,6 +68,7 @@ export function encodeSearchUrl(s: UrlSearch, allWorks: string[]): string {
     p.set(`n${k}`, KIND_CODE[t.kind]);
     if (t.kind === 'grammatical') p.set(`ng${k}`, encodeGrammar(t.query ?? {}));
     else p.set(`nt${k}`, (t.kind === 'lemma' && s.nearMoreText?.[i]?.trim()) || (t.terms ?? []).join(' '));
+    if (s.nearPicks?.[i + 1]?.length) p.set(`nf${k}`, s.nearPicks[i + 1]!.join('.'));
     if (t.relation !== 'near') p.set(`nr${k}`, t.relation[0]);
   });
   if (s.shape) p.set('sh', encodeGrammar(s.shape));
@@ -131,10 +136,14 @@ export function decodeSearchUrl(search: string | URLSearchParams, allWorks: stri
       s.near = {
         kind, ...(kind === 'grammatical' ? { query } : { terms }),
         relation: RELATION_CODE.get(p.get('nr') ?? 'n') ?? 'near',
-        window: windowSize(Number(p.get('nw') ?? COMBO_WINDOW_DEFAULT)),
+        window: p.get('nu') === 'l'
+          ? Math.max(0, Math.min(Math.trunc(Number(p.get('nw') ?? 0)) || 0, 10))
+          : windowSize(Number(p.get('nw') ?? COMBO_WINDOW_DEFAULT)),
         unit: p.get('nu') === 'l' ? 'line' : 'words', ordered: p.get('no') === '1',
       };
       if (kind === 'lemma') s.nearText = text;
+      const folds = (k: string) => (p.get(k) ?? '').split('.').filter(f => /^[a-z']+$/.test(f));
+      const picks: (string[] | null)[] = [folds('nf').length && kind === 'lemma' ? folds('nf') : null];
       const more: NonNullable<UrlSearch['nearMore']> = [];
       const moreText: string[] = [];
       for (let k = 2; k < 2 + MAX_NEAR_MORE; k++) {
@@ -147,11 +156,13 @@ export function decodeSearchUrl(search: string | URLSearchParams, allWorks: stri
         more.push({ kind: mk, ...(mk === 'grammatical' ? { query: mq } : { terms: mterms }),
           relation: RELATION_CODE.get(p.get(`nr${k}`) ?? 'n') ?? 'near' });
         moreText.push(mk === 'lemma' ? mt : '');
+        picks.push(mk === 'lemma' && folds(`nf${k}`).length ? folds(`nf${k}`) : null);
       }
       if (more.length) {
         s.nearMore = more;
         if (moreText.some(Boolean)) s.nearMoreText = moreText;
       }
+      if (picks.some(Boolean)) s.nearPicks = picks.slice(0, 1 + more.length);
     }
   }
   const en = (p.get('en') ?? '').trim();
