@@ -486,7 +486,13 @@ async function searchWork(
   const [meta, grkIdx, engIdx] = await Promise.all([metaP, grkP, engP]);
 
   const override = greekOverride ? new Map(greekOverride.map(r => [r.meta.id, r])) : null;
-  let grkHits: Set<number> | null = override ? new Set(meta.flatMap((m, i) => override.has(m.id) ? [i] : [])) : null;
+  // A near hit belongs to the passage of its first Greek word: a passage that
+  // holds only a near word is not a Greek hit, so which near word answered
+  // can never change which passages match (Codex's review, 2026-10-26).
+  const greekHit = (r: SearchResult) => (r.nearHits ? r.nearHits.length > 0 : r.grkPositions.length > 0);
+  let grkHits: Set<number> | null = override
+    ? new Set(meta.flatMap((m, i) => { const r = override.get(m.id); return r && greekHit(r) ? [i] : []; }))
+    : null;
   let engHits: Set<string> | null = null;
 
   if (grkTerms.length > 0 && grkIdx) {
