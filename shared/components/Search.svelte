@@ -1419,21 +1419,23 @@
             {/if}
           </p>
           {#if nearKind === 'lemma' && nearCands[0]?.cands.length}
-            <p class="row lsj">
-              <span class="mn">Lemma</span>
+            <p class="row lsj sub" role="group" aria-label="Headwords for the lemma">
+              <span class="mn" aria-hidden="true"></span><span class="elbow" aria-hidden="true"></span><span class="sub-items">
               {#each nearCands[0].cands as c (c.fold)}
                 <label class="ck lem" title={c.n ? `${c.n.toLocaleString('en-US')} times in the plays` : undefined}><input type="checkbox" checked={c.on} on:change={() => toggleNearCand(0, c.fold)} /><span lang="grc">{c.heads.join(', ')}</span>{#if c.gloss}<span class="gl">{` — ${c.gloss}`}</span>{/if}</label>
               {/each}
+              </span>
             </p>
           {/if}
           {#if nearKind === 'grammatical'}
-            <p class="row">
-              <span class="mn">Form</span>
+            <p class="row sub" role="group" aria-label="Grammar for the word form">
+              <span class="mn" aria-hidden="true"></span><span class="elbow" aria-hidden="true"></span><span class="sub-items">
               <span class="v"><select aria-label="Form: kind of word" value={shapeClass} on:change={(e) => { shapeClass = e.currentTarget.value as ShapeClass; shape = {}; }}><option value="verb">a verb form</option><option value="noun">a noun or adjective form</option><option value="word">a word class</option></select><i aria-hidden="true">▾</i></span>
               {#each SHAPE_CATS[shapeClass] as cat (cat.key)}
                 <span class="v"><select aria-label={`Form: ${cat.key}`} value={shape[cat.key] ?? ''} on:change={(e) => (shape = { ...shape, [cat.key]: e.currentTarget.value })}><option value="">{cat.any}</option>{#each cat.values as [v, l]}<option value={v}>{l}</option>{/each}</select><i aria-hidden="true">▾</i></span>
               {/each}
               {#if !Object.keys(shapeQuery).length}<span class="mn">choose at least one</span>{/if}
+              </span>
             </p>
           {/if}
           {#if nearKind !== 'none'}
@@ -1449,21 +1451,23 @@
                 <button type="button" class="ln" on:click={() => removeTerm(i)}>remove</button>
               </p>
               {#if t.kind === 'lemma' && nearCands[i + 1]?.cands.length}
-                <p class="row lsj">
-                  <span class="mn">Lemma</span>
+                <p class="row lsj sub" role="group" aria-label={`Term ${i + 3}: headwords for the lemma`}>
+                  <span class="mn" aria-hidden="true"></span><span class="elbow" aria-hidden="true"></span><span class="sub-items">
                   {#each nearCands[i + 1].cands as c (c.fold)}
                     <label class="ck lem" title={c.n ? `${c.n.toLocaleString('en-US')} times in the plays` : undefined}><input type="checkbox" checked={c.on} on:change={() => toggleNearCand(i + 1, c.fold)} /><span lang="grc">{c.heads.join(', ')}</span>{#if c.gloss}<span class="gl">{` — ${c.gloss}`}</span>{/if}</label>
                   {/each}
+                  </span>
                 </p>
               {/if}
               {#if t.kind === 'grammatical'}
-                <p class="row">
-                  <span class="mn">Form</span>
+                <p class="row sub" role="group" aria-label={`Term ${i + 3}: grammar for the word form`}>
+                  <span class="mn" aria-hidden="true"></span><span class="elbow" aria-hidden="true"></span><span class="sub-items">
                   <span class="v"><select aria-label={`Term ${i + 3}: kind of word`} value={t.shapeClass} on:change={(e) => { t.shapeClass = e.currentTarget.value as ShapeClass; t.shape = {}; nearMore = nearMore; }}><option value="verb">a verb form</option><option value="noun">a noun or adjective form</option><option value="word">a word class</option></select><i aria-hidden="true">▾</i></span>
                   {#each SHAPE_CATS[t.shapeClass] as cat (cat.key)}
                     <span class="v"><select aria-label={`Term ${i + 3}: ${cat.key}`} value={t.shape[cat.key] ?? ''} on:change={(e) => { t.shape = { ...t.shape, [cat.key]: e.currentTarget.value }; nearMore = nearMore; }}><option value="">{cat.any}</option>{#each cat.values as [v, l]}<option value={v}>{l}</option>{/each}</select><i aria-hidden="true">▾</i></span>
                   {/each}
                   {#if !Object.keys(shapeQueryOf(t.shapeClass, t.shape)).length}<span class="mn">choose at least one</span>{/if}
+                  </span>
                 </p>
               {/if}
             {/each}
@@ -1700,6 +1704,17 @@
   .adv:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { .adv .chev { transition: none; } }
   .adv-rows { display: flex; flex-direction: column; gap: .55rem; }
+  /* A row that belongs to the choice above it ("lemma" or "word form"): an
+     L in the clay drops from under that choice to the row's first control
+     (John, 2026-10-26). The empty label keeps it in the controls' column. */
+  .row.sub { gap: .3rem .9rem; margin-top: -.2rem; flex-wrap: nowrap; }
+  /* Wrapped controls stay indented under the L. */
+  .sub-items { display: flex; flex-wrap: wrap; gap: .3rem 1rem; align-items: baseline; min-width: 0; }
+  .elbow {
+    flex: none; align-self: flex-start; width: .7rem; height: 1.15rem; margin: -.55rem -.35rem 0 .35rem;
+    border-left: 1.5px solid var(--clay-text); border-bottom: 1.5px solid var(--clay-text);
+    border-bottom-left-radius: 3px;
+  }
   .choose { display: grid; grid-template-columns: max-content 1fr; gap: .4rem 1rem; align-items: baseline; margin: .2rem 0 0 5.6rem; }
   .choose .who { font: 400 1.05rem var(--font-english); color: var(--ink); margin: 0; }
   .choose .plays { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin: 0; font: 400 .95rem var(--font-ui); }
