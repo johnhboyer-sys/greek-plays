@@ -1412,11 +1412,6 @@
             {#if nearKind === 'form' || nearKind === 'lemma'}
               <input class="fld-sm greek-input" lang="grc" type="search" aria-label="Near: word" placeholder="θεός" bind:value={nearText} on:keydown={onEnter} autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" />
             {/if}
-            {#if nearKind !== 'none'}
-              <span class="v"><select aria-label="Near: where" value={nearRel} on:change={(e) => (nearRel = e.currentTarget.value as SlotRelation)}><option value="near">on either side of</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
-              <span class="mn">the Greek word</span>
-              {#if grkQuery.trim().split(/\s+/).length > 1}<span class="mn">(searched as one phrase)</span>{/if}
-            {/if}
           </p>
           {#if nearKind === 'lemma' && nearCands[0]?.cands.length}
             <p class="row lsj sub" role="group" aria-label="Headwords for the lemma">
@@ -1439,6 +1434,13 @@
             </p>
           {/if}
           {#if nearKind !== 'none'}
+            <!-- Where the term stands comes after what it is (John, 2026-10-26). -->
+            <p class="row">
+              <span class="mn" aria-hidden="true"></span>
+              <span class="v"><select aria-label="Near: where" value={nearRel} on:change={(e) => (nearRel = e.currentTarget.value as SlotRelation)}><option value="near">on either side of</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
+              <span class="mn">the Greek word</span>
+              {#if grkQuery.trim().split(/\s+/).length > 1}<span class="mn">(searched as one phrase)</span>{/if}
+            </p>
             {#each nearMore as t, i}
               <p class="row">
                 <span class="mn">and</span>
@@ -1446,9 +1448,6 @@
                 {#if t.kind !== 'grammatical'}
                   <input class="fld-sm greek-input" lang="grc" type="search" aria-label={`Term ${i + 3}: word`} placeholder="θεός" bind:value={t.text} on:keydown={onEnter} autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" />
                 {/if}
-                <span class="v"><select aria-label={`Term ${i + 3}: where`} value={t.rel} on:change={(e) => { t.rel = e.currentTarget.value as SlotRelation; nearMore = nearMore; }}><option value="near">on either side of</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
-                <span class="mn">the Greek word</span>
-                <button type="button" class="ln" on:click={() => removeTerm(i)}>remove</button>
               </p>
               {#if t.kind === 'lemma' && nearCands[i + 1]?.cands.length}
                 <p class="row lsj sub" role="group" aria-label={`Term ${i + 3}: headwords for the lemma`}>
@@ -1470,6 +1469,12 @@
                   </span>
                 </p>
               {/if}
+              <p class="row">
+                <span class="mn" aria-hidden="true"></span>
+                <span class="v"><select aria-label={`Term ${i + 3}: where`} value={t.rel} on:change={(e) => { t.rel = e.currentTarget.value as SlotRelation; nearMore = nearMore; }}><option value="near">on either side of</option><option value="before">before</option><option value="after">after</option></select><i aria-hidden="true">▾</i></span>
+                <span class="mn">the Greek word</span>
+                <button type="button" class="ln" on:click={() => removeTerm(i)}>remove</button>
+              </p>
             {/each}
             <p class="row">
               <span class="mn">Distance</span>
