@@ -322,7 +322,28 @@ greek_editions:
         "ΕΞ.": Second Messenger
       overrides: []
     edition_only: []
-    alignment: { jebb: { covered: [], anchor_map: storr-loeb } }
+    alignment:
+      jebb:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        tick_fixes:
+          - { column: "100", shown: 145, at: "all but the accursed pair", note: "145 πλὴν τοῖν στυγεροῖν, ὣ πατρὸς ἑνὸς; the tick sat on 145a μητρός τε μιᾶς" }
+          - { column: "1183", shown: 1185, at: "to address divine Pallas", note: "1185 ὅπως ἱκοίμην εὐγμάτων προσήγορος; the tick sat on 1186 καὶ τυγχάνω" }
+          - { column: "1192", shown: 1225, at: "as well as his father’s deeds", note: "1225 καὶ πατρὸς ἔργα; the tick sat on 1226 ὁ δ’ ὡς ὁρᾷ σφε" }
+          - { column: "1328", shown: 1330, at: "that brings my final day", note: "1330 τερμίαν ἄγων ἁμέραν; the tick sat on 1332 ὕπατος" }
+          - { column: "332", shown: 355, n: 354, note: "strophe opens 354 καὶ φθέγμα καὶ ἀνεμόεν" }
+          - { column: "332", shown: 361, at: "what must come", note: "361 opens τὸ μέλλον; the tick sat on 360 παντοπόρος" }
+          - { column: "49", shown: 60, at: "how much more miserably", note: "60 ὅσῳ κάκιστ’ ὀλούμεθ’; the tick sat on 60a ψῆφον τυράννων" }
+          - { column: "49", shown: 65, at: "so that we must obey", note: "65 καὶ ταῦτ’ ἀκούειν; the tick sat on 65a ἐγὼ μὲν οὖν" }
+          - { column: "639", shown: 640, n: 639, note: "speech opens 639 οὕτω γάρ, ὦ παῖ" }
+          - { column: "857", shown: 861, at: "doom ordained for us", note: "861 ἀμετέρου πότμου; the tick sat on 858 πατρὸς τριπόλιστον οἶκτον" }
+          - { column: "100", shown: 104, at: "eye of golden day", note: "104 ἁμέρας βλέφαρον; the tick sat on 108/106 κινήσασα χαλινῷ … φῶτα" }
+          - { column: "332", shown: 336, at: "spans the sea", note: "χωρεῖ (336) is spans; Codex verify upheld" }
+          - { column: "223", shown: 230, at: "from another, must you not", note: "230 ἄλλου παρ’ ἀνδρός, πῶς σὺ δῆτ’ οὐκ ἀλγυνεῖ; the tick sat on 231 τοιαῦθ’ ἑλίσσων" }
+          - { column: "332", shown: 341, at: "turning the soil with", note: "341 ἱππείῳ γένει πολεύων; the tick sat on 339 ἀποτρύεται" }
+          - { column: "332", shown: 367, n: 365, note: "antistrophe opens 365 σοφόν τι τὸ μηχανόεν" }
+        covered: []
+        anchor_map: "storr-loeb"
     gaps: []
     # OCR misreads corrected under John's grammar rule (2026-09-19): each one
     # the scan prints (archive.org, page as printed) where the OCR's reading

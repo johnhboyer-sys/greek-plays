@@ -23,6 +23,7 @@ def apply_tick_fixes(english: dict, fixes: list[dict] | None, work_id: str) -> N
         if chunk is None:
             raise ValueError(f"{where}: no English beside segment {fix['column']}")
         ticks = [t for t in chunk.get("bekker") or [] if t["n"] == int(fix["shown"])]
+        where += f" (segment shows {[t['n'] for t in chunk.get('bekker') or []]})"
         nth = fix.get("nth")
         if nth is None and len(ticks) != 1:
             raise ValueError(f"{where}: matches no single tick ({len(ticks)} found)")

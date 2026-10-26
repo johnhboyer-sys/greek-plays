@@ -256,6 +256,26 @@ greek_editions:
     edition_only: []
     alignment:
       jebb:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        tick_fixes:
+          - { column: "1", shown: 5, at: "that my life is ill-fortuned", note: "5 ἔξοιδ’ ἔχουσα δυστυχῆ τε καὶ βαρύν; the tick sat on 6 ἥτις πατρὸς μὲν" }
+          - { column: "821", shown: 856, at: "Ah, you dark head", note: "856 ἰὼ κελαινὰ λόγχα; the tick sat on 854 οὔπω … πάθος" }
+          - { column: "866", shown: 867, n: 866, note: "speech opens 866 ἠχεῖ τις οὐκ ἄσημον" }
+          - { column: "94", shown: 118, at: "the great toil of his life", note: "118 πολύπονον ὥσπερ πέλαγος; the tick sat on 114 κύματ’ … βάντ’ ἐπιόντα" }
+          - { column: "94", shown: 119, at: "But some god always", note: "added: 119 ἀλλά τις θεῶν αἰὲν; the tick sat on 121 σφε δόμων ἐρύκει" }
+          - { column: "974", shown: 974, nth: 2, n: 975, note: "second 974 sits on 975 ἀγρίαν ὀδύνην πατρὸς ὠμόφρονος" }
+          - { column: "974", shown: 976, n: 977, note: "Hyllus' share of 977 πῶς φής, γέρον; ἢ ζῇ" }
+          - { column: "988", shown: 989, n: 988, note: "speech opens 988 ἆρ’ ἐξῄδη σ’ ὅσον ἦν κέρδος" }
+          - { column: "993", shown: 1014, at: "will no man turn merciful fire", note: "1014 οὐ πῦρ, οὐκ ἔγχος; the tick sat on 1014a ἒ ἔ" }
+          - { column: "205", shown: 216, at: "I am uplifted", note: "216 ἀείρομ’; the tick sat on 215 γείτονάς τε Νύμφας" }
+          - { column: "497", shown: 506, at: "Who stepped forward", note: "506 τίνες πάμπληκτα … ἐξῆλθον; the tick sat on 504 τίνες ἀμφίγυοι κατέβαν" }
+          - { column: "868", shown: 869, n: 868, note: "speech opens 868 ξύνες δὲ \"And note\"" }
+          - { column: "74", shown: 74, n: 75, note: "swap: \"He is waging or yet planning a war\" is 75 ἐπιστρατεύειν … ἢ μέλλειν ἔτι" }
+          - { column: "74", shown: 75, nth: 2, n: 74, note: "swap (row after the 74→75 renumber, so the second 75): \"they say, upon Euboea\" is 74 Εὐβοῖδα χώραν φασίν" }
+          - { column: "947", shown: 954, at: "a fair wind, might arise", note: "added: 954 γένοιτ’ ἔπουρος ἑστιῶτις αὔρα; the tick sat on 955 ἀποικίσειεν" }
+          - { column: "947", shown: 957, at: "I might not die of terror", note: "957 μὴ ταρβαλέα θάνοιμι; the tick sat on 956 τὸν Ζηνὸς ἄλκιμον γόνον" }
+          - { column: "947", shown: 968, at: "Ah, he is carried on", note: "968 αἰαῖ, ὅδ’ ἀναύδατος φέρεται; the tick sat on 969 τί χρή" }
         # The English's line numbers are Storr's (Perseus's Greek); the matcher
         # re-keys them onto Jebb's lines by text (pipeline/drama_pipeline/anchor_map.py).
         anchor_map: storr-loeb

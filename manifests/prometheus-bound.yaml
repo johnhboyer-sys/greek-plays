@@ -280,6 +280,22 @@ greek_editions:
   edition_only: []
   alignment:
     smyth:
+      # English margin numbers read against this Greek (2026-10-25/26, Opus
+      # fixes, Codex check): move = the number goes to its own line's words.
+      tick_fixes:
+        - { column: "1001", shown: 1005, at: "with hands upturned, aping", note: "γυναικομίμοις ὑπτιάσμασιν χερῶν (1005) = with hands upturned; λιπαρήσω (1004) follows" }
+        - { column: "200", shown: 200, nth: 2, label: "200b", note: "painful to keep it silent = ἄλγος δὲ σιγᾶν (200b)" }
+        - { column: "566", shown: 570, at: "He travels onward with his crafty", note: "ὁ δὲ πορεύεται δόλιον ὄμμʼ ἔχων (570); tick sat on 570a ὃν οὐδὲ κατθανόντα" }
+        - { column: "574", shown: 575, n: 574, note: "speech opens with ὑπὸ δὲ κηρόπλαστος ὀτοβεῖ δόναξ (574) = waxen pipe drones" }
+        - { column: "574", shown: 585, at: "but do not grudge, O Lord", note: "μηδέ μοι φθονήσῃς (585); tick sat on 585a ἄδην με πολύπλανοι πλάναι" }
+        - { column: "786", shown: 795, at: "where the daughters of Phorcys dwell", note: "αἱ Φορκίδες ναίουσι (795); tick sat on 795a τρεῖς κυκνόμορφοι" }
+        - { column: "593", shown: 600, at: "In frenzied bounds I come", note: "σκιρτημάτων (600) = in frenzied bounds; tick sat on 600a αἰκείαις λαβρόσυτος" }
+        - { column: "937", shown: 940, at: "since he will not bear sway", note: "δαρὸν γὰρ οὐκ ἄρξει (940); for his little day = τόνδε τὸν βραχὺν χρόνον (939)" }
+        - { column: "144", shown: 150, at: "For there are new rulers in heaven", note: "νέοι γὰρ οἰακονόμοι (150); tick sat on 150a νόμοις Ζεὺς ἀθέτως" }
+        - { column: "265", shown: 275, at: "listen to my", note: "ἀκούσαθʼ (275) = listen; τὰς προσερπούσας τύχας (oncoming fortunes) is 274" }
+        - { column: "436", shown: 440, at: "who else but I definitely assigned", note: "τίς ἄλλος ἢ ʼγὼ … διώρισεν (440); prerogatives to these upstart gods = θεοῖσι τοῖς νέοις γέρα (439)" }
+        - { column: "436", shown: 465, at: "and to the chariot I harnessed", note: "ὑφʼ ἅρμα τʼ ἤγαγον (465); heaviest burdens = μεγίστων μοχθημάτων (464)" }
+        - { column: "846", shown: 850, at: "thus named from the manner", note: "ἐπώνυμον … γεννημάτων (850) = thus named; bring forth dark Epaphus = τέξεις κελαινὸν Ἔπαφον (851)" }
       # Smyth's English numbers Hermes's reply 980b; his own Greek numbers it 980a
       # (sources/perseus/tlg0085.tlg003.perseus-eng2.xml:1385 vs -grc2.xml <l n="980a">).
       line_fixes:

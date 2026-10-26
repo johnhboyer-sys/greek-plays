@@ -366,6 +366,31 @@ greek_editions:
     edition_only: []
     alignment:
       jebb:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        tick_fixes:
+          - { column: "1005", shown: 1005, nth: 2, n: 1006, note: "second 1005 sits on 1006 σοῦ πρὸς δόμους ἐλθόντος εὖ πράξαιμί τι" }
+          - { column: "1287", shown: 1288, n: 1287, note: "speech opens 1287 βοᾷ διοίγειν κλῇθρα" }
+          - { column: "1347", shown: 1348, n: 1347, note: "speech opens 1347 δείλαιε τοῦ νοῦ" }
+          - { column: "151", shown: 159, nth: 2, n: 160, note: "second 159 sits on 160 γαιάοχόν τ’ ἀδελφεὰν" }
+          - { column: "656", shown: 657, n: 656, note: "speech opens 656 τὸν ἐναγῆ φίλον μήποτ’" }
+          - { column: "658", shown: 659, n: 658, note: "speech opens 658 εὖ νυν ἐπίστω" }
+          - { column: "689", shown: 689, nth: 2, n: 690, note: "second 689 sits on 690 ἴσθι δὲ παραφρόνιμον" }
+          - { column: "697", shown: 698, n: 697, note: "speech opens 697 πρὸς θεῶν δίδαξον" }
+          - { column: "752", shown: 753, n: 752, note: "speech opens 752 πέντ’ ἦσαν οἱ ξύμπαντες" }
+          - { column: "754", shown: 755, n: 754, note: "speech opens 754 αἰαῖ, τάδ’ ἤδη διαφανῆ" }
+          - { column: "863", shown: 899, at: "no more to Abae’s temple", note: "899 οὐδ’ ἐς τὸν Ἀβαῖσι ναόν; the tick sat on 901 εἰ μὴ τάδε χειρόδεικτα" }
+          - { column: "1297", shown: 1304, at: "I cannot even look on you", note: "1304 ἀλλ’ οὐδ’ ἐσιδεῖν δύναμαί σ’; the tick sat on 1305 πολλὰ δ’ ἀθρῆσαι" }
+          - { column: "1329", shown: 1335, at: "when sight showed me nothing sweet", note: "1335 ὅτῳ γ’ ὁρῶντι μηδὲν … γλυκύ; the tick sat on 1332 τί γὰρ ἔδει μ’ ὁρᾶν" }
+          - { column: "1132", shown: 1135, at: "he with two flocks", note: "1135 ὁ μὲν διπλοῖσι ποιμνίοις; the tick sat on 1137 ἐξ ἦρος εἰς ἀρκτοῦρον" }
+          - { column: "1237", shown: 1245, at: "then called on the name", note: "1245 καλεῖ τὸν ἤδη Λάϊον; the tick sat on 1244 πύλας … ἐπιρράξασ’" }
+          - { column: "1237", shown: 1281, at: "but with mingled woe", note: "1281 ἀλλ’ ἀνδρὶ καὶ γυναικὶ συμμιγῆ κακά; the tick sat on 1280 τάδ’ ἐκ δυοῖν ἔρρωγεν" }
+          - { column: "151", shown: 186, at: "The prayers to the Healer", note: "186 παιὰν δὲ λάμπει; the tick sat on 185 ἱκτῆρες ἐπιστενάχουσιν" }
+          - { column: "463", shown: 477, at: "He wanders under cover", note: "477 φοιτᾷ γὰρ ὑπ’ ἀγρίαν ὕλαν; the tick sat on 475 τὸν ἄδηλον ἄνδρα πάντ’ ἰχνεύειν" }
+          - { column: "463", shown: 480, at: "still seeking to separate himself", note: "480 τὰ μεσόμφαλα γᾶς ἀπονοσφίζων; the tick sat on 481 τὰ δ’ ἀεὶ ζῶντα" }
+          - { column: "463", shown: 490, at: "or the son of Polybus", note: "490 ἢ τῷ Πολύβου νεῖκος; the tick sat on 493 πρὸς ὅτου … βασάνῳ" }
+          - { column: "528", shown: 529, n: 528, note: "speech opens 528 ἐξ ὀμμάτων δ’ ὀρθῶν" }
+          - { column: "863", shown: 904, at: "Zeus all ruling", note: "904 Ζεῦ, πάντ’ ἀνάσσων; the tick sat on 903 ἀλλ’, ὦ κρατύνων" }
         covered: []
         anchor_map: storr-loeb
         # Perseus's English numbers 999-1004 a line off Jebb's Greek. The

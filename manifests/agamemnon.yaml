@@ -415,6 +415,21 @@ greek_editions:
     edition_only: []
     alignment:
       smyth:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        tick_fixes:
+          - { column: "1083", shown: 1084, n: 1083, note: "speech opens χρήσειν ἔοικεν (1083) = about to prophesy" }
+          - { column: "1567", shown: 1575, label: "1575b", note: "μανίας μελάθρων is 1575b; no plain 1575" }
+          - { column: "1001", shown: 1010, at: "with a well-measured throw", note: "σφενδόνας ἀπʼ εὐμέτρου (1010) = well-measured throw; a portion of the gathered wealth = τι χρημάτων κτησίων (1008-9)" }
+          - { column: "122", shown: 130, at: "fate shall violently ravage", note: "Μοῖρʼ ἀλαπάξει (130); Only may no … wrath = οἶον μή τις ἄγα (131)" }
+          - { column: "1322", shown: 1325, at: "my enemies", note: "ἐχθροῖς φονεῦσι … τίνειν ὁμοῦ (1325) = my enemies may at the same time pay; slaughtering a slave = δούλης θανούσης (1326)" }
+          - { column: "140", shown: 150, at: "raise adverse gales", note: "τεύξῃ (150) is raise; Codex verify upheld" }
+          - { column: "184", shown: 185, at: "of the Achaean ships, the elder", note: "νεῶν Ἀχαιικῶν (185); holding no seer at fault = μάντιν οὔτινα ψέγων (186)" }
+          - { column: "218", shown: 225, at: "to sacrifice his daughter", note: "θυτὴρ γενέσθαι θυγατρός (225); so that he might further a war = γυναικοποίνων πολέμων ἀρωγάν (226)" }
+          - { column: "403", shown: 405, n: 403, note: "speech opens λιποῦσα δʼ ἀστοῖσιν (403) = bequeathing to her people" }
+          - { column: "681", shown: 685, at: "guiding his tongue aright", note: "γλῶσσαν ἐν τύχᾳ νέμων (685); who named that bride of the spear = τὰν δορίγαμβρον (686)" }
+          - { column: "699", shown: 700, at: "its purpose fulfilling", note: "τελεσσίφρων (700) = its purpose fulfilling; Wrath brought = μῆνις ἤλασεν (701)" }
+          - { column: "975", shown: 985, at: "has collected the sands of the shore", note: "ψαμμίʼ ἀκτᾶς παρήμησεν (985); when the shipborn army = εὖθʼ ὑπʼ Ἴλιον (986)" }
         line_fixes:
           "1077": "1078"
           "1655": "1662"

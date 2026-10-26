@@ -269,6 +269,23 @@ greek_editions:
     edition_only: []
     alignment:
       coleridge:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        tick_fixes:
+          - { column: "1", shown: 20, at: "I, poor child, grew up", note: "τροφαῖσιν, ὥς τις πτόρθος, ηὐξόμην τάλας (20); at the court of the Thracian = παρʼ ἀνδρὶ Θρῃκί (19)" }
+          - { column: "1", shown: 55, at: "O mother, from a palace", note: "ὦ μῆτερ, ἥτις ἐκ τυραννικῶν δόμων (55); Alas = 54a φεῦ" }
+          - { column: "100", shown: 142, at: "have left the plains of Troy", note: "Τροίας πεδίων ἀπέβησαν (142); for their companions who died for Hellas = 141" }
+          - { column: "1056", shown: 1068, at: "ridding me of my blindness", note: "φέγγος ἀπαλλάξας (1068); tick sat on Ha! = 1068a ἀᾶ" }
+          - { column: "198", shown: 209, at: "sent beneath the darkness of the earth", note: "γᾶς ὑποπεμπομέναν σκότον, ἔνθα νεκρῶν μέτα (209); shall I be laid = τάλαινα κείσομαι (210)" }
+          - { column: "59", shown: 75, at: "and Polyxena, my dear daughter", note: "ἀμφὶ Πολυξείνης τε φίλης θυγατρὸς (75); about my son … in Thrace = 73" }
+          - { column: "699", shown: 700, at: "on the smooth sand", note: "ἐν ψαμάθῳ λευρᾷ (700); Cast up = ἔκβλητον, the murderous blow = πέσημα φοινίου δορὸς (699)" }
+          - { column: "786", shown: 815, at: "toil, as we must", note: "μοχθοῦμεν ὡς χρὴ πάντα καὶ μαστεύομεν (815); but Persuasion = πειθὼ δὲ (816)" }
+          - { column: "953", shown: 955, at: "and your daughter lately slain", note: "τήν τʼ ἀρτίως θανοῦσαν ἔκγονον σέθεν (955); tick sat on Ah! = 955a φεῦ" }
+          - { column: "100", shown: 127, at: "yet agreed on the same decision", note: "γνώμῃ δὲ μιᾷ ξυνεχωρείτην (127); Cassandra’s bed … = 129-131" }
+          - { column: "786", shown: 830, at: "what return shall my daughter", note: "χάριν τίνʼ ἕξει παῖς ἐμή (830); for the love she has lavished = τῶν ἐν εὐνῇ φιλτάτων ἀσπασμάτων (829)" }
+          - { column: "155", shown: 162, at: "Aged Priam is no more", note: "φροῦδος πρέσβυς (162); and city = ποία δὲ πόλις (161)" }
+          - { column: "189", shown: 191, at: "to the son of Peleus", note: "Πηλείδα γέννᾳ (191); at his tomb = πρὸς τύμβον (190)" }
+          - { column: "198", shown: 200, at: "What grievous outrage", note: "οἵαν οἵαν αὖ σοι λώβαν (200); has some fiend sent = ὦρσέν τις δαίμων (201)" }
         anchor_map: murray-oct
         # Paley prints 247-250 in the older order (scan p. 244: τί δῆτ’
         # ἔλεξας 247, πολλῶν λόγων 248, ἔσωσα 249, ὥστ’ εἰσορᾶν 250); Murray
