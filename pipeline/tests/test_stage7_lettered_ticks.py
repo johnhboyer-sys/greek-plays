@@ -36,3 +36,8 @@ def test_other_numbers_and_schemes_untouched():
     ticks = [_tick(520), _tick(521, 30)]
     assert lettered_tick_labels(ticks, ["519a", "520", "521-522"]) == ticks
     assert lettered_tick_labels(ticks, []) == ticks
+
+
+def test_a_declared_label_is_kept():
+    tick = {**_tick(1575), "label": "1575b"}
+    assert lettered_tick_labels([tick], ["1575a", "1575b"]) == [tick]

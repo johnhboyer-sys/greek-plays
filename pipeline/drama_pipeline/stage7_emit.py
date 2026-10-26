@@ -641,7 +641,8 @@ def lettered_tick_labels(ticks: list[dict], refs: list[str]) -> list[dict]:
     A tick's `n` is an integer; beside a line the edition prints with a
     letter (Jebb's OC 519a) it would show the bare 519. When the segment
     prints exactly one lettered line of that number and no plain line of
-    it, the tick gains `label` (that ref). Every other tick is unchanged."""
+    it, the tick gains `label` (that ref). A label declared in tick_fixes
+    stays. Every other tick is unchanged."""
     lettered: dict[int, list[str]] = defaultdict(list)
     for ref in refs:
         if (m := _LETTERED_REF.fullmatch(ref)):
@@ -649,7 +650,7 @@ def lettered_tick_labels(ticks: list[dict], refs: list[str]) -> list[dict]:
     out = []
     for tick in ticks:
         refs_n = lettered.get(tick["n"], [])
-        if len(refs_n) == 1 and str(tick["n"]) not in refs:
+        if "label" not in tick and len(refs_n) == 1 and str(tick["n"]) not in refs:
             tick = {**tick, "label": refs_n[0]}
         out.append(tick)
     return out

@@ -50,12 +50,24 @@ def test_nth_picks_one_of_two_equal_numbers():
     assert [t["n"] for t in eng["chunks"][0]["bekker"]] == [1220, 1221]
 
 
+def test_label_names_a_lettered_line_the_segment_prints_beside_others():
+    # Agamemnon 1575: the Greek prints 1575a and 1575b and no plain 1575.
+    eng = _english()
+    apply_tick_fixes(eng, [{"column": "122", "shown": 130, "label": "130b"}], "agamemnon")
+    assert eng["chunks"][0]["bekker"][1] == {"n": 130, "offset": AG_122.index("Only"), "real": True, "label": "130b"}
+
+
+def test_label_must_carry_the_numbers_base():
+    with pytest.raises(ValueError, match="label"):
+        apply_tick_fixes(_english(), [{"column": "122", "shown": 130, "label": "131a"}], "agamemnon")
+
+
 @pytest.mark.parametrize("fix, message", [
     ({"column": "122", "shown": 135, "n": 136}, "matches no"),
     ({"column": "999", "shown": 130, "n": 131}, "no English"),
     ({"column": "122", "shown": 130, "at": "not in the text"}, "occurs 0"),
     ({"column": "122", "shown": 130, "at": "shall"}, "occurs 2"),
-    ({"column": "122", "shown": 130}, "neither"),
+    ({"column": "122", "shown": 130}, "nothing to do"),
 ])
 def test_a_stale_or_loose_fix_fails(fix, message):
     with pytest.raises(ValueError, match=message):
