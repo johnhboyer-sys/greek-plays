@@ -632,6 +632,29 @@ def _manifest_v1_fields(manifest: Manifest, out_dir: Path) -> dict:
 _COLSEP = "⎪"  # U+23AA — the TLG column divider inside Aristotle's inline tables
 
 
+_LETTERED_REF = re.compile(r"([0-9]+)[a-z]")
+
+
+def lettered_tick_labels(ticks: list[dict], refs: list[str]) -> list[dict]:
+    """Give an English tick the letter of the Greek line it names.
+
+    A tick's `n` is an integer; beside a line the edition prints with a
+    letter (Jebb's OC 519a) it would show the bare 519. When the segment
+    prints exactly one lettered line of that number and no plain line of
+    it, the tick gains `label` (that ref). Every other tick is unchanged."""
+    lettered: dict[int, list[str]] = defaultdict(list)
+    for ref in refs:
+        if (m := _LETTERED_REF.fullmatch(ref)):
+            lettered[int(m.group(1))].append(ref)
+    out = []
+    for tick in ticks:
+        refs_n = lettered.get(tick["n"], [])
+        if len(refs_n) == 1 and str(tick["n"]) not in refs:
+            tick = {**tick, "label": refs_n[0]}
+        out.append(tick)
+    return out
+
+
 def _normalized_gloss(value: str) -> str:
     normalized = " ".join(value.lower().split())
     while normalized and (
@@ -1091,7 +1114,10 @@ def emit_books(spine, tokens_doc, english, range_map, out_dir: Path, ross=None,
                         "text": eng["text"],
                         "notes": eng["notes"],
                         "markers": eng["markers"],
-                        "bekker": eng.get("bekker", []),
+                        "bekker": lettered_tick_labels(
+                            eng.get("bekker", []),
+                            [ref for line in seg["lines"] if (ref := line.get("ref")) is not None],
+                        ),
                         # English speaker turns starting in this chunk (stephanus
                         # dialogues): [{offset, speaker, display}] — the label
                         # lead-in is stripped from `text` and rendered separately,
