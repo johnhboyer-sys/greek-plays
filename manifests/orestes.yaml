@@ -312,6 +312,19 @@ greek_editions:
         —: null
       overrides: []
     edition_only: []
-    alignment: {}
+    alignment:
+      coleridge:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        tick_fixes:
+          - { column: "1", shown: 10, at: "for the shameful weakness he displayed", note: "10 ἀκόλαστον ἔσχε γλῶσσαν, αἰσχίστην νόσον = \"the shameful weakness … a bridle on his lips\"; \"to share the honors of their feasts\" is 9" }
+          - { column: "1453", shown: 1470, at: "got before her in his", note: "1470 Μυκηνίδʼ ἀρβύλαν προβάς = \"got before her in his Mycenean boots\"; \"bending back her neck\" is 1471" }
+          - { column: "268", shown: 276, at: "on your wings, and blame", note: "rule 8: plain 276 is printed; 276 πτεροῖς· τὰ Φοίβου δʼ αἰτιᾶσθε θέσφατα = \"on your wings, and blame those oracles\"; \"Ah! why am I raving\" is 276b–277" }
+          - { column: "1", shown: 65, at: "whom Menelaus brought from Sparta", note: "65 Μενέλαος ἀγαγὼν Ἑρμιόνην Σπάρτης ἄπο; \"entrusted to my mother’s keeping\" is 64 μητρὶ παρέδωκεν τρέφειν" }
+          - { column: "1284", shown: 1285, at: "to spill your victim’s blood", note: "1285 σφάγια φοινίσσειν = \"to spill your victim’s blood\"; \"now that all is quiet\" is 1284 ἐν ἡσυχίᾳ" }
+          - { column: "1567", shown: 1570, at: "tear off the ancient parapet", note: "1570 ῥήξας παλαιὰ γεῖσα = \"tear off the ancient parapet\"; \"shatter your skull with this coping-stone\" is 1569" }
+          - { column: "448", shown: 455, at: "such friends as desert us", note: "455 οἱ μὴ ʼπὶ ταῖσι συμφοραῖς ὄντες φίλοι = \"such friends as desert us in adversity\"; \"friends in name but not in deed\" is 454" }
+          - { column: "477", shown: 480, at: "darting venomous flashes", note: "480 στίλβει νοσώδεις ἀστραπάς = \"darting venomous flashes\"; \"Menelaus, are you speaking\" is 481" }
+          - { column: "866", shown: 945, at: "who spoke in favor of slaying", note: "945 ὃς ἠγόρευσε σύγγονον σέ τε κτανεῖν; \"gained his point by appealing to the mob\" is 944" }
     gaps: []
     text_fixes: []

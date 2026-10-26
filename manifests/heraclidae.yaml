@@ -18,6 +18,13 @@ work:
 
 english:
   primary:
+    # English margin numbers read against this Greek (2026-10-25/26, Opus
+    # fixes, Codex check): move = the number goes to its own line's words.
+    tick_fixes:
+      - { column: "1", shown: 15, at: "our life was saved", note: "15 ψυχὴ δʼ ἐσώθη. φεύγομεν δʼ ἀλώμενοι = \"our life was saved. But in exile we wander\"; \"ever forced to roam\" is 16 ἐξοριζόντων" }
+      - { column: "427", shown: 430, at: "are driven back from shore by tempests", note: "430 πνοαῖσιν ἠλάθησαν ἐς πόντον πάλιν = \"are driven back … by tempests to the deep again\"; \"Even so we\" is 431 οὕτω δὲ χἠμεῖς" }
+      - { column: "799", shown: 820, at: "seeing that no reconciliation", note: "820 διαλλαγὰς ἔγνωσαν οὐ τελουμένας = \"seeing that no reconciliation would be effected\"; \"began the sacrifice\" is 821 ἔσφαζον" }
+      - { column: "799", shown: 860, at: "by the rocks of Sciron", note: "860 τέτρωρον ἅρμα πρὸς πέτραις Σκιρωνίσιν = \"by the rocks of Sciron\"; \"the hero Iolaus o’ertakes\" is 859 αἱρεῖ δʼ ὁ κλεινὸς Ἰόλεως" }
     id: coleridge
     name: "E. P. Coleridge (London, 1891)"
     short: Coleridge

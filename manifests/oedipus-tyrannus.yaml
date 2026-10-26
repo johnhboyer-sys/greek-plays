@@ -369,7 +369,6 @@ greek_editions:
         # English margin numbers read against this Greek (2026-10-25/26, Opus
         # fixes, Codex check): move = the number goes to its own line's words.
         tick_fixes:
-          - { column: "1005", shown: 1005, nth: 2, n: 1006, note: "second 1005 sits on 1006 σοῦ πρὸς δόμους ἐλθόντος εὖ πράξαιμί τι" }
           - { column: "1287", shown: 1288, n: 1287, note: "speech opens 1287 βοᾷ διοίγειν κλῇθρα" }
           - { column: "1347", shown: 1348, n: 1347, note: "speech opens 1347 δείλαιε τοῦ νοῦ" }
           - { column: "151", shown: 159, nth: 2, n: 160, note: "second 159 sits on 160 γαιάοχόν τ’ ἀδελφεὰν" }

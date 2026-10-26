@@ -308,6 +308,16 @@ greek_editions:
     edition_only: []
     alignment:
       jebb:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        tick_fixes:
+          - { column: "879", shown: 886, at: "seen the wanderings", note: "886 πλαζόμενον λεύσσων = \"seen the wanderings\"; \"Bosporus\" is 884 Βοσπορίων" }
+          - { column: "915", shown: 919, at: "the darkened gore of his", note: "919 πληγῆς μελανθὲν αἷμʼ ἀπʼ οἰκείας σφαγῆς = \"the darkened gore of his self-inflicted slaughter\"; \"Ah, what shall I do?\" is 920 οἴμοι, τί δράσω" }
+          - { column: "915", shown: 923, at: "Ah, unlucky Ajax", note: "923 ὦ δύσμορʼ Αἴας = \"Ah, unlucky Ajax\"; \"Even among your enemies you are worthy\" is 924" }
+          - { column: "925", shown: 927, at: "destiny of limitless toils", note: "927 μοῖραν ἀπειρεσίων πόνων = \"destiny of limitless toils\"; \"were the words of hatred … you moaned\" is 931–932" }
+          - { column: "596", shown: 610, at: "ah, me!—a match with", note: "610 ξύνεστιν ἔφεδρος, ὤμοι = \"ah, me!—a match with\"; \"Ajax, hard to cure\" is 609 δυσθεράπευτος Αἴας" }
+          - { column: "646", shown: 655, at: "But I will go to the bathing-place", note: "rule 8: plain 655 is printed; 655 ἀλλʼ εἶμι πρός τε λουτρὰ = \"But I will go to the bathing-place\"; \"the meadows\" is 655a λειμῶνας" }
+          - { column: "954", shown: 957, n: 954, note: "speech-opening number names the speech's first line (SPEC rule 2; Codex preferred a move) — speech opens on the segment's first row 954 ἦ ῥα … ἐφυβρίζει πολύτλας ἀνήρ (\"the much-enduring hero exults\"); 957 γελᾷ follows" }
         # The English's line numbers are Storr's (Perseus's Greek); the matcher
         # re-keys them onto Jebb's lines by text (pipeline/drama_pipeline/anchor_map.py).
         anchor_map: storr-loeb

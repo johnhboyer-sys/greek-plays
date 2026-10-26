@@ -379,6 +379,14 @@ greek_editions:
     edition_only: []
     alignment:
       buckley:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        tick_fixes:
+          - { column: "519", shown: 519, label: "519a", note: "519 is printed empty; the speech opens on 519a (Ἀχελῴου θύγατερ)" }
+          - { column: "1125", shown: 1145, at: "inside these walls, preening herself", note: "1145 τειχέων ἔσω τῶνδʼ, ἀνακαλοῦσα Βάκχιον = \"inside these walls … calling Bacchus\"; \"on the ill-fated prey\" is 1144 θήρᾳ δυσπότμῳ" }
+          - { column: "120", shown: 125, at: "the Korybantes with triple helmet", note: "125 μοι Κορύβαντες ηὗρον = \"the Korybantes … invented for me\"; \"covered with stretched hide\" is 124 βυρσότονον" }
+          - { column: "434", shown: 450, at: "to Thebes", note: "450 ἐς τάσδε Θήβας = \"to Thebes\"; \"full of many wonders\" is 449 πολλῶν … θαυμάτων πλέως" }
+          - { column: "73", shown: 85, at: "escorting the god Bromius", note: "85 Διόνυσον κατάγουσαι = \"escorting\"; \"from the Phrygian mountains\" is 86 Φρυγίων ἐξ ὀρέων" }
         # Murray prints Agave's half-lines as their own lines (1182a, 1198a);
         # Buckley's block for 1182 and 1198 holds both speakers' halves, so
         # 1182a and 1198a paired to nothing (stage 2 unmatched, ratio 5.6 and

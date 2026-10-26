@@ -250,6 +250,19 @@ greek_editions:
       overrides: []
     edition_only: []
     alignment:
+      coleridge:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        tick_fixes:
+          - { column: "568", shown: 570, nth: 1, n: 568, note: "first 570 opens the speech on 568 ὦ πολύξεινος καὶ ἐλεύθερος ἀνδρὸς … οἶκος (\"O home of hospitality\"); the second 570 (σέ τοι καὶ ὁ Πύθιος) is right" }
+          - { column: "673", shown: 674, n: 673, note: "speech-opening number names the speech's first line (SPEC rule 2; Codex preferred a move) — speech opens on 673 παύσασθʼ· ἅλις γὰρ ἡ παροῦσα συμφορά (\"Peace! enough the present sorrow\"); 674 ὦ παῖ follows" }
+          - { column: "226", shown: 235, at: "Cry aloud and wail", note: "rule 8: plain 235 is printed; 235 βόασον ὦ, στέναξον, ὦ Φεραία = \"Cry aloud and wail, O land of Pherae\"; \"wail for the best of women\" is 235a–236" }
+          - { column: "1008", shown: 1035, at: "for not by theft", note: "1035 οὐ γὰρ κλοπαίαν = \"for not by theft\"; \"So thou must take her in thy charge\" is 1034" }
+          - { column: "105", shown: 109, n: 110, note: "swap: the Chorus's \"Whoso from his youth up has been accounted virtuous\" is 110–111 ὅστις χρηστὸς ἀπʼ ἀρχῆς νενόμισται" }
+          - { column: "105", shown: 110, nth: 2, n: 109, note: "added: swap with the row above; \"needs must weep to see the good suddenly cut off\" is 109 χρὴ τῶν ἀγαθῶν διακναιομένων (nth=2 after the first row makes two 110s)" }
+          - { column: "466", shown: 475, at: "she should be my help-meet", note: "475 διʼ αἰῶνος ἂν ξυνείη = \"be my help-meet all my life\"; \"and never cause one tear\" is 474 ἄλυπος" }
+          - { column: "578", shown: 585, at: "fawn on nimble foot", note: "585 νεβρὸς ὑψικόμων πέραν = \"fawn … from beyond the crested pines\"; \"for very joy at thy gladsome minstrelsy\" is 587" }
+          - { column: "72", shown: 75, at: "for he whose hair this sword", note: "75 ἱερὸς γὰρ οὗτος τῶν κατὰ χθονὸς θεῶν = \"for he … is sacred to the gods below\"; \"Lo! I am going for her\" is 74 στείχω δʼ ἐπʼ αὐτήν" }
       # Edition-keyed (2026-09-29). Murray's TEI opens a new <sp> for each
       # stanza of the parodos (77-135) and of the stasimon 962-1005, where
       # the TLG text runs each as one Chorus speech.

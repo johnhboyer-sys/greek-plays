@@ -18,6 +18,11 @@ work:
 
 english:
   primary:
+    # English margin numbers read against this Greek (2026-10-25/26, Opus
+    # fixes, Codex check): move = the number goes to its own line's words.
+    tick_fixes:
+      - { column: "253", shown: 255, at: "We had come near the cave", note: "255 σῶν ἆσσον ἄντρων ἤλθομεν νεὼς ἄπο = \"We had come near the cave from our ship\"; \"wishing to procure provisions\" is 254" }
+      - { column: "483", shown: 487, n: 488, note: "row 487 is the stage direction [ὠιδὴ ἔνδοθεν]; the Second Half-Chorus's speech opens on 488 σίγα σίγα (\"Hush! hush!\")" }
     id: coleridge
     name: "E. P. Coleridge (London, 1891)"
     short: Coleridge

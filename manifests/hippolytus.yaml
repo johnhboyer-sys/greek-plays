@@ -354,6 +354,19 @@ greek_editions:
       overrides: []
     edition_only: []
     alignment:
+      coleridge:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        tick_fixes:
+          - { column: "1131", shown: 1135, at: "Nevermore in his fathers house", note: "1135 λήξει πατρῷον ἀνὰ δόμον = \"Nevermore in his fathers house\"; \"that never slept beneath his lute-strings\" is 1134 ἄυπνος" }
+          - { column: "250", shown: 265, at: "so much as moderation", note: "265 τοῦ μηδὲν ἄγαν = \"moderation\"; \"too oft are foes to health\" is 263" }
+          - { column: "373", shown: 425, at: "to know that father or mother", note: "425 ὅταν ξυνειδῇ μητρὸς ἢ πατρὸς κακά; \"the stoutest heart to slavishness\" is 424 δουλοῖ … θρασύσπλαγχνος" }
+          - { column: "433", shown: 470, at: "and how dost thou, after falling", note: "470 πεσοῦσʼ ὅσην σὺ πῶς ἂν ἐκνεῦσαι δοκεῖς; \"the roof that covers in a house\" is 468" }
+          - { column: "836", shown: 845, at: "sorrows past speech", note: "845 οἷον εἶδον ἄλγος δόμων = \"sorrows … I behold within my house\"; \"doth my palace all in vain give shelter\" is 842–843" }
+          - { column: "114", shown: 115, at: "in such words as it becomes", note: "115 ὡς πρέπει δούλοις λέγειν = \"in such words as it becomes a slave to use\"; \"do offer up my prayer\" is 116 προσευξόμεσθα" }
+          - { column: "1268", shown: 1275, at: "on golden pinion borne", note: "1275 πτανὸς … χρυσοφαής = \"on golden pinion borne\"; \"maddening the heart\" is 1274 μαινομένᾳ κραδίᾳ" }
+          - { column: "176", shown: 180, at: "on thy bed of sickness", note: "180 δέμνια κοίτης = \"bed of sickness\"; \"without the palace\" is 179 ἔξω δὲ δόμων" }
+          - { column: "983", shown: 1015, at: "sovereignty pleases only those", note: "1015 θνητῶν ὅσοισιν ἁνδάνει μοναρχία; \"whose hearts are quite corrupt\" is 1014 τὰς φρένας διέφθορεν" }
       # Edition-keyed (2026-09-29). Murray's TEI opens a new <sp> for each
       # stanza of a choral ode (parodos 121-169, stasima 732-775 and
       # 1102-1150), and for the huntsmen's stanzas of 1102-1150; the TLG text
