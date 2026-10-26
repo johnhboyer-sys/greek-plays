@@ -677,8 +677,11 @@ export function comboWindows(
         picks.push(h);
       }
       if (!picks.length) possible = false;
-      // Nearest first, so a hit marks the closest word that answers it.
-      else candidates.push(picks.sort((x, y) => gap(x) - gap(y) || x.start - y.start));
+      // A word every one of whose readings fits comes first (Morpheus also
+      // reads ἐμέ as the vocative of ἐμός; παῖ beside it is a vocative only),
+      // then the nearest, so a hit marks the likeliest word that answers it.
+      // Which word is marked changes; whether the line matches does not.
+      else candidates.push(picks.sort((x, y) => Number(y.certain) - Number(x.certain) || gap(x) - gap(y) || x.start - y.start));
     }
     if (!possible) continue;
 

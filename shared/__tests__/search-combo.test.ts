@@ -326,3 +326,17 @@ describe('comboWindows backtracking', () => {
     expect(windows.map(w => w.hits.map(h => h.start))).toEqual([[0, 2, 1]]);
   });
 });
+
+describe('which word a grammatical term marks', () => {
+  it('prefers a word whose every reading fits over a nearer ambiguous one', async () => {
+    const { comboWindows } = await import('../lib/search-advanced');
+    const off = { token_count: 10, seg_base_offset: [0], segments: [{ book: 1, column: '1', line_runs: [[1, 10]] }], book_bounds: [{ book: 1, start: 0 }] } as never;
+    const hit = (start: number, certain = true) => ({ start, span: 1, certain });
+    // Anchor 5; an ambiguous vocative at 4 (ἐμέ), a sure one at 7 (παῖ).
+    const windows = comboWindows([[hit(5)], [hit(4, false), hit(7)]], { window: 3, unit: 'words', ordered: false }, off);
+    expect(windows.map(w => w.hits.map(h => h.start))).toEqual([[5, 7]]);
+    // Only the ambiguous one in reach: the line still matches.
+    const only = comboWindows([[hit(5)], [hit(4, false)]], { window: 3, unit: 'words', ordered: false }, off);
+    expect(only).toHaveLength(1);
+  });
+});

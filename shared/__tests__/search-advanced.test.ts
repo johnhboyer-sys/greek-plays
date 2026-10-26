@@ -72,7 +72,8 @@ it('returns a shape alone and its ambiguity in the Greek positions', async () =>
 });
 it('keeps grammatical near information parallel to nearPositions', async () => {
   const out = await run('kalos', '', { near: { ...near(), kind: 'grammatical', query: { case: 'nom' }, relation: 'after' } });
-  expect(out.results[1]).toMatchObject({ grkPositions: [], nearPositions: [0], grammar: [{ values: { case: ['nom', 'voc'] }, certain: false }] });
+  // Token 2 (nom/voc) is nearer, but token 3 is surely nominative and is preferred.
+  expect(out.results[1]).toMatchObject({ grkPositions: [], nearPositions: [1], grammar: [{ values: { case: ['nom'] }, certain: true }] });
 });
 it.each(['and', 'or'] as const)('combines shape and English by segment with %s', async op => {
   const out = await run('', 'men', { shape: { case: 'nom' } }, op);
