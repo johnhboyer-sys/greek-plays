@@ -258,6 +258,11 @@ greek_editions:
       jebb:
         # English margin numbers read against this Greek (2026-10-25/26, Opus
         # fixes, Codex check): move = the number goes to its own line's words.
+        line_fixes:
+          "977b": "977"
+          "980": "979"
+          "981b": "981"
+          "978": "978"
         tick_fixes:
           - { column: "1", shown: 5, at: "that my life is ill-fortuned", note: "5 ἔξοιδ’ ἔχουσα δυστυχῆ τε καὶ βαρύν; the tick sat on 6 ἥτις πατρὸς μὲν" }
           - { column: "821", shown: 856, at: "Ah, you dark head", note: "856 ἰὼ κελαινὰ λόγχα; the tick sat on 854 οὔπω … πάθος" }
@@ -265,7 +270,6 @@ greek_editions:
           - { column: "94", shown: 118, at: "the great toil of his life", note: "118 πολύπονον ὥσπερ πέλαγος; the tick sat on 114 κύματ’ … βάντ’ ἐπιόντα" }
           - { column: "94", shown: 119, at: "But some god always", note: "added: 119 ἀλλά τις θεῶν αἰὲν; the tick sat on 121 σφε δόμων ἐρύκει" }
           - { column: "974", shown: 974, nth: 2, n: 975, note: "second 974 sits on 975 ἀγρίαν ὀδύνην πατρὸς ὠμόφρονος" }
-          - { column: "974", shown: 976, n: 977, note: "Hyllus' share of 977 πῶς φής, γέρον; ἢ ζῇ" }
           - { column: "988", shown: 989, n: 988, note: "speech opens 988 ἆρ’ ἐξῄδη σ’ ὅσον ἦν κέρδος" }
           - { column: "993", shown: 1014, at: "will no man turn merciful fire", note: "1014 οὐ πῦρ, οὐκ ἔγχος; the tick sat on 1014a ἒ ἔ" }
           - { column: "205", shown: 216, at: "I am uplifted", note: "216 ἀείρομ’; the tick sat on 215 γείτονάς τε Νύμφας" }

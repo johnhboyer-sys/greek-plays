@@ -293,7 +293,10 @@ greek_editions:
         # 247-248 on Paley's 249-250 but cannot carry 249-250 back across
         # them, so they are set by hand, and the English runs out of the
         # Greek order there.
+        cuts:
+          - { english: "Shall we force an entry?", greek: "1042" }
         line_fixes:
+          "1041": "1041"
           "249": "247"
           "250": "248"
         order_breaks: ["247"]

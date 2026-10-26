@@ -305,6 +305,8 @@ greek_editions:
       coleridge:
         # English margin numbers read against this Greek (2026-10-25/26, Opus
         # fixes, Codex check): move = the number goes to its own line's words.
+        line_fixes:
+          "513": "511"
         tick_fixes:
           - { column: "581", shown: 595, at: "that reverence right", note: "595 δίκην σέβονται· ταῦτα γὰρ ξυνόνθʼ ὁμοῦ = \"that reverence right, for the presence of these things\"; \"insures victory\" is 596 νίκην δίδωσιν" }
           - { column: "634", shown: 635, at: "myself escaped", note: "635 αὐτός τε σωθείς· ᾑρέθην γὰρ ἐν μάχῃ = \"myself escaped—for I was taken prisoner in the battle\"; \"which cost those chieftains seven\" is 636" }
@@ -313,12 +315,8 @@ greek_editions:
           - { column: "514", shown: 514, at: "set not thy words before mine", note: "514 καὶ μὴ ʼπίπροσθεν τῶν ἐμῶν τοὺς σοὺς λόγους = \"set not thy words before mine\"; \"Peace, Adrastus! say no more\" is Theseus's half of 513 (σῖγʼ, Ἄδραστʼ, ἔχε στόμα), printed in segment 513" }
           - { column: "778", shown: 780, at: "and for our captains", note: "780 καὶ στρατηλάταις δορὸς = \"and for our captains\"; \"for the state fair fame\" is 779" }
           - { column: "963", shown: 965, at: "noblest sons in Argos", note: "965 κλεινοτάτους ἐν Ἀργείοις = \"noblest … in Argos\"; \"we seven hapless mothers\" is 963–964" }
-        # Coleridge's block at 513 opens with the chorus's 511-512 ("The
-        # punishment Zeus hath inflicted was surely enough; there was no need
-        # to heap this wanton insult on us"), which Perseus's Greek prints
-        # under its own 511 opening; the block at 513 holds all three lines.
-        covered:
-          - { greek: "511", by: "513" }
+        # The Chorus’s 511–512 now has its own English chunk.
+        covered: []
     gaps: []
     text_fixes:
       # Perseus 458 prints U+1FCE (a free psili-and-oxia) where prodelision

@@ -252,6 +252,8 @@ greek_editions:
       coleridge:
         # English margin numbers read against this Greek (2026-10-25/26, Opus
         # fixes, Codex check): move = the number goes to its own line's words.
+        line_fixes:
+          "730b": "739"
         tick_fixes:
           - { column: "1510", shown: 1510, label: "1510a", note: "1510 ἰὼ ἰώ is left untranslated; the English opens on 1510a" }
           - { column: "1540", shown: 1601, at: "and cross the Aegean main", note: "rule 8: plain 1601 is printed; 1601 Αἴγαιον οἶδμα διαπερᾶν = \"cross the Aegean main\"; \"Then, when the sacrifice\" is 1601a ἐπεὶ δʼ ἅπαν" }

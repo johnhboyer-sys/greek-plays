@@ -398,7 +398,6 @@ greek_editions:
           - { column: "631", shown: 640, at: "if it pleases him", note: "τόδʼ ἡδύ, τούτων, Οἰδίπους, δίδωμί σοι (640); protect him = φυλάσσειν (639)" }
           - { column: "668", shown: 694, nth: 2, n: 696, note: "one speaker; second ⟦694⟧ on οὐδʼ ἐν τᾷ μεγάλᾳ Δωρίδι νάσῳ (696)" }
           - { column: "728", shown: 730, at: "a sudden fear has troubled you", note: "φόβον νεώρη τῆς ἐμῆς ἐπεισόδου (730); do not shrink back = μήτʼ ὀκνεῖτε (731)" }
-          - { column: "884", shown: 884, n: 885, note: "English here opens ἐπεὶ πέραν περῶσʼ (885-86); 884 ἰὼ πᾶς λεώς is rendered in segment 1:883’s English" }
           - { column: "897", shown: 920, at: "Thebes is not accustomed to rearing", note: "οὐ γὰρ φιλοῦσιν ἄνδρας ἐκδίκους τρέφειν (920); nor would she praise you = οὐδʼ ἄν σʼ ἐπαινέσειαν (921)" }
           - { column: "897", shown: 925, at: "no, even if my claim", note: "οὐδʼ εἰ τὰ πάντων εἶχον ἐνδικώτατα (925); without permission from the ruler = ἄνευ γε τοῦ κραίνοντος (926)" }
           - { column: "939", shown: 940, at: "son of Aegeus, or of counsel", note: "ὦ τέκνον Αἰγέως, οὔτʼ ἄβουλον (940); that I have done this deed = τοὔργον τόδʼ ἐξέπραξα (941)" }
@@ -423,8 +422,7 @@ greek_editions:
         anchor_map: storr-loeb
         # Jebb prints the three verses lost after 181 and the one at 183 as
         # metrical schemes (lacunae); his English has no words for them, and
-        # 181 (πόρσω· σὺ γὰρ ἀΐεις) and 533 (ὦ Ζεῦ) and 534a fall inside the
-        # English of the speech before.
+        # 181 (πόρσω· σὺ γὰρ ἀΐεις) falls inside the English of the speech before.
         # Perseus's English runs a line off the text map at 844-847. English
         # 844, Antigone's "I am being dragged away in misery. Strangers,
         # strangers!", is Jebb's 844 (ἀφέλκομαι δύστηνος, ὦ ξένοι ξένοι), and
@@ -441,13 +439,45 @@ greek_editions:
           "844": "844"
           "845": "845"
           "1009a": "1099a"
+          # Paired-view split lines: seat each cue on Jebb’s printed verse.
+          "211": "212"  # τί τόδ’
+          "530a": "532"  # παῖδε, δύο δ’ ἄτα
+          "531": "533"  # ὦ Ζεῦ
+          "532": "534"  # ματρὸς κοινᾶς
+          "534": "534a"  # σαί τ’ εἴσ’ ἄρ’ ἀπόγονοι
+          "535": "535"  # κοιναί γε πατρὸς ἀδελφεαί
+          "536": "536"  # Chorus: ἰώ
+          "536a": "536"  # Oedipus: ἰὼ δῆτα
+          "537": "537"  # Chorus: ἔπαθες
+          "537a": "537"  # Oedipus: ἔπαθον
+          "538": "538"  # Chorus: ἔρεξας
+          "538a": "538"  # Oedipus: οὐκ ἔρεξα
+          "832": "832"  # Keep Justly beside δίκαια when the next cues move.
+          "833": "833"  # Keep ἰὼ πόλις in its own segment.
+          "834": "834"  # Keep τί δρᾷς beside its Greek.
+          "835": "834"  # τάχ’ εἰς βάσανον εἶ χερῶν
+          "836": "836"  # εἴργου
+          "836a": "836"  # σοῦ μὲν οὔ
+          "837": "837"  # πόλει μαχεῖ
+          "838": "838"  # οὐκ ἠγόρευον
+          "838a": "838"  # μέθες χεροῖν
+          "883": "883"  # Chorus: ἆρ’ οὐχ ὕβρις
+          "883a": "883"  # Creon: ὕβρις, ἀλλ’ ἀνεκτέα
+          "884": "884"  # ἰὼ πᾶς λεώς
+          "1095": "1095"  # μολεῖν γᾷ τᾷδε καὶ πολίταις
+          "1704": "1704"  # Chorus: ἔπραξεν;
+          "1704a": "1704"  # Antigone: ἔπραξεν οἷον ἤθελεν
+          "1705": "1705"  # Chorus: τὸ ποῖον;
+          "1705a": "1705"  # Antigone starts ἃς ἔχρῃζε γᾶς ἐπὶ ξένας
+          "1724": "1724"  # ὡς τί ῥέξομεν;
+          "1725": "1725"  # ἵμερος ἔχει με
+          "1726": "1725"  # τίς;
+          "1727": "1727"  # τὰν χθόνιον ἑστίαν ἰδεῖν
         covered:
           - { greek: "181", by: "180" }
           - { greek: "181a", by: "180" }
           - { greek: "181b", by: "180" }
           - { greek: "183", by: "181c" }
-          - { greek: "533", by: "532" }
-          - { greek: "534a", by: "534" }
     gaps: []
     # OCR misreads corrected under John's grammar rule (2026-09-19): each one
     # the scan prints (archive.org, page as printed) where the OCR's reading

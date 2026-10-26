@@ -363,6 +363,22 @@ greek_editions:
       coleridge:
         # English margin numbers read against this Greek (2026-10-25/26, Opus
         # fixes, Codex check): move = the number goes to its own line's words.
+        cuts:
+          - { english: "In what way and", greek: "772" }
+          - { english: "\u2014And here she comes", greek: "966" }
+        line_fixes:
+          "678": "678"
+          "683": "683"
+          "959": "959"
+          "672": "672"
+          "674": "674"
+          "681": "681"
+          "960": "960"
+          "962": "962"
+          "963": "963"
+          "964": "964"
+          "965": "965"
+          "771": "771"
         tick_fixes:
           - { column: "1102", shown: 1109, at: "Alas for my schemes", note: "οἴμοι τάλαινα τῶν ἐμῶν βουλευμάτων (1109); You, a woman who has just given birth = σὺ δʼ ὧδʼ ἄλουτος … λεχώ (1107-8)" }
           - { column: "1177", shown: 1179, at: "these two bodies", note: "δίγονα σώματα (1179); tick sat on 1179a ἐν χθονὶ κείμενα" }
@@ -371,11 +387,8 @@ greek_editions:
           - { column: "699", shown: 700, n: 703, note: "that Pan … breathing = Πᾶνα … πνέοντʼ (703); 700 κληδών opens the speech, which now carries 700" }
           - { column: "699", shown: 699, n: 700, note: "speech opens The story = κληδών (700); added with the 700 fix" }
         anchor_map: murray-oct
-        # Paley gives 771 (ὦ θεοί, Δίκη τε) to the Chorus (scan p. 172);
-        # Murray and Coleridge give it to Electra, with 772-773. Her English
-        # for 771 opens the chunk of her speech at 772.
-        covered:
-          - { greek: "771", by: "772" }
+        # The 771 invocation now has its own English chunk.
+        covered: []
     gaps: []
     # OCR misreads corrected to what the scan prints (archive.org
     # euripidesexrecen02euri, page as printed, leaf = page + 18): Greek

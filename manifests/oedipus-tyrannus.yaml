@@ -368,6 +368,8 @@ greek_editions:
       jebb:
         # English margin numbers read against this Greek (2026-10-25/26, Opus
         # fixes, Codex check): move = the number goes to its own line's words.
+        cuts:
+          - { english: "the mastery which", greek: "1523" }
         tick_fixes:
           - { column: "1287", shown: 1288, n: 1287, note: "speech opens 1287 βοᾷ διοίγειν κλῇθρα" }
           - { column: "1347", shown: 1348, n: 1347, note: "speech opens 1347 δείλαιε τοῦ νοῦ" }
@@ -397,7 +399,22 @@ greek_editions:
         # thanks from me" (English 1002) on its Greek, ΟΙ. 1004 (καὶ μὴν χάριν
         # γ' ἂν ἀξίαν λάβοις ἐμοῦ), so that Greek speech (1:1004) had no English.
         line_fixes:
+          "1515": "1515"
+          "1516": "1516"
+          "1517": "1517"
+          "1518": "1518"
+          "1519": "1519"
+          "1520": "1520"
+          "1521": "1521"
+          "1522": "1522"
+          "1516a": "1516"
+          "1517a": "1517"
+          "1518a": "1518"
+          "1519a": "1519"
+          "1520a": "1520"
+          "1521a": "1521"
           "1002": "1004"
+          "1523": "1522"
     gaps: []
     # OCR misreads corrected under John's grammar rule (2026-09-19): each one
     # the scan prints (archive.org playsfragmentspa0000unse_i8p4, page as printed)

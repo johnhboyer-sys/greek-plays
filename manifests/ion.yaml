@@ -267,6 +267,9 @@ greek_editions:
       coleridge:
         # English margin numbers read against this Greek (2026-10-25/26, Opus
         # fixes, Codex check): move = the number goes to its own line's words.
+        line_fixes:
+          "355": "356"
+          "356": "355"
         tick_fixes:
           - { column: "1205", shown: 1207, at: "for she lay writhing", note: "1207 θνῄσκει δʼ ἀπασπαίρουσα = \"she lay writhing in the toils of death\"; \"bared his arm\" is 1208 γυμνὰ δʼ ἐκ πέπλων μέλη" }
           - { column: "144", shown: 160, at: "that masterest the might", note: "160 ἰσχὺν νικῶν = \"masterest the might\"; \"once more shall my arrow o’ertake thee\" is 158 μάρψω σʼ αὖ τόξοις" }

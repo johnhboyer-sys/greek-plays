@@ -357,6 +357,9 @@ greek_editions:
       coleridge:
         # English margin numbers read against this Greek (2026-10-25/26, Opus
         # fixes, Codex check): move = the number goes to its own line's words.
+        line_fixes:
+          "850": "850"
+          "1130": "1130"
         tick_fixes:
           - { column: "1131", shown: 1135, at: "Nevermore in his fathers house", note: "1135 λήξει πατρῷον ἀνὰ δόμον = \"Nevermore in his fathers house\"; \"that never slept beneath his lute-strings\" is 1134 ἄυπνος" }
           - { column: "250", shown: 265, at: "so much as moderation", note: "265 τοῦ μηδὲν ἄγαν = \"moderation\"; \"too oft are foes to health\" is 263" }

@@ -251,6 +251,8 @@ greek_editions:
       jebb:
         # English margin numbers read against this Greek (2026-10-25/26, Opus
         # fixes, Codex check): move = the number goes to its own line's words.
+        cuts:
+          - { english: "have pity on your mother", greek: "1411" }
         tick_fixes:
           - { column: "1020a", shown: 1021, n: 1020, note: "speech opens 1020a φεῦ \"Ah!\" (segment prints only 1020a, so 1020 shows as 1020a)" }
           - { column: "1058", shown: 1058, nth: 2, n: 1060, at: "taking care for the sustenance", note: "second 1058: 1060 opens κηδομένους \"taking care\"; the tick sat on ἀφ’ ὧν τε βλάστωσιν" }
@@ -272,14 +274,28 @@ greek_editions:
           - { column: "472", shown: 498, at: "to the criminals and conspirators", note: "498 τοῖς δρῶσι καὶ συνδρῶσιν; the tick sat on 500 ἐν δεινοῖς ὀνείροις" }
           - { column: "472", shown: 504, nth: 2, n: 506, note: "second 504 sits on 506 ὡς ἔμολες αἰανὴς τᾷδε γᾷ" }
           - { column: "1245", shown: 1250, at: "my sorrow, one which", note: "1250 ἀμέτερον οἷον ἔφυ κακόν; the tick sat on 1247-48 οὔ ποτε καταλύσιμον, οὐδέ ποτε λησόμενον" }
-        covered: []
+        covered:
+          - { greek: "1401", by: "1400" }
+          - { greek: "1412", by: "1411" }
+          - { greek: "1478", by: "1476" }
         anchor_map: storr-loeb
         # English 827, Electra's "Ah, me, ah, me!", is Jebb's 827 (ἔ ἔ, αἰαῖ).
         # The text map has no words to match and put it on 828 (the Chorus's
         # ὦ παῖ), whence it moved to 830, leaving the Greek speech 1:827 with
         # no English.
         line_fixes:
+          "1406": "1406"
+          "1407": "1407"
+          "1408": "1408"
+          "1409": "1410"
+          "1411a": "1411"
+          "1404": "1404"
+          "1405": "1405"
           "827": "827"
+          "1401": "1400"
+          "1410": "1410"
+          "1479": "1479"
+          "1480": "1480"
     gaps: []
     # OCR misreads corrected under John's grammar rule (2026-09-19): each one
     # the scan prints (archive.org, page as printed) where the OCR's reading

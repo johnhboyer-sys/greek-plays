@@ -316,6 +316,11 @@ greek_editions:
       coleridge:
         # English margin numbers read against this Greek (2026-10-25/26, Opus
         # fixes, Codex check): move = the number goes to its own line's words.
+        line_fixes:
+          "782": "783"
+          "782b": "783"
+          "783": "782"
+          "783b": "782"
         tick_fixes:
           - { column: "1", shown: 10, at: "for the shameful weakness he displayed", note: "10 ἀκόλαστον ἔσχε γλῶσσαν, αἰσχίστην νόσον = \"the shameful weakness … a bridle on his lips\"; \"to share the honors of their feasts\" is 9" }
           - { column: "1453", shown: 1470, at: "got before her in his", note: "1470 Μυκηνίδʼ ἀρβύλαν προβάς = \"got before her in his Mycenean boots\"; \"bending back her neck\" is 1471" }

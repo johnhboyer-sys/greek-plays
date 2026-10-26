@@ -262,12 +262,33 @@ greek_editions:
       jebb:
         # English margin numbers read against this Greek (2026-10-25/26, Opus
         # fixes, Codex check): move = the number goes to its own line's words.
+        cuts:
+          - { english: "For he is not far", greek: "211" }
+          - { english: "or an axe", greek: "1205" }
+          - { english: "he dwells in the sunlight", greek: "1212" }
+          - { english: "Come back here", greek: "975" }
+        line_fixes:
+          "210": "210"
+          "212": "210"
+          "974": "974"
+          "1203": "1204"
+          "1209": "1210"
+          "1211": "1211"
+          "211": "210"
+          "1183": "1182"
+          "1184": "1185"
+          "1185": "1185"
+          "1186": "1186"
+          "1204": "1204"
+          "1205": "1205"
+          "1206": "1206"
+          "1207": "1207"
+          "1211a": "1211"
+          "975": "974"
         tick_fixes:
           - { column: "1081", shown: 1086, at: "Ah, ah, me!", note: "1086 ὤμοι μοί μοι; the tick sat on 1084 ἀλλά μοι καὶ θνήσκοντι συνείσει" }
           - { column: "1178", shown: 1180, n: 1178, note: "speech opens 1178 φίλα μοι, φίλα" }
           - { column: "1178", shown: 1181, at: "each to his station", note: "1181 ναὸς ἵν’ ἡμῖν τέτακται; the tick sat on 1180 ἴωμεν ἴωμεν" }
-          - { column: "1186", shown: 1187, nth: 2, n: 1186, note: "second 1187: \"Ayee, ayee!\" opens 1186 αἰαῖ αἰαῖ" }
-          - { column: "1207", shown: 1209, n: 1207, note: "Philoctetes' speech opens 1207 χρῶτ’ ἀπὸ πάντα … τέμω χερί" }
           - { column: "1218", shown: 1219, n: 1218, note: "speech opens 1218 ἐγὼ μὲν ἤδη καὶ πάλαι" }
           - { column: "1218", shown: 1221, at: "coming here for us", note: "1221 γόνον πρὸς ἡμᾶς δεῦρ’ ἰόντ’; the tick sat on 1220 Ὀδυσσέα στείχοντα" }
           - { column: "1222", shown: 1223, n: 1222, note: "speech opens 1222 οὐκ ἂν φράσειας" }
