@@ -575,21 +575,70 @@ describe('Search.svelte partial index failures (Astra lane A, F10)', () => {
     expect(container.textContent).not.toContain('Some plays could not be searched');
   });
 
+  it('keeps Near under Advanced search, with headword checks for a lemma term', async () => {
+    const { search } = await import('../lib/search');
+    const mockSearch = search as unknown as ReturnType<typeof vi.fn>;
+    mockSearch.mockClear();
+    mockSearch.mockImplementation(async () => ({ results: [hit], failed: [] }));
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn(async (url: RequestInfo | URL) => {
+      const path = String(url);
+      const body = path.endsWith('/lemma-map/t.json') ? { tekna: [['teknon', 'te/knon'], ['teknos', 'te/knos']] }
+        : path.endsWith('/lemma-picker/t.json') ? { teknon: { n: 9, c: [{ h: 'τέκνον', k: 'te/knon' }] }, teknos: { n: 2, c: [{ h: 'τέκνος', k: 'te/knos' }] } }
+        : null;
+      return { ok: !!body, status: body ? 200 : 404, json: async () => body } as Response;
+    }) as typeof fetch;
+    try {
+      const { container, getByRole } = render(Search);
+      const ui = within(container);
+      expect(container.querySelector('select[aria-label="Near: kind of term"]')).toBeNull();
+      await fireEvent.click(getByRole('button', { name: /Advanced search/ }));
+      await fireEvent.input(ui.getByLabelText('Greek'), { target: { value: 'ὦ' } });
+      await fireEvent.change(container.querySelector('select[aria-label="Near: kind of term"]') as HTMLSelectElement, { target: { value: 'lemma' } });
+      await fireEvent.input(container.querySelector('input[aria-label="Near: word"]') as HTMLInputElement, { target: { value: 'τέκνα' } });
+      await waitFor(() => expect(container.textContent).toContain('τέκνος'), { timeout: 2000 });
+      const second = [...container.querySelectorAll('.lsj label')].find(l => /τέκνος/.test(l.textContent ?? ''))!.querySelector('input')!;
+      await fireEvent.click(second);
+      await fireEvent.click(getByRole('button', { name: 'Search' }));
+      await waitFor(() => expect(mockSearch).toHaveBeenCalled());
+      expect(mockSearch.mock.calls.at(-1)![8]).toMatchObject({ near: { kind: 'lemma', terms: ['teknon'] } });
+      expect(decodeURIComponent(window.location.search)).toContain('nf=teknon');
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
+
+  it('reopens a third Near term from the address and searches with it', async () => {
+    const { search } = await import('../lib/search');
+    const mockSearch = search as unknown as ReturnType<typeof vi.fn>;
+    mockSearch.mockClear();
+    mockSearch.mockImplementation(async () => ({ results: [hit], failed: [] }));
+    history.replaceState(null, '', `/search?g=${encodeURIComponent('ὦ')}&n=f&nt=${encodeURIComponent('τέκνον')}&nr=a&nw=3&no=1&n2=g&ng2=case.voc`);
+    const { container } = render(Search);
+    await waitFor(() => expect(mockSearch).toHaveBeenCalled());
+    expect(mockSearch.mock.calls[0][8]).toMatchObject({
+      near: { kind: 'form', terms: ['τέκνον'], relation: 'after', window: 3, ordered: true },
+      nearMore: [{ kind: 'grammatical', query: { case: 'voc' }, relation: 'near' }],
+    });
+    expect((container.querySelector('select[aria-label="Term 3: kind of term"]') as HTMLSelectElement).value).toBe('grammatical');
+    expect((container.querySelector('select[aria-label="Term 3: case"]') as HTMLSelectElement).value).toBe('voc');
+    expect(container.textContent).toContain('In this order');
+  });
+
   it('reopens a shared address: the rows are restored and the search runs with them', async () => {
     const { search } = await import('../lib/search');
     const mockSearch = search as unknown as ReturnType<typeof vi.fn>;
     mockSearch.mockClear();
     mockSearch.mockImplementation(async () => ({ results: [hit], failed: [] }));
-    const near = { kind: 'grammatical', query: { mood: 'opt' }, relation: 'after', window: 1, unit: 'words', ordered: false };
-    history.replaceState(null, '', `/search?g=${encodeURIComponent('μή')}&e=sword&ef=0&near=${encodeURIComponent(JSON.stringify(near))}`);
+    history.replaceState(null, '', `/search?g=${encodeURIComponent('μή')}&e=sword&ef=0&n=g&ng=mood.opt&nr=a&nw=1`);
     const { container } = render(Search);
     await waitFor(() => expect(mockSearch).toHaveBeenCalled());
     const args = mockSearch.mock.calls[0];
     expect(args[0]).toBe('μή');
     expect(args[1]).toBe('sword');
     expect(args[8]).toMatchObject({ engForms: false, near: { kind: 'grammatical', query: { mood: 'opt' }, relation: 'after', window: 1 } });
-    expect((container.querySelector('select[aria-label="Near the Greek: what"]') as HTMLSelectElement).value).toBe('grammatical');
-    expect((container.querySelector('select[aria-label="mood"]') as HTMLSelectElement).value).toBe('opt');
+    expect((container.querySelector('select[aria-label="Near: kind of term"]') as HTMLSelectElement).value).toBe('grammatical');
+    expect((container.querySelector('select[aria-label="Form: mood"]') as HTMLSelectElement).value).toBe('opt');
   });
 });
 

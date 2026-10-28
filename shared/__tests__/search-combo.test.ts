@@ -104,9 +104,9 @@ describe('searchCombo', () => {
 
 
   it('measures by line when the unit is a line', async () => {
-    const { results } = await searchCombo([slot('alpha'), slot('beta')], opts({ unit: 'line' }), ['C10']);
+    const { results } = await searchCombo([slot('alpha'), slot('beta')], opts({ unit: 'line', window: 0 }), ['C10']);
     expect(positions(results[0])).toEqual([2, 4]);
-    const none = await searchCombo([slot('alpha'), slot('epsilon')], opts({ unit: 'line' }), ['C11']);
+    const none = await searchCombo([slot('alpha'), slot('epsilon')], opts({ unit: 'line', window: 0 }), ['C11']);
     expect(none.results).toHaveLength(0);
   });
 
@@ -152,11 +152,15 @@ describe('searchCombo', () => {
     expect(positions(two.results[0])).toEqual([5, 12]);
   });
 
-  it('lets two DIFFERENT slots match the same token', async () => {
+  it('never lets one word answer two terms, even different ones', async () => {
+    // A word is not near itself: lemma alpha + form alpha needs two alphas.
     const { results } = await searchCombo(
       [{ kind: 'lemma', terms: ['alpha'] }, slot('alpha')], opts({ window: 5 }), ['CD3'],
     );
-    expect(positions(results[0])).toEqual([2]);
+    expect(results).toHaveLength(0);
+    // kappa stands at 5 and 12: two different words, so it is found.
+    const two = await searchCombo([{ kind: 'lemma', terms: ['kappa'] }, slot('kappa')], opts({ window: 8 }), ['CD4']);
+    expect(positions(two.results[0])).toEqual([5, 12]);
   });
 
   it('unions the heads a lemma slot carries', async () => {
@@ -172,20 +176,33 @@ describe('searchCombo', () => {
     expect(results).toHaveLength(0);
   });
 
-  it('gives the same unordered result however the slots are ordered', async () => {
-    for (const order of [['alpha', 'beta', 'epsilon'], ['beta', 'alpha', 'epsilon'], ['epsilon', 'beta', 'alpha']]) {
-      const slots = order.map((t) => slot(t));
-      const tight = await searchCombo(slots, opts({ window: 5 }), [`CO5-${order[0]}`]);
-      expect(tight.results, `W=5 with ${order.join(',')}`).toHaveLength(0);
-      const loose = await searchCombo(slots, opts({ window: 6 }), [`CO6-${order[0]}`]);
-      expect(loose.results, `W=6 with ${order.join(',')}`).toHaveLength(1);
-    }
+  it('measures each term from the first word on its own', async () => {
+    // alpha 2, beta 4, epsilon 8. From alpha, epsilon is 6 words on: W=6 is needed.
+    const fromAlpha = (w: number) => searchCombo([slot('alpha'), slot('beta'), slot('epsilon')], opts({ window: w }), [`CO-a${w}`]);
+    expect((await fromAlpha(5)).results).toHaveLength(0);
+    expect((await fromAlpha(6)).results).toHaveLength(1);
+    // From beta, alpha is 2 before and epsilon 4 after: W=4 is enough, though
+    // the three span 7 words (aristotle-reader fitted them all into W).
+    const fromBeta = (w: number) => searchCombo([slot('beta'), slot('alpha'), slot('epsilon')], opts({ window: w }), [`CO-b${w}`]);
+    expect((await fromBeta(3)).results).toHaveLength(0);
+    expect((await fromBeta(4)).results).toHaveLength(1);
+    // The order of the further terms does not matter.
+    expect((await searchCombo([slot('beta'), slot('epsilon'), slot('alpha')], opts({ window: 4 }), ['CO-c4'])).results).toHaveLength(1);
+  });
+
+  it('measures a phrase before the first word from its last word', async () => {
+    // delta beta covers 3-4; epsilon at 8 is 4 words after the phrase's end.
+    const { results } = await searchCombo(
+      [slot('epsilon'), { kind: 'phrase', terms: ['delta', 'beta'], relation: 'before' }],
+      opts({ window: 4 }), ['CR8'],
+    );
+    expect(positions(results[0])).toEqual([3, 4, 8]);
   });
 
   it('keeps a phrase inside the unit it is measured in', async () => {
     const { results } = await searchCombo(
       [{ kind: 'phrase', terms: ['delta', 'beta'] }, slot('alpha')],
-      opts({ unit: 'line' }), ['CO7'],
+      opts({ unit: 'line', window: 0 }), ['CO7'],
     );
     expect(positions(results[0])).toEqual([2, 3, 4]);
   });
@@ -298,3 +315,44 @@ describe('slot identity', () => {
 });
 
 function positions(r: { grkPositions: number[]; nearPositions?: number[] }): number[] { return [...new Set([...r.grkPositions, ...r.nearPositions ?? []])].sort((a, b) => a - b); }
+
+describe('comboWindows backtracking', () => {
+  it('finds a match a greedy first pick would block', async () => {
+    const { comboWindows } = await import('../lib/search-advanced');
+    // Term 2 can use 1 or 2, term 3 only 1: taking 1 for term 2 must be undone.
+    const off = { token_count: 10, seg_base_offset: [0], segments: [{ book: 1, column: '1', line_runs: [[1, 10]] }], book_bounds: [{ book: 1, start: 0 }] } as never;
+    const hit = (start: number) => ({ start, span: 1, certain: true });
+    const windows = comboWindows([[hit(0)], [hit(1), hit(2)], [hit(1)]], { window: 3, unit: 'words', ordered: false }, off);
+    expect(windows.map(w => w.hits.map(h => h.start))).toEqual([[0, 2, 1]]);
+  });
+});
+
+describe('which word a grammatical term marks', () => {
+  it('prefers a word whose every reading fits over a nearer ambiguous one', async () => {
+    const { comboWindows } = await import('../lib/search-advanced');
+    const off = { token_count: 10, seg_base_offset: [0], segments: [{ book: 1, column: '1', line_runs: [[1, 10]] }], book_bounds: [{ book: 1, start: 0 }] } as never;
+    const hit = (start: number, certain = true) => ({ start, span: 1, certain });
+    // Anchor 5; an ambiguous vocative at 4 (ἐμέ), a sure one at 7 (παῖ).
+    const windows = comboWindows([[hit(5)], [hit(4, false), hit(7)]], { window: 3, unit: 'words', ordered: false }, off);
+    expect(windows.map(w => w.hits.map(h => h.start))).toEqual([[5, 7]]);
+    // Only the ambiguous one in reach: the line still matches.
+    const only = comboWindows([[hit(5)], [hit(4, false)]], { window: 3, unit: 'words', ordered: false }, off);
+    expect(only).toHaveLength(1);
+  });
+});
+
+describe('lines away', () => {
+  it('counts lines either side of the first word, 0 being its own line', async () => {
+    const { comboWindows } = await import('../lib/search-advanced');
+    // Five lines of two tokens: line k holds tokens 2k and 2k+1.
+    const off = { token_count: 10, seg_base_offset: [0], segments: [{ book: 1, column: '1', line_runs: [[1, 2], [2, 2], [3, 2], [4, 2], [5, 2]] }], book_bounds: [{ book: 1, start: 0 }] } as never;
+    const hit = (start: number) => ({ start, span: 1, certain: true });
+    const found = (n: number, partner: number) =>
+      comboWindows([[hit(4)], [hit(partner)]], { window: n, unit: 'line', ordered: false }, off).length;
+    expect(found(0, 5)).toBe(1);   // same line
+    expect(found(0, 6)).toBe(0);   // next line
+    expect(found(1, 6)).toBe(1);
+    expect(found(1, 1)).toBe(0);   // two lines back
+    expect(found(2, 1)).toBe(1);
+  });
+});

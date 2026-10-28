@@ -178,3 +178,33 @@ def test_corpus_run_rejects_empty_corpus(tmp_path, monkeypatch):
     monkeypatch.setattr(stage8_ngrams, "BUILD_DIR", tmp_path)
     with pytest.raises(ValueError, match="no per-work streams"):
         stage8_ngrams.run()
+
+
+def test_phrases_carry_their_accented_display():
+    # As written: the commonest printed spelling. Any form: the accented LSJ
+    # headwords, null where a fold has none.
+    from collections import Counter
+    from drama_pipeline.stage8_ngrams import _display
+    surfaces = {"A": ["πρὸς", "θεῶν", "x", "πρὸς", "θεῶν"], "B": ["Πρὸς", "θεῶν"]}
+    at = {"A": [0, 3], "B": [0]}
+    assert _display("form", "pros qewn", at, surfaces, {}) == "πρὸς θεῶν"
+    heads = {"pros": "πρός", "qeos": "θεός"}
+    assert _display("lemma", "pros qeos", {}, {}, heads) == "πρός θεός"
+    assert _display("lemma", "pros zzz", {}, {}, heads) == ["πρός", None]
+    assert _display("lemma", "yyy zzz", {}, {}, heads) is None
+    assert _display("english", "by the gods", {}, {}, heads) is None
+
+
+def test_accented_heads_find_capitalised_keys_where_stage5_files_them(tmp_path, monkeypatch):
+    # Stage 5 skips capitals when it chooses a key's shard: Ba/qrakos is in a.json.
+    from collections import Counter
+    import json as _json
+    from drama_pipeline import stage8_ngrams
+    from drama_pipeline.stage5_lsj import shard_letter
+    monkeypatch.setattr(stage8_ngrams, "BUILD_DIR", tmp_path)
+    lsj = tmp_path / "dist" / "lsj"
+    lsj.mkdir(parents=True)
+    for key, head in (("Ba/qrakos", "Βάθρακος"), ("*Seilhniko/s", "Σειληνικός")):
+        (lsj / f"{shard_letter(key)}.json").write_text(_json.dumps({key: {"head": head}}), encoding="utf-8")
+    heads = stage8_ngrams._accented_heads({"baqrakos": Counter({"Ba/qrakos": 1}), "seilhnikos": Counter({"*Seilhniko/s": 1})})
+    assert heads == {"baqrakos": "Βάθρακος", "seilhnikos": "Σειληνικός"}

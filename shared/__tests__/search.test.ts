@@ -421,8 +421,9 @@ describe('Search.svelte play-line result routing', () => {
     });
     const { getByLabelText, getByRole, container } = render(Search);
     await fireEvent.input(getByLabelText('English'), { target: { value: 'man' } });
-    await fireEvent.input(container.querySelector('input[aria-label="Another English word"]') as HTMLInputElement, { target: { value: 'child' } });
-    await fireEvent.change(container.querySelector('select[aria-label="Within how many English words"]') as HTMLSelectElement, { target: { value: '50' } });
+    await fireEvent.click(getByRole('button', { name: /Advanced search/ }));
+    await fireEvent.input(container.querySelector('input[aria-label="English near: word"]') as HTMLInputElement, { target: { value: 'child' } });
+    await fireEvent.change(container.querySelector('select[aria-label="English near: how many words"]') as HTMLSelectElement, { target: { value: '50' } });
     await fireEvent.click(getByRole('button', { name: 'Search' }));
     await waitFor(() => expect(container.querySelector('.inst-snippet mark')).toBeTruthy());
     expect([...container.querySelectorAll('.inst-snippet mark')].map(m => m.textContent)).toEqual(['man', 'child']);

@@ -53,12 +53,15 @@ it('uses picked lemma folds for just the selected typed term', async () => {
 });
 it('puts only the anchor in grkPositions across a segment edge', async () => {
   const out = await run('kalos', '', { near: near() });
-  expect(out.results.map(r => [r.meta.id, r.grkPositions, r.nearPositions])).toEqual([['a', [1], []], ['b', [], [0]]]);
+  // The near word in passage b is the hit's partner; passage b is no hit of its own.
+  expect(out.results.map(r => [r.meta.id, r.grkPositions, r.nearPositions])).toEqual([['a', [1], []]]);
+  expect(out.results[0].nearHits).toEqual([{ pos: 1, span: 1, partners: [{ segId: 'b', pos: 0, before: false }] }]);
 });
 it('uses per-position lemma choices for a typed phrase', async () => {
   const out = await search('qeous logos', '', 'phrase', 'all', 'and', ['Advanced'], 'lemma', undefined,
     { lemmaPick: [['qeos'], ['logos']], near: { ...near(['kalos']), relation: 'before' } });
-  expect(out.results.map(r => [r.meta.id, r.grkPositions, r.nearPositions])).toEqual([['a', [], [1]], ['b', [0, 1], []]]);
+  expect(out.results.map(r => [r.meta.id, r.grkPositions, r.nearPositions])).toEqual([['b', [0, 1], []]]);
+  expect(out.results[0].nearHits?.[0].partners).toEqual([{ segId: 'a', pos: 1, before: true }]);
 });
 it('supports a one-position phrase with several lemma options', async () => {
   const out = await searchCombo([{ kind: 'phrase', options: [['qeos', 'qea']], match: 'lemma' }, { kind: 'form', terms: ['logos'] }],
@@ -70,9 +73,11 @@ it('returns a shape alone and its ambiguity in the Greek positions', async () =>
   expect(out.results.map(r => [r.meta.id, r.grkPositions])).toEqual([['a', [0]], ['b', [0, 1]]]);
   expect(out.results[1].grammar?.[0]).toEqual({ values: { case: ['nom', 'voc'] }, certain: false });
 });
-it('keeps grammatical near information parallel to nearPositions', async () => {
+it('takes the surely nominative word as the near partner', async () => {
   const out = await run('kalos', '', { near: { ...near(), kind: 'grammatical', query: { case: 'nom' }, relation: 'after' } });
-  expect(out.results[1]).toMatchObject({ grkPositions: [], nearPositions: [0], grammar: [{ values: { case: ['nom', 'voc'] }, certain: false }] });
+  // Token 2 (nom/voc) is nearer, but token 3 is surely nominative and is preferred.
+  expect(out.results).toHaveLength(1);
+  expect(out.results[0].nearHits).toEqual([{ pos: 1, span: 1, partners: [{ segId: 'b', pos: 1, before: false }] }]);
 });
 it.each(['and', 'or'] as const)('combines shape and English by segment with %s', async op => {
   const out = await run('', 'men', { shape: { case: 'nom' } }, op);
@@ -154,4 +159,20 @@ it('treats a quoted lone * as no word, with or without English forms', async () 
   const { englishOccurrences } = await import('../lib/search');
   expect(englishOccurrences('old man', ['old', "'*'"], 'phrase', true)).toEqual([]);
   expect(englishOccurrences('old man', ['old', "'*'"], 'phrase', false)).toEqual([]);
+});
+
+it('places further Near terms against the first word, each with its own relation', async () => {
+  // Tokens: 0 logos, 1 kalos | 2 qea, 3 logos | (book 2) 4 qea.
+  const hits = async (more: AdvancedSearch['nearMore']) => (await run('kalos', '', { near: near(), nearMore: more })).results
+    .flatMap(r => (r.nearHits ?? []).map(h => [r.meta.id, h.pos, h.partners.map(p => `${p.segId}:${p.pos}`).sort()]));
+  expect(await hits([{ kind: 'form', terms: ['logos'], relation: 'after' }])).toEqual([['a', 1, ['b:0', 'b:1']]]);
+  expect(await hits([{ kind: 'form', terms: ['logos'], relation: 'before' }])).toEqual([['a', 1, ['a:0', 'b:0']]]);
+  expect(await hits([{ kind: 'grammatical', query: { case: 'voc' }, relation: 'before' }])).toEqual([]);
+});
+
+it('ties a near hit to the passage of the first Greek word, not of the near word', async () => {
+  // kalos (passage a) with qea after it in passage b; "child" is in both
+  // passages' English. Only passage a holds the Greek hit, so only a matches.
+  const out = await run('kalos', 'child', { near: near() });
+  expect([...new Set(out.results.map(r => r.meta.id))]).toEqual(['a']);
 });

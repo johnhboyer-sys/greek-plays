@@ -1049,8 +1049,11 @@ export function fetchLemmaGlosses(slug: string): Promise<string[]> {
 // letter. The browse list and the occurrences are separate fetches: browsing
 // needs every phrase, but only an EXPANDED phrase needs its offsets. A row is
 // positional — [length, corpus count, distinctiveness score, works, occurrences
-// straddling a chapter?] (this corpus has no chapters, so the fifth is absent).
-export type NgramRow = [number, number, number, number, number?];
+// straddling a chapter?, display?] (this corpus has no chapters, so the fifth
+// is 0 when a display follows). The display is the phrase as a reader expects
+// it, accents and all: a string, or for a headword phrase a list with null
+// where a word has no LSJ headword (the page spells that word from its key).
+export type NgramRow = [number, number, number, number, number?, (string | (string | null)[])?];
 // 'english' is the primary translation of each play; its occurrences resolve
 // through english-segments.json rather than a play's offsets.json.
 export type NgramStream = 'form' | 'lemma' | 'english';

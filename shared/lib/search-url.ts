@@ -15,6 +15,11 @@ export interface UrlSearch extends AdvancedSearch {
   ed: string;
   // The near word as typed, when a lemma near term holds its resolved headwords.
   nearText?: string;
+  // The same for each further Near term, by position in nearMore.
+  nearMoreText?: string[];
+  // The ticked headwords of a "lemma" Near term, by row (0 = the first term),
+  // where some were unticked: nf, nf2, nf3 as folds joined by "."
+  nearPicks?: (string[] | null)[];
 }
 
 export const emptyUrlSearch = (allWorks: string[]): UrlSearch => ({
@@ -42,26 +47,57 @@ export function encodeSearchUrl(s: UrlSearch, allWorks: string[]): string {
     const outside = allWorks.filter(w => !chosen.has(w)).join(',');
     p.set('w', inside && outside.length + 1 < inside.length ? `-${outside}` : inside);
   }
-  if (s.nearText?.trim()) p.set('nt', s.nearText.trim());
-  for (const key of ['lemmaPick', 'near', 'shape', 'engNear'] as const) {
-    if (s[key] !== undefined) p.set(key, JSON.stringify(s[key]));
+  // Short, readable parameters rather than JSON, so a shared link stays short:
+  // lp=polis.polew~qeos (ticked headwords, per typed word); n=g|l|f|p (near
+  // kind) with nt (its words), nr=b|a, nw, nu=l, no=1, ng=mood.opt~tense.aor;
+  // sh (a shape alone, same form as ng); en, enr, enw (English near).
+  if (s.lemmaPick) p.set('lp', s.lemmaPick.map(folds => folds.join('.')).join('~'));
+  if (s.near) {
+    p.set('n', KIND_CODE[s.near.kind]);
+    if (s.near.kind === 'grammatical') p.set('ng', encodeGrammar(s.near.query ?? {}));
+    else p.set('nt', (s.near.kind === 'lemma' && s.nearText?.trim()) || (s.near.terms ?? []).join(' '));
+    if (s.nearPicks?.[0]?.length) p.set('nf', s.nearPicks[0].join('.'));
+    if (s.near.relation !== 'near') p.set('nr', s.near.relation[0]);
+    if (s.near.unit === 'line' ? s.near.window !== 0 : s.near.window !== COMBO_WINDOW_DEFAULT) p.set('nw', String(s.near.window));
+    if (s.near.unit === 'line') p.set('nu', 'l');
+    if (s.near.ordered) p.set('no', '1');
+  }
+  // Further terms: n2/nt2/nr2/ng2, n3/…, each placed against the first word.
+  (s.near ? s.nearMore ?? [] : []).slice(0, MAX_NEAR_MORE).forEach((t, i) => {
+    const k = i + 2;
+    p.set(`n${k}`, KIND_CODE[t.kind]);
+    if (t.kind === 'grammatical') p.set(`ng${k}`, encodeGrammar(t.query ?? {}));
+    else p.set(`nt${k}`, (t.kind === 'lemma' && s.nearMoreText?.[i]?.trim()) || (t.terms ?? []).join(' '));
+    if (s.nearPicks?.[i + 1]?.length) p.set(`nf${k}`, s.nearPicks[i + 1]!.join('.'));
+    if (t.relation !== 'near') p.set(`nr${k}`, t.relation[0]);
+  });
+  if (s.shape) p.set('sh', encodeGrammar(s.shape));
+  if (s.engNear) {
+    p.set('en', s.engNear.term);
+    if (s.engNear.relation !== 'near') p.set('enr', s.engNear.relation[0]);
+    if (s.engNear.window !== COMBO_WINDOW_DEFAULT) p.set('enw', String(s.engNear.window));
   }
   return p.toString();
 }
 
-const modes = ['all', 'any', 'phrase'] as const;
-const kinds: SlotKind[] = ['lemma', 'form', 'phrase', 'grammatical'];
-const relations: SlotRelation[] = ['near', 'before', 'after'];
-const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
-const strings = (v: unknown): string[] => Array.isArray(v) ? v.filter((s): s is string => typeof s === 'string' && !!s.trim()).map(s => s.trim()) : [];
-function grammar(v: unknown): GrammarQuery | undefined {
-  if (!record(v)) return;
-  const pairs = Object.entries(v).filter(([k, x]) => /^[a-z][a-z_]*$/i.test(k) && typeof x === 'string' && /^[a-z0-9_-]+$/i.test(x));
+// At most three Near terms in all: the first and two more.
+export const MAX_NEAR_MORE = 2;
+const KIND_CODE: Record<SlotKind, string> = { grammatical: 'g', lemma: 'l', form: 'f', phrase: 'p' };
+// Maps, not objects: a key like "constructor" must find nothing.
+const CODE_KIND = new Map<string, SlotKind>([['g', 'grammatical'], ['l', 'lemma'], ['f', 'form'], ['p', 'phrase']]);
+const RELATION_CODE = new Map<string, SlotRelation>([['n', 'near'], ['b', 'before'], ['a', 'after']]);
+// The categories the grammar index holds (pipeline stage 6's _FEATURES).
+const GRAMMAR_KEYS = new Set(['case', 'number', 'gender', 'person', 'tense', 'mood', 'voice', 'degree', 'marker']);
+const encodeGrammar = (q: GrammarQuery) => Object.entries(q).map(([k, v]) => `${k}.${v}`).join('~');
+function decodeGrammar(v: string | null): GrammarQuery | undefined {
+  if (!v) return;
+  const pairs = v.split('~').map(pair => pair.split('.'))
+    .filter(parts => parts.length === 2 && GRAMMAR_KEYS.has(parts[0]) && /^[a-z0-9_]+$/i.test(parts[1]));
   return pairs.length ? Object.fromEntries(pairs) as GrammarQuery : undefined;
 }
+const modes = ['all', 'any', 'phrase'] as const;
 const windowSize = (v: unknown) => typeof v === 'number' && Number.isFinite(v)
   ? Math.max(1, Math.min(Math.trunc(v), COMBO_WINDOW_MAX)) : COMBO_WINDOW_DEFAULT;
-const relation = (v: unknown): SlotRelation => relations.includes(v as SlotRelation) ? v as SlotRelation : 'near';
 
 export function decodeSearchUrl(search: string | URLSearchParams, allWorks: string[]): UrlSearch {
   const p = typeof search === 'string' ? new URLSearchParams(search) : search;
@@ -87,24 +123,52 @@ export function decodeSearchUrl(search: string | URLSearchParams, allWorks: stri
     const named = new Set(w.replace(/^-/, '').split(',').map(x => x.trim()));
     s.works = allWorks.filter(id => w.startsWith('-') ? !named.has(id) : named.has(id));
   }
-  const json = (key: string): unknown => { try { return JSON.parse(p.get(key) ?? 'null'); } catch { return null; } };
-  const picked = json('lemmaPick');
-  if (Array.isArray(picked)) s.lemmaPick = picked.map(strings);
-  const shape = grammar(json('shape'));
+  const lp = p.get('lp');
+  if (lp !== null) s.lemmaPick = lp.split('~').map(t => t.split('.').map(f => f.trim()).filter(f => /^[a-z']+$/.test(f)));
+  const shape = decodeGrammar(p.get('sh'));
   if (shape) s.shape = shape;
-  const near = json('near');
-  if (record(near) && kinds.includes(near.kind as SlotKind)) {
-    const terms = strings(near.terms), query = grammar(near.query);
-    if (near.kind === 'grammatical' ? !!query : !!terms.length) s.near = {
-      kind: near.kind as SlotKind, ...(terms.length ? { terms } : {}), ...(query ? { query } : {}),
-      relation: relation(near.relation), window: windowSize(near.window), unit: near.unit === 'line' ? 'line' : 'words', ordered: near.ordered === true,
-    };
+  const kind = CODE_KIND.get(p.get('n') ?? '');
+  if (kind) {
+    const query = decodeGrammar(p.get('ng'));
+    const text = (p.get('nt') ?? '').trim();
+    const terms = text.split(/\s+/).filter(Boolean);
+    if (kind === 'grammatical' ? !!query : !!terms.length) {
+      s.near = {
+        kind, ...(kind === 'grammatical' ? { query } : { terms }),
+        relation: RELATION_CODE.get(p.get('nr') ?? 'n') ?? 'near',
+        window: p.get('nu') === 'l'
+          ? Math.max(0, Math.min(Math.trunc(Number(p.get('nw') ?? 0)) || 0, 10))
+          : windowSize(Number(p.get('nw') ?? COMBO_WINDOW_DEFAULT)),
+        unit: p.get('nu') === 'l' ? 'line' : 'words', ordered: p.get('no') === '1',
+      };
+      if (kind === 'lemma') s.nearText = text;
+      const folds = (k: string) => (p.get(k) ?? '').split('.').filter(f => /^[a-z']+$/.test(f));
+      const picks: (string[] | null)[] = [folds('nf').length && kind === 'lemma' ? folds('nf') : null];
+      const more: NonNullable<UrlSearch['nearMore']> = [];
+      const moreText: string[] = [];
+      for (let k = 2; k < 2 + MAX_NEAR_MORE; k++) {
+        const mk = CODE_KIND.get(p.get(`n${k}`) ?? '');
+        if (!mk) break;
+        const mq = decodeGrammar(p.get(`ng${k}`));
+        const mt = (p.get(`nt${k}`) ?? '').trim();
+        const mterms = mt.split(/\s+/).filter(Boolean);
+        if (mk === 'grammatical' ? !mq : !mterms.length) break;
+        more.push({ kind: mk, ...(mk === 'grammatical' ? { query: mq } : { terms: mterms }),
+          relation: RELATION_CODE.get(p.get(`nr${k}`) ?? 'n') ?? 'near' });
+        moreText.push(mk === 'lemma' ? mt : '');
+        picks.push(mk === 'lemma' && folds(`nf${k}`).length ? folds(`nf${k}`) : null);
+      }
+      if (more.length) {
+        s.nearMore = more;
+        if (moreText.some(Boolean)) s.nearMoreText = moreText;
+      }
+      if (picks.some(Boolean)) s.nearPicks = picks.slice(0, 1 + more.length);
+    }
   }
-  const nt = (p.get('nt') ?? '').trim();
-  if (nt && s.near?.kind === 'lemma') s.nearText = nt;
-  const en = json('engNear');
-  if (record(en) && typeof en.term === 'string' && en.term.trim()) s.engNear = {
-    term: en.term.trim(), relation: relation(en.relation), window: windowSize(en.window),
+  const en = (p.get('en') ?? '').trim();
+  if (en) s.engNear = {
+    term: en, relation: RELATION_CODE.get(p.get('enr') ?? 'n') ?? 'near',
+    window: windowSize(Number(p.get('enw') ?? COMBO_WINDOW_DEFAULT)),
   };
   return s;
 }

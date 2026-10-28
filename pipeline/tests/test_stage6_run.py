@@ -278,3 +278,13 @@ def test_keyless_token_keeps_its_offset_and_breaks_both_streams(tmp_path, monkey
     assert got["ngrams"]["form"][0] is None
     assert got["ngrams"]["lemma"][0] is None
     assert got["form"]["gar"][0] == [0, 1]
+
+
+def test_ngram_heads_take_lsj_keys_from_stage5(tmp_path, monkeypatch):
+    # Stage 4's analyses have no lsj field; stage 5's lemma_map supplies it.
+    build = tmp_path / "build"
+    (build / "stage5").mkdir(parents=True)
+    (build / "stage5" / "lemma_map.json").write_text(json.dumps({"ga/r": ["ga/r"], "o(": ["o(1"]}), encoding="utf-8")
+    got = _build(tmp_path, monkeypatch)
+    assert got["ngrams"]["heads"]["gar"] == "ga/r"
+    assert got["ngrams"]["heads"]["o"] == "o(1"

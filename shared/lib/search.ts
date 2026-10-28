@@ -18,6 +18,9 @@ import { queryIndexes, comboSearchWork, grammarSearchWork, englishForms, english
 
 export interface AdvancedSearch {
   lemmaPick?: string[][];
+  // More Greek terms placed against the first, each with its own relation;
+  // they share near's window, unit and order.
+  nearMore?: { kind: SlotKind; terms?: string[]; query?: GrammarQuery; relation: SlotRelation }[];
   near?: { kind: SlotKind; terms?: string[]; query?: GrammarQuery;
     relation: SlotRelation; window: number; unit: 'words' | 'line'; ordered: boolean };
   shape?: GrammarQuery;
@@ -483,7 +486,13 @@ async function searchWork(
   const [meta, grkIdx, engIdx] = await Promise.all([metaP, grkP, engP]);
 
   const override = greekOverride ? new Map(greekOverride.map(r => [r.meta.id, r])) : null;
-  let grkHits: Set<number> | null = override ? new Set(meta.flatMap((m, i) => override.has(m.id) ? [i] : [])) : null;
+  // A near hit belongs to the passage of its first Greek word: a passage that
+  // holds only a near word is not a Greek hit, so which near word answered
+  // can never change which passages match (Codex's review, 2026-10-26).
+  const greekHit = (r: SearchResult) => (r.nearHits ? r.nearHits.length > 0 : r.grkPositions.length > 0);
+  let grkHits: Set<number> | null = override
+    ? new Set(meta.flatMap((m, i) => { const r = override.get(m.id); return r && greekHit(r) ? [i] : []; }))
+    : null;
   let engHits: Set<string> | null = null;
 
   if (grkTerms.length > 0 && grkIdx) {
@@ -596,7 +605,7 @@ export async function search(
 
   const englishKeys = [...engTerms, ...(advanced?.engNear?.term.trim().split(/\s+/).filter(Boolean) ?? [])];
   const indexes = queryIndexes(matchMode, resolved.flat(), advanced?.engForms ? englishKeys.flatMap(t => englishForms(englishQueryWord(t))) : englishKeys);
-  const comboTerms = [...resolved.flat(), ...advanced?.near?.terms ?? []];
+  const comboTerms = [...resolved.flat(), ...advanced?.near?.terms ?? [], ...(advanced?.nearMore ?? []).flatMap(t => t.terms ?? [])];
   const comboIndexes = advanced?.near && grkTerms.length ? {
     lemma: queryIndexes('lemma', comboTerms, [], true),
     form: queryIndexes('form', comboTerms, [], true),
@@ -629,8 +638,11 @@ export async function search(
           ? { kind: 'phrase', terms: grkTerms, options: resolved, match: matchMode }
           : { kind: matchMode, terms: resolved.flat() };
         const near = advanced.near;
-        greekOverride = await comboSearchWork(w, [first, near], {
-          window: Math.max(1, Math.min(Number.isFinite(near.window) ? near.window : COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX)),
+        greekOverride = await comboSearchWork(w, [first, near, ...(advanced.nearMore ?? [])], {
+          // Words: 1 to 50. Lines: 0 (the same line) to 10.
+          window: near.unit === 'line'
+            ? Math.max(0, Math.min(Number.isFinite(near.window) ? Math.trunc(near.window) : 0, 10))
+            : Math.max(1, Math.min(Number.isFinite(near.window) ? near.window : COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX)),
           unit: near.unit, ordered: near.ordered,
         }, comboIndexes);
       } else if (!heldEdition && !grkTerms.length && Object.keys(advanced?.shape ?? {}).length) {

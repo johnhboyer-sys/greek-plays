@@ -326,7 +326,7 @@
       if (request !== shardRequest) return;
       loadedShards = [];
       loadedShardSignature = '';
-      shardError = 'The phrase list could not be loaded.';
+      shardError = 'Could not load the phrase list.';
     } finally {
       if (request === shardRequest) shardLoading = false;
     }
@@ -389,7 +389,7 @@
       page = 0;
     } catch {
       if (request !== workRequest) return;
-      workFilterError = 'The play filter could not be applied.';
+      workFilterError = 'Could not apply the play filter.';
     } finally {
       if (request === workRequest) workFilterLoading = false;
     }
@@ -491,16 +491,25 @@
           }
           groups[index] = { ...groups[index], citations };
         } catch {
-          groups[index] = { ...groups[index], error: 'The lines for this play could not be found.' };
+          groups[index] = { ...groups[index], error: 'Could not load lines for this play.' };
         }
       });
       details = { ...details, [id]: { loading: false, error: '', works: groups } };
     } catch {
-      details = { ...details, [id]: { loading: false, error: 'This phrase’s lines could not be loaded.', works: [] } };
+      details = { ...details, [id]: { loading: false, error: 'Could not load this phrase’s lines.', works: [] } };
     }
   }
 
   // A lone s is a word-initial sigma, not a final one.
+  // The phrase as the plays print it (stage 8's display), else from its key.
+  function shownPhrase(item: PhraseItem): string {
+    const display = item.row[5];
+    if (typeof display === 'string') return display;
+    const words = item.key.split(' ');
+    if (Array.isArray(display)) return words.map((w, i) => display[i] ?? betaToGreek(w)).join(' ');
+    return betaToGreek(item.key);
+  }
+
   const letterLabel = (l: string) => (isEnglish ? l : l === 's' ? 'σ' : betaToGreek(l));
 </script>
 
@@ -523,8 +532,8 @@
       />
       {#if widened && matchedReadings.length}
         <p class="note" aria-live="polite">
-          Read as {#each matchedReadings as reading, i}<span lang="grc">{reading}</span>{i < matchedReadings.length - 1 ? ', ' : ''}{/each}{#if matchedRest} and {countFormat.format(matchedRest)} more{/if}.
-          {#if widened.cappedFrom}The first {VARIANT_READING_CAP} of {countFormat.format(widened.cappedFrom)} readings were tried.{/if}
+          Searched as {#each matchedReadings as reading, i}<span lang="grc">{reading}</span>{i < matchedReadings.length - 1 ? ', ' : ''}{/each}{#if matchedRest} and {countFormat.format(matchedRest)} more{/if}.
+          {#if widened.cappedFrom}Only the first {VARIANT_READING_CAP} of {countFormat.format(widened.cappedFrom)} readings were searched.{/if}
         </p>
       {/if}
       <p class="act">
@@ -537,9 +546,9 @@
       <p class="row">
         <span class="mn">Count</span>
         <span class="v"><select aria-label="Count phrases by" value={stream} on:change={(e) => { stream = e.currentTarget.value as NgramStream; page = 0; }}>
-          <option value="form">Greek words as written</option>
-          <option value="lemma">Greek words in any form</option>
-          <option value="english">English, each play's main translation</option>
+          <option value="form">Greek, as written</option>
+          <option value="lemma">Greek, any form</option>
+          <option value="english">English (main translation)</option>
         </select><i aria-hidden="true">▾</i></span>
       </p>
       <p class="row">
@@ -556,14 +565,14 @@
       </p>
       <p class="row">
         <span class="mn">Order</span>
-        <span class="v" title="Most distinctive: how much more often the phrase occurs than its words would by chance. It orders the list; it hides nothing."><select aria-label="Order" value={sort} on:change={(e) => { sort = e.currentTarget.value as SortMode; page = 0; }}>
+        <span class="v" title="Most distinctive: phrases whose words occur together more often than chance predicts"><select aria-label="Order" value={sort} on:change={(e) => { sort = e.currentTarget.value as SortMode; page = 0; }}>
           <option value="score">Most distinctive first</option>
           <option value="frequency">Commonest first</option>
           <option value="length">Shortest first</option>
           <option value="alphabetical">Alphabetical</option>
         </select><i aria-hidden="true">▾</i></span>
         {#if isEnglish}
-          <label class="ck" title="Phrases such as “of the” and “it is”; this changes no count"><input type="checkbox" bind:checked={hideCommon} on:change={() => (page = 0)} />Hide phrases of small words only</label>
+          <label class="ck" title="Such as “of the” and “it is”"><input type="checkbox" bind:checked={hideCommon} on:change={() => (page = 0)} />Hide phrases made only of common words</label>
         {/if}
       </p>
       <div class="row">
@@ -607,17 +616,17 @@
   {/if}
 
   {#if planLoading}
-    <p class="status" aria-live="polite">Looking up the forms of these words…</p>
+    <p class="status" aria-live="polite">Looking up word forms…</p>
   {:else if shardLoading || !activePlan}
-    <p class="status" aria-live="polite">Loading the phrases…</p>
+    <p class="status" aria-live="polite">Loading…</p>
   {:else if shardError}
     <p class="status warn" role="alert">{shardError} <button type="button" class="ln" on:click={() => (requestedShardSignature = '')}>Try again</button></p>
   {:else if workFilterLoading}
-    <p class="status" aria-live="polite">Choosing the plays’ phrases…</p>
+    <p class="status" aria-live="polite">Loading…</p>
   {:else if workFilterError}
     <p class="status warn" role="alert">{workFilterError} <button type="button" class="ln" on:click={() => (requestedWorkSignature = '')}>Try again</button></p>
   {:else if sortedRows.length === 0}
-    <p class="status">No phrase recurs with these settings. Try fewer letters, a lower count, or more plays.</p>
+    <p class="status">No phrases found. Try fewer letters, a lower count, or more plays.</p>
   {:else}
     <p class="count" aria-live="polite">
       <span>{countFormat.format(sortedRows.length)} phrase{sortedRows.length === 1 ? '' : 's'}</span>
@@ -637,13 +646,13 @@
             aria-controls={`phrase-details-${id}`}
             on:click={() => togglePhrase(item)}
           >
-            <span class="ph" class:gk={!isEnglish} lang={isEnglish ? 'en' : 'grc'}>{isEnglish ? item.key : betaToGreek(item.key)}</span>
+            <span class="ph" class:gk={!isEnglish} lang={isEnglish ? 'en' : 'grc'}>{isEnglish ? item.key : shownPhrase(item)}</span>
             <span class="nums">{countFormat.format(item.row[1])} times{item.row[3] > 1 ? ` in ${item.row[3]} plays` : ', one play'}</span>
           </button>
           {#if isExpanded}
             <div id={`phrase-details-${id}`} class="lines" role="region" aria-labelledby={`phrase-button-${id}`}>
               {#if itemDetails?.loading}
-                <p class="status" aria-live="polite">Finding the lines…</p>
+                <p class="status" aria-live="polite">Loading lines…</p>
               {:else if itemDetails?.error}
                 <p class="status warn" role="alert">{itemDetails.error}</p>
               {:else if itemDetails}
