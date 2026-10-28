@@ -1772,6 +1772,8 @@
   // shared offset).
   interface FlowPart {
     text: string | null; n: number | null; real: boolean; para?: boolean;
+    // A tick's lettered Greek line ("519a"), shown in place of `n`.
+    label?: string;
     // The TLG/Loeb section number a paragraph break opens (Discourses'
     // `paras` channel — see EnglishChunk.paras); null for an unlabeled
     // paragraph break (every other work's `markers: [{kind:"paragraph"}]`).
@@ -1850,7 +1852,7 @@
   // extractor never emits overlapping frames).
   function flowParts(
     text: string,
-    ticks: { n: number; real: boolean; off: number }[],
+    ticks: { n: number; real: boolean; off: number; label?: string }[],
     paraOffsets: (number | { off: number; n: number | null })[] = [],
     verseRanges: { start: number; end: number; breaks: number[] }[] = [],
     frameRanges: { start: number; end: number }[] = [],
@@ -1858,8 +1860,8 @@
     type Kind = 'verseEnd' | 'verseStart' | 'verseBreak' | 'frameEnd' | 'frameStart' | 'tick' | 'para';
     const priority: Record<Kind, number> =
       { verseEnd: 0, verseStart: 1, frameEnd: 2, frameStart: 3, verseBreak: 4, tick: 5, para: 6 };
-    const evs: { off: number; kind: Kind; n: number; real: boolean; paraN: number | null }[] = [
-      ...ticks.map(t => ({ off: t.off, kind: 'tick' as const, n: t.n, real: t.real, paraN: null })),
+    const evs: { off: number; kind: Kind; n: number; real: boolean; paraN: number | null; label?: string }[] = [
+      ...ticks.map(t => ({ off: t.off, kind: 'tick' as const, n: t.n, real: t.real, paraN: null, label: t.label })),
       ...paraOffsets.map(p => typeof p === 'number'
         ? { off: p, kind: 'para' as const, n: 0, real: false, paraN: null }
         : { off: p.off, kind: 'para' as const, n: 0, real: false, paraN: p.n }),
@@ -1893,7 +1895,7 @@
       else if (e.kind === 'verseBreak') parts.push({ text: null, n: null, real: false, verseBreak: true });
       else if (e.kind === 'frameStart') frameOn = true;
       else if (e.kind === 'frameEnd') frameOn = false;
-      else parts.push({ text: null, n: e.n, real: e.real });
+      else parts.push({ text: null, n: e.n, real: e.real, ...(e.label ? { label: e.label } : {}) });
     }
     if (cur < text.length) addText(text.slice(cur));
     return parts;
@@ -1936,7 +1938,7 @@
   // marks. (It also keeps `.para-br + .bk-seg` adjacency intact when a tick
   // lands exactly on a paragraph start.) Ticks with an attached table — or
   // with no following text run — keep the standalone rendering.
-  type RenderPart = FlowPart & { tick?: { n: number; real: boolean } };
+  type RenderPart = FlowPart & { tick?: { n: number; real: boolean; label?: string } };
   function attachTicks(parts: FlowPart[], tableNs: Set<number> = new Set()): RenderPart[] {
     const isText = (p: FlowPart | undefined): p is FlowPart => !!p && p.text !== null && p.text !== '\n';
     const isBreak = (p: FlowPart | undefined): boolean => !!p && (p.text === '\n' || p.para === true);
@@ -1947,7 +1949,7 @@
       if (isTick && part.n !== null && !tableNs.has(part.n)) {
         const next = parts[i + 1];
         if (isText(next)) {
-          out.push({ ...next, tick: { n: part.n, real: part.real } });
+          out.push({ ...next, tick: { n: part.n, real: part.real, label: part.label } });
           i += 1;
           continue;
         }
@@ -1957,7 +1959,7 @@
         // previous-line attachment this helper exists to prevent).
         if (isBreak(next) && isText(parts[i + 2])) {
           out.push(next);
-          out.push({ ...parts[i + 2], tick: { n: part.n, real: part.real } });
+          out.push({ ...parts[i + 2], tick: { n: part.n, real: part.real, label: part.label } });
           i += 2;
           continue;
         }
@@ -3242,7 +3244,7 @@
       const slice = text.slice(a, b);
       const ticks = allTicks
         .filter(t => t.offset >= a && t.offset < b)
-        .map(t => ({ n: t.n, real: t.real, off: t.offset - a }))
+        .map(t => ({ n: t.n, real: t.real, off: t.offset - a, label: t.label }))
         .sort((x, y) => x.off - y.off);
       const paras = allParas
         .filter(p => p.off > a && p.off < b)
@@ -3280,7 +3282,7 @@
     // carries diagram tables).
     const secPieces = secondaries.map((t) => ({ t, pieces: piecesFor(seg, t) }));
     const flowOf = (p: OverlayPiece | undefined): FlowPart[] =>
-      (!p || !p.text) ? [] : flowParts(p.text, (p.bekker ?? []).map(t => ({ n: t.n, real: t.real, off: t.offset })));
+      (!p || !p.text) ? [] : flowParts(p.text, (p.bekker ?? []).map(t => ({ n: t.n, real: t.real, off: t.offset, label: t.label })));
     const pieceCont = (pieces: OverlayPiece[]) => pieces.find(p => p.cont) ?? pieces[0];
     const pieceFor = (pieces: OverlayPiece[], chapter: string | null) =>
       pieces.find(p => !p.cont && p.chapter === chapter);
@@ -3424,13 +3426,13 @@
   function flowSlice(
     text: string,
     range: { start: number; end: number } | undefined,
-    ticks: { n: number; real: boolean; offset: number }[],
+    ticks: { n: number; real: boolean; offset: number; label?: string }[],
   ): FlowPart[] {
     if (!range) return [];
     const slice = text.slice(range.start, range.end);
     const localTicks = ticks
       .filter((t) => t.offset >= range.start && t.offset < range.end)
-      .map((t) => ({ n: t.n, real: t.real, off: t.offset - range.start }));
+      .map((t) => ({ n: t.n, real: t.real, off: t.offset - range.start, label: t.label }));
     return flowParts(slice, localTicks, []);
   }
 
@@ -4612,12 +4614,12 @@
             <br class="para-br" />
           {:else if part.text !== null}
             <span class="bk-seg"
-              >{#if part.tick}<span class="bk-num" class:approx={!part.tick.real}>{part.tick.n}</span
+              >{#if part.tick}<span class="bk-num" class:approx={!part.tick.real}>{part.tick.label ?? part.tick.n}</span
                 >{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(part.text, transId)}</span>
           {:else if part.para}
             <br class="para-br" />
           {:else}
-            <span class="bk-num" class:approx={!part.real}>{part.n}</span>
+            <span class="bk-num" class:approx={!part.real}>{part.label ?? part.n}</span>
             {#each (block.otables[transId] ?? []).filter(t => t.n === part.n) as tbl}
               <table class="eng-table"><tbody>
                 {#each tbl.rows as trow}
@@ -4654,12 +4656,12 @@
             <br class="para-br" />
           {:else if part.text !== null}
             <span class="bk-seg"
-              >{#if part.tick}<span class="bk-num" class:approx={!part.tick.real}>{part.tick.n}</span
+              >{#if part.tick}<span class="bk-num" class:approx={!part.tick.real}>{part.tick.label ?? part.tick.n}</span
                 >{/if}{#if part.frame}<span class="eng-source-frame"><!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html highlightEng(part.text)}</span>{:else}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html highlightEng(part.text)}{/if}</span>
           {:else if part.para}
             <br class="para-br" />
           {:else}
-            <span class="bk-num" class:approx={!part.real}>{part.n}</span>
+            <span class="bk-num" class:approx={!part.real}>{part.label ?? part.n}</span>
           {/if}
         {/snippet}
         <div class="overlay-prose" class:frag-title={segKind === 'title'}>{#if inlineTick}<span class="sect-tick-inline" data-n={inlineTick} aria-hidden="true"></span>{/if}

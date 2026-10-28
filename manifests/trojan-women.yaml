@@ -304,6 +304,19 @@ greek_editions:
       overrides: []
     edition_only: []
     alignment:
+      coleridge:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        tick_fixes:
+          - { column: "1100", shown: 1115, at: "on Hellas through its length", note: "1115 Ἑλλάδι τᾷ μεγάλᾳ = \"on Hellas through its length and breadth\"; \"on the streams of Simois\" is 1116" }
+          - { column: "1156", shown: 1168, at: "If you had died for your city", note: "1168 εἰ μὲν γὰρ ἔθανες πρὸ πόλεως; \"Ah! my beloved, yours is a piteous death\" is 1167" }
+          - { column: "1218", shown: 1220, at: "About your body now I swathe", note: "mid-speech: Φρύγια πέπλων ἀγάλματʼ ἐξάπτω χροός (1220) is About your body now I swathe; Codex verify upheld" }
+          - { column: "77", shown: 80, at: "and he promises to grant", note: "80 ἐμοὶ δὲ δώσειν φησὶ πῦρ κεραύνιον = \"he promises to grant me his thunder-bolts\"; \"inky tempests from the sky\" is 79" }
+          - { column: "809", shown: 815, at: "with the ruddy breath of fire", note: "815 πυρὸς φοίνικι πνοᾷ καθελὼν = \"with the ruddy breath of fire\"; \"he wasted the masonry squared by Phoebus’ line\" is 814" }
+          - { column: "1060", shown: 1070, at: "a holy sun-lit land", note: "1070 τὰν καταλαμπομέναν ζαθέαν θεράπναν = \"a holy sun-lit land\"; \"takes the god’s first rays\" is 1069 πρωτόβολόν" }
+          - { column: "168", shown: 175, at: "living and dead alike", note: "175 καὶ ζῶντες καὶ δμαθέντες = \"living and dead alike\"; \"who are leaving you behind\" is 174a οἵ σʼ ἐκλείποντες" }
+          - { column: "444", shown: 450, at: "shall give my corpse cast forth", note: "450 θηρσὶ δώσουσιν δάσασθαι = \"shall give … to wild beasts to make their meal upon\"; \"near my husband’s tomb\" is 449" }
+          - { column: "914", shown: 915, at: "you will not answer me", note: "915 οὐκ ἀνταμείψῃ πολεμίαν ἡγούμενος = \"you will not answer me, from counting me a foe\"; \"whether my words seem good or ill\" is 914" }
       # Perseus opens a new speech at each strophe or turn; Way and Murray
       # print the speech once, under its first cue, and the aligner seats it
       # on the last piece. Each "by" segment holds the block that opens with

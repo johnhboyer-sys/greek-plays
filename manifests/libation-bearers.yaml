@@ -310,6 +310,53 @@ greek_editions:
   edition_only: []
   alignment:
     smyth:
+      # English margin numbers read against this Greek (2026-10-25/26, Opus
+      # fixes, Codex check): move = the number goes to its own line's words.
+      tick_fixes:
+        - { column: "1010", shown: 1015, at: "as I address this web", note: "1015 πατροκτόνον θʼ ὕφασμα προσφωνῶν; the tick sat on 1016 ἀλγῶ μὲν ἔργα" }
+        - { column: "1021", shown: 1025, at: "wishes to sing and dance", note: "1025 ᾄδειν ἕτοιμος ἠδʼ ὑπορχεῖσθαι κότῳ; the tick sat on 1026 ἕως δʼ ἔτʼ ἔμφρων" }
+        - { column: "1021", shown: 1035, at: "with this branch and wreath", note: "1035 ξὺν τῷδε θαλλῷ καὶ στέφει; the tick sat on 1036 Λοξίου πέδον" }
+        - { column: "1021", shown: 1040, at: "I charge all men of Argos", note: "1040 (printed after 1041) τάδʼ ἐν χρόνῳ μοι πάντας Ἀργείους λέγω; the tick sat on 1042 ἐγὼ δʼ ἀλήτης" }
+        - { column: "1044", shown: 1045, at: "to an ill-omened speech", note: "1045 φήμῃ πονηρᾷ; the tick sat on 1046 ἐλευθερώσας" }
+        - { column: "1065", shown: 1070, at: "next, the fate of a man", note: "1070 δεύτερον ἀνδρὸς βασίλεια πάθη; the tick sat on 1071 λουτροδάικτος" }
+        - { column: "269", shown: 275, n: 276, at: "He said that,", note: "274-275 (τρόπον τὸν αὐτὸν … ταυρούμενον) are not rendered; 276 αὐτὸν δʼ ἔφασκε opens at \"He said that\"" }
+        - { column: "32", shown: 35, at: "uttered a cry of terror", note: "35 μυχόθεν ἔλακε περὶ φόβῳ; the tick sat on 36 γυναικείοισιν ἐν δώμασιν" }
+        - { column: "554", shown: 555, at: "and I charge her to keep", note: "555 αἰνῶ δὲ κρύπτειν; the tick sat on 556 ὡς ἂν δόλῳ κτείναντες" }
+        - { column: "554", shown: 565, at: "And in case none of the keepers", note: "565 καὶ δὴ θυρωρῶν οὔτις; the tick sat on 566 ἐπειδὴ δαιμονᾷ δόμος" }
+        - { column: "594", shown: 595, n: 596, note: "594-595 one clause (who can tell … spirit); a move would sit on 594; the English here opens 596" }
+        - { column: "639", shown: 640, at: "and drives home its blow", note: "640 διανταίαν ὀξυπευκὲς οὐτᾷ; the tick sat on 641 τὸ μὴ θέμις γὰρ οὖν" }
+        - { column: "639", shown: 645, at: "who has unjustly transgressed", note: "645 σέβας παρεκβάντος οὐ θεμιστῶς; the tick sat on 642 λὰξ πέδοι πατούμενον" }
+        - { column: "668", shown: 670, at: "warm baths, beds", note: "670 καὶ θερμὰ λουτρὰ καὶ πόνων θελκτηρία; the tick sat on 671 δικαίων τʼ ὀμμάτων" }
+        - { column: "674", shown: 675, at: "As I was on my way", note: "675 στείχοντα δʼ αὐτόφορτον; the tick sat on 676 ὥσπερ δεῦρʼ ἀπεζύγην" }
+        - { column: "783", shown: 785, at: "grant that the fortunes", note: "785 δὸς τύχας τυχεῖν δόμου; the tick sat on 786 τὰ σώφρονʼ εὖ μαιομένοις" }
+        - { column: "789", shown: 790, at: "him who is within the palace", note: "790 τὸν ἔσωθεν μελάθρων; the tick sat on 791 ἐπεί νιν μέγαν ἄρας" }
+        - { column: "794", shown: 795, at: "is harnessed to the chariot", note: "795 ζυγέντʼ ἐν ἅρμασιν; the tick sat on 796 σὺ δʼ ἐν δρόμῳ" }
+        - { column: "811", shown: 815, n: 816, note: "bracketed 815 is not rendered (only footnote 34.815); the tick sits on 816 ἄσκοπον δʼ ἔπος λέγων" }
+        - { column: "819", shown: 820, at: "of the deliverance of our house", note: "820 δωμάτων λυτήριον; the tick sat on 821 θῆλυν οὐριοστάταν" }
+        - { column: "838", shown: 840, at: "strangers who have arrived", note: "840 ξένους μολόντας οὐδαμῶς ἐφίμερον; the tick sat on 841 μόρον δʼ Ὀρέστου" }
+        - { column: "838", shown: 845, at: "Or is it merely a panic-stricken", note: "845 ἢ πρὸς γυναικῶν δειματούμενοι λόγοι; the tick sat on 846 πεδάρσιοι θρῴσκουσι" }
+        - { column: "84", shown: 85, at: "since you are here", note: "85 ἐπεὶ πάρεστε τῆσδε προστροπῆς; the tick sat on 86 γένεσθε τῶνδε σύμβουλοι" }
+        - { column: "855", shown: 860, at: "the blood-stained edges", note: "860 πειραὶ κοπάνων ἀνδροδαΐκτων; the tick sat on 861 ἢ πάνυ θήσειν" }
+        - { column: "855", shown: 865, at: "and the rich possessions", note: "865 πατέρων θʼ ἕξει μέγαν ὄλβον; the tick sat on 866 τοιάνδε πάλην" }
+        - { column: "875", shown: 880, at: "but not to help him", note: "880 οὐχ ὡς δʼ ἀρῆξαι διαπεπραγμένῳ; the tick sat on 881 ἰοὺ ἰού" }
+        - { column: "887", shown: 890, at: "Let us know if we", note: "890 εἰδῶμεν εἰ νικῶμεν; the tick sat on 891 ἐνταῦθα γὰρ δὴ" }
+        - { column: "903", shown: 905, at: "For while he lived", note: "905 καὶ ζῶντα γάρ νιν κρείσσονʼ ἡγήσω πατρός; the tick sat on 906 τούτῳ θανοῦσα ξυγκάθευδʼ" }
+        - { column: "929", shown: 930, at: "You killed him whom", note: "930 ἔκανες ὃν οὐ χρῆν; the tick trailed 930's English, before the stage direction" }
+        - { column: "953", shown: 955, at: "with guileless guile", note: "955 ἀδόλως δόλοις; the tick sat on 956 βλάβαν ἐγχρονισθεῖσαν" }
+        - { column: "973", shown: 1000, at: "you might call it a hunting net", note: "1000 ἄρκυν τʼ ἂν εἴποις; the tick sat on 1001 τοιοῦτον ἂν κτήσαιτο φηλήτης" }
+        - { column: "973", shown: 1005, at: "May such a woman not live", note: "1005 τοιάδʼ ἐμοὶ ξύνοικος … μὴ; the tick sat on 1006 ὀλοίμην πρόσθεν" }
+        - { column: "973", shown: 975, at: "They were majestic then", note: "975 σεμνοὶ μὲν ἦσαν ἐν θρόνοις; the tick sat on 976 φίλοι δὲ καὶ νῦν" }
+        - { column: "973", shown: 980, at: "But now regard again", note: "980 ἴδεσθε δʼ αὖτε, τῶνδʼ ἐπήκοοι κακῶν; the tick sat on 981 τὸ μηχάνημα" }
+        - { column: "973", shown: 985, at: "not mine, but he who surveys", note: "985 οὐχ οὑμός, ἀλλʼ ὁ πάντʼ ἐποπτεύων; the tick sat on 986 ἄναγνα μητρὸς ἔργα" }
+        - { column: "973", shown: 990, at: "he has suffered the penalty", note: "990 ἔχει γὰρ αἰσχυντῆρος … δίκην; the tick sat on 991 ἥτις δʼ ἐπʼ ἀνδρὶ" }
+        - { column: "973", shown: 995, at: "I think her very touch", note: "995 σήπειν θιγοῦσʼ ἂν ἄλλον; the tick sat on 996 τόλμης ἕκατι" }
+        - { column: "269", shown: 290, at: "And with his body marred", note: "290 χαλκηλάτῳ πλάστιγγι λυμανθὲν δέμας; the tick sat on 289 διώκεσθαι πόλεως" }
+        - { column: "323", shown: 330, at: "Justified lament", note: "330 γόος ἔνδικος ματεύει; the tick sat on 331 ἀμφιλαφὴς ταραχθείς" }
+        - { column: "612", shown: 620, at: "despoiled Nisus", note: "620 νοσφίσασʼ ἀπροβούλως; the tick sat on 621 πνέονθʼ … ὕπνῳ" }
+        - { column: "1021", shown: 1030, at: "Loxias, the prophet of Pytho", note: "1030 τὸν πυθόμαντιν Λοξίαν; the tick sat on 1029 πλειστηρίζομαι \"my chief source\"" }
+        - { column: "323", shown: 325, at: "the fire’s ravening jaw", note: "325 πυρὸς μαλερὰ γνάθος; the tick sat on 326 φαίνει δʼ ὕστερον ὀργάς" }
+        - { column: "394", shown: 395, at: "Zeus bring down his hand", note: "395 Ζεὺς ἐπὶ χεῖρα βάλοι; the tick sat on 396 κάρανα δαΐξας" }
+        - { column: "831", shown: 835, at: "satisfaction for their dire wrath", note: "835 χάριν ὀργᾶς λυγρᾶς; the tick sat on 836 φόνιον ἄταν τιθείς" }
       # The first TLG-block repair (Look, the light has come) has no target here: the edition seats
       # that English at 961 from its own anchors. The second is a typo in the shared English source.
       text_fixes:

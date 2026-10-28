@@ -308,6 +308,20 @@ greek_editions:
     edition_only: []
     alignment:
       coleridge:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        tick_fixes:
+          - { column: "1495", shown: 1500, at: "Helen’s rescuers", note: "1500 σωτῆρες τᾶς Ἑλένας = \"Helen’s rescuers\"; \"go over the gray-green swell\" is 1501" }
+          - { column: "229", shown: 245, at: "rose leaves in the folds", note: "245 ἔσω πέπλων ῥόδεα πέταλα = \"rose leaves in the folds of my robe\"; \"go to the goddess\" is 245a" }
+          - { column: "894", shown: 910, at: "Hermes gave me to your father", note: "910 Ἑρμῆς ἔδωκε πατρὶ σῷ; \"At a critical time\" is 909 καιρίως μέν" }
+          - { column: "1122", shown: 1125, at: "their wives have cut off", note: "1125 ἀλόχων κείραντες ἔθειραν = \"wives have cut off their hair\"; \"homes left without a bride\" is 1126" }
+          - { column: "1478", shown: 1480, at: "the birds of Libya go", note: "1480 οἰωνοὶ στοχάδες = \"the birds … in their ranks\"; \"leaving the winter rain\" is 1481" }
+          - { column: "1526", shown: 1535, n: 1536, note: "translator marks 1535 (ταρσόν … λευκά θʼ ἱστίʼ) with an ellipsis; \"the rudders were lowered\" is 1536 πηδάλιά" }
+          - { column: "1680", shown: 1685, at: "you are born from the same blood", note: "1685 γεγῶτʼ ἀδελφῆς ὁμογενοῦς ἀφʼ αἵματος = \"born from the same blood as a sister\"; \"the best and most self-controlled\" is 1684" }
+          - { column: "340", shown: 345, at: "Or does he have a lasting fate", note: "345 τὰν χρόνιον ἔχει τύχαν = \"have a lasting fate\"; \"among the dead\" is 344 ἐν νέκυσι" }
+          - { column: "348", shown: 355, at: "of slaughter that gushes from", note: "355 λαιμορρύτου σφαγᾶς = \"slaughter that gushes from the throat\"; \"contest of the blade through my flesh\" is 356" }
+          - { column: "362", shown: 380, at: "changed your burden of sorrow", note: "380 ἐξαλλάξασʼ ἄχθεα λύπης = \"changed your burden of sorrow\"; \"the one whom Artemis\" is 381" }
+          - { column: "894", shown: 935, at: "shall enjoy the goods that", note: "935 χρημάτων ὀνήσομαι = \"enjoy the goods that are in my home\"; \"And if this man were dead\" is 936" }
         # Perseus's English files Menelaus's line under n="5563" (neighbours
         # 562 and 564); the same typo the reference block fixes. A Perseus
         # numbering typo, so the edition needs it too (sweep 2026-09-28,

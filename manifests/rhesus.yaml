@@ -277,6 +277,11 @@ greek_editions:
       # the last piece. Each entry names the segment whose block opens with
       # the English of the first piece (build/editions/rhesus stage 1, the
       # chunk text at the "by" segment).
+      coleridge:
+        line_fixes:
+          "379": "380"
+        tick_fixes:
+          - { column: "380", shown: 380, nth: 2, label: "380a", note: "fair the cub you have bred, O Thrace = καλόν, ὦ Θρῄκη (380a)" }
       way:
         covered:
           - { greek: "906", by: "915" }   # "MUSE. Curse ye, Odysseus and Oineus' scion" opens the block at 915

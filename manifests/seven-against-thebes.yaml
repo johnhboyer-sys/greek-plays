@@ -544,7 +544,22 @@ greek_editions:
   edition_only: []
   alignment:
     smyth:
-      line_fixes: {}
+      # English margin numbers read against this Greek (2026-10-25/26, Opus
+      # fixes, Codex check): move = the number goes to its own line's words.
+      tick_fixes:
+        - { column: "1059b", shown: 1059, label: "1059b", note: "Ah, misery translates the lettered 1059b, not the Herald’s 1059." }
+        - { column: "304", shown: 310, at: "earth-encircling Poseidon", note: "310 ὁ γαιάοχος = \"earth-encircling\"; \"and Tethys’ children pour forth\" is 311" }
+        - { column: "321", shown: 325, at: "ravaged shamefully", note: "325 περθομέναν ἀτίμως = \"ravaged shamefully\"; \"let the women be led away\" is 326" }
+        - { column: "357", shown: 365, at: "as though of a prospering", note: "365 ἀνδρὸς εὐτυχοῦντος ὣς = \"as though of a prospering husband\"; \"they can expect the coming of the nightly rite\" is 367" }
+        - { column: "653", shown: 655, at: "Ah, now indeed our father’s", note: "655 ὤμοι, πατρὸς δὴ νῦν ἀραὶ = \"Ah, now indeed our father’s curses\"; \"driven to madness by the gods\" is 653 θεομανές" }
+        - { column: "766", shown: 770, at: "When the fortune of seafaring", note: "770 ἀνδρῶν ἀλφηστᾶν = \"seafaring merchants\" (with 771 ὄλβος); \"it must be thrown overboard\" is 769" }
+        - { column: "288", shown: 300, at: "jagged boulders", note: "300 χερμάδʼ ὀκριόεσσαν = \"jagged boulders\"; \"at the citizens on all sides\" is 298–299" }
+        - { column: "39", shown: 50, at: "And on Adrastus’ chariot", note: "50 πρὸς ἅρμʼ Ἀδράστου χερσὶν ἔστεφον = \"on Adrastus’ chariot they were placing\"; \"for their parents at home\" is 49" }
+        - { column: "653", shown: 653, n: 654, note: "speech-opening number names the speech's first line (SPEC rule 2; Codex preferred a move) — speech opens on 654 ὦ πανδάκρυτον ἁμὸν Οἰδίπου γένος (\"O my family sired by Oedipus, steeped in tears\"); 653 θεομανές follows it in the English" }
+        - { column: "900", shown: 905, at: "on which account the strife", note: "905 διʼ ὧν νεῖκος ἔβα = \"on which account the strife … came\"; \"of those terrible-fated men\" is 904 αἰνομόροις" }
+      line_fixes:
+        "1058": "1059"
+        "1059": "1059b"
       covered: []
       cuts: []
     kosmos:

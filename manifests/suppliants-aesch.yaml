@@ -298,6 +298,12 @@ greek_editions:
   edition_only: []
   alignment:
     smyth:
+      # English margin numbers read against this Greek (2026-10-25/26, Opus
+      # fixes, Codex check): move = the number goes to its own line's words.
+      tick_fixes:
+        - { column: "1", shown: 10, at: "since we abhor as impious", note: "10 ʼξʼονοταζόμεναι = \"we abhor as impious\"; \"It was Danaus, our father\" is 11" }
+        - { column: "154", shown: 160, at: "we will hang ourselves", note: "160 ἀρτάναις θανοῦσαι = \"we will hang ourselves\"; \"of the dead; for if the gods\" is 158 and 161" }
+        - { column: "407", shown: 417, n: 407, note: "speech-opening number names the speech's first line (SPEC rule 2; Codex preferred a move) — speech opens on 407 δεῖ τοι βαθείας φροντίδος σωτηρίου (\"Surely there is need of deep and salutary counsel\"); 417 is its closing question" }
       line_fixes: {}
       covered: []
       cuts: []

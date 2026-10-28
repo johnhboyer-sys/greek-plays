@@ -370,6 +370,16 @@ greek_editions:
   edition_only: []
   alignment:
     smyth:
+      # English margin numbers read against this Greek (2026-10-25/26, Opus
+      # fixes, Codex check): move = the number goes to its own line's words.
+      tick_fixes:
+        - { column: "244", shown: 245, n: 244, note: "speech-opening number names the speech's first line (SPEC rule 2; Codex preferred a move) — speech opens on 244 εἶεν· τόδʼ ἐστὶ τἀνδρὸς ἐκφανὲς τέκμαρ (\"Aha! This is a clear sign of the man\"); 245 ἕπου follows" }
+        - { column: "129", shown: 129, n: 130, note: "row 129 is the stage direction (μυγμὸς διπλοῦς ὀξύς); the speech's words open on 130 λαβὲ λαβὲ (\"Catch him!\")" }
+        - { column: "34", shown: 35, at: "have sent me back from the house", note: "35 πάλιν μʼ ἔπεμψεν ἐκ δόμων τῶν Λοξίου = \"have sent me back from the house of Loxias\"; \"so that I have no strength\" is 36" }
+        - { column: "377", shown: 380, at: "mournful rumor speaks of", note: "380 πολύστονος φάτις = \"mournful rumor\"; \"a dark mist over his house\" is 379" }
+        - { column: "674", shown: 674, n: 675, note: "swap: speech opens on 675 ὡς ἅλις λελεγμένων (\"Am I to assume that enough has been said\")" }
+        - { column: "674", shown: 675, nth: 2, n: 674, note: "added: swap with the row above; \"and shall I now command these jurors\" is 674 ἤδη κελεύω τούσδʼ (nth=2 after the first row makes two 675s)" }
+        - { column: "988", shown: 995, at: "you will surely be pre-eminent", note: "995 πρέψετε πάντως διάγοντες = \"you will surely be pre-eminent, keeping\"; \"of justice\" is 994 ὀρθοδίκαιον" }
       # The TLG-block repair (adds "For I have chosen the overthrow of houses") has no target here:
       # the edition's own <l n="354a"> carries that sentence.
       text_fixes: []

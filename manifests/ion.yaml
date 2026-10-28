@@ -264,6 +264,22 @@ greek_editions:
       overrides: []
     edition_only: []
     alignment:
+      coleridge:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        line_fixes:
+          "355": "356"
+          "356": "355"
+        tick_fixes:
+          - { column: "1205", shown: 1207, at: "for she lay writhing", note: "1207 θνῄσκει δʼ ἀπασπαίρουσα = \"she lay writhing in the toils of death\"; \"bared his arm\" is 1208 γυμνὰ δʼ ἐκ πέπλων μέλη" }
+          - { column: "144", shown: 160, at: "that masterest the might", note: "160 ἰσχὺν νικῶν = \"masterest the might\"; \"once more shall my arrow o’ertake thee\" is 158 μάρψω σʼ αὖ τόξοις" }
+          - { column: "1453c", shown: 1455, at: "Who carried him to the courts", note: "1455 τίνʼ ἀνὰ χεῖρα δόμον ἔβα Λοξίου; \"into thy arms\" is 1454a, which a whole number cannot name (plain 1454 printed); 1453c–1454 English sits in segment 1453" }
+          - { column: "82", shown: 105, at: "drops of water sprinkled", note: "105 ὑγραῖς τε πέδον (106 ῥανίσιν) = \"drops of water sprinkled o’er the floor\"; \"my task each day from childhood’s hour\" is 102–103" }
+          - { column: "804", shown: 805, n: 804, note: "speech-opening number names the speech's first line (SPEC rule 2; Codex preferred a move) — speech opens on 804 φροῦδος δʼ … πόσις (\"her lord is gone\"); 805 παιδὸς προθύσων follows" }
+          - { column: "1048", shown: 1055, at: "the gore that dripped", note: "1055 σταλαγμῶν = \"the gore that dripped\"; \"ʼgainst him who would obtrude upon the halls\" is 1056–1057" }
+          - { column: "1261", shown: 1280, at: "she hath woven", note: "1280 οἵαν ἔπλεξε = \"she hath woven\"; \"Behold this cursed woman\" is 1279 ἴδεσθε τὴν πανοῦργον" }
+          - { column: "1458", shown: 1460, at: "but now I breathe again", note: "1460 νῦν δὲ … πνέω = \"but now I breathe again\"; \"with sorrow to thy mother\" is 1459 γόοις δὲ ματρὸς" }
+          - { column: "832", shown: 835, at: "Far rather would I have", note: "835 θέλοιμι μᾶλλον = \"Far rather would I have\"; \"who plot unrighteousness\" is 833 οἳ συντιθέντες τἄδικʼ" }
       way:
         # Way prints the chorus 1229-1250 as one speech; Perseus opens a second
         # speech at 1244 (the same chorus), so the aligner leaves it unpaired.

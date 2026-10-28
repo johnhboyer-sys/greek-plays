@@ -140,7 +140,7 @@ class Manifest:
             entry = old_english.get(slot)
             if entry and entry.get("id") in pairs:
                 entry = copy.deepcopy(entry)
-                for key in ("line_fixes", "pins", "cuts", "covered"):
+                for key in ("line_fixes", "pins", "cuts", "covered", "tick_fixes"):
                     entry.pop(key, None)
                 entry.update(copy.deepcopy((edition.get("alignment") or {}).get(entry["id"]) or {}))
                 english[slot] = entry
@@ -148,7 +148,7 @@ class Manifest:
         for entry in old_english.get("overlays") or []:
             if entry.get("id") in pairs:
                 entry = copy.deepcopy(entry)
-                for key in ("line_fixes", "pins", "cuts", "covered"):
+                for key in ("line_fixes", "pins", "cuts", "covered", "tick_fixes"):
                     entry.pop(key, None)
                 entry.update(copy.deepcopy((edition.get("alignment") or {}).get(entry["id"]) or {}))
                 english["overlays"].append(entry)

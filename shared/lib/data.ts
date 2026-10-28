@@ -193,7 +193,9 @@ export interface EnglishChunk {
   markers: { kind: string; n: string; offset: number }[];
   // Bekker line ticks for the English gutter; `real` = a true TEI milestone
   // (column start / ~line 20), otherwise a proportional estimate.
-  bekker?: { n: number; offset: number; real: boolean }[];
+  // `label` (play-line only) is the lettered Greek line a tick names
+  // ("519a"), shown in place of the bare `n`.
+  bekker?: { n: number; offset: number; real: boolean; label?: string }[];
   // Speaker turns starting in this chunk (Stephanus dialogues): the label
   // lead-in is stripped from `text` and rendered separately (like the Greek
   // sigla). `offset` is where the turn's text begins; `speaker` is the canonical
@@ -367,7 +369,7 @@ export interface OverlayPiece {
   turns?: EnglishTurn[];
   // Interpolated Bekker-line ticks down this slice (all estimates — an overlay
   // has no milestones of its own). Same shape as EnglishChunk.bekker.
-  bekker?: { n: number; offset: number; real: boolean }[];
+  bekker?: { n: number; offset: number; real: boolean; label?: string }[];
   // Structured diagram tables (e.g. Ackrill's squares of opposition), each
   // anchored to the Bekker line `n` of the segment it belongs to; rendered as a
   // grid after that segment's row.

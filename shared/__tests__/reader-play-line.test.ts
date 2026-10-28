@@ -2550,7 +2550,7 @@ describe("the translator's line numbers in the English margin (John, 2026-09-24,
   beforeEach(() => localStorage.clear());
 
   const ODE = 'Zeus, whoever he may be, if this name pleases him. I cannot compare him to anything but Zeus. Zeus, who sets mortals on the path.';
-  function tickedBook(ticks: { n: number; offset: number; real: boolean }[]): BookData {
+  function tickedBook(ticks: { n: number; offset: number; real: boolean; label?: string }[]): BookData {
     return {
       book: 1,
       speakerRoster: ['Chorus'],
@@ -2596,6 +2596,17 @@ describe("the translator's line numbers in the English margin (John, 2026-09-24,
     const english = [...container.querySelectorAll('.english-col .turn-para')].map((p) => p.textContent).join(' ');
     expect(english).not.toMatch(/\d/);
     expect(english.replace(/^Chorus/, '').replace(/\s+/g, ' ').trim()).toBe(ODE);
+  });
+
+  // A tick beside a lettered Greek line (Jebb's OC 519a) shows the letter.
+  it('shows a tick label in place of its number', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: tickedBook([
+      { n: 175, offset: 0, real: true },
+      { n: 180, offset: 51, real: true, label: '180a' },
+    ]) } });
+    await flush();
+    const nums = [...container.querySelectorAll('.english-col .eng-lnum')];
+    expect(nums.map((n) => n.getAttribute('data-n'))).toEqual(['175', '180a']);
   });
 
   it('renders no anchor when every tick is interpolated', async () => {

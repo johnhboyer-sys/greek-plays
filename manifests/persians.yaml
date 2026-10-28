@@ -245,6 +245,16 @@ greek_editions:
   edition_only: []
   alignment:
     smyth:
+      # English margin numbers read against this Greek (2026-10-25/26, Opus
+      # fixes, Codex check): move = the number goes to its own line's words.
+      tick_fixes:
+        - { column: "1012", shown: 1011, n: 1012, note: "speech-opening number names the speech's first line (SPEC rule 2; Codex preferred a move) — speech opens on 1012 κύρσαντες οὐκ εὐτυχῶς (\"It was with bad luck that we encountered\"), which the edition prints first; 1011 Ἰάνων ναυβατᾶν follows" }
+        - { column: "226", shown: 230, at: "When I return to the palace", note: "230 εὖτʼ ἂν εἰς οἴκους μόλωμεν = \"When I return to the palace\"; \"where Athens is located\" is 231" }
+        - { column: "331", shown: 335, at: "which gave them confidence", note: "335 ὥστʼ ἀξιῶσαι = \"which gave them confidence enough\"; \"how great was the number of the Greek ships\" is 334" }
+        - { column: "395", shown: 430, at: "in succession to do so", note: "430 στοιχηγοροίην, οὐκ ἂν ἐκπλήσαιμί σοι = \"in succession … I could not describe to you\"; \"However, you can be sure\" is 431 εὖ γὰρ τόδʼ ἴσθι" }
+        - { column: "87", shown: 90, at: "the sea’s invincible surge", note: "90 ἄμαχον κῦμα θαλάσσας = \"the sea’s invincible surge\"; \"for Persia’s host cannot be withstood\" is 91" }
+        - { column: "962", shown: 962, n: 964, note: "swap: speech opens on 964–966 ἐπʼ ἀκταῖς Σαλαμινιάσι … θείνοντας (\"By the shores of Salamis, dashing\")" }
+        - { column: "962", shown: 965, n: 962, note: "swap: \"I left them, fallen in death from a Tyrian ship\" is 962–963 ὀλοοὺς ἀπέλειπον Τυρίας ἐκ ναὸς" }
       line_fixes: {}
       covered: []
       cuts: []

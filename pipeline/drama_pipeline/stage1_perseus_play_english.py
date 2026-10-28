@@ -3420,6 +3420,9 @@ def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, P
         report["covered_by_count"] = len(covered)
 
     apply_text_fixes(english, footnotes, cfg.get("text_fixes"), manifest.work_id, slot)
+    from .tick_fixes import apply_tick_fixes
+
+    apply_tick_fixes(english, cfg.get("tick_fixes"), manifest.work_id)
 
     out_dir = BUILD_DIR / "stage1"
     out_dir.mkdir(parents=True, exist_ok=True)

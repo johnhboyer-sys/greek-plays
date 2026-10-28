@@ -293,6 +293,20 @@ greek_editions:
         —: null
       overrides: []
     edition_only: []
-    alignment: {}
+    alignment:
+      coleridge:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        tick_fixes:
+          - { column: "1", shown: 30, at: "Amphion and Zethus, sons of Zeus", note: "30 Ἀμφίονʼ ἠδὲ Ζῆθον, ἐκγόνω Διός; \"lords of the milk-white steeds\" is 29 τὼ λευκοπώλω" }
+          - { column: "1088", shown: 1095, at: "my brawny chest and arms", note: "1095 νεανίαν θώρακα καὶ βραχίονα; \"beside a half-shattered piece of masonry\" is 1096" }
+          - { column: "170", shown: 190, at: "A man who fights in line", note: "190 ἀνὴρ ὁπλίτης; \"listen to me and learn wisdom\" is 189 κλύων νῦν τἀπʼ ἐμοῦ σοφὸς γενοῦ" }
+          - { column: "348", shown: 355, at: "to sing a song of praise", note: "355 ὑμνῆσαι στεφάνωμα μόχθων = \"to sing … a crown to all his toil\"; \"whether I am to call him son of Zeus\" is 353–354" }
+          - { column: "1255", shown: 1260, at: "before he married my mother", note: "1260 ἔγημε τὴν τεκοῦσαν Ἀλκμήνην; \"by slaying her aged father\" is 1258–1259" }
+          - { column: "1255", shown: 1275, at: "when I had killed the hydra", note: "1275 ὕδραν φονεύσας; \"that monster with a ring of heads\" is 1274 ἀμφίκρανον" }
+          - { column: "140", shown: 160, at: "nor faced the spear", note: "160 οὐδʼ ἦλθε λόγχης ἐγγύς; \"who never buckled shield to arm\" is 159" }
+          - { column: "673", shown: 680, at: "still is my song of the triumphs", note: "680 ἔτι τὰν Ἡρακλέους = \"still is my song of the triumphs of Heracles\"; \"the aged singer lifts up his voice\" is 678–679" }
+          - { column: "1", shown: 10, at: "whom once all Cadmus", note: "10 ἣν πάντες … Καδμεῖοί; \"Creon became the father of this lady\" is 9" }
+          - { column: "843", shown: 850, at: "against whose house you are sending", note: "850 οὗ σύ μʼ ἐσπέμπεις δόμους = \"against whose house you are sending me\"; \"for, after taming pathless wilds\" is 851" }
     gaps: []
     text_fixes: []

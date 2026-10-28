@@ -134,12 +134,23 @@ citation:
   lacunae:
     "1": []
 
+  # Diogenes labels the lines after TLG's range "532-533" by bumping the
+  # last digits of that label ("532-534" ... "532-539"); they are 534-539.
+  # 535-539 agree with Murray; 534 (Ἔρως ὁ Διὸς παῖς) follows TLG's count.
+  ref_fixes:
+    "532-534": "534"
+    "532-535": "535"
+    "532-536": "536"
+    "532-537": "537"
+    "532-538": "538"
+    "532-539": "539"
+
   transpositions:
     "1": 
       - { start: "104", end: "105", before: "107" }
       - { start: "1266", end: "1266", before: "1267" }
 
-  fingerprint: { count: 1435, sha256: "6620f97712db6916652d6e0fd4f9a4142d8b288dddd29b2574d186f2eb341217" }
+  fingerprint: { count: 1435, sha256: "e274c5a6eebad9ab90dbf94681daa37b3b82f43a6db9c1f580a8904ca049f9fb" }
 
 speakers:
   english:
@@ -343,6 +354,22 @@ greek_editions:
       overrides: []
     edition_only: []
     alignment:
+      coleridge:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        line_fixes:
+          "850": "850"
+          "1130": "1130"
+        tick_fixes:
+          - { column: "1131", shown: 1135, at: "Nevermore in his fathers house", note: "1135 λήξει πατρῷον ἀνὰ δόμον = \"Nevermore in his fathers house\"; \"that never slept beneath his lute-strings\" is 1134 ἄυπνος" }
+          - { column: "250", shown: 265, at: "so much as moderation", note: "265 τοῦ μηδὲν ἄγαν = \"moderation\"; \"too oft are foes to health\" is 263" }
+          - { column: "373", shown: 425, at: "to know that father or mother", note: "425 ὅταν ξυνειδῇ μητρὸς ἢ πατρὸς κακά; \"the stoutest heart to slavishness\" is 424 δουλοῖ … θρασύσπλαγχνος" }
+          - { column: "433", shown: 470, at: "and how dost thou, after falling", note: "470 πεσοῦσʼ ὅσην σὺ πῶς ἂν ἐκνεῦσαι δοκεῖς; \"the roof that covers in a house\" is 468" }
+          - { column: "836", shown: 845, at: "sorrows past speech", note: "845 οἷον εἶδον ἄλγος δόμων = \"sorrows … I behold within my house\"; \"doth my palace all in vain give shelter\" is 842–843" }
+          - { column: "114", shown: 115, at: "in such words as it becomes", note: "115 ὡς πρέπει δούλοις λέγειν = \"in such words as it becomes a slave to use\"; \"do offer up my prayer\" is 116 προσευξόμεσθα" }
+          - { column: "1268", shown: 1275, at: "on golden pinion borne", note: "1275 πτανὸς … χρυσοφαής = \"on golden pinion borne\"; \"maddening the heart\" is 1274 μαινομένᾳ κραδίᾳ" }
+          - { column: "176", shown: 180, at: "on thy bed of sickness", note: "180 δέμνια κοίτης = \"bed of sickness\"; \"without the palace\" is 179 ἔξω δὲ δόμων" }
+          - { column: "983", shown: 1015, at: "sovereignty pleases only those", note: "1015 θνητῶν ὅσοισιν ἁνδάνει μοναρχία; \"whose hearts are quite corrupt\" is 1014 τὰς φρένας διέφθορεν" }
       # Edition-keyed (2026-09-29). Murray's TEI opens a new <sp> for each
       # stanza of a choral ode (parodos 121-169, stasima 732-775 and
       # 1102-1150), and for the huntsmen's stanzas of 1102-1150; the TLG text

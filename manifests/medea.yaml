@@ -457,7 +457,21 @@ greek_editions:
         "ΠΑ. βʹ.": Second Son
       overrides: []
     edition_only: []
-    alignment: { coleridge: { anchor_map: murray-oct } }
+    alignment:
+      coleridge:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        tick_fixes:
+          - { column: "131", shown: 136, at: "and I do grieve, lady", note: "136 οὐδὲ συνήδομαι = \"I do grieve\"; \"for as I stood by the house\" is 134 ἐπ’ ἀμφιπύλου" }
+          - { column: "144", shown: 147, n: 144, note: "speech-opening number names the speech's first line (SPEC rule 2; Codex preferred a move) — speech opens αἰαῖ (144); 147 βιοτὰν στυγερὰν is its close" }
+          - { column: "364", shown: 389, at: "None. So I will wait", note: "389 οὐκ ἔστι. μείνασ’ οὖν = \"None. So I will wait\"; \"tower of defence\" is 389a" }
+          - { column: "213", shown: 249, at: "at home, while they are", note: "248 λέγουσι δ’ ἡμᾶς = \"they say we live secure\"; 249 κατ’ οἴκους, οἳ δὲ μάρνανται = \"at home, while they are at the wars\"" }
+          - { column: "1", shown: 30, at: "save when she turns her snow-white", note: "30 στρέψασα πάλλευκον δέρην = \"turns her snow-white neck\"; \"bemoans her father\" is 31" }
+          - { column: "1019", shown: 1080, at: "that cause of direst woes", note: "1080 ὅσπερ μεγίστων αἴτιος κακῶν = \"that cause of direst woes\"; \"hath triumphed\" is 1079 κρείσσων" }
+          - { column: "1081", shown: 1115, at: "to heap upon us mortal men", note: "1115 θνητοῖσι θεοὺς ἐπιβάλλειν = \"to heap upon us mortal men\"; \"grief surpassing all\" is 1113" }
+          - { column: "409", shown: 444, at: "while o’er thy home is set", note: "444 δόμοισιν ἐπέστα = \"o’er thy home is set\"; \"preferred to thee\" is 443 κρείσσων" }
+          - { column: "824", shown: 865, at: "steel thy heart and dip", note: "865 εὐτλάμονι θυμῷ = \"steel thy heart\"; \"in their blood thy hand\" is 864 τέγξαι χέρα φοινίαν" }
+        anchor_map: "murray-oct"
     gaps: []
     # OCR misreads corrected to what the scan prints (archive.org
     # euripidesexrecen01euri, page as printed, leaf = page + 12): Greek

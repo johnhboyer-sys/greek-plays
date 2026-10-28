@@ -267,6 +267,17 @@ greek_editions:
     edition_only: []
     alignment:
       coleridge:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        tick_fixes:
+          - { column: "1259", shown: 1270, at: "The lord made his swift way", note: "1270 ταχύπους δʼ ἐς Ὄλυμπον ὁρμαθεὶς = \"made his swift way to Olympus\"; \"wound his baby hands\" is 1271a χέρα παιδνὸν ἕλιξεν" }
+          - { column: "143", shown: 152, at: "in the night whose darkness", note: "rule 8: plain 152 is printed; 152 νυκτός, τᾶς ἐξῆλθʼ ὄρφνα = \"in the night whose darkness is now over\"; \"I am lost, lost!\" is 152a ὀλόμαν" }
+          - { column: "1490", shown: 1497, label: "1497a", note: "1497 is a printed gap with no English; the words after it are 1497a" }
+          - { column: "260", shown: 291, at: "Ah, she will kill me!", note: "rule 8: plain 291 is printed; 291 οἴμοι, κτενεῖ με· ποῖ φύγω = \"Ah, she will kill me! Where can I escape?\"; \"We could not see these shapes\" is 291a παρῆν δʼ ὁρᾶν" }
+          - { column: "260", shown: 305, at: "for we thought cowherds", note: "305 φαύλους μάχεσθαι βουκόλους ἡγούμεθα = \"we thought cowherds would make a poor fight\"; \"against well-grown and young foreigners\" is 304" }
+          - { column: "1106", shown: 1115, at: "I serve Agamemnon’s daughter", note: "1115 παῖδʼ Ἀγαμεμνονίαν λατρεύω = \"I serve Agamemnon’s daughter\"; \"the attendant maid of the deer-killing goddess\" is 1114" }
+          - { column: "1234", shown: 1245, at: "serpent", note: "1245 is the one word δράκων = \"serpent\"; \"with brightly colored back\" is 1244a ποικιλόνωτος" }
+          - { column: "241", shown: 245, at: "Be quick to prepare", note: "245 οὐκ ἂν φθάνοις ἂν εὐτρεπῆ ποιουμένη = \"Be quick to prepare\"; \"the purifications and the first offerings\" is 244" }
         # Perseus's English files Thoas's "Tell me, what shall we do with the
         # strangers?" under n="188", a numbering typo for 1188 (sweep
         # 2026-09-28, older-editions-fit: IT 188). Without the fix the block

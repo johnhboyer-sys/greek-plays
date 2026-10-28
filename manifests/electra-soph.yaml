@@ -249,14 +249,53 @@ greek_editions:
     edition_only: []
     alignment:
       jebb:
-        covered: []
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        cuts:
+          - { english: "have pity on your mother", greek: "1411" }
+        tick_fixes:
+          - { column: "1020a", shown: 1021, n: 1020, note: "speech opens 1020a φεῦ \"Ah!\" (segment prints only 1020a, so 1020 shows as 1020a)" }
+          - { column: "1058", shown: 1058, nth: 2, n: 1060, at: "taking care for the sustenance", note: "second 1058: 1060 opens κηδομένους \"taking care\"; the tick sat on ἀφ’ ὧν τε βλάστωσιν" }
+          - { column: "1058", shown: 1081, at: "Who could grow to be", note: "1081 τίς ἂν εὔπατρις ὧδε βλάστοι; the tick sat on 1080 διδύμαν ἑλοῦσ’ Ἐρινύν" }
+          - { column: "1058", shown: 1083, n: 1082, note: "Chorus speech opens 1082 οὐδεὶς τῶν ἀγαθῶν" }
+          - { column: "1098", shown: 1099, n: 1098, note: "speech opens 1098 ἆρ’, ὦ γυναῖκες" }
+          - { column: "128", shown: 130, nth: 1, n: 128, note: "first 130 opens the speech, 128 ὦ γενέθλα γενναίων; the second 130 (ἥκετ’) is right" }
+          - { column: "1384", shown: 1396, at: "Hermes, who has shrouded", note: "Ἑρμῆς (1396); Codex verify upheld" }
+          - { column: "1398", shown: 1399, n: 1398, note: "speech opens 1398 ὦ φίλταται γυναῖκες" }
+          - { column: "145", shown: 146, n: 145, note: "speech opens 145 νήπιος ὃς" }
+          - { column: "1484", shown: 1484, n: 1485, note: "1483b-1484 English sits with 1482 (shared line); this English opens 1485" }
+          - { column: "153", shown: 153, n: 155, note: "swap: \"though you face it with less restraint\" is 155 πρὸς ὅ τι σὺ … περισσά" }
+          - { column: "153", shown: 155, nth: 1, n: 153, note: "swap (row after the 153→155 renumber, so the first 155): \"Not to you alone\" is 153 οὔτοι σοὶ μούνᾳ" }
+          - { column: "173", shown: 173, n: 175, note: "swap: \"is still mighty, and he sees and rules\" is 175 Ζεύς, ὃς ἐφορᾷ πάντα" }
+          - { column: "173", shown: 175, nth: 1, n: 173, note: "swap (row after the 173→175 renumber, so the first 175): \"Courage, my daughter\" is 173 θάρσει μοι, θάρσει" }
+          - { column: "221", shown: 231, at: "I will never know a respite", note: "231 οὐδέ ποτ’ ἐκ καμάτων ἀποπαύσομαι; the tick sat on 230 τάδε γὰρ ἄλυτα" }
+          - { column: "233", shown: 234, n: 233, note: "speech opens 233 ἀλλ’ οὖν εὐνοίᾳ γ’ αὐδῶ" }
+          - { column: "236", shown: 244, at: "For if the dead is to lie", note: "244 εἰ γὰρ ὁ μὲν θανὼν; the tick sat on 245 οἱ δὲ μὴ πάλιν" }
+          - { column: "472", shown: 498, at: "to the criminals and conspirators", note: "498 τοῖς δρῶσι καὶ συνδρῶσιν; the tick sat on 500 ἐν δεινοῖς ὀνείροις" }
+          - { column: "472", shown: 504, nth: 2, n: 506, note: "second 504 sits on 506 ὡς ἔμολες αἰανὴς τᾷδε γᾷ" }
+          - { column: "1245", shown: 1250, at: "my sorrow, one which", note: "1250 ἀμέτερον οἷον ἔφυ κακόν; the tick sat on 1247-48 οὔ ποτε καταλύσιμον, οὐδέ ποτε λησόμενον" }
+        covered:
+          - { greek: "1401", by: "1400" }
+          - { greek: "1412", by: "1411" }
+          - { greek: "1478", by: "1476" }
         anchor_map: storr-loeb
         # English 827, Electra's "Ah, me, ah, me!", is Jebb's 827 (ἔ ἔ, αἰαῖ).
         # The text map has no words to match and put it on 828 (the Chorus's
         # ὦ παῖ), whence it moved to 830, leaving the Greek speech 1:827 with
         # no English.
         line_fixes:
+          "1406": "1406"
+          "1407": "1407"
+          "1408": "1408"
+          "1409": "1410"
+          "1411a": "1411"
+          "1404": "1404"
+          "1405": "1405"
           "827": "827"
+          "1401": "1400"
+          "1410": "1410"
+          "1479": "1479"
+          "1480": "1480"
     gaps: []
     # OCR misreads corrected under John's grammar rule (2026-09-19): each one
     # the scan prints (archive.org, page as printed) where the OCR's reading

@@ -250,6 +250,21 @@ greek_editions:
     edition_only: []
     alignment:
       coleridge:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        line_fixes:
+          "730b": "739"
+        tick_fixes:
+          - { column: "1510", shown: 1510, label: "1510a", note: "1510 ἰὼ ἰώ is left untranslated; the English opens on 1510a" }
+          - { column: "1540", shown: 1601, at: "and cross the Aegean main", note: "rule 8: plain 1601 is printed; 1601 Αἴγαιον οἶδμα διαπερᾶν = \"cross the Aegean main\"; \"Then, when the sacrifice\" is 1601a ἐπεὶ δʼ ἅπαν" }
+          - { column: "1058", shown: 1060, at: "to the feast of the gods", note: "1060 Κενταύρων ἐπὶ δαῖτα τὰν θεῶν = \"to the feast of the gods\"; \"leaning on fir-trees\" is 1058 ἐλάταισι" }
+          - { column: "1058", shown: 1075, at: "from Thetis who bore him", note: "1075 Θέτιδος, ἅ νιν ἔτικτεν; \"Then the gods shed a blessing\" is 1076 μακάριον τότε δαίμονες" }
+          - { column: "1146", shown: 1165, at: "of one of whom you are", note: "1165 ὧν μιᾶς σὺ τλημόνως μʼ ἀποστερεῖς = \"of one of whom you are heartlessly depriving me\"; \"I am the mother of this son\" is 1164 τίκτω … παῖδά σοι" }
+          - { column: "1475", shown: 1485, at: "by the blood of my sacrifice", note: "1485 αἵμασι θύμασί = \"by the blood of my sacrifice\"; \"if it must be\" is 1483 εἰ χρεών" }
+          - { column: "1510", shown: 1515, at: "with her gushing blood", note: "1515 ῥανίσιν αἱματορρύτοις = \"with her gushing blood\"; \"the altar of a murderous goddess\" is 1514" }
+          - { column: "1510", shown: 1530, at: "grant that Agamemnon may wreathe", note: "1530 δὸς ἀμφὶ κάρα ἑὸν = \"grant that Agamemnon may wreathe his head\"; \"a crown of fairest glory\" is 1529" }
+          - { column: "762", shown: 770, at: "eager to take Helen", note: "770 ἐκ Πριάμου κομίσαι θέλων = \"eager to take … from Priam\"; \"of Achaean shields and spears\" is 772" }
+          - { column: "919", shown: 920, at: "butI have learned to grieve", note: "920 ἐπίσταμαι δὲ τοῖς κακοῖσί τʼ ἀσχαλᾶν = \"I have learned to grieve in misfortune\"; \"rejoice … with equal moderation\" is 921" }
         # Coleridge's block at 1534 holds both speakers: Clytemnestra's "I
         # heard your voice ..." and the Messenger's "No, rather I want to
         # unfold to you a strange and marvellous story" (Greek 1538).

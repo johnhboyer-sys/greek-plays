@@ -355,13 +355,74 @@ greek_editions:
     edition_only: []
     alignment:
       jebb:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        tick_fixes:
+          - { column: "1044", shown: 1060, at: "will soon draw near to the pastures", note: "πέτρας νιφάδος πελῶσʼ (1060) = draw near … snowy rock; fleeing on young horses = πώλοισιν (1062)" }
+          - { column: "1044", shown: 1082, at: "that I might reach an airy cloud", note: "αἰθερίας νεφέλας κύρσαιμʼ (1082); I predict noble struggles = μάντις εἴμʼ (1080)" }
+          - { column: "1044", shown: 1090, at: "And may your daughter grant it too", note: "σεμνά τε παῖς Παλλὰς Ἀθάνα (1090); And Apollo, the hunter = 1091" }
+          - { column: "1096", shown: 1097, n: 1096, note: "Chorus speech opens ὦ ξεῖνʼ ἀλῆτα (1096) = Wandering stranger" }
+          - { column: "1154", shown: 1155, n: 1154, note: "speech opens τί δʼ ἔστι, τέκνον Αἰγέως (1154)" }
+          - { column: "117", shown: 119, n: 117, note: "speech opens ὅρα· τίς ἄρʼ ἦν; (117) = Look! Who was he" }
+          - { column: "1181", shown: 1184, at: "and for your daughters", note: "καὶ νῷν ὕπεικε τὸν κασίγνητον μολεῖν (1184); He will not tear you = οὐ γάρ σε … παρασπάσει (1185)" }
+          - { column: "1181", shown: 1194, at: "are charmed from their mood", note: "φίλων ἐπῳδαῖς ἐξεπᾴδονται φύσιν (1194); Look to the past = σὺ δʼ εἰς ἐκεῖνα … ἀποσκόπει (1195)" }
+          - { column: "1181", shown: 1199, at: "Your reasons to reflect", note: "ἔχεις γὰρ οὐχὶ βαιὰ τἀνθυμήματα (1199); bereft of your unseeing eyes = 1200" }
+          - { column: "1204", shown: 1204, nth: 2, n: 1205, note: "one speaker; second ⟦1204⟧ on ἔστω δʼ οὖν ὅπως ὑμῖν φίλον (1205)" }
+          - { column: "1211", shown: 1230, at: "For when he has seen youth go by", note: "ὡς εὖτʼ ἂν τὸ νέον παρῇ (1230); what hard affliction = τίς πλαγὰ πολύμοχθος (1231)" }
+          - { column: "1211", shown: 1245, at: "some from the region of the setting sun", note: "αἱ μὲν ἀπʼ ἀελίου δυσμᾶν (1245); some from that of its rising = αἱ δʼ ἀνατέλλοντος (1246)" }
+          - { column: "1284", shown: 1290, at: "and by my sisters here", note: "καὶ τοῖνδʼ ἀδελφαῖν καὶ πατρὸς (1290); But now I want to tell you = ἃ δʼ ἦλθον (1291)" }
+          - { column: "1284", shown: 1320, at: "and sixth, Arcadian Parthenopaeus", note: "ἕκτος δὲ Παρθενοπαῖος Ἀρκὰς (1320); He is named = ἐπώνυμος (1321)" }
+          - { column: "1348", shown: 1350, at: "thinking it just that he should hear", note: "δικαιῶν ὥστʼ ἐμοῦ κλύειν λόγους (1350); then never would he have heard = 1351" }
+          - { column: "1348", shown: 1355, at: "which now your brother has", note: "ἃ νῦν ὁ σὸς ξύναιμος (1355); Worst of men … scepter = ὦ κάκιστε, σκῆπτρα (1354)" }
+          - { column: "1448", shown: 1449, n: 1448, note: "speech opens νέα τάδε νεόθεν ἦλθέ μοι (1448) = new ills … have newly come" }
+          - { column: "1462", shown: 1463, n: 1462, note: "speech opens μέγας, ἴδε, μάλʼ ὅδʼ ἐρείπεται (1462) = Listen! … crashes" }
+          - { column: "149", shown: 160, at: "where the waters of the mixing bowl", note: "κρατὴρ μειλιχίων ποτῶν ῥεύματι συντρέχει (160); Retire! Withdraw! = μετάσταθʼ, ἀπόβαθι (162)" }
+          - { column: "149", shown: 166, at: "Do you hear, toil-worn wanderer", note: "κλύεις, ὦ πολύμοχθʼ ἀλᾶτα (166); leave forbidden ground = ἀβάτων ἀποβάς (167)" }
+          - { column: "1518", shown: 1525, at: "better than the spear of neighbors", note: "δορός τʼ ἐπακτοῦ γειτόνων (1525); But as for mysteries = ἃ δʼ ἐξάγιστα (1526)" }
+          - { column: "1579", shown: 1580, at: "Oedipus is dead", note: "Οἰδίπουν ὀλωλότα (1580); But the story of the happening = ἃ δʼ ἦν τὰ πραχθέντʼ (1581)" }
+          - { column: "1586", shown: 1635, at: "whatever you think for their benefit", note: "μέλλῃς φρονῶν εὖ ξυμφέροντʼ αὐταῖς (1635); And he, as a man of noble spirit = 1636" }
+          - { column: "1679", shown: 1680, n: 1681, note: "Antigone’s English here opens ἄσκοποι δὲ πλάκες ἔμαρψαν (1681); 1679-80 μήτʼ Ἄρης μήτε πόντος are rendered in the previous segment’s English" }
+          - { column: "1688", shown: 1690, n: 1688, note: "speech opens οὐ κάτοιδα (1688) = I do not know" }
+          - { column: "1697", shown: 1698, at: "What was in no way dear", note: "ὃ μηδαμὰ δὴ φίλον ἦν φίλον (1698); Father, Dear = ὦ πάτερ, ὦ φίλος (1700)" }
+          - { column: "1715", shown: 1715, nth: 2, n: 1717, note: "one speaker; second ⟦1715⟧ on ἐπαμμένει σέ τʼ, ὦ φίλα (1717)" }
+          - { column: "1760", shown: 1765, at: "I would always keep the country", note: "χώραν ἕξειν αἰὲν ἄλυπον (1765); The divinity heard = ταῦτʼ οὖν ἔκλυεν δαίμων (1766)" }
+          - { column: "181c", shown: 181, n: 182, note: "English is ἕπεο μάν, ἕπεʼ ὧδʼ (182); 181c prints nothing; 181 πόρσω· σὺ γὰρ ἀΐεις is segment 1:181" }
+          - { column: "188", shown: 190, at: "I may speak and listen", note: "τὸ μὲν εἴποιμεν, τὸ δʼ ἀκούσαιμεν (190); and let us not wage war = καὶ μὴ χρείᾳ πολεμῶμεν (191)" }
+          - { column: "199", shown: 200, n: 199, note: "speech opens βάσει βάσιν ἅρμοσαι (199) = fit step to step" }
+          - { column: "228", shown: 229, at: "if he requites deeds", note: "ὧν προπάθῃ τὸ τίνειν (229); Deceit on the one part = ἀπάτα δʼ ἀπάταις (230)" }
+          - { column: "337", shown: 350, at: "often battered by rains", note: "πολλοῖσι δʼ ὄμβροις ἡλίου τε καύμασι (350); And the comforts of home = δεύτερʼ ἡγεῖται (351)" }
+          - { column: "361", shown: 375, at: "the elder, Polyneices, of the throne", note: "τὸν πρόσθε γεννηθέντα Πολυνείκη θρόνων (375); has driven him from his fatherland = κἀξελήλακεν πάτρας (376)" }
+          - { column: "361", shown: 380, at: "intending that Argos soon", note: "ὡς αὐτίκʼ Ἄργος ἢ τὸ Καδμείων πέδον (380); or send its praises to the sky = ἢ πρὸς οὐρανὸν βιβῶν (381)" }
+          - { column: "551", shown: 560, at: "Declare it. Dire indeed", note: "δίδασκε· δεινὴν γάρ … τύχοις (560); for me to stand aloof = ὁποίας ἐξαφισταίμην (561)" }
+          - { column: "607", shown: 615, at: "sweet feelings turn to bitter", note: "τὰ τερπνὰ πικρὰ γίγνεται (615); And if now the sun shines = καὶ ταῖσι Θήβαις εἰ τανῦν εὐημερεῖ (616)" }
+          - { column: "631", shown: 640, at: "if it pleases him", note: "τόδʼ ἡδύ, τούτων, Οἰδίπους, δίδωμί σοι (640); protect him = φυλάσσειν (639)" }
+          - { column: "668", shown: 694, nth: 2, n: 696, note: "one speaker; second ⟦694⟧ on οὐδʼ ἐν τᾷ μεγάλᾳ Δωρίδι νάσῳ (696)" }
+          - { column: "728", shown: 730, at: "a sudden fear has troubled you", note: "φόβον νεώρη τῆς ἐμῆς ἐπεισόδου (730); do not shrink back = μήτʼ ὀκνεῖτε (731)" }
+          - { column: "897", shown: 920, at: "Thebes is not accustomed to rearing", note: "οὐ γὰρ φιλοῦσιν ἄνδρας ἐκδίκους τρέφειν (920); nor would she praise you = οὐδʼ ἄν σʼ ἐπαινέσειαν (921)" }
+          - { column: "897", shown: 925, at: "no, even if my claim", note: "οὐδʼ εἰ τὰ πάντων εἶχον ἐνδικώτατα (925); without permission from the ruler = ἄνευ γε τοῦ κραίνοντος (926)" }
+          - { column: "939", shown: 940, at: "son of Aegeus, or of counsel", note: "ὦ τέκνον Αἰγέως, οὔτʼ ἄβουλον (940); that I have done this deed = τοὔργον τόδʼ ἐξέπραξα (941)" }
+          - { column: "939", shown: 950, at: "Trusting in that, I sought", note: "ᾧ πίστιν ἴσχων τήνδʼ ἐχειρούμην ἄγραν (950); And I would not have done so = 951" }
+          - { column: "960", shown: 975, at: "I came to blows with my father", note: "ἐς χεῖρας ἦλθον πατρὶ καὶ κατέκτανον (975); I was doing and to whom = ὧν ἔδρων εἰς οὕς τʼ ἔδρων (976)" }
+          - { column: "960", shown: 986, at: "revile her and me", note: "κείνην τε ταῦτα δυσστομεῖν (986); But one thing, at least, I know = ἀλλʼ ἓν γὰρ οὖν ἔξοιδα (985)" }
+          - { column: "960", shown: 990, at: "the slaying of my father", note: "φόνους πατρῴους ἐξονειδίζων πικρῶς (990); Answer just one thing = ἓν γάρ μʼ ἄμειψαι (991)" }
+          - { column: "1491", shown: 1498, at: "to receive just return for benefits", note: "δικαίαν χάριν παρασχεῖν παθών (1498); then come! = ἱκοῦ (1495), For the stranger thinks you worthy = 1496" }
+          - { column: "1181", shown: 1189, at: "You sired him", note: "ἔφυσας αὐτόν (1189); so, even if he wrongs you = ὥστε μηδὲ δρῶντά σε (1189-90)" }
+          - { column: "1556", shown: 1560, at: "then hear me, Aidoneus", note: "Αἰδωνεῦ, Αἰδωνεῦ, λίσσομαι (1560); Grant that without pain = ἄπονα (1561)" }
+          - { column: "1734", shown: 1735, at: "Abandoned and helpless", note: "ἔρημος ἄπορος (1735); where am I now to live = αἰῶνα τλάμονʼ ἕξω (1736)" }
+          - { column: "258", shown: 259, n: 258, note: "speech opens τί δῆτα δόξης ἢ τί κληδόνος καλῆς (258) = What help comes … repute" }
+          - { column: "324", shown: 325, at: "names most sweet to me", note: "ἥδιστα προσφωνήμαθʼ (325); And how hard now to look upon you = δεύτερον μόλις βλέπω (326)" }
+          - { column: "960", shown: 965, at: "who were angry, perhaps", note: "τάχʼ ἄν τι μηνίουσιν εἰς γένος (965); For this was dear to the gods = θεοῖς γὰρ ἦν οὕτω φίλον (964)" }
+          - { column: "1044", shown: 1070, at: "cavalry, who honor", note: "ἄμβασις, οἳ τὰν ἱππίαν (1070); charges forward our whole = πᾶσα δʼ ὁρμᾶται (1068)" }
+          - { column: "1462", shown: 1465, at: "The hair of my head", note: "δεῖμʼ ὑπῆλθε κρατὸς φόβαν (1465); hurled by Zeus = διόβολος (1463)" }
+          - { column: "1462", shown: 1470, at: "fly forth in vain", note: "ἀφορμᾷ ποτʼ οὐδʼ ἄνευ ξυμφορᾶς (1470); I fear it = δέδοικα (1468)" }
+          - { column: "1586", shown: 1655, at: "and Olympus of the gods", note: "καὶ τὸν θεῶν Ὄλυμπον (1655); we saw him adore … the earth = ὁρῶμεν αὐτὸν γῆν τε προσκυνοῦνθʼ (1654)" }
+          - { column: "1748", shown: 1750, at: "does the divinity now drive us", note: "δαίμων τανῦν γʼ ἐλαύνει (1750); To what last hope = ἐλπίδων γὰρ ἐς τίνʼ (1749)" }
         # The English's line numbers are Storr's (Perseus's Greek); the matcher
         # re-keys them onto Jebb's lines by text (pipeline/drama_pipeline/anchor_map.py).
         anchor_map: storr-loeb
         # Jebb prints the three verses lost after 181 and the one at 183 as
         # metrical schemes (lacunae); his English has no words for them, and
-        # 181 (πόρσω· σὺ γὰρ ἀΐεις) and 533 (ὦ Ζεῦ) and 534a fall inside the
-        # English of the speech before.
+        # 181 (πόρσω· σὺ γὰρ ἀΐεις) falls inside the English of the speech before.
         # Perseus's English runs a line off the text map at 844-847. English
         # 844, Antigone's "I am being dragged away in misery. Strangers,
         # strangers!", is Jebb's 844 (ἀφέλκομαι δύστηνος, ὦ ξένοι ξένοι), and
@@ -378,13 +439,45 @@ greek_editions:
           "844": "844"
           "845": "845"
           "1009a": "1099a"
+          # Paired-view split lines: seat each cue on Jebb’s printed verse.
+          "211": "212"  # τί τόδ’
+          "530a": "532"  # παῖδε, δύο δ’ ἄτα
+          "531": "533"  # ὦ Ζεῦ
+          "532": "534"  # ματρὸς κοινᾶς
+          "534": "534a"  # σαί τ’ εἴσ’ ἄρ’ ἀπόγονοι
+          "535": "535"  # κοιναί γε πατρὸς ἀδελφεαί
+          "536": "536"  # Chorus: ἰώ
+          "536a": "536"  # Oedipus: ἰὼ δῆτα
+          "537": "537"  # Chorus: ἔπαθες
+          "537a": "537"  # Oedipus: ἔπαθον
+          "538": "538"  # Chorus: ἔρεξας
+          "538a": "538"  # Oedipus: οὐκ ἔρεξα
+          "832": "832"  # Keep Justly beside δίκαια when the next cues move.
+          "833": "833"  # Keep ἰὼ πόλις in its own segment.
+          "834": "834"  # Keep τί δρᾷς beside its Greek.
+          "835": "834"  # τάχ’ εἰς βάσανον εἶ χερῶν
+          "836": "836"  # εἴργου
+          "836a": "836"  # σοῦ μὲν οὔ
+          "837": "837"  # πόλει μαχεῖ
+          "838": "838"  # οὐκ ἠγόρευον
+          "838a": "838"  # μέθες χεροῖν
+          "883": "883"  # Chorus: ἆρ’ οὐχ ὕβρις
+          "883a": "883"  # Creon: ὕβρις, ἀλλ’ ἀνεκτέα
+          "884": "884"  # ἰὼ πᾶς λεώς
+          "1095": "1095"  # μολεῖν γᾷ τᾷδε καὶ πολίταις
+          "1704": "1704"  # Chorus: ἔπραξεν;
+          "1704a": "1704"  # Antigone: ἔπραξεν οἷον ἤθελεν
+          "1705": "1705"  # Chorus: τὸ ποῖον;
+          "1705a": "1705"  # Antigone starts ἃς ἔχρῃζε γᾶς ἐπὶ ξένας
+          "1724": "1724"  # ὡς τί ῥέξομεν;
+          "1725": "1725"  # ἵμερος ἔχει με
+          "1726": "1725"  # τίς;
+          "1727": "1727"  # τὰν χθόνιον ἑστίαν ἰδεῖν
         covered:
           - { greek: "181", by: "180" }
           - { greek: "181a", by: "180" }
           - { greek: "181b", by: "180" }
           - { greek: "183", by: "181c" }
-          - { greek: "533", by: "532" }
-          - { greek: "534a", by: "534" }
     gaps: []
     # OCR misreads corrected under John's grammar rule (2026-09-19): each one
     # the scan prints (archive.org, page as printed) where the OCR's reading

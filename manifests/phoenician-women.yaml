@@ -272,6 +272,24 @@ greek_editions:
       overrides:
         - { siglum: Ἄγγελος, from: "1335", display: Second Messenger }
     edition_only: []
-    alignment: {}
+    alignment:
+      coleridge:
+        # English margin numbers read against this Greek (2026-10-25/26, Opus
+        # fixes, Codex check): move = the number goes to its own line's words.
+        cuts:
+          - { english: "but if you could look", greek: "1562" }
+        tick_fixes:
+          - { column: "1", shown: 25, at: "he gave the child to shepherds", note: "δίδωσι βουκόλοισιν ἐκθεῖναι (25); in Hera’s meadow = λειμῶνʼ ἐς Ἥρας (24)" }
+          - { column: "1", shown: 60, at: "Oedipus, who endured so much", note: "ὁ πάντʼ ἀνατλὰς Οἰδίπους (60); learned … married to his mother = μαθὼν … μητρῴων γάμων (59)" }
+          - { column: "1356", shown: 1415, at: "Down fell Polyneices", note: "Πολυνείκης πίτνει (1415); ribs and belly = κάμψας πλευρὰ καὶ νηδὺν (1414)" }
+          - { column: "1427", shown: 1435, at: "and their sister, by her side", note: "ἀδελφή θʼ ἡ παρασπίζουσʼ (1435); Supporters of your mother’s age = ὦ γηροβοσκὼ μητρός (1436)" }
+          - { column: "1753", shown: 1755, at: "I once dressed in the Theban", note: "στολιδωσαμένα ποτʼ ἐγὼ (1755); danced = ἀνεχόρευσα (1756)" }
+          - { column: "250", shown: 260, at: "the one who approaches his home", note: "ὃς μετέρχεται δόμους (260); not without justice = οὐ γὰρ ἄδικον (258)" }
+          - { column: "301", shown: 330, at: "always possessed by his tearful longing", note: "πόθον ἀμφιδάκρυτον ἀεὶ κατέχων (330); rushed to kill himself = ἀνῇξε μὲν ξίφους (331)" }
+          - { column: "703", shown: 705, at: "But we must leave this", note: "ἐς θεοὺς χρὴ ταῦτʼ ἀναρτήσαντʼ (705); our chief obstacle = ἃ δʼ ἐμποδὼν μάλιστα (706)" }
+          - { column: "784", shown: 798, at: "arraying in bronze armor", note: "χαλκῷ κοσμήσας (798); tick sat on 798a ἦ δεινά τις Ἔρις θεός" }
+          - { column: "301", shown: 335, at: "always weeping and lamenting", note: "σὺν ἀλαλαῖσι δʼ αἰὲν αἰαγμάτων (335); hides himself in darkness = σκότια κρύπτεται (336)" }
+          - { column: "528", shown: 562, at: "and his Argive warriors", note: "bracketed Ἀργεῖά τʼ ἔγχη (562); if this man conquers you = ἢν δὲ νικήσῃ σʼ ὅδε (561)" }
+          - { column: "301", shown: 315, n: 316, note: "bracketed ἐκεῖσε καὶ τὸ δεῦρο (315) left untranslated; of the dance = περιχορεύουσα (316)" }
     gaps: []
     text_fixes: []

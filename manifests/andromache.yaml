@@ -18,6 +18,13 @@ work:
 
 english:
   primary:
+    # English margin numbers read against this Greek (2026-10-25/26, Opus
+    # fixes, Codex check): move = the number goes to its own line's words.
+    tick_fixes:
+      - { column: "1009", shown: 1027, n: 1028, note: "speech-opening number names the speech's first line (SPEC rule 2; Codex preferred a move) — speech opens on 1028 βέβακε δʼ Ἀτρείδας (\"The son of Atreus is no more\"); 1027 καπνῶι θυώδει ends the speech before it (\"with the smoke of incense\")" }
+      - { column: "464", shown: 466, at: "or sons of different mothers", note: "466 οὐδʼ ἀμφιμάτορας κόρους = \"or sons of different mothers\"; \"he shareth with no other\" is 470 ἀκοινώνητον" }
+      - { column: "766", shown: 795, at: "didst pass the cheerless strait", note: "795 ἐκπερᾶσαι ποντιᾶν Ξυμπληγάδων = \"didst pass … beyond the sea-beat Symplegades\"; \"on her voyage of note\" is 796" }
+      - { column: "147", shown: 150, at: "am I come hither", note: "150 δόμων ἀπαρχὰς δεῦρʼ ἔχουσʼ ἀφικόμην = \"am I come hither; no presents … from the palace\"; \"but gifts my father Menelaus gave\" is 151–152" }
     id: coleridge
     name: "E. P. Coleridge (London, 1891)"
     short: Coleridge

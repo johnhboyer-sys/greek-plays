@@ -581,7 +581,7 @@ const DIRECTION_AT = /^_[^_\n]+_(?=\n|$)/;
 
 export function markLineNumbers(
   text: string,
-  ticks: readonly { n: number | string; offset: number; real: boolean }[] | undefined,
+  ticks: readonly { n: number | string; offset: number; real: boolean; label?: string }[] | undefined,
 ): { text: string; at: (offset: number) => number } {
   const marks: { p: number; s: string }[] = [];
   const skipSpace = (o: number) => { while (o < text.length && /\s/.test(text[o]!)) o += 1; return o; };
@@ -599,7 +599,8 @@ export function markLineNumbers(
     }
     for (const [a, b] of calls) if (p >= a && p < b) p = skipSpace(b);
     if (p >= text.length) continue;
-    const code = [...String(tk.n)].map((c) => String.fromCharCode(LNUM_SHIFT + (c.charCodeAt(0) & 0x7f))).join('');
+    // A lettered Greek line ("519a") shows its letter.
+    const code = [...(tk.label ?? String(tk.n))].map((c) => String.fromCharCode(LNUM_SHIFT + (c.charCodeAt(0) & 0x7f))).join('');
     marks.push({ p, s: LNUM_MARK + code });
   }
   if (!marks.length) return { text, at: (o) => o };
