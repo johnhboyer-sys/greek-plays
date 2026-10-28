@@ -3426,7 +3426,7 @@
   function flowSlice(
     text: string,
     range: { start: number; end: number } | undefined,
-    ticks: { n: number; real: boolean; offset: number }[],
+    ticks: { n: number; real: boolean; offset: number; label?: string }[],
   ): FlowPart[] {
     if (!range) return [];
     const slice = text.slice(range.start, range.end);
