@@ -83,6 +83,19 @@ english:
       model: turn-text
       format: verse-own-line
       source: bench/johnston/oedipus-coloneus.txt
+      text_fixes:
+        - find: "Prometheus.That"
+          replace: "Prometheus. That"
+          note: "sweep 2026-11-15: missing space after punctuation"
+        - find: "pain.So"
+          replace: "pain. So"
+          note: "sweep 2026-11-15: missing space after punctuation"
+        - find: "destruction.And"
+          replace: "destruction. And"
+          note: "sweep 2026-11-15: missing space after punctuation"
+        - find: "heavens.Father"
+          replace: "heavens. Father"
+          note: "sweep 2026-11-15: missing space after punctuation"
       play: OEDIPUS AT COLONUS
       footnotes: false
       # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).

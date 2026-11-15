@@ -151,6 +151,9 @@ english:
         - { greek: "74", english: "No, no, let's wait a little", run: 2 }
     - id: johnston
       text_fixes:
+        - find: "lamps.The"
+          replace: "lamps. The"
+          note: "sweep 2026-11-15: missing space after punctuation"
         - find: "fication of the the goddess Rec"
           replace: "fication of the goddess Rec"
           note: "sweep 2026-09-24 n=95: sources/johnston/lysistrata.htm"

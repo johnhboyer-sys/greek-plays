@@ -46,6 +46,12 @@ english:
   secondary:
     id: way
     text_fixes:
+      - find: "glory.of"
+        replace: "glory. of"
+        note: "sweep 2026-11-15: missing space after punctuation"
+      - find: "First.darted"
+        replace: "First. darted"
+        note: "sweep 2026-11-15: missing space after punctuation"
       - find: "* More swiftly was the flesh"
         replace: "More swiftly was the flesh"
         note: "way-cleanup r3 2026-09-25 (1:1133): genie build/genie/euripidesway03euriuoft.txt:2084 prints no mark before \"More\""

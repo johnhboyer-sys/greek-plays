@@ -28,6 +28,9 @@ english:
   secondary:
     id: way
     text_fixes:
+      - find: "found,to"
+        replace: "found, to"
+        note: "sweep 2026-11-15: missing space after punctuation"
       - find: "_ Mother, farewell"
         replace: "Mother, farewell"
         note: "sweep 2026-09-24 n=32: build/genie/euripidesway01euriuoft.txt:8977-8979"

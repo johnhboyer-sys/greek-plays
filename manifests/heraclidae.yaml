@@ -38,6 +38,21 @@ english:
   secondary:
     id: way
     text_fixes:
+      - find: "strong.hand"
+        replace: "strong. hand"
+        note: "sweep 2026-11-15: missing space after punctuation"
+      - find: "to.drag"
+        replace: "to. drag"
+        note: "sweep 2026-11-15: missing space after punctuation"
+      - find: "Except.that"
+        replace: "Except. that"
+        note: "sweep 2026-11-15: missing space after punctuation"
+      - find: "thou.said"
+        replace: "thou. said"
+        note: "sweep 2026-11-15: missing space after punctuation"
+      - find: "gyves,and"
+        replace: "gyves, and"
+        note: "sweep 2026-11-15: missing space after punctuation"
       - find: "infamous thing ? 370\n\n(Epode)\n"
         replace: "infamous thing ?\n\n"
         note: "John 2026-09-25: Way's strophe markers hidden, all of them; also drops the page's margin line number 370"
