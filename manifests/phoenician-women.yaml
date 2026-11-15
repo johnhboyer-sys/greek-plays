@@ -47,6 +47,18 @@ english:
   secondary:
     id: way
     text_fixes:
+      - find: "fountainAmymonian"
+        replace: "fountain Amymonian"
+        note: "sweep 2026-11-15: missing space"
+      - find: "stumblingblock"
+        replace: "stumbling-block"
+        note: "sweep 2026-11-15: lost hyphen"
+      - find: "brightblazing"
+        replace: "bright-blazing"
+        note: "sweep 2026-11-15: lost hyphen"
+      - find: "bronzehammered"
+        replace: "bronze-hammered"
+        note: "sweep 2026-11-15: lost hyphen"
       - find: "born,from"
         replace: "born, from"
         note: "sweep 2026-11-15: missing space after punctuation"

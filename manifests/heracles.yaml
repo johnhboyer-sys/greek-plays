@@ -64,6 +64,12 @@ english:
   secondary:
     id: way
     text_fixes:
+      - find: "deathchallenge"
+        replace: "death-challenge"
+        note: "sweep 2026-11-15: lost hyphen"
+      - find: "suddencrasheth"
+        replace: "sudden crasheth"
+        note: "sweep 2026-11-15: missing space"
       - find: "the.murderer"
         replace: "the. murderer"
         note: "sweep 2026-11-15: missing space after punctuation"

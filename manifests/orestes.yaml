@@ -60,6 +60,12 @@ english:
   secondary:
     id: way
     text_fixes:
+      - find: "oREsTES"
+        replace: "ORESTES"
+        note: "sweep 2026-11-15: mixed capitals in stage direction (OCR)"
+      - find: "stumblingblock"
+        replace: "stumbling-block"
+        note: "sweep 2026-11-15: lost hyphen"
       - find: "her favour won But on mine ears"
         replace: "her favour won. But on mine ears"
         note: "way-cleanup 2026-09-25 row 489 (S11 confirmed): full stop missing between sentences"

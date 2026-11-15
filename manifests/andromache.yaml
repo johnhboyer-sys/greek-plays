@@ -43,6 +43,10 @@ english:
     model: turn-text
     format: loeb-ocr
     source: bench/way/andromache.txt
+    text_fixes:
+      - find: "harvestfields"
+        replace: "harvest-fields"
+        note: "sweep 2026-11-15: lost hyphen"
     play: ANDROMACHE
     footnotes: true
   # Round 2 item 12 (2026-09-18): the sweep-2026-09-08 attachment loss

@@ -46,6 +46,9 @@ english:
   secondary:
     id: way
     text_fixes:
+      - find: "forthspringing"
+        replace: "forth-springing"
+        note: "sweep 2026-11-15: lost hyphen"
       - find: "Asia’s loveliest, 1220)"
         replace: "Asia’s loveliest,"
         note: "way-cleanup 2026-09-25 row 547 (S11 confirmed): printed line number left in the verse"

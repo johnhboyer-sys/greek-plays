@@ -28,6 +28,9 @@ english:
   secondary:
     id: way
     text_fixes:
+      - find: "overstreaming"
+        replace: "over-streaming"
+        note: "sweep 2026-11-15: lost hyphen"
       - find: "found,to"
         replace: "found, to"
         note: "sweep 2026-11-15: missing space after punctuation"

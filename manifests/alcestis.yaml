@@ -39,6 +39,9 @@ english:
   secondary:
     id: way
     text_fixes:
+      - find: "IfI see"
+        replace: "If I see"
+        note: "sweep 2026-11-15: missing space"
       - find: "rest me: (Epode)\n"
         replace: "rest me:\n"
         note: "John 2026-09-25: Way's strophe markers hidden, all of them"

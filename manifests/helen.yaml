@@ -55,6 +55,9 @@ english:
   secondary:
     id: way
     text_fixes:
+      - find: "lI swear"
+        replace: "I swear"
+        note: "sweep 2026-11-15: stray l before I (OCR)"
       - find: "tarrying here! _\n"
         replace: "tarrying here!\n"
         note: "sweep 2026-09-24 n=33: build/genie/euripidesway01euriuoft.txt:17778-17779"
