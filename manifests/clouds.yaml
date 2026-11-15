@@ -71,6 +71,16 @@ english:
     source: bench/arrowsmith/clouds.txt
     play: "THE CLOUDS"
     footnotes: false
+    text_fixes:
+      - find: "savagelysmashes"
+        replace: "savagely smashes"
+        note: "glue check 2026-11-15: sources/fulcrum/clouds.txt:5160-5161 breaks the line after 'savagely'"
+      - find: "frontof"
+        replace: "front of"
+        note: "glue check 2026-11-15: sources/fulcrum/clouds.txt:5161-5162 breaks the line after 'front'"
+      - find: "houseand"
+        replace: "house and"
+        note: "glue check 2026-11-15: sources/fulcrum/clouds.txt:5162-5163 breaks the line after 'house'"
     # Anchors the run of turn-shift drift the auto-aligner otherwise carries
     # through Strepsiades' opening monologue (John's spot check, 2026-09-11).
     #

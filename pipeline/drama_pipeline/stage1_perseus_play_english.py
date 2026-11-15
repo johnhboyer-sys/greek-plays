@@ -702,6 +702,25 @@ class _Slice:
         return collapse_ws("".join(part for _n, part in self.pieces)).strip()
 
 
+def _note_splits_words(note) -> bool:
+    """Whether a footnote sits between two letters of one run of text.
+
+    Perseus sets a note mark with no space around it, so the print's space
+    falls outside the note: `dark-eyed<note>…</note>and`. The note's text is
+    not printed, so the two words would meet as `dark-eyedand`.
+    """
+    parent = note.getparent()
+    if parent is None:
+        return False
+    before = note.getprevious()
+    before_text = before.tail if before is not None else parent.text
+    after_text = note.tail
+    return bool(
+        before_text and after_text
+        and before_text[-1].isalpha() and after_text[0].isalpha()
+    )
+
+
 def _line_plain_text(node) -> str:
     return collapse_ws("".join(node.itertext())).strip()
 
@@ -843,6 +862,8 @@ def _iter_speech_slices(
                 # The marker belongs to the line it sits in, fixed or not.
                 current.add(slice_n(current_n), marker, in_fixed)
             if node.tail:
+                if _note_splits_words(node):
+                    handle_text(" ", current_n)
                 handle_text(node.tail, current_n)
             return
         if tag == "milestone" and node.get("unit") == "para" and split:

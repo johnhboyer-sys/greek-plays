@@ -4656,3 +4656,22 @@ def test_a_note_inside_a_fixed_line_keeps_the_fixed_mark(tmp_path: Path):
     by_id = {chunk["id"]: chunk["text"] for chunk in english["chunks"]}
     assert by_id["1:996"] == "Above all[^1.1] for me,"
     assert not [m for m in report["speech_mismatches"] if m["kind"] == "speaker_repair"]
+
+
+def test_note_between_two_words_keeps_the_print_space(tmp_path: Path):
+    """Perseus encodes a footnote mark with no space around it, so
+    `dark-eyed<note>…</note>and` read as `dark-eyedand` once the note was
+    dropped (Persians 558, reader report 2026-11-08). The walker puts the
+    space back when a letter sits on each side of the note. Punctuation on
+    either side, and a note that already has a space, stay as they are."""
+    tei = (
+        '<TEI><div type="translation"><sp><speaker>Alpha</speaker>'
+        '<l n="1">the ships, dark-eyed<note n="1" resp="Smyth">The eye.</note>'
+        'and linen-winged<note n="2" resp="Smyth">Two.</note>, and'
+        '<note n="3" resp="Smyth">Three.</note> more.</l></sp></div></TEI>'
+    )
+    english, _notes, _report = _parse(tmp_path, tei, _spine())
+    chunks = {chunk["id"]: chunk["text"] for chunk in english["chunks"]}
+    assert chunks["1:1"] == (
+        "the ships, dark-eyed[^1.1] and linen-winged[^2.2], and[^3.3] more."
+    )
