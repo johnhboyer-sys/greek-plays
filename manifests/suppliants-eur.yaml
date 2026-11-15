@@ -99,6 +99,9 @@ english:
       - find: "y tomb, thy pyre pyre,\nLonging wi"
         replace: "y tomb, thy pyre,\nLonging wi"
         note: "sweep 2026-09-24 n=120: build/genie/euripidesway03euriuoft.txt:19039"
+      - find: "\nThe funeral i on to the , which are\nFoe eed wig ofthe nage\n"
+        replace: ""
+        note: "glue check 2026-11-15: a corrupted copy of the direction at line 1215 (OCR of the Loeb stage direction); the full direction stands above it. Scan not on disk (build/genie tidied); John to confirm against the page"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

@@ -86,6 +86,9 @@ english:
       - find: "nd gnaws at me me."
         replace: "nd gnaws at me."
         note: "sweep 2026-09-24 n=79: sources/kosmos/heracles.html"
+      - find: "landwith their cavalry"
+        replace: "land with their cavalry"
+        note: "glue check 2026-11-15: Kosmos prints 'landwith' (sources/kosmos/heracles.html, line 88 of the bench); corrected as a word join"
     name: "Potter, adapted by Ebbott, Dué & Kamil (CHS, Kosmos Society)"
     short: Kosmos
     model: turn-text

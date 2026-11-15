@@ -72,6 +72,9 @@ english:
       - find: "their path—\n* By exile justify, not blood for blood.\""
         replace: "their path—\nBy exile justify, not blood for blood.\""
         note: "way-cleanup r3 2026-09-25 (1:512): genie build/genie/euripideswitheng02euri.txt:7353 shows this whole maxim already inside a quote pair Way's own OCR opened on the line above; the asterisk marks only where the page's italic type begins, no extra character"
+      - find: "swiftWith eyes"
+        replace: "swift with eyes"
+        note: "glue check 2026-11-15: the bench joins 'swift' to 'with' (line 1170); a capital W mid-line is a join, not a print"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text
