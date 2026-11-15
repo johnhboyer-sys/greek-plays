@@ -129,6 +129,16 @@ body[data-author] .reader-body.play-line:not(.trans-compare) .turn-stack .turn-p
 body[data-author] .reader-body.play-line:not(.trans-compare) .turn-stack .turn-para > .speaker:first-child:not(.speaker-dash)::after {
   content: ".";
 }
+/* A verse translation's first line runs on from the speaker's name, as
+   prose does; each printed line was its own block, so the name sat alone
+   above the speech (John, 2026-11-14). The paragraph now carries the hanging
+   indent, so a wrapped first line hangs like every other. */
+body[data-author] .reader-body.play-line:not(.trans-compare) .turn-para:has(> .verse-line) {
+  padding-left: 1.5em;
+  text-indent: -1.5em;
+}
+body[data-author] .reader-body.play-line:not(.trans-compare) .turn-para > .verse-line { padding-left: 0; }
+body[data-author] .reader-body.play-line:not(.trans-compare) .turn-para > .speaker ~ .verse-line:not(.verse-line ~ .verse-line) { display: inline; }
 /* No sideways scroll at any width (handoff §4, item 8): an English word
    longer than its line breaks, as the Greek does. */
 body[data-author] .reader-body.play-line .turn-para { overflow-wrap: anywhere; }
