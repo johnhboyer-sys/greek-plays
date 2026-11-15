@@ -49,6 +49,10 @@ english:
     model: turn-text
     format: loeb-ocr
     source: bench/storr/oedipus-tyrannus.txt
+    text_fixes:
+      - find: "\nWOU. 4, F"
+        replace: ""
+        note: "sweep 2026-11-15: running header removed"
     play: THE KING
     footnotes: true
     line_fixes:

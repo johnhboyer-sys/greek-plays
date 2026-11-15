@@ -32,6 +32,9 @@ english:
   secondary:
     id: storr
     text_fixes:
+      - find: "\nVQL. I. R"
+        replace: ""
+        note: "sweep 2026-11-15: running header removed"
       - find: "For with the,dead"
         replace: "For with the dead"
         note: "sweep 2026-11-15: stray comma"
