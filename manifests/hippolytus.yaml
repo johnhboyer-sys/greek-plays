@@ -74,6 +74,19 @@ english:
     model: turn-text
     format: verse-own-line
     source: bench/kosmos/hippolytus.txt
+    text_fixes:
+      - find: "by force,and so"
+        replace: "by force, and so"
+        note: "sweep 2026-11-15: missing space"
+      - find: "[atē]from"
+        replace: "[atē] from"
+        note: "sweep 2026-11-15: missing space after bracket"
+      - find: "121–124 There"
+        replace: "There"
+        note: "sweep 2026-11-15: line-number prefix leaked into the text"
+      - find: "131–134 how"
+        replace: "how"
+        note: "sweep 2026-11-15: line-number prefix leaked into the text"
     play: HIPPOLYTUS
     footnotes: false
     # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).

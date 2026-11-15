@@ -48,6 +48,22 @@ english:
     model: turn-text
     format: verse-own-line
     source: bench/morshead/libation-bearers.txt
+    text_fixes:
+      - find: "loster-nurse"
+        replace: "foster-nurse"
+        note: "sweep 2026-11-15: typo"
+      - find: "wnat man"
+        replace: "what man"
+        note: "sweep 2026-11-15: typo"
+      - find: "in my woel"
+        replace: "in my woe!"
+        note: "sweep 2026-11-15: typo"
+      - find: "baunted"
+        replace: "haunted"
+        note: "sweep 2026-11-15: typo"
+      - find: "stinding face"
+        replace: "standing face"
+        note: "sweep 2026-11-15: typo"
     play: THE LIBATION-BEARERS
     footnotes: false
     # Item 7 (play-libation-bearers-findings #2): still slides on this

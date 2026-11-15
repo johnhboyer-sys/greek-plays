@@ -163,6 +163,12 @@ english:
   third:
     id: kosmos
     text_fixes:
+      - find: "be be dragged"
+        replace: "be dragged"
+        note: "sweep 2026-11-15: doubled word; source prints 'be be dragged'"
+      - find: "at the seven gates . ."
+        replace: "at the seven gates."
+        note: "sweep 2026-11-15: doubled full stop"
       - find: "ll, he will be be dragged dow"
         replace: "ll, he will be dragged dow"
         note: "sweep 2026-09-24 n=118: sources/kosmos/seven-against-thebes.html"

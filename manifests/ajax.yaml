@@ -46,6 +46,10 @@ english:
     model: turn-text
     format: loeb-ocr
     source: bench/storr/ajax.txt
+    text_fixes:
+      - find: "it,ever"
+        replace: "it, ever"
+        note: "sweep 2026-11-15: missing space"
     play: AJAX
     footnotes: true
   third:

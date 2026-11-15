@@ -102,6 +102,10 @@ english:
     model: turn-text
     format: verse-own-line
     source: bench/kosmos/bacchae.txt
+    text_fixes:
+      - find: "prey , calling"
+        replace: "prey, calling"
+        note: "sweep 2026-11-15: space before comma"
     play: BACCHAE
     footnotes: false
     # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).

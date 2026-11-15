@@ -32,6 +32,12 @@ english:
   secondary:
     id: storr
     text_fixes:
+      - find: "For with the,dead"
+        replace: "For with the dead"
+        note: "sweep 2026-11-15: stray comma"
+      - find: "Ifa god"
+        replace: "If a god"
+        note: "sweep 2026-11-15: missing space"
       - find: "nd fear not to to\nThat she wil"
         replace: "nd fear not\nThat she wil"
         note: "sweep 2026-09-24 n=73: /Users/johnboyer/Downloads/sophocleswitheng02soph.pdf pp.230-232"

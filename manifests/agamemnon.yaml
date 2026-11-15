@@ -75,6 +75,21 @@ english:
   secondary:
     id: morshead
     text_fixes:
+      - find: "sore.One said"
+        replace: "sore. One said"
+        note: "sweep 2026-11-15: missing space"
+      - find: "Curelessabhorred"
+        replace: "Cureless abhorred"
+        note: "sweep 2026-11-15: missing space"
+      - find: "asfriend"
+        replace: "as friend"
+        note: "sweep 2026-11-15: missing space"
+      - find: "who willlist"
+        replace: "who will list"
+        note: "sweep 2026-11-15: missing space"
+      - find: "theirruler's"
+        replace: "their ruler's"
+        note: "sweep 2026-11-15: missing space"
       - find: "Curelessabhorred, that"
         replace: "Cureless, abhorred, that"
         note: "sweep 2026-09-24 n=86: sources/archive-org/houseofatreusbei00aesc.txt:4089 (1904 ed. scan); cf. sources/wikisource/morshead/agamemnon.html"
@@ -97,6 +112,13 @@ english:
     model: turn-text
     format: verse-own-line
     source: bench/kosmos/agamemnon.txt
+    text_fixes:
+      - find: "slavery.The commander"
+        replace: "slavery. The commander"
+        note: "sweep 2026-11-15: missing space"
+      - find: "Zeus”they may"
+        replace: "Zeus” they may"
+        note: "sweep 2026-11-15: missing space after quote"
     play: AGAMEMNON
     footnotes: false
     # Drift sweep 4 (2026-09-26): the whole first stasimon (355-487) sat in

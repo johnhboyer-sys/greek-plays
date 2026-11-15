@@ -58,6 +58,10 @@ english:
     model: turn-text
     format: loeb-ocr
     source: "bench/hickie/knights.txt"
+    text_fixes:
+      - find: "a a dab"
+        replace: "a dab"
+        note: "sweep 2026-11-15: doubled article"
     play: "THE KNIGHTS"
     # Grok's spot-read (fix-hickie-pins-brief-2026-09-22) found the
     # "I will scream you down" stichomythia running two rows late: 284-285

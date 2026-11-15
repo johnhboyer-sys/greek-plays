@@ -44,6 +44,28 @@ english:
     model: turn-text
     format: verse-own-line
     source: bench/morshead/eumenides.txt
+    text_fixes:
+      - find: "theFuries"
+        replace: "the Furies"
+        note: "sweep 2026-11-15: missing space, stage direction"
+      - find: "flownafar"
+        replace: "flown afar"
+        note: "sweep 2026-11-15: missing space"
+      - find: "Plainly I tell.But"
+        replace: "Plainly I tell. But"
+        note: "sweep 2026-11-15: missing space"
+      - find: "woe.Be such"
+        replace: "woe. Be such"
+        note: "sweep 2026-11-15: missing space"
+      - find: "bay.What do"
+        replace: "bay. What do"
+        note: "sweep 2026-11-15: missing space"
+      - find: "place.Avaunt"
+        replace: "place. Avaunt"
+        note: "sweep 2026-11-15: missing space"
+      - find: "land.High"
+        replace: "land. High"
+        note: "sweep 2026-11-15: missing space"
     play: THE FURIES
     footnotes: false
     # S11 sweep row 752 (2026-09-25): 117-177. Morshead prints the Ghost's

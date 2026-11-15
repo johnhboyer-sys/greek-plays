@@ -63,6 +63,16 @@ english:
     model: turn-text
     format: verse-own-line
     source: bench/kosmos/oedipus-tyrannus.txt
+    text_fixes:
+      - find: "[moira]go"
+        replace: "[moira] go"
+        note: "sweep 2026-11-15: missing space after bracket"
+      - find: "with Polybos ."
+        replace: "with Polybos."
+        note: "sweep 2026-11-15: space before full stop"
+      - find: "Ah, Polybos , ah"
+        replace: "Ah, Polybos, ah"
+        note: "sweep 2026-11-15: space before comma"
     play: OEDIPUS TYRANNUS
     footnotes: false
     # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).

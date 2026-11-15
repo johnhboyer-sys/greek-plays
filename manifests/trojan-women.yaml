@@ -72,6 +72,19 @@ english:
     model: turn-text
     format: verse-own-line
     source: bench/kosmos/trojan-women.txt
+    text_fixes:
+      - find: "sought a the bed"
+        replace: "sought the bed"
+        note: "sweep 2026-11-15: doubled article; source prints 'sought a the bed'"
+      - find: "enimical"
+        replace: "inimical"
+        note: "sweep 2026-11-15: typo"
+      - find: "put to death . ."
+        replace: "put to death."
+        note: "sweep 2026-11-15: doubled full stop"
+      - find: "come to his country all alone . ."
+        replace: "come to his country all alone."
+        note: "sweep 2026-11-15: doubled full stop"
     play: TROJAN WOMEN
     footnotes: false
     # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).

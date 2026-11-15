@@ -36,6 +36,10 @@ english:
     model: turn-text
     format: loeb-ocr
     source: bench/storr/antigone.txt
+    text_fixes:
+      - find: "sister,claim"
+        replace: "sister, claim"
+        note: "sweep 2026-11-15: missing space"
     play: ANTIGONE
     footnotes: false
   third:

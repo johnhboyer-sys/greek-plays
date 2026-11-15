@@ -41,6 +41,16 @@ english:
     model: turn-text
     format: loeb-ocr
     source: bench/storr/philoctetes.txt
+    text_fixes:
+      - find: "Pll bear"
+        replace: "I'll bear"
+        note: "sweep 2026-11-15: apostrophe lost"
+      - find: "Chiefest,of"
+        replace: "Chiefest of"
+        note: "sweep 2026-11-15: stray comma"
+      - find: "Convey,me"
+        replace: "Convey me"
+        note: "sweep 2026-11-15: stray comma"
     play: PHILOCTETES
     footnotes: true
   third:

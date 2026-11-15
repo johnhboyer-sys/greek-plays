@@ -43,11 +43,21 @@ english:
     model: turn-text
     format: loeb-ocr
     source: bench/storr/oedipus-coloneus.txt
+    text_fixes:
+      - find: "it,son of"
+        replace: "it, son of"
+        note: "sweep 2026-11-15: missing space"
     play: OEDIPUS AT COLONUS
     footnotes: true
   third:
     id: kosmos
     text_fixes:
+      - find: "[dikaios]plea"
+        replace: "[dikaios] plea"
+        note: "sweep 2026-11-15: missing space after bracket"
+      - find: "xenos ; speak"
+        replace: "xenos; speak"
+        note: "sweep 2026-11-15: space before semicolon"
       - find: "Αs for the place"
         replace: "As for the place"
         note: "sweep 2026-09-24 n=63: sources/kosmos/oedipus-coloneus.html:665 (U+0391 GREEK CAPITAL ALPHA)"
