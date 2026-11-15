@@ -139,6 +139,9 @@ body[data-author] .reader-body.play-line:not(.trans-compare) .turn-para:has(> .v
 }
 body[data-author] .reader-body.play-line:not(.trans-compare) .turn-para > .verse-line { padding-left: 0; }
 body[data-author] .reader-body.play-line:not(.trans-compare) .turn-para > .speaker ~ .verse-line:not(.verse-line ~ .verse-line) { display: inline; }
+/* A first line that is only a word or two of direction ("(sneering)") runs
+   on into the speech's first verse line too. */
+body[data-author] .reader-body.play-line:not(.trans-compare) .turn-para > .speaker ~ .verse-line:not(.verse-line ~ .verse-line):has(> .stage-dir-short) + .verse-line { display: inline; }
 /* No sideways scroll at any width (handoff §4, item 8): an English word
    longer than its line breaks, as the Greek does. */
 body[data-author] .reader-body.play-line .turn-para { overflow-wrap: anywhere; }

@@ -1740,7 +1740,15 @@
   function renderVerseTurn(text: string, transId: string): string {
     return text
       .split('\n')
-      .map((line) => `<span class="verse-line">${markStageDirections(renderThird(line, transId))}</span>`)
+      // A direction that is a speech's first line (Murray's `(sneering)`,
+      // `(faintly, her mind wandering)`) runs in after the name, bracketed,
+      // so the name never stands alone above the speech (reader-drama.css).
+      .map((line, k) => {
+        const html = renderThird(line, transId);
+        const lead = k === 0 ? /^_([^_\n]+)_$/.exec(html) : null;
+        const body = lead ? `<span class="stage-dir stage-dir-short">${directionBracket(lead[1])}</span>` : markStageDirections(html);
+        return `<span class="verse-line">${body}</span>`;
+      })
       .join('\n');
   }
 
