@@ -17,8 +17,8 @@ Aristotle's counting PR (`HANDOFF-SEARCH-FOLLOWUPS.md`, PR 1) and for John's two
   The data has one gap. English is stored per segment, and a segment where two speakers share a line
   (antilabe) carries one English text for both speeches (§8). The pipeline needs speech bounds
   (`turn_bounds`) in `offsets.json` (§5).
-- **(b) The look: "looks good for now."** Read as approval, for now, of the picture page's third option:
-  B's layout in the Vase's type and colours (`mock/vase-search.html`). The port restyles B's markup with
+- **(b) The look: the mock.** "Looks good for now", then "Yes, the mock": the picture page's third
+  option, B's layout in the Vase's type and colours (`mock/vase-search.html`). The port restyles B's markup with
   the Vase's tokens (§6) and does not bring in `b.css`.
 
 ## Headline
