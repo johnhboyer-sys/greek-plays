@@ -9,19 +9,19 @@
   "aristotle_before_redesign": 2991,
   "identical": false,
   "port": {
-   "hunks": 22,
-   "plays_lines": 22,
-   "aristotle_lines": 3141
+   "hunks": 19,
+   "plays_lines": 20,
+   "aristotle_lines": 2985
   },
   "keep": {
-   "hunks": 18,
-   "plays_lines": 702,
-   "aristotle_lines": 87
+   "hunks": 16,
+   "plays_lines": 451,
+   "aristotle_lines": 83
   },
   "both": {
-   "hunks": 37,
-   "plays_lines": 861,
-   "aristotle_lines": 2002
+   "hunks": 42,
+   "plays_lines": 1114,
+   "aristotle_lines": 2162
   },
   "same_lines": 212,
   "hunk_list": [
@@ -166,7 +166,7 @@
     "first": "let matchMode: MatchMode = 'form';"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      70,
      314
@@ -516,7 +516,7 @@
     "first": "onMount(() => {"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      936,
      941
@@ -712,7 +712,7 @@
     "first": "<span class=\"mn\">* wildcard · <button type=\"button\" class=\"ln\" on:click={openHelp} aria-ha"
    },
    {
-    "cls": "port",
+    "cls": "both",
     "plays": [
      1367,
      1366
@@ -740,7 +740,7 @@
     "first": "{#if entryCand?.slug}<a class=\"ln\" href={lemmaEntryHref(import.meta.env.BASE_URL.replace(/"
    },
    {
-    "cls": "port",
+    "cls": "both",
     "plays": [
      1501,
      1500
@@ -950,7 +950,7 @@
     "first": "</ul>"
    },
    {
-    "cls": "port",
+    "cls": "both",
     "plays": [
      1616,
      1617
@@ -1142,19 +1142,19 @@
   "aristotle_before_redesign": 1625,
   "identical": false,
   "port": {
-   "hunks": 26,
+   "hunks": 24,
    "plays_lines": 40,
-   "aristotle_lines": 787
+   "aristotle_lines": 771
   },
   "keep": {
-   "hunks": 5,
-   "plays_lines": 474,
+   "hunks": 4,
+   "plays_lines": 470,
    "aristotle_lines": 0
   },
   "both": {
-   "hunks": 41,
-   "plays_lines": 652,
-   "aristotle_lines": 1702
+   "hunks": 44,
+   "plays_lines": 656,
+   "aristotle_lines": 1718
   },
   "same_lines": 381,
   "hunk_list": [
@@ -1201,7 +1201,7 @@
     "first": "// Same root precedence as data.ts (see its longer doc comment): a build-time"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      51,
      54
@@ -1551,7 +1551,7 @@
     "first": "// A typed English term as the index keys it; a trailing * stays a wildcard."
    },
    {
-    "cls": "port",
+    "cls": "both",
     "plays": [
      246,
      245
@@ -1565,7 +1565,7 @@
     "first": "function englishTerm(term: string): string {"
    },
    {
-    "cls": "port",
+    "cls": "both",
     "plays": [
      247,
      246
@@ -2790,13 +2790,13 @@
    "aristotle_lines": 30
   },
   "keep": {
-   "hunks": 11,
-   "plays_lines": 1003,
+   "hunks": 9,
+   "plays_lines": 36,
    "aristotle_lines": 6
   },
   "both": {
-   "hunks": 1,
-   "plays_lines": 11,
+   "hunks": 3,
+   "plays_lines": 978,
    "aristotle_lines": 7
   },
   "same_lines": 417,
@@ -2928,7 +2928,7 @@
     "first": "out.push({ kind: 'speaker', label: e.label, display: e.display, dash: e.label === DASH });"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      149,
      216
@@ -3152,7 +3152,7 @@
     "first": "const mismatch = turns[i].speakerMismatch;"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      555,
      1453
@@ -3265,14 +3265,14 @@
    "aristotle_lines": 702
   },
   "keep": {
-   "hunks": 14,
-   "plays_lines": 624,
-   "aristotle_lines": 1
+   "hunks": 2,
+   "plays_lines": 9,
+   "aristotle_lines": 0
   },
   "both": {
-   "hunks": 3,
-   "plays_lines": 245,
-   "aristotle_lines": 3
+   "hunks": 15,
+   "plays_lines": 860,
+   "aristotle_lines": 4
   },
   "same_lines": 168,
   "hunk_list": [
@@ -3305,7 +3305,7 @@
     "first": "// build/dist/ne). Shards are cached in module-level Maps so a single"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      5,
      7
@@ -3347,7 +3347,7 @@
     "first": "// Bekker's lettered lines: 244b carries 5 and then 5a, two lines sharing a"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      53,
      73
@@ -3361,7 +3361,7 @@
     "first": "// play-line only (the Greek drama corpus, P1 — docs/p1-probe.md): the"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      80,
      187
@@ -3389,7 +3389,7 @@
     "first": "// The column opens a paragraph; no offset-zero paragraph marker."
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      196,
      258
@@ -3543,7 +3543,7 @@
     "first": ""
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      347,
      385
@@ -3571,7 +3571,7 @@
     "first": "display?: string | null;"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      399,
      653
@@ -3585,7 +3585,7 @@
     "first": "// Source-passage English (docs/source-passage-english-scoping.md): the"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      657,
      662
@@ -3599,7 +3599,7 @@
     "first": "const _analysesCache = new Map<string, Promise<Record<string, Analysis[]>>>();"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      664,
      684
@@ -3613,7 +3613,7 @@
     "first": "export function fetchBook(work: string, n: number, ed?: string): Promise<BookData> {"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      686,
      698
@@ -3627,7 +3627,7 @@
     "first": "export function fetchConcordance(work: string, ed: string): Promise<Record<string, string>"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      700,
      717
@@ -3711,7 +3711,7 @@
     "first": ""
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      774,
      813
@@ -3753,7 +3753,7 @@
     "first": "const _figuresCache = new Map<string, Promise<Record<string, string>>>();"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      846,
      873
@@ -4618,19 +4618,19 @@
   "aristotle_before_redesign": 3054,
   "identical": false,
   "port": {
-   "hunks": 93,
-   "plays_lines": 1771,
-   "aristotle_lines": 651
+   "hunks": 91,
+   "plays_lines": 1765,
+   "aristotle_lines": 309
   },
   "keep": {
-   "hunks": 35,
-   "plays_lines": 2177,
+   "hunks": 27,
+   "plays_lines": 292,
    "aristotle_lines": 21
   },
   "both": {
-   "hunks": 6,
-   "plays_lines": 96,
-   "aristotle_lines": 18
+   "hunks": 16,
+   "plays_lines": 1987,
+   "aristotle_lines": 360
   },
   "same_lines": 1764,
   "hunk_list": [
@@ -4957,7 +4957,7 @@
     "first": ".header-title .home-link:hover { color: var(--accent); }"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      339,
      358
@@ -4999,7 +4999,7 @@
     "first": ".nav-panel {"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      388,
      462
@@ -5335,7 +5335,7 @@
     "first": "/* Keyboard focus (roving tabindex): a clear ring so the focused token is"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      1731,
      1958
@@ -5377,7 +5377,7 @@
     "first": "/* No own line-height: inherits var(--lh-english) from .english-col, so the"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      1991,
      2009
@@ -5419,7 +5419,7 @@
     "first": "}"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      2099,
      3037
@@ -5475,7 +5475,7 @@
     "first": "}"
    },
    {
-    "cls": "port",
+    "cls": "both",
     "plays": [
      3384,
      3388
@@ -5503,7 +5503,7 @@
     "first": "font-weight: 500;"
    },
    {
-    "cls": "port",
+    "cls": "both",
     "plays": [
      3393,
      3393
@@ -5825,7 +5825,7 @@
     "first": "/* No boxes, panels or borders in play-line compare (John, 2026-09-08) --"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      4077,
      4212
@@ -6343,7 +6343,7 @@
     "first": "font-family: var(--font-english); font-variant: small-caps;"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      4868,
      4881
@@ -6497,7 +6497,7 @@
     "first": "body.lyceum-chrome.lyc-shell .lbl {"
    },
    {
-    "cls": "keep",
+    "cls": "both",
     "plays": [
      5355,
      5808

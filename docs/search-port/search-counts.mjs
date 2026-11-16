@@ -87,6 +87,10 @@ try {
           shown,
         };
       });
+      // A play that failed to load leaves a partial count behind a warning,
+      // not an error (Search.svelte: failedWorks, pageError). Reject it.
+      const failed = counts.notes.filter(n => /could not be searched|didn.t load/i.test(n));
+      if (failed.length) throw new Error(`partial results: ${failed.join(' | ')}`);
       results.push({ name, url, ...counts });
       console.log(name, counts.shown, `rows ${counts.page1_rows}`);
     } catch (error) { throw new Error(`${name}: ${error.message}`, { cause: error }); }

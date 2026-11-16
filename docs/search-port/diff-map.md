@@ -9,8 +9,8 @@ Aristotle's counting PR (`HANDOFF-SEARCH-FOLLOWUPS.md`, PR 1) and for John's two
 ## Headline
 
 - **Rebuild on Aristotle's file; don't port hunk by hunk.** Of the plays' 1,797 lines of
-  `Search.svelte`, 212 also appear in Aristotle's 5,442. 37 of the 77 hunks between them are
-  both-changed, and they hold 861 of the plays' lines. The engine under the page differs the same way
+  `Search.svelte`, 212 also appear in Aristotle's 5,442. 42 of the 77 hunks between them are
+  both-changed, and they hold 1,114 of the plays' lines. The engine under the page differs the same way
   (`search.ts` plus the plays' `search-advanced.ts`: 381 lines shared of 1,547). Aristotle's page also
   stands on 13 library files and two stylesheets the plays don't have.
 - **The plays' own search work is a short list:** about ten features (§4). Each comes back onto
@@ -52,15 +52,15 @@ Lines are plays / Aristotle. Hunk columns read "hunks: plays lines / Aristotle l
 
 | File (`shared/…`) | Plays | Aristotle | port | keep | both | Lines in common |
 |---|---|---|---|---|---|---|
-| `components/Search.svelte` | 1,797 | 5,442 | 22: 22 / 3,141 | 18: 702 / 87 | 37: 861 / 2,002 | 212 |
-| `lib/search.ts` (+ plays' `search-advanced.ts`) | 1,547 | 2,870 | 26: 40 / 787 | 5: 474 / 0 | 41: 652 / 1,702 | 381 |
+| `components/Search.svelte` | 1,797 | 5,442 | 19: 20 / 2,985 | 16: 451 / 83 | 42: 1,114 / 2,162 | 212 |
+| `lib/search.ts` (+ plays' `search-advanced.ts`) | 1,547 | 2,870 | 24: 40 / 771 | 4: 470 / 0 | 44: 656 / 1,718 | 381 |
 | `lib/search-url.ts` | 174 | 368 | 3: 1 / 5 | 5: 97 / 8 | 11: 42 / 321 | 34 |
 | `lib/betacode.ts` | 199 | 223 | 0 | 12: 12 / 36 | 0 | 187 |
-| `lib/speakers.ts` | 1,453 | 460 | 14: 22 / 30 | 11: 1,003 / 6 | 1: 11 / 7 | 417 |
+| `lib/speakers.ts` | 1,453 | 460 | 14: 22 / 30 | 9: 36 / 6 | 3: 978 / 7 | 417 |
 | `lib/speaker-colors.ts` | 70 | 70 | 0 | 2: 2 / 2 | 0 | 68 |
-| `lib/data.ts` | 1,115 | 874 | 20: 78 / 702 | 14: 624 / 1 | 3: 245 / 3 | 168 |
+| `lib/data.ts` | 1,115 | 874 | 20: 78 / 702 | 2: 9 / 0 | 15: 860 / 4 | 168 |
 | `lib/works.ts` | 647 | 1,597 | 51: 322 / 1,410 | 3: 10 / 0 | 2: 145 / 17 | 170 |
-| `styles/global.css` | 5,808 | 2,454 | 93: 1,771 / 651 | 35: 2,177 / 21 | 6: 96 / 18 | 1,764 |
+| `styles/global.css` | 5,808 | 2,454 | 91: 1,765 / 309 | 27: 292 / 21 | 16: 1,987 / 360 | 1,764 |
 
 These files are new in Aristotle and absent from the plays. All are port:
 
@@ -93,19 +93,22 @@ Notes on the table:
   - the word card;
   - Save search;
   - the chapter mapper (`2,286–3,989`, one 1,704-line hunk).
-- **`Search.svelte`, keep:** the LSJ headword checks (lines 70–314), the verse-line hit and its
-  keyword-in-context (944–1,241), and the How to search sheet and its Beta Code chart.
+- **`Search.svelte`, keep:** the verse-line hit and its keyword-in-context (944–1,241), and the LSJ
+  entry link with the How to search sheet and its Beta Code chart (1,368–1,497). The LSJ headword checks
+  (70–314) sort as both: Aristotle rebuilt the same stretch of the base as its own Lemma switch.
 - **`Search.svelte`, both:** the script head, the search state, the results markup, the styles. Every
   one is a different design of the same thing; none would merge.
-- **`search.ts`, port:** English indexes per translation (`englishIndexFile`), corpus search shards,
-  per-work search, and the grammar engine (one 1,198-line hunk).
+- **`search.ts`, port:** English indexes per translation (`englishIndexFile`), the public search API,
+  and per-work search.
+- **`search.ts`, both:** the grammar engine (a 1,198-line Aristotle hunk against the plays' own), and
+  English word matching and postings.
 - **`search.ts`, keep:** the plays' Near engine (`comboWindows`, the variant reading cap). It lives in
   `search-advanced.ts`.
 - **`search-url.ts`:** the two readers write different addresses for the same searches.
   - The plays: `lp`, `n`/`nt`/`nr`/`nw`/`nu`/`no`/`nf`, `n2`…`n3`, `sh`, `en`/`enr`/`enw`, `ed`.
   - Aristotle: `c=l:areth`, `cw`, `xforms`, `v`, `ps`, `w=auth`, and the rest.
   - Shared plays links in the wild must keep opening: the port needs a reader for the old plays address.
-- **`speakers.ts`, `speaker-colors.ts`:** keep the plays' own (1,003 lines of their own work). The
+- **`speakers.ts`, `speaker-colors.ts`:** keep the plays' own (about 1,000 lines of their own work, most in a region Aristotle also changed, so it sorts as both). The
   search needs one export from it, `lineRenderParts`, which the plays already have.
 - **`data.ts`, `works.ts`, `global.css`:** almost every port hunk is Aristotle's corpus (Freeman, DK,
   Bekker, `WING_CORPUS_WORKS`), not search. Port nothing wholesale; add only what the search imports
@@ -130,7 +133,7 @@ Notes on the table:
 back one at a time.
 
 - **There is little left to merge.** 212 of 1,797 plays lines survive in Aristotle's file. A
-  hunk-by-hunk port would hand-resolve 37 both-changed hunks covering about half the plays' file, and
+  hunk-by-hunk port would hand-resolve 42 both-changed hunks covering 1,114 lines, 62% of the plays' file, and
   each one is two different designs, not two edits to one design.
 - **The plays' own work is easy to list.** It sits in a few places: the LSJ checks, the verse-line
   hits, the Near engine, the edition switch, and the How to search sheet (§4). A list can be
@@ -293,18 +296,19 @@ plays, 58,966 lines.
 
 | | Line | Speech | Scene | Choral ode |
 |---|---|---|---|---|
-| Units in the corpus | 58,966 | 14,926 | 566 | 264 |
+| Units in the corpus | 58,966 | 16,572 | 566 | 264 |
 | Lines per unit: median · 90% · longest | 1 | 1 · 7 · 203 | 65.5 · 237 · 1,209 | 32.5 · 89 · 298 |
-| δίκη (lemma): units with a hit | 403 | 347 | 183 | 44 |
-| justice, any translation | n/a | 244 | 146 | 41 |
-| justice, main translation | n/a | 140 | 102 | 29 |
-| δίκη and justice | n/a | 144 | 113 | 29 |
+| δίκη (lemma): units with a hit | 403 | 348 | 183 | 44 |
+| justice, any translation | n/a | 270 | 146 | 41 |
+| justice, main translation | n/a | 148 | 102 | 29 |
+| δίκη and justice | n/a | 148 | 113 | 29 |
 
 - **"And" can't be tested by line.** The English is stored by segment (one speech, cut at 40 lines), so
-  no line can be tested for both words.
+  no line can be tested for both words. 1,981 segments hold two speakers (antilabe); there the English
+  goes to both speeches, which touches 9 of the 148 "and" speeches.
 - **Scenes and odes are cut by a rule.** It reads speaker names and strophe marks (`units.py` says
   how). The corpus marks neither, and Euripides' Greek here prints no strophe marks. A real scene or ode
   unit needs a table per play, made by hand.
 - **The speech is the nearest thing to Aristotle's paragraph.** It is a whole utterance with its
-  speaker, and every translation is already stored that way. That is my suggestion on the page, marked
+  speaker, and every translation is already stored that way, apart from lines two speakers share. That is my suggestion on the page, marked
   as mine.

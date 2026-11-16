@@ -1,11 +1,12 @@
 // Screenshots of a search page at phone (390), sideways (844), and desktop
 // (1440), light and dark, for John's look ruling (docs/search-port/).
 //
-//   node docs/search-port/shots.mjs --url URL --name NAME --out DIR [--wait SELECTOR] [--theme-attr]
+//   node docs/search-port/shots.mjs --url URL --name NAME --out DIR [--wait SELECTOR]
 //
 // --wait: the selector that says the results are in (default: none, for a
-// static page). --theme-attr: set html[data-theme] as well as the media
-// query (the plays' ThemeInit and the mock read it). Each shot is the top of
+// static page). The theme is set three ways: the media query, the
+// localStorage key both readers' ThemeInit read ('ne-theme'; without it
+// they fall back to light), and html[data-theme]. Each shot is the top of
 // the page, at most about three screens, as JPEG.
 import { createRequire } from 'node:module';
 import { existsSync, mkdirSync, readdirSync } from 'node:fs';
@@ -30,7 +31,7 @@ const executablePath = process.env.CHROME_PATH || (existsSync(SHELL) ? SHELL : u
 const args = process.argv.slice(2);
 const flag = name => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : undefined; };
 const url = flag('--url'), name = flag('--name'), out = flag('--out'), wait = flag('--wait');
-if (!url || !name || !out) throw new Error('Usage: --url URL --name NAME --out DIR [--wait SELECTOR] [--theme-attr]');
+if (!url || !name || !out) throw new Error('Usage: --url URL --name NAME --out DIR [--wait SELECTOR]');
 mkdirSync(out, { recursive: true });
 
 const SIZES = [
@@ -45,13 +46,10 @@ try {
       viewport: { width: size.width, height: size.height }, deviceScaleFactor: size.scale,
       isMobile: size.mobile, hasTouch: size.mobile, colorScheme: theme,
     });
-    if (args.includes('--theme-attr')) {
-      await context.addInitScript(t => {
-        // Both readers' ThemeInit read this key.
-        try { localStorage.setItem('ne-theme', t); } catch {}
-        document.documentElement.setAttribute('data-theme', t);
-      }, theme);
-    }
+    await context.addInitScript(t => {
+      try { localStorage.setItem('ne-theme', t); } catch {}
+      document.documentElement.setAttribute('data-theme', t);
+    }, theme);
     const page = await context.newPage();
     await page.goto(url, { waitUntil: 'load' });
     if (wait) await page.waitForSelector(wait, { timeout: 120000 });
