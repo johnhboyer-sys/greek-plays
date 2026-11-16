@@ -26,10 +26,17 @@ Aristotle's counting PR (`HANDOFF-SEARCH-FOLLOWUPS.md`, PR 1) and for John's two
   - The search opens on the inclusive or, labelled "and/or"; "and" stays on offer.
   - This changes the plays' default: today `langOp` starts at `'and'`, and only `op=or` in the address
     asks for the or (`search-url.ts`).
-  - **Old links with no `op`** meant "and". How they keep that meaning follows aristotle-reader's
-    answer, not a separate choice here.
-  - The baseline's "Both, and" search has no `op`; it relies on today's default. It is one of those old
-    links, so re-measure it under the rule Aristotle settles.
+  - **Old links with no `op` keep meaning "and"** (John: keep old links; aristotle-reader PR #198,
+    merged `e1b8729`). A link with Greek and English and no `op` reads as "and"; every link written
+    now names its `op`. Copy the rule from Aristotle's `shared/lib/search-url.ts`:
+    `op` of `and`, `or`, or `xor` is read as given; otherwise "and" when the link has English and
+    Greek (or picked lemmas), else "or".
+  - **The switch has three settings in Aristotle: and | and/or | or.** "and/or" is `op=or`, the inclusive
+    or, as before. "or" is new: the exclusive or (`op=xor`), units where one language has hits and the
+    other none. Under the count, a Greek-and-English search lists its units by language: both, Greek only,
+    English only. The port carries all of this, with the speech as the unit.
+  - The baseline's "Both, and" search has no `op`, so after the port it must still give its "and" count
+    (570 hits today). That is the check that old links keep their meaning.
 
 ## Headline
 
