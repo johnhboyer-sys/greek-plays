@@ -20,6 +20,16 @@ Aristotle's counting PR (`HANDOFF-SEARCH-FOLLOWUPS.md`, PR 1) and for John's two
 - **(b) The look: the mock.** "Looks good for now", then "Yes, the mock": the picture page's third
   option, B's layout in the Vase's type and colours (`mock/vase-search.html`). The port restyles B's markup with
   the Vase's tokens (§6) and does not bring in `b.css`.
+- **(c) The Greek–English join defaults to "and/or"** (John, for every reader's search, 16 Nov:
+  "make 'and/or' the default setting for when search loads (it naturally suggests they can do greek
+  only or english only OR both...)").
+  - The search opens on the inclusive or, labelled "and/or"; "and" stays on offer.
+  - This changes the plays' default: today `langOp` starts at `'and'`, and only `op=or` in the address
+    asks for the or (`search-url.ts`).
+  - **Old links with no `op`** meant "and". How they keep that meaning follows aristotle-reader's
+    answer, not a separate choice here.
+  - The baseline's "Both, and" search has no `op`; it relies on today's default. It is one of those old
+    links, so re-measure it under the rule Aristotle settles.
 
 ## Headline
 
