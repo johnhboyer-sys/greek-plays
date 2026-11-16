@@ -6,6 +6,21 @@ Prepared 16 Nov 2026 from greek-plays `main` (`bf7f153`) and aristotle-reader `o
 Aristotle's counting PR (`HANDOFF-SEARCH-FOLLOWUPS.md`, PR 1) and for John's two rulings for the plays
 (counting unit, look), shown on the picture page.
 
+## Rulings (John, 16 Nov)
+
+- **(a) The counting unit is the speech** ("Count by speech/turn"). The speech runs from one speaker label
+  to the next, as `units.py` cuts it, and it plays the role of Aristotle's chapter:
+  - the bar counts speeches;
+  - "and" means both words in the same speech;
+  - pages hold whole speeches.
+
+  The data has one gap. English is stored per segment, and a segment where two speakers share a line
+  (antilabe) carries one English text for both speeches (§8). The pipeline needs speech bounds
+  (`turn_bounds`) in `offsets.json` (§5).
+- **(b) The look: "looks good for now."** Read as approval, for now, of the picture page's third option:
+  B's layout in the Vase's type and colours (`mock/vase-search.html`). The port restyles B's markup with
+  the Vase's tokens (§6) and does not bring in `b.css`.
+
 ## Headline
 
 - **Rebuild on Aristotle's file; don't port hunk by hunk.** Of the plays' 1,797 lines of
