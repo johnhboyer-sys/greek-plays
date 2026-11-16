@@ -1,0 +1,6515 @@
+[
+ {
+  "file": "shared/components/Search.svelte",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/components/Search.svelte",
+  "plays": 1797,
+  "aristotle": 5442,
+  "base": 1698,
+  "aristotle_before_redesign": 2991,
+  "identical": false,
+  "port": {
+   "hunks": 22,
+   "plays_lines": 22,
+   "aristotle_lines": 3141
+  },
+  "keep": {
+   "hunks": 18,
+   "plays_lines": 702,
+   "aristotle_lines": 87
+  },
+  "both": {
+   "hunks": 37,
+   "plays_lines": 861,
+   "aristotle_lines": 2002
+  },
+  "same_lines": 212,
+  "hunk_list": [
+   {
+    "cls": "both",
+    "plays": [
+     2,
+     12
+    ],
+    "aristotle": [
+     2,
+     81
+    ],
+    "pl": 11,
+    "al": 80,
+    "first": "import { tick, onMount } from 'svelte';"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     14,
+     20
+    ],
+    "aristotle": [
+     83,
+     91
+    ],
+    "pl": 7,
+    "al": 9,
+    "first": "// Astra lane A, F10: display titles, comma-separated; Oxford comma before"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     25,
+     24
+    ],
+    "aristotle": [
+     96,
+     97
+    ],
+    "pl": 0,
+    "al": 2,
+    "first": "work: string;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     27,
+     27
+    ],
+    "aristotle": [
+     100,
+     101
+    ],
+    "pl": 1,
+    "al": 2,
+    "first": "ref: string;       // e.g. \"1097a15\""
+   },
+   {
+    "cls": "both",
+    "plays": [
+     30,
+     37
+    ],
+    "aristotle": [
+     104,
+     148
+    ],
+    "pl": 8,
+    "al": 45,
+    "first": "documentOrder: number;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     39,
+     39
+    ],
+    "aristotle": [
+     150,
+     176
+    ],
+    "pl": 1,
+    "al": 27,
+    "first": "// All instances within one chapter, merged into a single (collapsible) card."
+   },
+   {
+    "cls": "port",
+    "plays": [
+     41,
+     41
+    ],
+    "aristotle": [
+     178,
+     177
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": "key: string;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     45,
+     45
+    ],
+    "aristotle": [
+     181,
+     180
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": "bekker: string;"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     47,
+     47
+    ],
+    "aristotle": [
+     182,
+     182
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "workWide: boolean;"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     57,
+     68
+    ],
+    "aristotle": [
+     192,
+     199
+    ],
+    "pl": 12,
+    "al": 8,
+    "first": "let matchMode: MatchMode = 'form';"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     70,
+     314
+    ],
+    "aristotle": [
+     201,
+     200
+    ],
+    "pl": 245,
+    "al": 0,
+    "first": "// LSJ: the headwords each typed Greek word can belong to, offered as checks"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     319,
+     318
+    ],
+    "aristotle": [
+     205,
+     208
+    ],
+    "pl": 0,
+    "al": 4,
+    "first": "let totalPassages = 0;"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     320,
+     319
+    ],
+    "aristotle": [
+     210,
+     210
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": "let expanded = new Set<string>();"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     323,
+     323
+    ],
+    "aristotle": [
+     214,
+     314
+    ],
+    "pl": 1,
+    "al": 101,
+    "first": "let failedWorks: string[] = [];"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     326,
+     330
+    ],
+    "aristotle": [
+     317,
+     322
+    ],
+    "pl": 5,
+    "al": 6,
+    "first": "// it a page at a time, snapping page breaks to whole books so a chapter never"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     332,
+     331
+    ],
+    "aristotle": [
+     324,
+     324
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": "let shownResults: SearchResult[] = [];  // every page's results, once each"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     342,
+     344
+    ],
+    "aristotle": [
+     335,
+     1050
+    ],
+    "pl": 3,
+    "al": 716,
+    "first": "interface SearchCtx { grkQuery: string; engQuery: string; engTerms: string[]; engForms: bo"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     354,
+     355
+    ],
+    "aristotle": [
+     1060,
+     1092
+    ],
+    "pl": 2,
+    "al": 33,
+    "first": "// NFC + lowercase + final-sigma normalisation, diacritics KEPT."
+   },
+   {
+    "cls": "port",
+    "plays": [
+     357,
+     359
+    ],
+    "aristotle": [
+     1094,
+     1807
+    ],
+    "pl": 3,
+    "al": 714,
+    "first": "const t = accentNorm(token);"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     363,
+     366
+    ],
+    "aristotle": [
+     1811,
+     1815
+    ],
+    "pl": 4,
+    "al": 5,
+    "first": "const MODE_OPTS: { v: SearchMode; l: string }[] = ["
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     380,
+     379
+    ],
+    "aristotle": [
+     1829,
+     1829
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": "function clearWorks() { selectedWorks = new Set(); }"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     381,
+     380
+    ],
+    "aristotle": [
+     1831,
+     1836
+    ],
+    "pl": 0,
+    "al": 6,
+    "first": "// Per-group scope helpers for the works panel. \"only\" narrows the selection to"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     387,
+     396
+    ],
+    "aristotle": [
+     1843,
+     1906
+    ],
+    "pl": 10,
+    "al": 64,
+    "first": "// The Greek text a play's hits come from, for its heading: the edition the"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     399,
+     404
+    ],
+    "aristotle": [
+     1909,
+     1925
+    ],
+    "pl": 6,
+    "al": 17,
+    "first": "// Compact summary of the plays searched (UI pass 2: \"All 44 plays\")."
+   },
+   {
+    "cls": "both",
+    "plays": [
+     406,
+     420
+    ],
+    "aristotle": [
+     1927,
+     1928
+    ],
+    "pl": 15,
+    "al": 2,
+    "first": "// The In row's author checks (UI pass 2): none ticked is every play; a tick"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     422,
+     761
+    ],
+    "aristotle": [
+     1930,
+     1933
+    ],
+    "pl": 340,
+    "al": 4,
+    "first": "// Results grouped Work → Book → chapter groups, in corpus then numeric order."
+   },
+   {
+    "cls": "both",
+    "plays": [
+     763,
+     767
+    ],
+    "aristotle": [
+     1935,
+     1949
+    ],
+    "pl": 5,
+    "al": 15,
+    "first": "const { groups: g, failed } = await buildGroups(pages[i] ?? [], searchCtx);"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     770,
+     772
+    ],
+    "aristotle": [
+     1952,
+     1953
+    ],
+    "pl": 3,
+    "al": 2,
+    "first": "if (id !== runId) return;"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     774,
+     774
+    ],
+    "aristotle": [
+     1955,
+     1955
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "if (id === runId) pageLoading = false;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     778,
+     782
+    ],
+    "aristotle": [
+     1959,
+     1970
+    ],
+    "pl": 5,
+    "al": 12,
+    "first": "function goPage(i: number) {"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     784,
+     783
+    ],
+    "aristotle": [
+     1972,
+     2035
+    ],
+    "pl": 0,
+    "al": 64,
+    "first": "return [...by.values()].sort((a, b) => b.turns - a.turns || a.name.localeCompare(b.name));"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     786,
+     817
+    ],
+    "aristotle": [
+     2038,
+     2075
+    ],
+    "pl": 32,
+    "al": 38,
+    "first": "// The command palette (and any external link) can hand off a query via"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     819,
+     832
+    ],
+    "aristotle": [
+     2077,
+     2159
+    ],
+    "pl": 14,
+    "al": 83,
+    "first": "engNearText = u.engNear?.term ?? ''; engNearRel = u.engNear?.relation ?? 'near';"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     834,
+     843
+    ],
+    "aristotle": [
+     2161,
+     2175
+    ],
+    "pl": 10,
+    "al": 15,
+    "first": "// Picks from a shared address, applied once the LSJ row has its candidates."
+   },
+   {
+    "cls": "both",
+    "plays": [
+     845,
+     933
+    ],
+    "aristotle": [
+     2177,
+     2179
+    ],
+    "pl": 89,
+    "al": 3,
+    "first": "onMount(() => {"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     936,
+     941
+    ],
+    "aristotle": [
+     2182,
+     2185
+    ],
+    "pl": 6,
+    "al": 4,
+    "first": "// Back to an address with no search: clear the results, and let nothing"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     944,
+     976
+    ],
+    "aristotle": [
+     2188,
+     2215
+    ],
+    "pl": 33,
+    "al": 28,
+    "first": "// A play's Greek hit shows its whole verse line, the match marked (UI pass"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     978,
+     987
+    ],
+    "aristotle": [
+     2217,
+     2227
+    ],
+    "pl": 10,
+    "al": 11,
+    "first": "function lineKwic(seg: Segment, pos: number): string {"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     989,
+     1241
+    ],
+    "aristotle": [
+     2229,
+     2236
+    ],
+    "pl": 253,
+    "al": 8,
+    "first": "// Greek keyword-in-context: a window of surface tokens around the match,"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     1271,
+     1272
+    ],
+    "aristotle": [
+     2266,
+     2265
+    ],
+    "pl": 2,
+    "al": 0,
+    "first": "// Not also the search box's own Escape, which clears the query."
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     1285,
+     1290
+    ],
+    "aristotle": [
+     2278,
+     2278
+    ],
+    "pl": 6,
+    "al": 1,
+    "first": "// The dialog opens with focus on itself, which is in neither end of the"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     1293,
+     1293
+    ],
+    "aristotle": [
+     2281,
+     2281
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "} else if (!e.shiftKey && (!inside || active === last)) {"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1298,
+     1297
+    ],
+    "aristotle": [
+     2286,
+     3989
+    ],
+    "pl": 0,
+    "al": 1704,
+    "first": "// Map a hit's (column, line) to the group it falls in, for one book."
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1300,
+     1300
+    ],
+    "aristotle": [
+     3992,
+     4054
+    ],
+    "pl": 1,
+    "al": 63,
+    "first": "<svelte:window on:keydown={onHelpKey} />"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1302,
+     1342
+    ],
+    "aristotle": [
+     4056,
+     4124
+    ],
+    "pl": 41,
+    "al": 69,
+    "first": "<!-- UI pass 2, direction B (docs/redesign/HANDOFF-ui-pass2-build.md §8.1): the"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1344,
+     1343
+    ],
+    "aristotle": [
+     4126,
+     4414
+    ],
+    "pl": 0,
+    "al": 289,
+    "first": "{/if}"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1345,
+     1344
+    ],
+    "aristotle": [
+     4416,
+     4420
+    ],
+    "pl": 0,
+    "al": 5,
+    "first": "{#if lemmaOn && sugg.length}"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1346,
+     1355
+    ],
+    "aristotle": [
+     4422,
+     4439
+    ],
+    "pl": 10,
+    "al": 18,
+    "first": "<div class=\"ctrls\">"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1357,
+     1365
+    ],
+    "aristotle": [
+     4441,
+     4568
+    ],
+    "pl": 9,
+    "al": 128,
+    "first": "<span class=\"mn\">* wildcard · <button type=\"button\" class=\"ln\" on:click={openHelp} aria-ha"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1367,
+     1366
+    ],
+    "aristotle": [
+     4570,
+     4640
+    ],
+    "pl": 0,
+    "al": 71,
+    "first": "</div>"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     1368,
+     1497
+    ],
+    "aristotle": [
+     4642,
+     4641
+    ],
+    "pl": 130,
+    "al": 0,
+    "first": "{#if entryCand?.slug}<a class=\"ln\" href={lemmaEntryHref(import.meta.env.BASE_URL.replace(/"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1501,
+     1500
+    ],
+    "aristotle": [
+     4645,
+     4728
+    ],
+    "pl": 0,
+    "al": 84,
+    "first": "{#if SPEAKERS}"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     1514,
+     1513
+    ],
+    "aristotle": [
+     4742,
+     4742
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": "on:keydown={onHelpKey}"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     1515,
+     1515
+    ],
+    "aristotle": [
+     4744,
+     4743
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": "<!-- DRAFT copy: John approves. -->"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     1520,
+     1521
+    ],
+    "aristotle": [
+     4748,
+     4754
+    ],
+    "pl": 2,
+    "al": 7,
+    "first": "<p class=\"help-intro\">The Greek box takes Greek letters or Beta Code, Greek typed in Latin"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     1523,
+     1523
+    ],
+    "aristotle": [
+     4756,
+     4768
+    ],
+    "pl": 1,
+    "al": 13,
+    "first": "<li><code>{L.beta}</code><span class=\"gk\" lang=\"grc\">{L.greek}</span><span class=\"nm\">{L.n"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     1526,
+     1530
+    ],
+    "aristotle": [
+     4771,
+     4775
+    ],
+    "pl": 5,
+    "al": 5,
+    "first": "<h3>Accents and breathings (optional)</h3>"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1533,
+     1537
+    ],
+    "aristotle": [
+     4778,
+     4791
+    ],
+    "pl": 5,
+    "al": 14,
+    "first": "<h3>Examples</h3>"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1539,
+     1539
+    ],
+    "aristotle": [
+     4793,
+     4798
+    ],
+    "pl": 1,
+    "al": 6,
+    "first": "<p class=\"help-foot\"><code>h</code> is η and <code>w</code> is ω; <code>e</code> and <code"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1544,
+     1543
+    ],
+    "aristotle": [
+     4803,
+     4823
+    ],
+    "pl": 0,
+    "al": 21,
+    "first": "<!-- Always in the page, so a screen reader hears it change: a live region"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1546,
+     1545
+    ],
+    "aristotle": [
+     4826,
+     4831
+    ],
+    "pl": 0,
+    "al": 6,
+    "first": "{:else if narrowPrompt}"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1547,
+     1568
+    ],
+    "aristotle": [
+     4833,
+     5213
+    ],
+    "pl": 22,
+    "al": 381,
+    "first": "{#if unsupportedWorks.length}"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     1570,
+     1576
+    ],
+    "aristotle": [
+     5215,
+     5214
+    ],
+    "pl": 7,
+    "al": 0,
+    "first": "{#if pages.length > 1}"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1578,
+     1583
+    ],
+    "aristotle": [
+     5216,
+     5221
+    ],
+    "pl": 6,
+    "al": 6,
+    "first": "{#if pageError}"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1585,
+     1612
+    ],
+    "aristotle": [
+     5223,
+     5239
+    ],
+    "pl": 28,
+    "al": 17,
+    "first": "{#each groupsByWork as wg}"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1614,
+     1614
+    ],
+    "aristotle": [
+     5241,
+     5288
+    ],
+    "pl": 1,
+    "al": 48,
+    "first": "</ul>"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1616,
+     1617
+    ],
+    "aristotle": [
+     5290,
+     5290
+    ],
+    "pl": 2,
+    "al": 1,
+    "first": "</section>"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1619,
+     1625
+    ],
+    "aristotle": [
+     5292,
+     5300
+    ],
+    "pl": 7,
+    "al": 9,
+    "first": "{#if pages.length > 1}"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1628,
+     1627
+    ],
+    "aristotle": [
+     5303,
+     5334
+    ],
+    "pl": 0,
+    "al": 32,
+    "first": "<style>"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1629,
+     1633
+    ],
+    "aristotle": [
+     5336,
+     5345
+    ],
+    "pl": 5,
+    "al": 10,
+    "first": "<style>"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1635,
+     1638
+    ],
+    "aristotle": [
+     5347,
+     5359
+    ],
+    "pl": 4,
+    "al": 13,
+    "first": "/* The boxes at the left, every control at the right (§8.1). */"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1640,
+     1665
+    ],
+    "aristotle": [
+     5361,
+     5363
+    ],
+    "pl": 26,
+    "al": 3,
+    "first": ".boxes, .ctrls { min-width: 0; display: flex; flex-direction: column; gap: .55rem; }"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1667,
+     1751
+    ],
+    "aristotle": [
+     5365,
+     5365
+    ],
+    "pl": 85,
+    "al": 1,
+    "first": ".row { display: flex; flex-wrap: wrap; gap: .3rem 1rem; align-items: baseline; margin: 0; "
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1753,
+     1756
+    ],
+    "aristotle": [
+     5367,
+     5375
+    ],
+    "pl": 4,
+    "al": 9,
+    "first": "position: fixed; inset: 0; z-index: 50; overflow-y: auto;"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1759,
+     1763
+    ],
+    "aristotle": [
+     5378,
+     5384
+    ],
+    "pl": 5,
+    "al": 7,
+    "first": "width: 100%; max-width: 36rem; padding: 1.25rem 1.5rem 1.75rem;"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1765,
+     1782
+    ],
+    "aristotle": [
+     5386,
+     5411
+    ],
+    "pl": 18,
+    "al": 26,
+    "first": "@keyframes backdrop-in { from { opacity: 0; } to { opacity: 1; } }"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1784,
+     1795
+    ],
+    "aristotle": [
+     5413,
+     5440
+    ],
+    "pl": 12,
+    "al": 28,
+    "first": "/* Phone: one column, the boxes, the controls, then Search (§8.1). */"
+   }
+  ]
+ },
+ {
+  "file": "shared/components/SavedSearches.svelte",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/components/SavedSearches.svelte",
+  "plays": null,
+  "aristotle": 141,
+  "base": null,
+  "aristotle_before_redesign": null
+ },
+ {
+  "file": "shared/styles/b-search.css",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/styles/b-search.css",
+  "plays": null,
+  "aristotle": 2237,
+  "base": null,
+  "aristotle_before_redesign": null
+ },
+ {
+  "file": "shared/styles/b.css",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/styles/b.css",
+  "plays": null,
+  "aristotle": 1391,
+  "base": null,
+  "aristotle_before_redesign": null
+ },
+ {
+  "file": "shared/lib/search.ts",
+  "base_rev": "cpr",
+  "plays_file": "shared/lib/search.ts + shared/lib/search-advanced.ts (concatenated)",
+  "plays": 1547,
+  "aristotle": 2870,
+  "base": 428,
+  "aristotle_before_redesign": 1625,
+  "identical": false,
+  "port": {
+   "hunks": 26,
+   "plays_lines": 40,
+   "aristotle_lines": 787
+  },
+  "keep": {
+   "hunks": 5,
+   "plays_lines": 474,
+   "aristotle_lines": 0
+  },
+  "both": {
+   "hunks": 41,
+   "plays_lines": 652,
+   "aristotle_lines": 1702
+  },
+  "same_lines": 381,
+  "hunk_list": [
+   {
+    "cls": "port",
+    "plays": [
+     8,
+     8
+    ],
+    "aristotle": [
+     8,
+     10
+    ],
+    "pl": 1,
+    "al": 3,
+    "first": "// English search: whitespace-tokenized, lowercase."
+   },
+   {
+    "cls": "both",
+    "plays": [
+     11,
+     30
+    ],
+    "aristotle": [
+     13,
+     15
+    ],
+    "pl": 20,
+    "al": 3,
+    "first": "import { getWork } from './works';"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     33,
+     43
+    ],
+    "aristotle": [
+     18,
+     24
+    ],
+    "pl": 11,
+    "al": 7,
+    "first": "// Same root precedence as data.ts (see its longer doc comment): a build-time"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     51,
+     54
+    ],
+    "aristotle": [
+     32,
+     31
+    ],
+    "pl": 4,
+    "al": 0,
+    "first": "head: string;"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     57,
+     58
+    ],
+    "aristotle": [
+     34,
+     74
+    ],
+    "pl": 2,
+    "al": 41,
+    "first": "export type GrkIndex = Record<string, [number, number][]>; // fold → [[seg_idx, pos], ...]"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     62,
+     93
+    ],
+    "aristotle": [
+     78,
+     83
+    ],
+    "pl": 32,
+    "al": 6,
+    "first": "export type MatchMode = 'lemma' | 'form';"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     98,
+     100
+    ],
+    "aristotle": [
+     88,
+     88
+    ],
+    "pl": 3,
+    "al": 1,
+    "first": "// actually needs it (a Greek-only query never loads english.json, and only the"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     102,
+     102
+    ],
+    "aristotle": [
+     90,
+     92
+    ],
+    "pl": 1,
+    "al": 3,
+    "first": "// \"TypeError: Load failed\" and (via Promise.all) sink the whole search."
+   },
+   {
+    "cls": "port",
+    "plays": [
+     104,
+     104
+    ],
+    "aristotle": [
+     94,
+     100
+    ],
+    "pl": 1,
+    "al": 7,
+    "first": "const _fileCache = new Map<string, Promise<unknown>>();"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     106,
+     111
+    ],
+    "aristotle": [
+     102,
+     110
+    ],
+    "pl": 6,
+    "al": 9,
+    "first": "export function loadIndex<T>(work: string, file: string, ed?: string): Promise<T> {"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     113,
+     119
+    ],
+    "aristotle": [
+     112,
+     121
+    ],
+    "pl": 7,
+    "al": 10,
+    "first": "return file.endsWith('.bin') ? r.arrayBuffer() : r.json();"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     122,
+     129
+    ],
+    "aristotle": [
+     124,
+     152
+    ],
+    "pl": 8,
+    "al": 29,
+    "first": "// Drop a work's cached index files (meta/lemma/form/english.json) so the next"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     133,
+     135
+    ],
+    "aristotle": [
+     156,
+     163
+    ],
+    "pl": 3,
+    "al": 8,
+    "first": "// concurrent-fetch burst). Rejections propagate; callers that want per-item"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     141,
+     141
+    ],
+    "aristotle": [
+     169,
+     169
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "out[i] = await fn(items[i]);"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     150,
+     150
+    ],
+    "aristotle": [
+     178,
+     178
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "const GREEK_BETA: Record<string, string> = {"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     155,
+     161
+    ],
+    "aristotle": [
+     183,
+     182
+    ],
+    "pl": 7,
+    "al": 0,
+    "first": "const BETA_GREEK: Record<string, string> = Object.fromEntries("
+   },
+   {
+    "cls": "port",
+    "plays": [
+     170,
+     170
+    ],
+    "aristotle": [
+     191,
+     194
+    ],
+    "pl": 1,
+    "al": 4,
+    "first": "else if (ch === \"'\") out.push(\"'\");"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     177,
+     185
+    ],
+    "aristotle": [
+     201,
+     206
+    ],
+    "pl": 9,
+    "al": 6,
+    "first": "// -- Latin search fold -----------------------------------------------------"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     187,
+     188
+    ],
+    "aristotle": [
+     208,
+     225
+    ],
+    "pl": 2,
+    "al": 18,
+    "first": "const LATIN_LIGATURES: Record<string, string> = { æ: 'ae', œ: 'oe' };"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     190,
+     193
+    ],
+    "aristotle": [
+     227,
+     270
+    ],
+    "pl": 4,
+    "al": 44,
+    "first": "export function latinFold(input: string): string {"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     195,
+     196
+    ],
+    "aristotle": [
+     272,
+     272
+    ],
+    "pl": 2,
+    "al": 1,
+    "first": "folded = folded.normalize('NFD').replace(/v/g, 'u').replace(/j/g, 'i');"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     199,
+     206
+    ],
+    "aristotle": [
+     275,
+     279
+    ],
+    "pl": 8,
+    "al": 5,
+    "first": "// Per-language search-fold dispatch — the query-side analogue of"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     209,
+     209
+    ],
+    "aristotle": [
+     282,
+     288
+    ],
+    "pl": 1,
+    "al": 7,
+    "first": "// -- Posting-list helpers -------------------------------------------------"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     211,
+     222
+    ],
+    "aristotle": [
+     290,
+     301
+    ],
+    "pl": 12,
+    "al": 12,
+    "first": "function grkPosting(idx: GrkIndex, term: string, lang: SourceLanguage): Set<number> {"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     224,
+     225
+    ],
+    "aristotle": [
+     303,
+     333
+    ],
+    "pl": 2,
+    "al": 31,
+    "first": "}"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     228,
+     232
+    ],
+    "aristotle": [
+     336,
+     551
+    ],
+    "pl": 5,
+    "al": 216,
+    "first": "// ── What an English word is (ported from the Aristotle reader's search.ts) ──"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     234,
+     237
+    ],
+    "aristotle": [
+     553,
+     556
+    ],
+    "pl": 4,
+    "al": 4,
+    "first": "const INDEX_APOSTROPHE = /[\\u2019\\u02bc]/g;"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     241,
+     244
+    ],
+    "aristotle": [
+     560,
+     561
+    ],
+    "pl": 4,
+    "al": 2,
+    "first": "// A typed English term as the index keys it; a trailing * stays a wildcard."
+   },
+   {
+    "cls": "port",
+    "plays": [
+     246,
+     245
+    ],
+    "aristotle": [
+     563,
+     577
+    ],
+    "pl": 0,
+    "al": 15,
+    "first": "function englishTerm(term: string): string {"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     247,
+     246
+    ],
+    "aristotle": [
+     579,
+     579
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": ""
+   },
+   {
+    "cls": "both",
+    "plays": [
+     248,
+     248
+    ],
+    "aristotle": [
+     581,
+     583
+    ],
+    "pl": 1,
+    "al": 3,
+    "first": "* span it occupies in `text` as given, so a match can be marked on the page. */"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     271,
+     273
+    ],
+    "aristotle": [
+     606,
+     611
+    ],
+    "pl": 3,
+    "al": 6,
+    "first": "// Folded a character at a time: æ gives two letters, both at this"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     285,
+     736
+    ],
+    "aristotle": [
+     623,
+     633
+    ],
+    "pl": 452,
+    "al": 11,
+    "first": "function engPosting(idx: EngIndex, term: string): Set<string> {"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     747,
+     746
+    ],
+    "aristotle": [
+     644,
+     647
+    ],
+    "pl": 0,
+    "al": 4,
+    "first": "// Words in -s that are not the plural of the word without it: \"news\" is not"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     751,
+     750
+    ],
+    "aristotle": [
+     652,
+     653
+    ],
+    "pl": 0,
+    "al": 2,
+    "first": "// Words that are no noun, though a rule would make one of a plural: \"theses\""
+   },
+   {
+    "cls": "both",
+    "plays": [
+     753,
+     753
+    ],
+    "aristotle": [
+     656,
+     658
+    ],
+    "pl": 1,
+    "al": 3,
+    "first": "export function englishSingulars(w: string): string[] {"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     758,
+     757
+    ],
+    "aristotle": [
+     663,
+     663
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": "// Not -ss, -us, -is: class, genus and basis are singulars."
+   },
+   {
+    "cls": "both",
+    "plays": [
+     765,
+     765
+    ],
+    "aristotle": [
+     671,
+     673
+    ],
+    "pl": 1,
+    "al": 3,
+    "first": "export function englishPlurals(w: string): string[] {"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     768,
+     767
+    ],
+    "aristotle": [
+     676,
+     676
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": "// -ch takes either: churches, but stomachs and epochs."
+   },
+   {
+    "cls": "both",
+    "plays": [
+     786,
+     786
+    ],
+    "aristotle": [
+     695,
+     695
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "const bare = word.endsWith(\"'s\") ? word.slice(0, -2) : word.endsWith(\"'\") ? word.slice(0, "
+   },
+   {
+    "cls": "both",
+    "plays": [
+     789,
+     793
+    ],
+    "aristotle": [
+     698,
+     698
+    ],
+    "pl": 5,
+    "al": 1,
+    "first": "for (const one of englishSingulars(bare)) for (const f of englishPlurals(one)) {"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     801,
+     805
+    ],
+    "aristotle": [
+     706,
+     707
+    ],
+    "pl": 5,
+    "al": 2,
+    "first": "// A lone * (or one in quotes) is not a word: it counts and marks nothing,"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     815,
+     835
+    ],
+    "aristotle": [
+     717,
+     727
+    ],
+    "pl": 21,
+    "al": 11,
+    "first": "function termPositions("
+   },
+   {
+    "cls": "port",
+    "plays": [
+     838,
+     837
+    ],
+    "aristotle": [
+     730,
+     803
+    ],
+    "pl": 0,
+    "al": 74,
+    "first": "// Which index holds a translation's words: english.json for the primary, and"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     869,
+     868
+    ],
+    "aristotle": [
+     835,
+     1187
+    ],
+    "pl": 0,
+    "al": 353,
+    "first": "// -- Public search API ----------------------------------------------------"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     871,
+     873
+    ],
+    "aristotle": [
+     1190,
+     1192
+    ],
+    "pl": 3,
+    "al": 3,
+    "first": "type ShardPosts = (number | [number, number | string])[];"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     887,
+     887
+    ],
+    "aristotle": [
+     1206,
+     1209
+    ],
+    "pl": 1,
+    "al": 4,
+    "first": "export function shardsFor(pattern: CompiledPattern, listed: string[]): string[] {"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     894,
+     895
+    ],
+    "aristotle": [
+     1216,
+     1236
+    ],
+    "pl": 2,
+    "al": 21,
+    "first": "export async function shardSlice(stream: Stream, listed: string[], patterns: CompiledPatte"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     906,
+     906
+    ],
+    "aristotle": [
+     1247,
+     1276
+    ],
+    "pl": 1,
+    "al": 30,
+    "first": "export interface QueryIndexes {"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     908,
+     908
+    ],
+    "aristotle": [
+     1278,
+     1278
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "english(work: string): Promise<EngIndex>;"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     910,
+     923
+    ],
+    "aristotle": [
+     1280,
+     1284
+    ],
+    "pl": 14,
+    "al": 5,
+    "first": "function indexPattern(term: string, english: boolean): CompiledPattern | null {"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     925,
+     927
+    ],
+    "aristotle": [
+     1286,
+     1291
+    ],
+    "pl": 3,
+    "al": 6,
+    "first": "const index = async (stream: Stream, work: string, terms: string[]): Promise<unknown> => {"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     930,
+     930
+    ],
+    "aristotle": [
+     1294,
+     1294
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "const patterns = terms.map(t => fullPatterns && stream !== 'english' ? compilePattern(t, g"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     934,
+     946
+    ],
+    "aristotle": [
+     1298,
+     1300
+    ],
+    "pl": 13,
+    "al": 3,
+    "first": "const idx: Record<string, unknown> = Object.create(null);"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     951,
+     952
+    ],
+    "aristotle": [
+     1305,
+     1308
+    ],
+    "pl": 2,
+    "al": 4,
+    "first": "greek: work => index(greekStream, work, grkTerms) as Promise<GrkIndex>,"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     956,
+     955
+    ],
+    "aristotle": [
+     1312,
+     1496
+    ],
+    "pl": 0,
+    "al": 185,
+    "first": "// Search one work, returning hits tagged with that work."
+   },
+   {
+    "cls": "port",
+    "plays": [
+     974,
+     973
+    ],
+    "aristotle": [
+     1515,
+     1521
+    ],
+    "pl": 0,
+    "al": 7,
+    "first": "// The citation string a reader sees for a global offset, e.g. \"34b\". Routed"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     975,
+     975
+    ],
+    "aristotle": [
+     1523,
+     1546
+    ],
+    "pl": 1,
+    "al": 24,
+    "first": "export function readingSatisfies(reading: Reading, query: GrammarQuery): boolean {"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     982,
+     982
+    ],
+    "aristotle": [
+     1553,
+     1556
+    ],
+    "pl": 1,
+    "al": 4,
+    "first": "export function compileQuery(dict: GrammarDict, query: GrammarQuery) {"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     989,
+     989
+    ],
+    "aristotle": [
+     1563,
+     1571
+    ],
+    "pl": 1,
+    "al": 9,
+    "first": "for (const reading of readings) for (const v of reading[category] ?? []) licensed.add(v);"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1000,
+     1000
+    ],
+    "aristotle": [
+     1582,
+     1583
+    ],
+    "pl": 1,
+    "al": 2,
+    "first": "export function locate(base: number[], global: number): [number, number] {"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1011,
+     1011
+    ],
+    "aristotle": [
+     1594,
+     2791
+    ],
+    "pl": 1,
+    "al": 1198,
+    "first": "export async function grammarSearchWork(work: string, query: GrammarQuery): Promise<Search"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1017,
+     1016
+    ],
+    "aristotle": [
+     2797,
+     2799
+    ],
+    "pl": 0,
+    "al": 3,
+    "first": "// The column is joined to the offsets by position alone, so a mismatched"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     1042,
+     1042
+    ],
+    "aristotle": [
+     2825,
+     2824
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": "engPositions: [],"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1053,
+     1052
+    ],
+    "aristotle": [
+     2835,
+     2837
+    ],
+    "pl": 0,
+    "al": 3,
+    "first": "// Grammatical search across one or more works. Same per-work failure tolerance"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1058,
+     1058
+    ],
+    "aristotle": [
+     2843,
+     2843
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "return { results: [], failed: [] };"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1060,
+     1060
+    ],
+    "aristotle": [
+     2845,
+     2845
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "const failed: string[] = [];"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1066,
+     1066
+    ],
+    "aristotle": [
+     2851,
+     2851
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "failed.push(w);"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1070,
+     1070
+    ],
+    "aristotle": [
+     2855,
+     2855
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "if (failed.length === works.length) {"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     1073,
+     1073
+    ],
+    "aristotle": [
+     2858,
+     2858
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "return { results: perWork.flat(), failed };"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     1076,
+     1284
+    ],
+    "aristotle": [
+     2861,
+     2860
+    ],
+    "pl": 209,
+    "al": 0,
+    "first": "export const VARIANT_READING_CAP = 64;"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     1295,
+     1547
+    ],
+    "aristotle": [
+     2871,
+     2870
+    ],
+    "pl": 253,
+    "al": 0,
+    "first": "export function comboWindows("
+   }
+  ]
+ },
+ {
+  "file": "shared/lib/search-url.ts",
+  "base_rev": "8dabb65815",
+  "plays_file": "shared/lib/search-url.ts",
+  "plays": 174,
+  "aristotle": 368,
+  "base": 201,
+  "aristotle_before_redesign": 213,
+  "identical": false,
+  "port": {
+   "hunks": 3,
+   "plays_lines": 1,
+   "aristotle_lines": 5
+  },
+  "keep": {
+   "hunks": 5,
+   "plays_lines": 97,
+   "aristotle_lines": 8
+  },
+  "both": {
+   "hunks": 11,
+   "plays_lines": 42,
+   "aristotle_lines": 321
+  },
+  "same_lines": 34,
+  "hunk_list": [
+   {
+    "cls": "both",
+    "plays": [
+     1,
+     3
+    ],
+    "aristotle": [
+     1,
+     51
+    ],
+    "pl": 3,
+    "al": 51,
+    "first": "// Search state for links and browser history. Defaults follow Search.svelte."
+   },
+   {
+    "cls": "both",
+    "plays": [
+     5,
+     5
+    ],
+    "aristotle": [
+     53,
+     89
+    ],
+    "pl": 1,
+    "al": 37,
+    "first": "export interface UrlSearch extends AdvancedSearch {"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     10,
+     10
+    ],
+    "aristotle": [
+     94,
+     94
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "matchMode: MatchMode;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     12,
+     11
+    ],
+    "aristotle": [
+     96,
+     97
+    ],
+    "pl": 0,
+    "al": 2,
+    "first": "punctuation: boolean;     // running text: match the punctuation too"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     13,
+     22
+    ],
+    "aristotle": [
+     99,
+     111
+    ],
+    "pl": 10,
+    "al": 13,
+    "first": "engForms: boolean;"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     26,
+     27
+    ],
+    "aristotle": [
+     115,
+     118
+    ],
+    "pl": 2,
+    "al": 4,
+    "first": "grk: '', eng: '', grkMode: 'all', engMode: 'all', matchMode: DEFAULT_MATCH_MODE,"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     30,
+     30
+    ],
+    "aristotle": [
+     121,
+     228
+    ],
+    "pl": 1,
+    "al": 108,
+    "first": "export const hasSearch = (s: UrlSearch): boolean => !!(s.grk.trim() || s.eng.trim() || Obj"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     33,
+     43
+    ],
+    "aristotle": [
+     231,
+     275
+    ],
+    "pl": 11,
+    "al": 45,
+    "first": "if (!hasSearch(s)) return '';"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     45,
+     48
+    ],
+    "aristotle": [
+     277,
+     284
+    ],
+    "pl": 4,
+    "al": 8,
+    "first": "if (allWorks.some(w => !chosen.has(w))) {"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     50,
+     80
+    ],
+    "aristotle": [
+     286,
+     286
+    ],
+    "pl": 31,
+    "al": 1,
+    "first": "// Short, readable parameters rather than JSON, so a shared link stays short:"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     83,
+     101
+    ],
+    "aristotle": [
+     289,
+     289
+    ],
+    "pl": 19,
+    "al": 1,
+    "first": "// At most three Near terms in all: the first and two more."
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     105,
+     104
+    ],
+    "aristotle": [
+     293,
+     295
+    ],
+    "pl": 0,
+    "al": 3,
+    "first": "const pick = <T extends string>(v: string | null, allowed: readonly T[], fallback: T): T ="
+   },
+   {
+    "cls": "both",
+    "plays": [
+     109,
+     109
+    ],
+    "aristotle": [
+     300,
+     300
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "if (/(?=\\p{L})\\p{Script=Greek}/u.test(q)) s.grk = q;"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     112,
+     115
+    ],
+    "aristotle": [
+     303,
+     306
+    ],
+    "pl": 4,
+    "al": 4,
+    "first": "const gm = p.get('gm'), em = p.get('em');"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     117,
+     116
+    ],
+    "aristotle": [
+     308,
+     309
+    ],
+    "pl": 0,
+    "al": 2,
+    "first": "s.punctuation = p.get('pu') === '1';"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     119,
+     120
+    ],
+    "aristotle": [
+     312,
+     354
+    ],
+    "pl": 2,
+    "al": 43,
+    "first": "const ed = p.get('ed');"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     122,
+     124
+    ],
+    "aristotle": [
+     356,
+     362
+    ],
+    "pl": 3,
+    "al": 7,
+    "first": "if (w !== null) {"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     126,
+     172
+    ],
+    "aristotle": [
+     364,
+     363
+    ],
+    "pl": 47,
+    "al": 0,
+    "first": "const lp = p.get('lp');"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     175,
+     174
+    ],
+    "aristotle": [
+     366,
+     368
+    ],
+    "pl": 0,
+    "al": 3,
+    "first": "/** Whether the decoded state asks for a search at all. */"
+   }
+  ]
+ },
+ {
+  "file": "shared/lib/search-pages.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/search-pages.ts",
+  "plays": null,
+  "aristotle": 57,
+  "base": null,
+  "aristotle_before_redesign": 170
+ },
+ {
+  "file": "shared/lib/chapter-pages.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/chapter-pages.ts",
+  "plays": null,
+  "aristotle": 160,
+  "base": null,
+  "aristotle_before_redesign": null
+ },
+ {
+  "file": "shared/lib/result-views.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/result-views.ts",
+  "plays": null,
+  "aristotle": 544,
+  "base": null,
+  "aristotle_before_redesign": null
+ },
+ {
+  "file": "shared/lib/form-panel.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/form-panel.ts",
+  "plays": null,
+  "aristotle": 79,
+  "base": null,
+  "aristotle_before_redesign": null
+ },
+ {
+  "file": "shared/lib/english-hit.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/english-hit.ts",
+  "plays": null,
+  "aristotle": 244,
+  "base": null,
+  "aristotle_before_redesign": 272
+ },
+ {
+  "file": "shared/lib/english-place.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/english-place.ts",
+  "plays": null,
+  "aristotle": 236,
+  "base": null,
+  "aristotle_before_redesign": null
+ },
+ {
+  "file": "shared/lib/paired-hit.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/paired-hit.ts",
+  "plays": null,
+  "aristotle": 433,
+  "base": null,
+  "aristotle_before_redesign": null
+ },
+ {
+  "file": "shared/lib/proximity-sentence.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/proximity-sentence.ts",
+  "plays": null,
+  "aristotle": 110,
+  "base": null,
+  "aristotle_before_redesign": null
+ },
+ {
+  "file": "shared/lib/running-text.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/running-text.ts",
+  "plays": null,
+  "aristotle": 414,
+  "base": null,
+  "aristotle_before_redesign": null
+ },
+ {
+  "file": "shared/lib/running-text.worker.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/running-text.worker.ts",
+  "plays": null,
+  "aristotle": 22,
+  "base": null,
+  "aristotle_before_redesign": null
+ },
+ {
+  "file": "shared/lib/running-match.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/running-match.ts",
+  "plays": null,
+  "aristotle": 22,
+  "base": null,
+  "aristotle_before_redesign": null
+ },
+ {
+  "file": "shared/lib/greek-keys.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/greek-keys.ts",
+  "plays": null,
+  "aristotle": 70,
+  "base": null,
+  "aristotle_before_redesign": null
+ },
+ {
+  "file": "shared/lib/betacode.ts",
+  "base_rev": "3a4c75a635",
+  "plays_file": "shared/lib/betacode.ts",
+  "plays": 199,
+  "aristotle": 223,
+  "base": 223,
+  "aristotle_before_redesign": 117,
+  "identical": false,
+  "port": {
+   "hunks": 0,
+   "plays_lines": 0,
+   "aristotle_lines": 0
+  },
+  "keep": {
+   "hunks": 12,
+   "plays_lines": 12,
+   "aristotle_lines": 36
+  },
+  "both": {
+   "hunks": 0,
+   "plays_lines": 0,
+   "aristotle_lines": 0
+  },
+  "same_lines": 187,
+  "hunk_list": [
+   {
+    "cls": "keep",
+    "plays": [
+     64,
+     64
+    ],
+    "aristotle": [
+     64,
+     64
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "// Morpheus also writes a capital's marks after the letter: *r(h=sos."
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     73,
+     75
+    ],
+    "aristotle": [
+     73,
+     76
+    ],
+    "pl": 3,
+    "al": 4,
+    "first": "// Uppercase the BASE letter, then compose: String#toUpperCase on the"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     116,
+     117
+    ],
+    "aristotle": [
+     117,
+     118
+    ],
+    "pl": 2,
+    "al": 2,
+    "first": "// yet, stays visible as typed. One change from Grammata: the apostrophe stays"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     134,
+     134
+    ],
+    "aristotle": [
+     135,
+     135
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "const LIVE_RANK: Record<string, number> = {"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     142,
+     142
+    ],
+    "aristotle": [
+     143,
+     145
+    ],
+    "pl": 1,
+    "al": 3,
+    "first": "export function liveGreek(text: string): string {"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     162,
+     161
+    ],
+    "aristotle": [
+     165,
+     167
+    ],
+    "pl": 0,
+    "al": 3,
+    "first": "// Whether the last character was a wildcard (. ? ] or a wildcard *): a *"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     163,
+     162
+    ],
+    "aristotle": [
+     169,
+     170
+    ],
+    "pl": 0,
+    "al": 2,
+    "first": "const wild = afterWildcard;"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     164,
+     164
+    ],
+    "aristotle": [
+     172,
+     172
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "if (LIVE_BASE.has(lower) || lower === 'ς') {"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     170,
+     170
+    ],
+    "aristotle": [
+     178,
+     178
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "} else if (LIVE_LETTER[lower] || lower === 'j') {"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     172,
+     172
+    ],
+    "aristotle": [
+     180,
+     185
+    ],
+    "pl": 1,
+    "al": 6,
+    "first": "pushLetter(isSigma ? 'σ' : LIVE_LETTER[lower], ch !== lower && lower !== 'j', isSigma);"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     176,
+     176
+    ],
+    "aristotle": [
+     189,
+     188
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": "current = null;"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     200,
+     199
+    ],
+    "aristotle": [
+     212,
+     223
+    ],
+    "pl": 0,
+    "al": 12,
+    "first": "// One search term typed in Beta Code → Greek, keeping the search wildcards,"
+   }
+  ]
+ },
+ {
+  "file": "shared/lib/saved-searches.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/saved-searches.ts",
+  "plays": null,
+  "aristotle": 195,
+  "base": null,
+  "aristotle_before_redesign": null
+ },
+ {
+  "file": "shared/lib/speakers.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/speakers.ts",
+  "plays": 1453,
+  "aristotle": 460,
+  "base": 603,
+  "aristotle_before_redesign": null,
+  "identical": false,
+  "port": {
+   "hunks": 14,
+   "plays_lines": 22,
+   "aristotle_lines": 30
+  },
+  "keep": {
+   "hunks": 11,
+   "plays_lines": 1003,
+   "aristotle_lines": 6
+  },
+  "both": {
+   "hunks": 1,
+   "plays_lines": 11,
+   "aristotle_lines": 7
+  },
+  "same_lines": 417,
+  "hunk_list": [
+   {
+    "cls": "keep",
+    "plays": [
+     24,
+     24
+    ],
+    "aristotle": [
+     24,
+     23
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": "display?: string | null; // canonical English name; null for the dash"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     32,
+     32
+    ],
+    "aristotle": [
+     31,
+     31
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "| { kind: 'speaker'; label: string; display?: string | null; dash: boolean };"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     38,
+     48
+    ],
+    "aristotle": [
+     37,
+     43
+    ],
+    "pl": 11,
+    "al": 7,
+    "first": "// Editorial sigla an edition prints INSIDE a word: angle brackets for a"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     53,
+     52
+    ],
+    "aristotle": [
+     48,
+     56
+    ],
+    "pl": 0,
+    "al": 9,
+    "first": "//"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     55,
+     56
+    ],
+    "aristotle": [
+     59,
+     60
+    ],
+    "pl": 2,
+    "al": 2,
+    "first": "if (plain >= 0) return { start: plain, end: plain + t.length };"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     74,
+     74
+    ],
+    "aristotle": [
+     78,
+     79
+    ],
+    "pl": 1,
+    "al": 2,
+    "first": "return null;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     93,
+     96
+    ],
+    "aristotle": [
+     98,
+     97
+    ],
+    "pl": 4,
+    "al": 0,
+    "first": "// A token with no `k` (non-lexical: no Greek letters at all — inline"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     109,
+     114
+    ],
+    "aristotle": [
+     110,
+     111
+    ],
+    "pl": 6,
+    "al": 2,
+    "first": "// for the popup, the search-hit test and the aria-label."
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     125,
+     125
+    ],
+    "aristotle": [
+     122,
+     122
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "out.push({ kind: 'speaker', label: e.label, display: e.display, dash: e.label === DASH });"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     149,
+     216
+    ],
+    "aristotle": [
+     146,
+     145
+    ],
+    "pl": 68,
+    "al": 0,
+    "first": "}"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     262,
+     263
+    ],
+    "aristotle": [
+     191,
+     193
+    ],
+    "pl": 2,
+    "al": 3,
+    "first": "// (Timaeus/Phaedo long residual speeches carry them — B2)."
+   },
+   {
+    "cls": "port",
+    "plays": [
+     266,
+     266
+    ],
+    "aristotle": [
+     196,
+     198
+    ],
+    "pl": 1,
+    "al": 3,
+    "first": "// the Greek cells, and so the exact tick lines, are hidden)."
+   },
+   {
+    "cls": "port",
+    "plays": [
+     274,
+     274
+    ],
+    "aristotle": [
+     206,
+     207
+    ],
+    "pl": 1,
+    "al": 2,
+    "first": "// row (B4 residual rows — usually `english` is null)."
+   },
+   {
+    "cls": "port",
+    "plays": [
+     276,
+     275
+    ],
+    "aristotle": [
+     209,
+     209
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": "es?: { o: number; c: string }[] | null;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     277,
+     277
+    ],
+    "aristotle": [
+     211,
+     211
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "sub?: { s: string | null; d: string | null; e: string; ep?: number[] | null }[] | null;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     281,
+     281
+    ],
+    "aristotle": [
+     215,
+     215
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "alt?: Record<string, { e: string | null; ep?: number[] | null }> | null;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     396,
+     397
+    ],
+    "aristotle": [
+     330,
+     331
+    ],
+    "pl": 2,
+    "al": 2,
+    "first": "if (prev.english) prev.englishCont.push({ text: t.e, ep: t.ep });"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     421,
+     421
+    ],
+    "aristotle": [
+     355,
+     355
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "for (const s of t.sub) prev.englishCont.push({ text: s.e, ep: s.ep });"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     435,
+     434
+    ],
+    "aristotle": [
+     369,
+     369
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": "es: t.es,"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     499,
+     504
+    ],
+    "aristotle": [
+     434,
+     434
+    ],
+    "pl": 6,
+    "al": 1,
+    "first": "// (rendered as an em-dash, mirroring the Greek dash); `speaker` is the"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     508,
+     508
+    ],
+    "aristotle": [
+     438,
+     437
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": "speaker: string | null;"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     510,
+     522
+    ],
+    "aristotle": [
+     439,
+     438
+    ],
+    "pl": 13,
+    "al": 0,
+    "first": "// Carried from the turn (play-line, P2h): this turn's English speaker"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     529,
+     529
+    ],
+    "aristotle": [
+     445,
+     445
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "if (!turns.length) return [{ lead: true, display: null, speaker: null, text, turnIndex: -1"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     532,
+     532
+    ],
+    "aristotle": [
+     448,
+     448
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "if (lead) blocks.push({ lead: true, display: null, speaker: null, text: lead, turnIndex: -"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     541,
+     551
+    ],
+    "aristotle": [
+     457,
+     457
+    ],
+    "pl": 11,
+    "al": 1,
+    "first": "const mismatch = turns[i].speakerMismatch;"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     555,
+     1453
+    ],
+    "aristotle": [
+     461,
+     460
+    ],
+    "pl": 899,
+    "al": 0,
+    "first": "export interface EnglishTurnSource {"
+   }
+  ]
+ },
+ {
+  "file": "shared/lib/sect-ticks.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/sect-ticks.ts",
+  "plays": null,
+  "aristotle": 147,
+  "base": null,
+  "aristotle_before_redesign": null
+ },
+ {
+  "file": "shared/lib/speaker-colors.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/speaker-colors.ts",
+  "plays": 70,
+  "aristotle": 70,
+  "base": 70,
+  "aristotle_before_redesign": null,
+  "identical": false,
+  "port": {
+   "hunks": 0,
+   "plays_lines": 0,
+   "aristotle_lines": 0
+  },
+  "keep": {
+   "hunks": 2,
+   "plays_lines": 2,
+   "aristotle_lines": 2
+  },
+  "both": {
+   "hunks": 0,
+   "plays_lines": 0,
+   "aristotle_lines": 0
+  },
+  "same_lines": 68,
+  "hunk_list": [
+   {
+    "cls": "keep",
+    "plays": [
+     5,
+     5
+    ],
+    "aristotle": [
+     5,
+     5
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "// The palette itself is twelve CSS custom properties (--spk-0…11 in"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     12,
+     12
+    ],
+    "aristotle": [
+     12,
+     12
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "export const SPK_PALETTE_N = 12;"
+   }
+  ]
+ },
+ {
+  "file": "shared/lib/corpus-tools.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/corpus-tools.ts",
+  "plays": null,
+  "aristotle": 214,
+  "base": null,
+  "aristotle_before_redesign": null
+ },
+ {
+  "file": "shared/lib/inscription.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/inscription.ts",
+  "plays": null,
+  "aristotle": 17,
+  "base": null,
+  "aristotle_before_redesign": null
+ },
+ {
+  "file": "shared/lib/data.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/data.ts",
+  "plays": 1115,
+  "aristotle": 874,
+  "base": 922,
+  "aristotle_before_redesign": 721,
+  "identical": false,
+  "port": {
+   "hunks": 20,
+   "plays_lines": 78,
+   "aristotle_lines": 702
+  },
+  "keep": {
+   "hunks": 14,
+   "plays_lines": 624,
+   "aristotle_lines": 1
+  },
+  "both": {
+   "hunks": 3,
+   "plays_lines": 245,
+   "aristotle_lines": 3
+  },
+  "same_lines": 168,
+  "hunk_list": [
+   {
+    "cls": "port",
+    "plays": [
+     1,
+     0
+    ],
+    "aristotle": [
+     1,
+     1
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": "import { schemeFor } from './citation';"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     2,
+     3
+    ],
+    "aristotle": [
+     3,
+     5
+    ],
+    "pl": 2,
+    "al": 3,
+    "first": "// build/dist/ne). Shards are cached in module-level Maps so a single"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     5,
+     7
+    ],
+    "aristotle": [
+     7,
+     6
+    ],
+    "pl": 3,
+    "al": 0,
+    "first": "import { sanitizeHtml } from './html';"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     13,
+     47
+    ],
+    "aristotle": [
+     12,
+     12
+    ],
+    "pl": 35,
+    "al": 1,
+    "first": "// Beta Code key — absent (not empty) for a NON-LEXICAL token (inline"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     52,
+     51
+    ],
+    "aristotle": [
+     17,
+     20
+    ],
+    "pl": 0,
+    "al": 4,
+    "first": "// Bekker's lettered lines: 244b carries 5 and then 5a, two lines sharing a"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     53,
+     73
+    ],
+    "aristotle": [
+     22,
+     21
+    ],
+    "pl": 21,
+    "al": 0,
+    "first": "// play-line only (the Greek drama corpus, P1 — docs/p1-probe.md): the"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     80,
+     187
+    ],
+    "aristotle": [
+     28,
+     27
+    ],
+    "pl": 108,
+    "al": 0,
+    "first": "// Standoff TLG-section paragraph offsets over this line's `text` (Discourses"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     191,
+     190
+    ],
+    "aristotle": [
+     31,
+     32
+    ],
+    "pl": 0,
+    "al": 2,
+    "first": "// The column opens a paragraph; no offset-zero paragraph marker."
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     196,
+     258
+    ],
+    "aristotle": [
+     38,
+     38
+    ],
+    "pl": 63,
+    "al": 1,
+    "first": "// `label` (play-line only) is the lettered Greek line a tick names"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     261,
+     272
+    ],
+    "aristotle": [
+     41,
+     56
+    ],
+    "pl": 12,
+    "al": 16,
+    "first": "// Paratext ribbon before a segment (Freeman Ancilla wave, design note"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     274,
+     273
+    ],
+    "aristotle": [
+     58,
+     65
+    ],
+    "pl": 0,
+    "al": 8,
+    "first": "cont: boolean;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     275,
+     274
+    ],
+    "aristotle": [
+     67,
+     711
+    ],
+    "pl": 0,
+    "al": 645,
+    "first": "export interface Segment {"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     280,
+     287
+    ],
+    "aristotle": [
+     717,
+     716
+    ],
+    "pl": 8,
+    "al": 0,
+    "first": "// play-line only (P2h, 2026-09-08): THIS turn's translator gives the line to"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     289,
+     288
+    ],
+    "aristotle": [
+     718,
+     718
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": ""
+   },
+   {
+    "cls": "port",
+    "plays": [
+     310,
+     309
+    ],
+    "aristotle": [
+     740,
+     746
+    ],
+    "pl": 0,
+    "al": 7,
+    "first": "// `es`: Stephanus section starts within this turn's stripped English slice —"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     320,
+     320
+    ],
+    "aristotle": [
+     757,
+     757
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "sub?: { s: string | null; d: string | null; e: string; ep?: number[] | null }[] | null;"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     323,
+     323
+    ],
+    "aristotle": [
+     760,
+     760
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "// turn aligner (pipeline/drama_pipeline/align_turns.py), which pairs each"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     328,
+     328
+    ],
+    "aristotle": [
+     765,
+     768
+    ],
+    "pl": 1,
+    "al": 4,
+    "first": "alt?: Record<string, { e: string | null; ep?: number[] | null }> | null;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     330,
+     329
+    ],
+    "aristotle": [
+     770,
+     770
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": ""
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     347,
+     385
+    ],
+    "aristotle": [
+     788,
+     787
+    ],
+    "pl": 39,
+    "al": 0,
+    "first": "export interface ChapterStart {"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     396,
+     396
+    ],
+    "aristotle": [
+     798,
+     797
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": "display?: string | null;"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     399,
+     653
+    ],
+    "aristotle": [
+     800,
+     799
+    ],
+    "pl": 255,
+    "al": 0,
+    "first": "// Source-passage English (docs/source-passage-english-scoping.md): the"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     657,
+     662
+    ],
+    "aristotle": [
+     803,
+     802
+    ],
+    "pl": 6,
+    "al": 0,
+    "first": "const _analysesCache = new Map<string, Promise<Record<string, Analysis[]>>>();"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     664,
+     684
+    ],
+    "aristotle": [
+     804,
+     803
+    ],
+    "pl": 21,
+    "al": 0,
+    "first": "export function fetchBook(work: string, n: number, ed?: string): Promise<BookData> {"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     686,
+     698
+    ],
+    "aristotle": [
+     805,
+     804
+    ],
+    "pl": 13,
+    "al": 0,
+    "first": "export function fetchConcordance(work: string, ed: string): Promise<Record<string, string>"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     700,
+     717
+    ],
+    "aristotle": [
+     806,
+     805
+    ],
+    "pl": 18,
+    "al": 0,
+    "first": "/**"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     719,
+     730
+    ],
+    "aristotle": [
+     807,
+     808
+    ],
+    "pl": 12,
+    "al": 2,
+    "first": "export function fetchChapters(work: string): Promise<Record<string, ChapterRef[]>> {"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     737,
+     740
+    ],
+    "aristotle": [
+     815,
+     817
+    ],
+    "pl": 4,
+    "al": 3,
+    "first": "// by chapter). Ordered in reading order (2a, 2b, … 17e, 18a). `letter` is"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     743,
+     742
+    ],
+    "aristotle": [
+     820,
+     820
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": ""
+   },
+   {
+    "cls": "port",
+    "plays": [
+     759,
+     758
+    ],
+    "aristotle": [
+     837,
+     837
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": ""
+   },
+   {
+    "cls": "port",
+    "plays": [
+     765,
+     764
+    ],
+    "aristotle": [
+     844,
+     844
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": ""
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     774,
+     813
+    ],
+    "aristotle": [
+     854,
+     853
+    ],
+    "pl": 40,
+    "al": 0,
+    "first": "// Freeman Ancilla group-header paratext (see Paratext) for a work, in"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     818,
+     829
+    ],
+    "aristotle": [
+     858,
+     858
+    ],
+    "pl": 12,
+    "al": 1,
+    "first": "const _sidenotesCache = new Map<string, Promise<Record<string, string>>>();"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     833,
+     844
+    ],
+    "aristotle": [
+     862,
+     861
+    ],
+    "pl": 12,
+    "al": 0,
+    "first": "const _figuresCache = new Map<string, Promise<Record<string, string>>>();"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     846,
+     873
+    ],
+    "aristotle": [
+     863,
+     862
+    ],
+    "pl": 28,
+    "al": 0,
+    "first": "// Bekker column -> owning book(s) with each book's line span in that column."
+   },
+   {
+    "cls": "port",
+    "plays": [
+     884,
+     905
+    ],
+    "aristotle": [
+     873,
+     872
+    ],
+    "pl": 22,
+    "al": 0,
+    "first": "// Resolve a parsed citation to the book that owns it. For a column shared by"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     907,
+     1115
+    ],
+    "aristotle": [
+     874,
+     874
+    ],
+    "pl": 209,
+    "al": 1,
+    "first": "export function fetchAnalyses(work: string, ed?: string): Promise<Record<string, Analysis["
+   }
+  ]
+ },
+ {
+  "file": "shared/lib/works.ts",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/lib/works.ts",
+  "plays": 647,
+  "aristotle": 1597,
+  "base": 628,
+  "aristotle_before_redesign": 1561,
+  "identical": false,
+  "port": {
+   "hunks": 51,
+   "plays_lines": 322,
+   "aristotle_lines": 1410
+  },
+  "keep": {
+   "hunks": 3,
+   "plays_lines": 10,
+   "aristotle_lines": 0
+  },
+  "both": {
+   "hunks": 2,
+   "plays_lines": 145,
+   "aristotle_lines": 17
+  },
+  "same_lines": 170,
+  "hunk_list": [
+   {
+    "cls": "port",
+    "plays": [
+     6,
+     8
+    ],
+    "aristotle": [
+     6,
+     7
+    ],
+    "pl": 3,
+    "al": 2,
+    "first": "// `id` is the URL slug AND the data directory name; it is a readable"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     11,
+     27
+    ],
+    "aristotle": [
+     10,
+     14
+    ],
+    "pl": 17,
+    "al": 5,
+    "first": "// that translation: 'english' is the primary parallel chunk, 'secondary' a"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     31,
+     31
+    ],
+    "aristotle": [
+     18,
+     17
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": "edition?: string;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     35,
+     37
+    ],
+    "aristotle": [
+     21,
+     23
+    ],
+    "pl": 3,
+    "al": 3,
+    "first": "// Carries inline `[^N]` footnote markers + a footnotes.json popup map."
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     39,
+     46
+    ],
+    "aristotle": [
+     25,
+     24
+    ],
+    "pl": 8,
+    "al": 0,
+    "first": "// How the English is keyed to the Greek: by line (a line-numbered"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     48,
+     49
+    ],
+    "aristotle": [
+     26,
+     28
+    ],
+    "pl": 2,
+    "al": 3,
+    "first": "// The public deploy sets PUBLIC_HIDE_PRIVATE=1 to drop them from the registry"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     51,
+     62
+    ],
+    "aristotle": [
+     30,
+     29
+    ],
+    "pl": 12,
+    "al": 0,
+    "first": "// Marks a translation as a SUMMARY rather than a full translation (e.g."
+   },
+   {
+    "cls": "port",
+    "plays": [
+     65,
+     68
+    ],
+    "aristotle": [
+     32,
+     37
+    ],
+    "pl": 4,
+    "al": 6,
+    "first": "// A gap in a work's book sequence worth annotating in the reader (e.g. the"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     79,
+     88
+    ],
+    "aristotle": [
+     48,
+     49
+    ],
+    "pl": 10,
+    "al": 2,
+    "first": "id: string;       // data dir (and URL slug, unless `slug` overrides it below), e.g. 'Euth"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     90,
+     89
+    ],
+    "aristotle": [
+     51,
+     51
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": "listTitle?: string;   // shorter title for the home page's list (John, 14 Nov: De Mirabili"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     92,
+     95
+    ],
+    "aristotle": [
+     54,
+     53
+    ],
+    "pl": 4,
+    "al": 0,
+    "first": "// Slug ref into shared/lib/authors.ts's AUTHORS registry (e.g."
+   },
+   {
+    "cls": "port",
+    "plays": [
+     97,
+     98
+    ],
+    "aristotle": [
+     55,
+     54
+    ],
+    "pl": 2,
+    "al": 0,
+    "first": "language: 'grc' | 'lat';"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     100,
+     101
+    ],
+    "aristotle": [
+     56,
+     57
+    ],
+    "pl": 2,
+    "al": 2,
+    "first": "bookLabels: string[];   // per-book display labels (Arabic for a bookless work)"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     103,
+     103
+    ],
+    "aristotle": [
+     59,
+     58
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": "greekEditions?: { id: string; short: string; full: string; editor: string; year: number; k"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     107,
+     107
+    ],
+    "aristotle": [
+     62,
+     65
+    ],
+    "pl": 1,
+    "al": 4,
+    "first": "greekSource: { short: string; full: string };"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     111,
+     110
+    ],
+    "aristotle": [
+     69,
+     69
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": "// Used to surface a preferred overlay (e.g. NE → Ostwald) on first load."
+   },
+   {
+    "cls": "port",
+    "plays": [
+     112,
+     124
+    ],
+    "aristotle": [
+     71,
+     70
+    ],
+    "pl": 13,
+    "al": 0,
+    "first": "// Fix round, finding 3 (Sol xhigh review): a brief prose note naming"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     126,
+     245
+    ],
+    "aristotle": [
+     72,
+     85
+    ],
+    "pl": 120,
+    "al": 14,
+    "first": "// P4 plate fields (Greek drama): the production line (festival, date, prize"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     249,
+     249
+    ],
+    "aristotle": [
+     89,
+     89
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "// landing page."
+   },
+   {
+    "cls": "port",
+    "plays": [
+     253,
+     258
+    ],
+    "aristotle": [
+     93,
+     97
+    ],
+    "pl": 6,
+    "al": 5,
+    "first": "// Traditional stylometric/dramatic dating (early/middle/late Plato), shown"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     266,
+     265
+    ],
+    "aristotle": [
+     105,
+     106
+    ],
+    "pl": 0,
+    "al": 2,
+    "first": "const ROMAN = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     271,
+     278
+    ],
+    "aristotle": [
+     112,
+     114
+    ],
+    "pl": 8,
+    "al": 3,
+    "first": "// hides private content rather than leaking text we can't host. The vendored"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     280,
+     279
+    ],
+    "aristotle": [
+     116,
+     123
+    ],
+    "pl": 0,
+    "al": 8,
+    "first": "const ACKRILL: TranslationRef[] = SHOW_PRIVATE ? ["
+   },
+   {
+    "cls": "port",
+    "plays": [
+     281,
+     308
+    ],
+    "aristotle": [
+     125,
+     128
+    ],
+    "pl": 28,
+    "al": 4,
+    "first": "// A minimal work for exercising registry-driven routing/search/tests before"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     310,
+     311
+    ],
+    "aristotle": [
+     130,
+     1093
+    ],
+    "pl": 2,
+    "al": 964,
+    "first": "...WING_CORPUS_WORKS,"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     315,
+     314
+    ],
+    "aristotle": [
+     1097,
+     1113
+    ],
+    "pl": 0,
+    "al": 17,
+    "first": "// The Texts & Licences page's Greek lists: the public-domain editions, and the"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     320,
+     386
+    ],
+    "aristotle": [
+     1119,
+     1124
+    ],
+    "pl": 67,
+    "al": 6,
+    "first": "// (dkChapter, series) -> the dk work carrying that spine, e.g. (22, 'B') ->"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     392,
+     406
+    ],
+    "aristotle": [
+     1130,
+     1132
+    ],
+    "pl": 15,
+    "al": 3,
+    "first": "// Human-readable name for a work's source language, derived from the"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     411,
+     415
+    ],
+    "aristotle": [
+     1137,
+     1144
+    ],
+    "pl": 5,
+    "al": 8,
+    "first": "// Resolves the author slug that owns a work, for composing an author-scoped"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     417,
+     441
+    ],
+    "aristotle": [
+     1146,
+     1148
+    ],
+    "pl": 25,
+    "al": 3,
+    "first": "if (!w) throw new Error(`resolveAuthorSlug: unknown work '${workId}'`);"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     445,
+     446
+    ],
+    "aristotle": [
+     1152,
+     1152
+    ],
+    "pl": 2,
+    "al": 1,
+    "first": "// the bare /<author>/<work> slug, an overview of the work that funnels into"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     448,
+     473
+    ],
+    "aristotle": [
+     1154,
+     1154
+    ],
+    "pl": 26,
+    "al": 1,
+    "first": "const w = BY_ID.get(workId);"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     478,
+     479
+    ],
+    "aristotle": [
+     1159,
+     1160
+    ],
+    "pl": 2,
+    "al": 2,
+    "first": "// in (see SHOW_PRIVATE above); this filter is a runtime backstop."
+   },
+   {
+    "cls": "port",
+    "plays": [
+     481,
+     481
+    ],
+    "aristotle": [
+     1162,
+     1162
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "// globalThis.__READER_EXTRA_TRANSLATIONS__ ({workId: TranslationRef[]});"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     483,
+     482
+    ],
+    "aristotle": [
+     1164,
+     1173
+    ],
+    "pl": 0,
+    "al": 10,
+    "first": "// The translations the corpus build indexes for search: the registry's, gated"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     485,
+     486
+    ],
+    "aristotle": [
+     1176,
+     1177
+    ],
+    "pl": 2,
+    "al": 2,
+    "first": "__READER_EXTRA_TRANSLATIONS__?: Record<string, TranslationRef[]>;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     496,
+     500
+    ],
+    "aristotle": [
+     1187,
+     1188
+    ],
+    "pl": 5,
+    "al": 2,
+    "first": "// always resolves and we never fabricate a product page."
+   },
+   {
+    "cls": "port",
+    "plays": [
+     505,
+     506
+    ],
+    "aristotle": [
+     1193,
+     1194
+    ],
+    "pl": 2,
+    "al": 2,
+    "first": "// do host (e.g. a Loeb volume), for readers who want a paper copy of what"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     508,
+     508
+    ],
+    "aristotle": [
+     1196,
+     1196
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "cite: string;     // full citation, e.g. \"Christopher Rowe (Penguin, 2005)\""
+   },
+   {
+    "cls": "port",
+    "plays": [
+     514,
+     514
+    ],
+    "aristotle": [
+     1202,
+     1337
+    ],
+    "pl": 1,
+    "al": 136,
+    "first": "const FURTHER_READING: Record<string, FurtherReadingItem[]> = {};"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     517,
+     517
+    ],
+    "aristotle": [
+     1340,
+     1350
+    ],
+    "pl": 1,
+    "al": 11,
+    "first": "return FURTHER_READING[workId] ?? [];"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     530,
+     531
+    ],
+    "aristotle": [
+     1363,
+     1363
+    ],
+    "pl": 2,
+    "al": 1,
+    "first": "// no entry simply omits the section. Empty for this rollout (the Aristotle"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     534,
+     534
+    ],
+    "aristotle": [
+     1366,
+     1366
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "label: string;         // resource name"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     542,
+     542
+    ],
+    "aristotle": [
+     1374,
+     1393
+    ],
+    "pl": 1,
+    "al": 20,
+    "first": "const RESOURCES: Record<string, ResourceItem[]> = {};"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     549,
+     559
+    ],
+    "aristotle": [
+     1400,
+     1405
+    ],
+    "pl": 11,
+    "al": 6,
+    "first": "// Home-page taxonomy. Phase 0 replaces the old single-author Thrasyllan"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     561,
+     561
+    ],
+    "aristotle": [
+     1407,
+     1407
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "export interface ShelfWork {"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     566,
+     569
+    ],
+    "aristotle": [
+     1412,
+     1415
+    ],
+    "pl": 4,
+    "al": 4,
+    "first": "export interface Shelf {"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     572,
+     580
+    ],
+    "aristotle": [
+     1418,
+     1427
+    ],
+    "pl": 9,
+    "al": 10,
+    "first": "export const SHELVES: Shelf[] = AUTHOR_PERIOD_ORDER"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     582,
+     587
+    ],
+    "aristotle": [
+     1429,
+     1537
+    ],
+    "pl": 6,
+    "al": 109,
+    "first": "// \"Start here\" — a curated front-table strip of approachable works for"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     590,
+     591
+    ],
+    "aristotle": [
+     1540,
+     1542
+    ],
+    "pl": 2,
+    "al": 3,
+    "first": "// per home-page shelf, in home-page order, holding only the existing works"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     593,
+     594
+    ],
+    "aristotle": [
+     1544,
+     1545
+    ],
+    "pl": 2,
+    "al": 2,
+    "first": "ref: string;    // the shelf numeral (SHELVES[i].numeral)"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     600,
+     603
+    ],
+    "aristotle": [
+     1551,
+     1560
+    ],
+    "pl": 4,
+    "al": 10,
+    "first": "const ids = (ws: ShelfWork[]) => ws.filter(w => w.id && BY_ID.has(w.id)).map(w => w.id!);"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     608,
+     622
+    ],
+    "aristotle": [
+     1565,
+     1574
+    ],
+    "pl": 15,
+    "al": 10,
+    "first": "// The vendored Aristotelian-corpus taxonomy (Lyceum P3) — the traditional"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     624,
+     638
+    ],
+    "aristotle": [
+     1576,
+     1576
+    ],
+    "pl": 15,
+    "al": 1,
+    "first": "export interface AuthorWorkGroup {"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     640,
+     640
+    ],
+    "aristotle": [
+     1578,
+     1578
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "// not referenced by SHELVES is appended in WORKS order so every searchable"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     648,
+     647
+    ],
+    "aristotle": [
+     1586,
+     1597
+    ],
+    "pl": 0,
+    "al": 12,
+    "first": "// Shared display names for the home list, work crumbs and picture credits."
+   }
+  ]
+ },
+ {
+  "file": "shared/styles/global.css",
+  "base_rev": "cpr:233ec2547a",
+  "plays_file": "shared/styles/global.css",
+  "plays": 5808,
+  "aristotle": 2454,
+  "base": 4935,
+  "aristotle_before_redesign": 3054,
+  "identical": false,
+  "port": {
+   "hunks": 93,
+   "plays_lines": 1771,
+   "aristotle_lines": 651
+  },
+  "keep": {
+   "hunks": 35,
+   "plays_lines": 2177,
+   "aristotle_lines": 21
+  },
+  "both": {
+   "hunks": 6,
+   "plays_lines": 96,
+   "aristotle_lines": 18
+  },
+  "same_lines": 1764,
+  "hunk_list": [
+   {
+    "cls": "port",
+    "plays": [
+     6,
+     6
+    ],
+    "aristotle": [
+     6,
+     6
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "the reader's semantic <h1> (the visible title is the work-switcher control). */"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     19,
+     33
+    ],
+    "aristotle": [
+     19,
+     18
+    ],
+    "pl": 15,
+    "al": 0,
+    "first": "/* Ῥ (U+1FEC) alone, from Gentium Book Plus: Cardo's Ῥ hangs its breathing"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     37,
+     39
+    ],
+    "aristotle": [
+     22,
+     22
+    ],
+    "pl": 3,
+    "al": 1,
+    "first": "/* \"GDR Rho Dasia\" (the @font-face below) supplies Ῥ alone; every other"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     41,
+     45
+    ],
+    "aristotle": [
+     24,
+     23
+    ],
+    "pl": 5,
+    "al": 0,
+    "first": "/* Latin source text (Wave 2 Batch 1a: Cicero's De Officiis, PHI corpus) --"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     48,
+     55
+    ],
+    "aristotle": [
+     26,
+     33
+    ],
+    "pl": 8,
+    "al": 8,
+    "first": "--col-bg:       #f5f6f2;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     58,
+     60
+    ],
+    "aristotle": [
+     36,
+     38
+    ],
+    "pl": 3,
+    "al": 3,
+    "first": "--greek-hover:        rgba(31, 111, 122, 0.08);"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     64,
+     64
+    ],
+    "aristotle": [
+     42,
+     42
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "--on-accent:    #f5f9f8;   /* text/icon sitting on an --accent fill */"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     66,
+     68
+    ],
+    "aristotle": [
+     44,
+     46
+    ],
+    "pl": 3,
+    "al": 3,
+    "first": "--hit-bg:       #ffe29b;   /* search-hit token highlight */"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     70,
+     74
+    ],
+    "aristotle": [
+     48,
+     47
+    ],
+    "pl": 5,
+    "al": 0,
+    "first": "/* Critical-apparatus text (dk role='context' quoting-source frames, the"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     92,
+     100
+    ],
+    "aristotle": [
+     65,
+     73
+    ],
+    "pl": 9,
+    "al": 9,
+    "first": "--col-bg:       #171d1e;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     104,
+     104
+    ],
+    "aristotle": [
+     77,
+     77
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "--greek-active: #1d3e40;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     106,
+     110
+    ],
+    "aristotle": [
+     79,
+     83
+    ],
+    "pl": 5,
+    "al": 5,
+    "first": "--on-accent:    #0d1415;   /* dark text reads on the lighter dark-mode accent */"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     112,
+     112
+    ],
+    "aristotle": [
+     85,
+     84
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": "--apparatus-text: #7d8988;"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     114,
+     209
+    ],
+    "aristotle": [
+     86,
+     85
+    ],
+    "pl": 96,
+    "al": 0,
+    "first": "}"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     214,
+     217
+    ],
+    "aristotle": [
+     90,
+     90
+    ],
+    "pl": 4,
+    "al": 1,
+    "first": "background-image: url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' wid"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     249,
+     291
+    ],
+    "aristotle": [
+     122,
+     121
+    ],
+    "pl": 43,
+    "al": 0,
+    "first": ".status-tag {"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     299,
+     302
+    ],
+    "aristotle": [
+     129,
+     129
+    ],
+    "pl": 4,
+    "al": 1,
+    "first": "/* P4 skin: the running head sits on a 2px rule in the genre accent — rubric"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     317,
+     317
+    ],
+    "aristotle": [
+     144,
+     144
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "/* Header title group: a quiet \"Aristotle\" home link, then the work switcher. */"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     324,
+     326
+    ],
+    "aristotle": [
+     151,
+     150
+    ],
+    "pl": 3,
+    "al": 0,
+    "first": "/* The first crumb is the site name — small, uppercase, letterspaced, in the"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     328,
+     328
+    ],
+    "aristotle": [
+     152,
+     152
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "font-size: 0.72rem;"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     330,
+     332
+    ],
+    "aristotle": [
+     154,
+     155
+    ],
+    "pl": 3,
+    "al": 2,
+    "first": "text-transform: uppercase;"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     334,
+     334
+    ],
+    "aristotle": [
+     157,
+     156
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": "white-space: nowrap;"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     336,
+     336
+    ],
+    "aristotle": [
+     158,
+     158
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": ".header-title .home-link:hover { color: var(--accent); }"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     339,
+     358
+    ],
+    "aristotle": [
+     161,
+     160
+    ],
+    "pl": 20,
+    "al": 0,
+    "first": "/* The work switcher reads as a real control: a quiet pill with a persistent"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     360,
+     375
+    ],
+    "aristotle": [
+     162,
+     162
+    ],
+    "pl": 16,
+    "al": 1,
+    "first": "/* Desktop: two intentional rows. The header-bar (identity + global actions) and"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     377,
+     385
+    ],
+    "aristotle": [
+     164,
+     164
+    ],
+    "pl": 9,
+    "al": 1,
+    "first": ".nav-panel {"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     388,
+     462
+    ],
+    "aristotle": [
+     167,
+     166
+    ],
+    "pl": 75,
+    "al": 0,
+    "first": "/* Search action in the top-bar cluster: magnifying-glass icon + label on"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     495,
+     500
+    ],
+    "aristotle": [
+     199,
+     199
+    ],
+    "pl": 6,
+    "al": 1,
+    "first": ".book-nav-label {"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     511,
+     587
+    ],
+    "aristotle": [
+     210,
+     209
+    ],
+    "pl": 77,
+    "al": 0,
+    "first": "}"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     660,
+     785
+    ],
+    "aristotle": [
+     282,
+     281
+    ],
+    "pl": 126,
+    "al": 0,
+    "first": "/* The chapter list gets its own nav row laid out as a two-track grid:"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     857,
+     862
+    ],
+    "aristotle": [
+     353,
+     352
+    ],
+    "pl": 6,
+    "al": 0,
+    "first": "/* The strip's height must not depend on how wide the live fragment label"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     869,
+     879
+    ],
+    "aristotle": [
+     359,
+     358
+    ],
+    "pl": 11,
+    "al": 0,
+    "first": "}"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     896,
+     905
+    ],
+    "aristotle": [
+     375,
+     374
+    ],
+    "pl": 10,
+    "al": 0,
+    "first": "}"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     964,
+     964
+    ],
+    "aristotle": [
+     433,
+     433
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "/* English translation picker (primary / secondary). */"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     989,
+     989
+    ],
+    "aristotle": [
+     458,
+     458
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "background-image: url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' wid"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1095,
+     1099
+    ],
+    "aristotle": [
+     564,
+     563
+    ],
+    "pl": 5,
+    "al": 0,
+    "first": "/* The per-passage translation toggle (item 84) used to live inside"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1102,
+     1108
+    ],
+    "aristotle": [
+     566,
+     572
+    ],
+    "pl": 7,
+    "al": 7,
+    "first": ".reader-body.view-english .english-col,"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1110,
+     1110
+    ],
+    "aristotle": [
+     574,
+     604
+    ],
+    "pl": 1,
+    "al": 31,
+    "first": "/* Compare both: Greek | primary | secondary (or primary | secondary in English-only)."
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1115,
+     1123
+    ],
+    "aristotle": [
+     609,
+     608
+    ],
+    "pl": 9,
+    "al": 0,
+    "first": "/* verse-line, no English (fix round, re-review finding 3): the row's"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1132,
+     1132
+    ],
+    "aristotle": [
+     617,
+     617
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "vs. secondary obvious); shown when the columns stack on a phone. */"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1157,
+     1163
+    ],
+    "aristotle": [
+     642,
+     642
+    ],
+    "pl": 7,
+    "al": 1,
+    "first": "/* --seg-gap: the single source of truth for the center gutter width, so the"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1175,
+     1189
+    ],
+    "aristotle": [
+     654,
+     653
+    ],
+    "pl": 15,
+    "al": 0,
+    "first": "/* Translator-picker alignment (John's ask): the per-passage toggle"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1191,
+     1565
+    ],
+    "aristotle": [
+     655,
+     654
+    ],
+    "pl": 375,
+    "al": 0,
+    "first": "/* A chapter's own descriptive heading (Discourses' Oldfather subtitle),"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1579,
+     1579
+    ],
+    "aristotle": [
+     668,
+     668
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "border-top: 2px solid var(--accent, #1f6f7a);"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1587,
+     1587
+    ],
+    "aristotle": [
+     676,
+     676
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "color: var(--accent, #1f6f7a);"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1605,
+     1621
+    ],
+    "aristotle": [
+     694,
+     693
+    ],
+    "pl": 17,
+    "al": 0,
+    "first": "/* Latin source text (Wave 2 Batch 1a): every source-language element carries"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1626,
+     1631
+    ],
+    "aristotle": [
+     698,
+     698
+    ],
+    "pl": 6,
+    "al": 1,
+    "first": "/* Full text colour (like the Greek column) + a medium weight: EB Garamond 400"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     1635,
+     1657
+    ],
+    "aristotle": [
+     702,
+     701
+    ],
+    "pl": 23,
+    "al": 0,
+    "first": "/* Both view: force an IDENTICAL line-box length (strut) in both columns,"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1665,
+     1664
+    ],
+    "aristotle": [
+     709,
+     709
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": "position: relative;  /* anchors the .quotation-sigla gutter overlay */"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1722,
+     1724
+    ],
+    "aristotle": [
+     767,
+     766
+    ],
+    "pl": 3,
+    "al": 0,
+    "first": "/* Keyboard focus (roving tabindex): a clear ring so the focused token is"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     1731,
+     1958
+    ],
+    "aristotle": [
+     773,
+     772
+    ],
+    "pl": 228,
+    "al": 0,
+    "first": "}"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1975,
+     1975
+    ],
+    "aristotle": [
+     789,
+     789
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "/* Every English slot (primary / secondary / third) renders as flowing prose: the"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     1985,
+     1988
+    ],
+    "aristotle": [
+     799,
+     799
+    ],
+    "pl": 4,
+    "al": 1,
+    "first": "/* No own line-height: inherits var(--lh-english) from .english-col, so the"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     1991,
+     2009
+    ],
+    "aristotle": [
+     802,
+     801
+    ],
+    "pl": 19,
+    "al": 0,
+    "first": "/* Quoted verse inside a translation's prose (Reader.svelte's groupVerse — a"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     2029,
+     2041
+    ],
+    "aristotle": [
+     821,
+     820
+    ],
+    "pl": 13,
+    "al": 0,
+    "first": "/* A translation's chunk is legitimately absent for a section (Reader.svelte's"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     2056,
+     2055
+    ],
+    "aristotle": [
+     835,
+     851
+    ],
+    "pl": 0,
+    "al": 17,
+    "first": "}"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     2099,
+     3037
+    ],
+    "aristotle": [
+     895,
+     894
+    ],
+    "pl": 939,
+    "al": 0,
+    "first": "/* ── verse-line (Lucretius' DRN) ──────────────────────────────────────"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3067,
+     3170
+    ],
+    "aristotle": [
+     924,
+     923
+    ],
+    "pl": 104,
+    "al": 0,
+    "first": "/* Discourses' TLG-section paragraph label (John's ruling 2026-07-16):"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     3224,
+     3250
+    ],
+    "aristotle": [
+     977,
+     985
+    ],
+    "pl": 27,
+    "al": 9,
+    "first": "it must NOT reflow the text — above ~1800px there's no rule at all and the text"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     3254,
+     3281
+    ],
+    "aristotle": [
+     989,
+     989
+    ],
+    "pl": 28,
+    "al": 1,
+    "first": "}"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3384,
+     3388
+    ],
+    "aristotle": [
+     1092,
+     1097
+    ],
+    "pl": 5,
+    "al": 6,
+    "first": "/* Homonym fan-out (Wave 2 Batch 1b review): more than one dictionary"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3392,
+     3391
+    ],
+    "aristotle": [
+     1101,
+     1101
+    ],
+    "pl": 0,
+    "al": 1,
+    "first": "font-weight: 500;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3393,
+     3393
+    ],
+    "aristotle": [
+     1103,
+     1438
+    ],
+    "pl": 1,
+    "al": 336,
+    "first": "margin: -0.2rem 0 0.5rem;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3432,
+     3431
+    ],
+    "aristotle": [
+     1477,
+     1531
+    ],
+    "pl": 0,
+    "al": 55,
+    "first": "/* Quotation siglum, edition-style: the author's abbreviation in the gutter at"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3448,
+     3447
+    ],
+    "aristotle": [
+     1548,
+     1553
+    ],
+    "pl": 0,
+    "al": 6,
+    "first": "/* Two of Ostwald's notes ARE diagrams (the equal-lines construction at 1132b,"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     3469,
+     3471
+    ],
+    "aristotle": [
+     1575,
+     1575
+    ],
+    "pl": 3,
+    "al": 1,
+    "first": "/* The same 2px genre-accent rule .page-header wears, so a standalone page"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     3488,
+     3488
+    ],
+    "aristotle": [
+     1592,
+     1591
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": "/* Same wordmark on the standalone pages (see .header-title .home-link). */"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     3490,
+     3490
+    ],
+    "aristotle": [
+     1593,
+     1592
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": "font-size: 0.72rem;"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     3492,
+     3494
+    ],
+    "aristotle": [
+     1594,
+     1595
+    ],
+    "pl": 3,
+    "al": 2,
+    "first": "text-transform: uppercase;"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     3497,
+     3497
+    ],
+    "aristotle": [
+     1598,
+     1598
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": ".simple-header .header-title .home-link:hover { color: var(--accent); }"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3530,
+     3534
+    ],
+    "aristotle": [
+     1631,
+     1632
+    ],
+    "pl": 5,
+    "al": 2,
+    "first": "/* On phones drop the \"Home ›\" prefix; the crumbs/title and the header actions"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3537,
+     3538
+    ],
+    "aristotle": [
+     1635,
+     1635
+    ],
+    "pl": 2,
+    "al": 1,
+    "first": ".simple-header .header-title > .home-link + .title-sep,"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3545,
+     3587
+    ],
+    "aristotle": [
+     1642,
+     1641
+    ],
+    "pl": 43,
+    "al": 0,
+    "first": "/* Donation card — shared by the home page and the work landing pages so they"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3606,
+     3723
+    ],
+    "aristotle": [
+     1660,
+     1659
+    ],
+    "pl": 118,
+    "al": 0,
+    "first": "/* Phone held landscape: the viewport is ~740–930px wide, so it clears the"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3736,
+     3754
+    ],
+    "aristotle": [
+     1672,
+     1673
+    ],
+    "pl": 19,
+    "al": 2,
+    "first": "/* One-line bar: title (left) + icon buttons (right). The Menu dropdown is gone"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3756,
+     3770
+    ],
+    "aristotle": [
+     1675,
+     1676
+    ],
+    "pl": 15,
+    "al": 2,
+    "first": ".header-title .home-link { display: none; }"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3772,
+     3777
+    ],
+    "aristotle": [
+     1678,
+     1683
+    ],
+    "pl": 6,
+    "al": 6,
+    "first": "/* Two balanced rows (John, 2026-07-12): the breadcrumb links and capped switcher <select>"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3779,
+     3793
+    ],
+    "aristotle": [
+     1685,
+     1684
+    ],
+    "pl": 15,
+    "al": 0,
+    "first": ".toc-toggle { order: 2; }"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3809,
+     3851
+    ],
+    "aristotle": [
+     1700,
+     1699
+    ],
+    "pl": 43,
+    "al": 0,
+    "first": "}"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3902,
+     3905
+    ],
+    "aristotle": [
+     1750,
+     1750
+    ],
+    "pl": 4,
+    "al": 1,
+    "first": "/* --seg-gap kept in sync here too (inert for ticks at this width — the"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3907,
+     3909
+    ],
+    "aristotle": [
+     1752,
+     1752
+    ],
+    "pl": 3,
+    "al": 1,
+    "first": "/* 1.6, matching Greek above (was 1.55) — mobile parity for the same"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3912,
+     3921
+    ],
+    "aristotle": [
+     1755,
+     1754
+    ],
+    "pl": 10,
+    "al": 0,
+    "first": "/* Fix round, finding 2 (Sol review): the book-section gutter marker's"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     3923,
+     3947
+    ],
+    "aristotle": [
+     1756,
+     1756
+    ],
+    "pl": 25,
+    "al": 1,
+    "first": "/* John's review, 2026-07-29 (mobile screenshot, Gorgias fragments B2/B3):"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     3957,
+     4050
+    ],
+    "aristotle": [
+     1766,
+     1765
+    ],
+    "pl": 94,
+    "al": 0,
+    "first": "/* play-line keeps its shared gutter structure on a phone, at the mockup's"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     4058,
+     4065
+    ],
+    "aristotle": [
+     1773,
+     1776
+    ],
+    "pl": 8,
+    "al": 4,
+    "first": "/* No boxes, panels or borders in play-line compare (John, 2026-09-08) --"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     4077,
+     4212
+    ],
+    "aristotle": [
+     1788,
+     1787
+    ],
+    "pl": 136,
+    "al": 0,
+    "first": "/* --- Contents (table of contents) sidebar drawer -------------------------- */"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4218,
+     4245
+    ],
+    "aristotle": [
+     1793,
+     1792
+    ],
+    "pl": 28,
+    "al": 0,
+    "first": "/* The \"common books\" note in the sidebar outline, between Books III and VII of"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4247,
+     4268
+    ],
+    "aristotle": [
+     1794,
+     1793
+    ],
+    "pl": 22,
+    "al": 0,
+    "first": ".toc-book { border-bottom: 1px solid var(--border); }"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4270,
+     4270
+    ],
+    "aristotle": [
+     1795,
+     1794
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": ".toc-book-count { font-size: 0.72rem; color: var(--text-light); font-weight: 400; }"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4273,
+     4275
+    ],
+    "aristotle": [
+     1797,
+     1797
+    ],
+    "pl": 3,
+    "al": 1,
+    "first": "/* Bookless works (Categories, Poetics) list chapters flat, with no per-book"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4287,
+     4296
+    ],
+    "aristotle": [
+     1809,
+     1809
+    ],
+    "pl": 10,
+    "al": 1,
+    "first": ".toc-ch-n {"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4298,
+     4313
+    ],
+    "aristotle": [
+     1811,
+     1810
+    ],
+    "pl": 16,
+    "al": 0,
+    "first": ".toc-outline li a.current .toc-ch-n { color: var(--accent); }"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4323,
+     4323
+    ],
+    "aristotle": [
+     1820,
+     1819
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": ".toc-close,"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4329,
+     4329
+    ],
+    "aristotle": [
+     1825,
+     1824
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": ".toc-close::after,"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4358,
+     4360
+    ],
+    "aristotle": [
+     1853,
+     1852
+    ],
+    "pl": 3,
+    "al": 0,
+    "first": ".help-trigger,"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4362,
+     4362
+    ],
+    "aristotle": [
+     1854,
+     1853
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": ".work-switcher,"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4364,
+     4365
+    ],
+    "aristotle": [
+     1855,
+     1855
+    ],
+    "pl": 2,
+    "al": 1,
+    "first": ".group-head,"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4381,
+     4383
+    ],
+    "aristotle": [
+     1871,
+     1870
+    ],
+    "pl": 3,
+    "al": 0,
+    "first": ".help-trigger:active,"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4385,
+     4385
+    ],
+    "aristotle": [
+     1872,
+     1871
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": ".work-switcher:active,"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4387,
+     4388
+    ],
+    "aristotle": [
+     1873,
+     1873
+    ],
+    "pl": 2,
+    "al": 1,
+    "first": ".group-head:active,"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4404,
+     4404
+    ],
+    "aristotle": [
+     1889,
+     1889
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": ".toc-sidebar, .toc-backdrop { transition: none; }"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4418,
+     4420
+    ],
+    "aristotle": [
+     1903,
+     1902
+    ],
+    "pl": 3,
+    "al": 0,
+    "first": ".help-trigger:active,"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4422,
+     4422
+    ],
+    "aristotle": [
+     1904,
+     1903
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": ".work-switcher:active,"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4424,
+     4425
+    ],
+    "aristotle": [
+     1905,
+     1905
+    ],
+    "pl": 2,
+    "al": 1,
+    "first": ".group-head:active,"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4429,
+     4446
+    ],
+    "aristotle": [
+     1909,
+     1908
+    ],
+    "pl": 18,
+    "al": 0,
+    "first": "/* ── Settings sidebar (right-side drawer, bottom-sheet on mobile) ────────── */"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     4631,
+     4631
+    ],
+    "aristotle": [
+     2093,
+     2093
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": ".copy-cite-btn, .copy-cite-status {"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     4635,
+     4635
+    ],
+    "aristotle": [
+     2097,
+     2097
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "color: var(--on-accent);"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     4653,
+     4653
+    ],
+    "aristotle": [
+     2115,
+     2114
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": ".copy-cite-status { pointer-events: none; cursor: default; }"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4740,
+     4740
+    ],
+    "aristotle": [
+     2201,
+     2200
+    ],
+    "pl": 1,
+    "al": 0,
+    "first": ".toc-sidebar, .toc-backdrop,"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4742,
+     4743
+    ],
+    "aristotle": [
+     2202,
+     2202
+    ],
+    "pl": 2,
+    "al": 1,
+    "first": ".popup,"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4753,
+     4753
+    ],
+    "aristotle": [
+     2212,
+     2215
+    ],
+    "pl": 1,
+    "al": 4,
+    "first": ".reader-body.view-greek .greek-col { max-width: none; margin: 0; }"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4759,
+     4759
+    ],
+    "aristotle": [
+     2221,
+     2222
+    ],
+    "pl": 1,
+    "al": 2,
+    "first": ".fn-marker { display: none; }"
+   },
+   {
+    "cls": "both",
+    "plays": [
+     4773,
+     4800
+    ],
+    "aristotle": [
+     2236,
+     2237
+    ],
+    "pl": 28,
+    "al": 2,
+    "first": "English (--font-english) 15px / 1.66 (first line nudged up to meet the Greek). */"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4802,
+     4810
+    ],
+    "aristotle": [
+     2239,
+     2239
+    ],
+    "pl": 9,
+    "al": 1,
+    "first": "/* Nudge retuned -4px -> -2px: deleting .overlay-prose's hardcoded"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     4813,
+     4814
+    ],
+    "aristotle": [
+     2242,
+     2243
+    ],
+    "pl": 2,
+    "al": 2,
+    "first": "/* Greek line numbers: the reading face, left-aligned flush with the"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4833,
+     4832
+    ],
+    "aristotle": [
+     2262,
+     2266
+    ],
+    "pl": 0,
+    "al": 5,
+    "first": "/* A chapter-section Greek line is a whole section: it wraps in a column as"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     4841,
+     4842
+    ],
+    "aristotle": [
+     2275,
+     2275
+    ],
+    "pl": 2,
+    "al": 1,
+    "first": "the reading face (--font-english, Cardo since P4 — the old"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     4844,
+     4845
+    ],
+    "aristotle": [
+     2277,
+     2278
+    ],
+    "pl": 2,
+    "al": 2,
+    "first": "/* Line numbers (all views) in the design's muted ink, the reading face. */"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     4854,
+     4854
+    ],
+    "aristotle": [
+     2287,
+     2287
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "font-family: var(--font-english); font-variant: small-caps;"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     4859,
+     4859
+    ],
+    "aristotle": [
+     2292,
+     2292
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "font-family: var(--font-english); font-style: italic;"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4862,
+     4862
+    ],
+    "aristotle": [
+     2295,
+     2295
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "/* Bekker column ref (1094a) / Stephanus section token (17a): oxblood small-caps. */"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     4864,
+     4864
+    ],
+    "aristotle": [
+     2297,
+     2297
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "font-family: var(--font-english); font-variant: small-caps;"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     4868,
+     4881
+    ],
+    "aristotle": [
+     2301,
+     2300
+    ],
+    "pl": 14,
+    "al": 0,
+    "first": "/* Stephanus speaker sigla: pin to a fixed print ink (the on-screen accent var"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     4909,
+     4909
+    ],
+    "aristotle": [
+     2328,
+     2328
+    ],
+    "pl": 1,
+    "al": 1,
+    "first": "font-family: var(--font-english); font-style: italic; font-size: 10.5px;"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     4912,
+     4937
+    ],
+    "aristotle": [
+     2331,
+     2330
+    ],
+    "pl": 26,
+    "al": 0,
+    "first": "/* ── The plate prints as the play's title page (P4 Lane E) ──────────────"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4940,
+     4947
+    ],
+    "aristotle": [
+     2333,
+     2350
+    ],
+    "pl": 8,
+    "al": 18,
+    "first": "/* ═══════════════════════════════════════════════════════════════════════════"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4949,
+     4973
+    ],
+    "aristotle": [
+     2352,
+     2362
+    ],
+    "pl": 25,
+    "al": 11,
+    "first": "body.lyceum-chrome {"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4975,
+     4985
+    ],
+    "aristotle": [
+     2364,
+     2364
+    ],
+    "pl": 11,
+    "al": 1,
+    "first": "}"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     4988,
+     5001
+    ],
+    "aristotle": [
+     2367,
+     2374
+    ],
+    "pl": 14,
+    "al": 8,
+    "first": "/* The old chrome is not rendered at all when the flag is on (ReaderShell.astro"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     5003,
+     5010
+    ],
+    "aristotle": [
+     2376,
+     2381
+    ],
+    "pl": 8,
+    "al": 6,
+    "first": "body.lyceum-chrome .reader-controls::before { display: none; }"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     5012,
+     5014
+    ],
+    "aristotle": [
+     2383,
+     2386
+    ],
+    "pl": 3,
+    "al": 4,
+    "first": "body.lyceum-chrome .vh {"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     5016,
+     5345
+    ],
+    "aristotle": [
+     2388,
+     2389
+    ],
+    "pl": 330,
+    "al": 2,
+    "first": "body.lyceum-chrome :focus-visible {"
+   },
+   {
+    "cls": "port",
+    "plays": [
+     5348,
+     5353
+    ],
+    "aristotle": [
+     2392,
+     2453
+    ],
+    "pl": 6,
+    "al": 62,
+    "first": "body.lyceum-chrome.lyc-shell .lbl {"
+   },
+   {
+    "cls": "keep",
+    "plays": [
+     5355,
+     5808
+    ],
+    "aristotle": [
+     2455,
+     2454
+    ],
+    "pl": 454,
+    "al": 0,
+    "first": "body.lyceum-chrome.lyc-shell .page {"
+   }
+  ]
+ }
+]

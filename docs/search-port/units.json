@@ -1,0 +1,187 @@
+{
+ "plays": 44,
+ "lines": 58966,
+ "unit_lengths": {
+  "line": {
+   "units": 58966,
+   "median_lines": 1,
+   "mean_lines": 1,
+   "p90_lines": 1,
+   "max_lines": 1
+  },
+  "segment": {
+   "units": 14129,
+   "median_lines": 1,
+   "mean_lines": 4.2,
+   "p90_lines": 8,
+   "max_lines": 84
+  },
+  "speech": {
+   "units": 14926,
+   "median_lines": 1.0,
+   "mean_lines": 4.0,
+   "p90_lines": 7,
+   "max_lines": 203
+  },
+  "scene": {
+   "units": 566,
+   "median_lines": 65.5,
+   "mean_lines": 104.2,
+   "p90_lines": 237,
+   "max_lines": 1209
+  },
+  "ode": {
+   "units": 264,
+   "median_lines": 32.5,
+   "mean_lines": 42.3,
+   "p90_lines": 89,
+   "max_lines": 298
+  }
+ },
+ "searches": [
+  {
+   "name": "δίκη (lemma)",
+   "greek": "dikh",
+   "english": null,
+   "units": {
+    "line": {
+     "with_greek": 403
+    },
+    "segment": {
+     "with_greek": 351
+    },
+    "speech": {
+     "with_greek": 347
+    },
+    "scene": {
+     "with_greek": 183
+    },
+    "ode": {
+     "with_greek": 44
+    }
+   },
+   "greek_word_hits": 407
+  },
+  {
+   "name": "justice (English, with \"justices\")",
+   "greek": null,
+   "english": [
+    "justice",
+    "justices"
+   ],
+   "units": {
+    "line": {
+     "with_greek": 0,
+     "note": "English is attached to segments, not lines: no English or \"and\" count by line"
+    },
+    "segment": {
+     "with_greek": 0,
+     "with_english_any_translation": 246,
+     "with_english_main_translation": 142,
+     "with_english_in_more_than_one": 128
+    },
+    "speech": {
+     "with_greek": 0,
+     "with_english_any_translation": 244,
+     "with_english_main_translation": 140,
+     "with_english_in_more_than_one": 127
+    },
+    "scene": {
+     "with_greek": 0,
+     "with_english_any_translation": 146,
+     "with_english_main_translation": 102,
+     "with_english_in_more_than_one": 96
+    },
+    "ode": {
+     "with_greek": 0,
+     "with_english_any_translation": 41,
+     "with_english_main_translation": 29,
+     "with_english_in_more_than_one": 29
+    }
+   },
+   "greek_word_hits": 0,
+   "english_word_hits_every_translation": 517,
+   "english_word_hits_main_translation": 161
+  },
+  {
+   "name": "δίκη (lemma) and justice",
+   "greek": "dikh",
+   "english": [
+    "justice",
+    "justices"
+   ],
+   "units": {
+    "line": {
+     "with_greek": 403,
+     "note": "English is attached to segments, not lines: no English or \"and\" count by line"
+    },
+    "segment": {
+     "with_greek": 351,
+     "with_english_any_translation": 246,
+     "with_english_main_translation": 142,
+     "with_english_in_more_than_one": 128,
+     "both_and": 148,
+     "greek_only": 203,
+     "english_only": 98,
+     "either_or": 449
+    },
+    "speech": {
+     "with_greek": 347,
+     "with_english_any_translation": 244,
+     "with_english_main_translation": 140,
+     "with_english_in_more_than_one": 127,
+     "both_and": 144,
+     "greek_only": 203,
+     "english_only": 100,
+     "either_or": 447
+    },
+    "scene": {
+     "with_greek": 183,
+     "with_english_any_translation": 146,
+     "with_english_main_translation": 102,
+     "with_english_in_more_than_one": 96,
+     "both_and": 113,
+     "greek_only": 70,
+     "english_only": 33,
+     "either_or": 216
+    },
+    "ode": {
+     "with_greek": 44,
+     "with_english_any_translation": 41,
+     "with_english_main_translation": 29,
+     "with_english_in_more_than_one": 29,
+     "both_and": 29,
+     "greek_only": 15,
+     "english_only": 12,
+     "either_or": 56
+    }
+   },
+   "greek_word_hits": 407,
+   "english_word_hits_every_translation": 517,
+   "english_word_hits_main_translation": 161
+  },
+  {
+   "name": "θεός (lemma)",
+   "greek": "qeos",
+   "english": null,
+   "units": {
+    "line": {
+     "with_greek": 1665
+    },
+    "segment": {
+     "with_greek": 1294
+    },
+    "speech": {
+     "with_greek": 1282
+    },
+    "scene": {
+     "with_greek": 388
+    },
+    "ode": {
+     "with_greek": 130
+    }
+   },
+   "greek_word_hits": 1702
+  }
+ ]
+}

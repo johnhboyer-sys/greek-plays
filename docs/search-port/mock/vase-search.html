@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search mock, the Vase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700&family=Cardo:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #f3ecdf; --ink: #171310; --mid: #6b5f52; --clay: #c8743f;
+  --clay-deep: #a85a2b; --clay-text: #964e24;
+  --hit: color-mix(in srgb, #c8743f 30%, transparent);
+  --hair: color-mix(in srgb, #171310 24%, transparent);
+  --spk-chorus: #2f6f6a; --spk-electra: #8c2f3a; --spk-orestes: #2b4a9c;
+  --ui: "Alegreya Sans", system-ui, sans-serif; --serif: "Cardo", Georgia, serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #15110f; --ink: #efe6d6; --mid: #b3a594; --clay-deep: #d9895a; --clay-text: #d9895a;
+  --hit: color-mix(in srgb, #c8743f 45%, transparent); --hair: color-mix(in srgb, #efe6d6 24%, transparent);
+  --spk-chorus: #7fc3bd; --spk-electra: #e2919c; --spk-orestes: #9fb0ea; } }
+:root[data-theme="dark"] {
+  --paper: #15110f; --ink: #efe6d6; --mid: #b3a594; --clay-deep: #d9895a; --clay-text: #d9895a;
+  --hit: color-mix(in srgb, #c8743f 45%, transparent); --hair: color-mix(in srgb, #efe6d6 24%, transparent);
+  --spk-chorus: #7fc3bd; --spk-electra: #e2919c; --spk-orestes: #9fb0ea; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 1rem/1.4 var(--ui); }
+.wrap { max-width: 80rem; margin: 0 auto; padding: 0 2rem; }
+/* head: the Vase's one-line name, two icons */
+.head { display: flex; justify-content: space-between; align-items: center; padding: 1.4rem 0 1rem; }
+.name { font: 400 1.5rem/1 var(--serif); color: var(--ink); }
+.icons { display: flex; gap: 1.2rem; color: var(--mid); }
+.icons svg { width: 22px; height: 22px; }
+.icons .on { color: var(--clay-deep); }
+/* the form: Aristotle's layout, Greek | and | English */
+.form { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0 2rem; margin-top: 1.6rem; align-items: end; }
+.lab { display: flex; justify-content: space-between; color: var(--mid); font-size: 1.05rem; }
+.lab span + span { margin-left: 1.1rem; }
+.field { font: 400 2.2rem/1.25 var(--serif); border-bottom: 1px solid var(--ink); padding: .2rem 0 .15rem; }
+.op { font-size: 1.05rem; padding-bottom: .5rem; }
+.opts { display: flex; flex-wrap: wrap; gap: .3rem 1rem; margin-top: .7rem; font-size: 1rem; color: var(--mid); }
+.opts b { font-weight: 400; color: var(--ink); text-decoration: underline 1.5px var(--clay-deep); text-underline-offset: .3em; }
+.opts .gap { width: .6rem; }
+.v::after { content: " ▾"; color: var(--clay-deep); font-size: .8em; }
+.ck::before { content: "☐ "; } .ck.on { color: var(--ink); } .ck.on::before { content: "☑ "; color: var(--clay-deep); }
+.row2 { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: .8rem 2rem; margin-top: 1.8rem; }
+.in { display: flex; flex-wrap: wrap; gap: .3rem 1rem; color: var(--mid); }
+.in b { font-weight: 400; color: var(--ink); text-decoration: underline 1.5px var(--clay-deep); text-underline-offset: .3em; }
+.go { display: flex; gap: 2rem; align-items: baseline; }
+.go .near { color: var(--ink); }
+.go .search { font: 500 1.25rem var(--ui); color: var(--clay-deep); text-decoration: underline 2px; text-underline-offset: .3em; padding: .6rem 0; }
+/* results */
+.res { display: grid; grid-template-columns: 16.5rem 1fr; gap: 3rem; margin-top: 2.6rem; }
+.count { font: 400 3.6rem/1 var(--serif); color: var(--clay-deep); }
+.count small { display: block; font: 400 1.15rem/1.3 var(--serif); color: var(--ink); margin-top: .2rem; }
+.count em { display: block; font: 400 .95rem var(--ui); font-style: normal; color: var(--mid); }
+.rail-a { display: flex; gap: 1.4rem; margin: 1rem 0 2rem; }
+.rail-a span { color: var(--clay-text); text-decoration: underline 1px; text-underline-offset: .25em; }
+.rail h4 { font: 500 .95rem var(--ui); margin: 1.6rem 0 .5rem; } .rail h4 i { font-style: normal; color: var(--mid); font-weight: 400; margin-left: .5rem; }
+.rail ul { list-style: none; margin: 0; padding: 0; }
+.rail li { display: flex; justify-content: space-between; padding: .45rem 0; }
+.rail li span:last-child { color: var(--mid); font-variant-numeric: tabular-nums; }
+.rail .gk { font-family: var(--serif); font-size: 1.12rem; }
+.tools { display: flex; flex-wrap: wrap; gap: .4rem 1.4rem; align-items: baseline; color: var(--mid); }
+.tools b { font-weight: 400; color: var(--ink); }
+.tools .pager { margin-left: auto; color: var(--ink); } .tools .pager i { color: var(--clay-deep); font-style: normal; padding: 0 .6rem; }
+.play { margin-top: 2.2rem; }
+.play h2 { font: 400 1.75rem/1.1 var(--serif); margin: 0; display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+.play h2 small { font: 400 .95rem var(--ui); color: var(--mid); }
+.who { color: var(--mid); margin: .25rem 0 1.1rem; }
+.hit { display: grid; grid-template-columns: 3.4rem 1fr; gap: 0 1rem; margin: 0 0 1.7rem; }
+.ln { font: 500 .9rem var(--ui); color: var(--clay-text); font-variant-numeric: tabular-nums; padding-top: .35rem; }
+.spk { font: 500 .78rem var(--ui); letter-spacing: .06em; text-transform: uppercase; display: block; margin-bottom: .1rem; }
+.gr { font: 400 1.32rem/1.5 var(--serif); }
+.gr .l { display: block; } .gr .l.ctx { color: var(--mid); }
+.gr .n { font: 400 .72rem var(--ui); color: var(--clay-text); margin-left: .6rem; }
+mark { background: var(--hit); color: inherit; padding: 0 .08em; }
+.en { font: 400 1.08rem/1.5 var(--serif); margin-top: .5rem; }
+.tr { margin-top: .35rem; font: 500 .82rem var(--ui); letter-spacing: .05em; text-transform: uppercase; color: var(--mid); display: flex; flex-wrap: wrap; gap: .2rem .9rem; }
+.tr .on { color: var(--ink); text-decoration: underline 1.5px var(--clay-deep); text-underline-offset: .3em; }
+.whole { margin-top: .7rem; color: var(--clay-text); text-decoration: underline 1px; text-underline-offset: .25em; font-size: .98rem; }
+.bar { display: none; }
+/* sideways (and narrow tablets): the rail folds into a bar */
+@media (max-width: 1100px) {
+  .wrap { padding: 0 1.4rem; }
+  .res { grid-template-columns: 1fr; gap: 0; margin-top: 1.6rem; }
+  .rail, .tools { display: none; }
+  .bar { display: flex; align-items: center; gap: 1.4rem; padding-bottom: .6rem; }
+  .bar .count { font-size: 2.6rem; display: flex; align-items: baseline; gap: .6rem; }
+  .bar .count small { display: inline; font-size: 1.05rem; margin: 0; }
+  .bar .count em { display: inline; }
+  .bar .sp { flex: 1; }
+  .bar .ic { display: flex; flex-direction: column; align-items: center; color: var(--ink); font-size: .85rem; min-width: 44px; }
+  .bar .ic svg { width: 20px; height: 20px; color: var(--clay-deep); }
+  .bar .pg { color: var(--ink); } .bar .pg i { color: var(--clay-deep); font-style: normal; padding: 0 .5rem; }
+  .form { gap: 0 1.2rem; } .field { font-size: 1.8rem; }
+  .row2 { margin-top: 1.1rem; }
+}
+/* phone: stacked */
+@media (max-width: 640px) {
+  .wrap { padding: 0 1rem; }
+  .form { grid-template-columns: 1fr; }
+  .op { padding: .9rem 0 .2rem; }
+  .field { font-size: 1.9rem; }
+  .row2 { flex-direction: column; align-items: stretch; gap: .9rem; }
+  .go { justify-content: space-between; }
+  .bar { flex-wrap: wrap; gap: .6rem 1rem; }
+  .bar .count { font-size: 2.4rem; flex-direction: column; gap: 0; align-items: flex-start; }
+  .bar .count small { font-size: .95rem; }
+  .hit { grid-template-columns: 1fr; }
+  .ln { padding: 0 0 .1rem; }
+  .play h2 { font-size: 1.5rem; }
+  .head .name { font-size: 1.25rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <span class="name">The Greek Drama Reader</span>
+    <span class="icons">
+      <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-label="Search"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-label="Dark or light"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16z" fill="currentColor"/></svg>
+    </span>
+  </header>
+
+  <form class="form" onsubmit="return false">
+    <div>
+      <div class="lab"><span>Greek</span><span><span>Keyboard</span><span>β Beta Code</span><span>Clear</span></span></div>
+      <div class="field" lang="grc">δίκη</div>
+      <div class="opts"><b>all</b><span>any</span><span>exact</span><span class="gap"></span><span>any form</span><span>only as typed</span><span class="gap"></span><span class="ck">Accents</span><span class="ck on">Lemma</span></div>
+    </div>
+    <div class="op"><span class="v">and</span></div>
+    <div>
+      <div class="lab"><span>English</span><span>Clear</span></div>
+      <div class="field">justice</div>
+      <div class="opts"><b>all</b><span>any</span><span>exact</span><span class="gap"></span><b>any form</b><span>only as typed</span><span class="gap"></span><span class="v">every translation</span></div>
+    </div>
+  </form>
+  <div class="row2">
+    <div class="in"><span>In</span><b>all 44 plays</b><span>Aeschylus</span><span>Sophocles</span><span>Euripides</span><span>Aristophanes</span><span>choose plays…</span></div>
+    <div class="go"><span class="near v">Near</span><span class="search">Search</span></div>
+  </div>
+
+  <section class="res">
+    <aside class="rail">
+      <div class="count">144<small>speeches</small><em>191 hits of δίκη</em></div>
+      <div class="rail-a"><span>Save search</span><span>Export as CSV</span></div>
+      <h4>Plays with hits <i>by count</i></h4>
+      <ul><li><span>Eumenides</span><span>22</span></li><li><span>Agamemnon</span><span>17</span></li><li><span>Libation Bearers</span><span>17</span></li><li><span>Electra (Sophocles)</span><span>12</span></li><li><span>Electra (Euripides)</span><span>11</span></li><li><span>Phoenician Women</span><span>9</span></li><li><span>Medea</span><span>8</span></li></ul>
+      <h4>Translations <i>by count</i></h4>
+      <ul><li><span>Johnston</span><span>74</span></li><li><span>Way</span><span>45</span></li><li><span>Coleridge</span><span>40</span></li><li><span>Smyth</span><span>35</span></li><li><span>Morshead</span><span>26</span></li><li><span>Kosmos</span><span>19</span></li><li><span>Murray</span><span>18</span></li></ul>
+      <h4>Forms</h4>
+      <ul class="gk"><li><span>☑ δίκην</span><span>39</span></li><li><span>☑ δίκη</span><span>34</span></li><li><span>☑ δίκας</span><span>33</span></li><li><span>☑ δίκης</span><span>23</span></li><li><span>☑ δίκα</span><span>17</span></li><li><span>☑ δίκῃ</span><span>16</span></li></ul>
+    </aside>
+    <div>
+      <div class="bar">
+        <div class="count">144<small>speeches</small><em>191 hits</em></div>
+        <span class="sp"></span>
+        <span class="pg"><i>‹</i>1/8<i>›</i></span>
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16l-6 7v6l-4 2v-8z"/></svg>Filter</span>
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 4v16M4 16l4 4 4-4M16 20V4M12 8l4-4 4 4"/></svg>View</span>
+      </div>
+      <div class="tools"><span>Group by <b class="v">play</b></span><span>Sort <b class="v">line order</b></span><span>Context <b class="v">3 lines</b></span><span>Per page <b class="v">40</b></span><span class="pager"><i>‹</i>Page 1 of 8<i>›</i></span></div>
+
+      <article class="play"><h2>Agamemnon <small>11 speeches · 17 hits</small></h2><p class="who">Aeschylus · Murray 1955 · Smyth</p><div class="hit"><span class="ln">232</span><div><span class="spk" style="color:var(--spk-chorus)">Chorus</span><div class="gr" lang="grc"><span class="l ctx">φράσεν δ&#x27; ἀόζοις πατὴρ μετ&#x27; εὐχὰν<span class="n">231</span></span><span class="l"><mark>δίκαν</mark> χιμαίρας ὕπερθε βωμοῦ</span><span class="l"><mark>Δίκα</mark> δὲ τοῖς μὲν παθοῦσιν<span class="n">250</span></span></div><div class="en">What happened next I did not see and do not tell. The art of Calchas was not unfulfilled. <mark>Justice</mark> inclines her scales so that wisdom comes at the price of suffering. But the future, that you shall know when it …</div><div class="tr"><span class="on">Smyth</span><span class="">Johnston</span><span class="">Kosmos</span><span class="">Morshead</span></div><div class="whole">Show the whole ode</div></div></div><div class="hit"><span class="ln">383</span><div><span class="spk" style="color:var(--mid)"></span><div class="gr" lang="grc"><span class="l ctx">πλούτου πρὸς κόρον ἀνδρὶ<span class="n">382</span></span><span class="l">λακτίσαντι μέγαν <mark>Δίκας</mark></span><span class="l">τυχηρὸν ὄντ&#x27; ἄνευ <mark>δίκας</mark><span class="n">464</span></span></div><div class="en">… distress, enough to satisfy a sensible man. For riches do not protect the man who in wantonness has kicked the mighty altar of <mark>Justice</mark> into obscurity. Perverse Temptation, the overmastering child of designing Destruction, drives men on; and every …</div><div class="tr"><span class="on">Smyth</span><span class="">Murray</span></div><div class="whole">Show the whole speech</div></div></div></article>
+      <article class="play"><h2>Libation Bearers <small>12 speeches · 17 hits</small></h2><p class="who">Aeschylus · Murray 1955 · Smyth</p><div class="hit"><span class="ln">61</span><div><span class="spk" style="color:var(--spk-chorus)">Chorus</span><div class="gr" lang="grc"><span class="l ctx">τόδ&#x27; ἐν βροτοῖς θεός τε καὶ θεοῦ πλέον.<span class="n">60</span></span><span class="l">ῥοπὴ δ&#x27; ἐπισκοτεῖ <mark>δίκας</mark></span></div><div class="en">… cast off. But there is still fear. And prosperity—this, among mortals, is a god and more than a god. But the balance of <mark>Justice</mark> keeps watch: swiftly it descends on those in the light; sometimes pain waits for those who linger on the frontier …</div><div class="tr"><span class="on">Smyth</span><span class="">Johnston</span><span class="">Morshead</span></div><div class="whole">Show the whole ode</div></div></div><div class="hit"><span class="ln">144</span><div><span class="spk" style="color:var(--spk-electra)">Electra</span><div class="gr" lang="grc"><span class="l ctx">λέγω φανῆναί σου, πάτερ, τιμάορον,<span class="n">143</span></span><span class="l">καὶ τοὺς κτανόντας ἀντικατθανεῖν <mark>δίκῃ</mark>.</span><span class="l">σὺν θεοῖσι καὶ γῇ καὶ <mark>δίκῃ</mark> νικηφόρῳ.<span class="n">148</span></span></div><div class="en">… them this prayer for evil. But be a bearer of blessings for us to the upper world, with the help of the gods and Earth and <mark>Justice</mark> crowned with victory. <i>She pours out the libations</i> Such are my prayers, and over them I pour out these libations. …</div><div class="tr"><span class="on">Smyth</span><span class="">Johnston</span><span class="">Morshead</span></div><div class="whole">Show the whole speech</div></div></div></article>
+    </div>
+  </section>
+</div>
+</body>
+</html>
