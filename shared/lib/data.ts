@@ -741,6 +741,22 @@ export function fetchChapters(work: string): Promise<Record<string, ChapterRef[]
   return p;
 }
 
+// A play's row table (lib/row-table): how many rows each book's hits make,
+// counted before any book is fetched; an edition's beside its own books.
+// Built with the data (scripts/build-row-tables.mjs), not with the app, so it
+// is served from the data root wherever the books are.
+const _rows = memoAsyncBy<string, import('./row-table').RowTable>(key => {
+  const [work, ed] = key.split('\n');
+  return fetch(`${editionBase(work, ed || undefined)}/rows.json`).then(r => {
+    if (!r.ok) throw new Error(`${work} rows: ${r.status}`);
+    return r.json();
+  });
+});
+
+export function loadRowTable(work: string, ed?: string): Promise<import('./row-table').RowTable> {
+  return _rows(`${work}\n${ed && ed !== 'tlg' ? ed : ''}`);
+}
+
 // One entry of a Stephanus work's section outline: a page+letter column
 // ("17a"), the page number and letter split out, and the stable segment anchor
 // id (`book:column`) the reader emits as `col-{column}`. Emitted per book by the

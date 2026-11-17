@@ -232,6 +232,14 @@ run(PY, ['-m', 'drama_pipeline.verify_shared_lsj'], {
 console.log('\nBuilding the LSJ headword manifest (lsj-heads.json)');
 run('node', ['scripts/build-lsj-heads.mjs'], { cwd: join(ROOT, 'app') });
 
+// The search page's row tables (shared/lib/row-table.ts), one per play and
+// edition, beside the books in build/dist: the data root serves them where it
+// serves the books. After the books are final (aligned above), before the
+// Astro build copies build/dist. Fails the build where a table's English
+// units disagree with the page's.
+console.log('\nBuilding the search row tables (rows.json)');
+run('node', [join(ROOT, 'scripts', 'build-row-tables.mjs'), dataDir]);
+
 // (app dependencies are ensured present earlier, ahead of the translation-seam gate)
 
 // Private (copyright-encumbered) translations are hidden by default; a
