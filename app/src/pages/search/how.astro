@@ -3,8 +3,9 @@ import SkipLink from '../../components/SkipLink.astro';
 // How to search (docs/redesign/HANDOFF-ui-pass2-build.md §8.2 step 1: "the
 // chart inside Search.svelte becomes the 'How to search' page, with the
 // controls explained"). The Beta Code chart is the search's old "How to type
-// Greek" help; the control notes reuse that form's own tooltips where it had
-// them. DRAFT copy: John approves.
+// Greek" help. Rewritten 17 Nov 2026 for the ported search (PR #9): each
+// control is named as the search page labels it (John: "copy should match the
+// actual search page's labels"). DRAFT copy: John approves.
 import ThemeInit from '../../components/ThemeInit.astro';
 import Pwa from '../../components/Pwa.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
@@ -24,7 +25,7 @@ const canonical = Astro.site ? new URL(`${base}/search/how/`, Astro.site).href :
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <ThemeInit />
   <title>{pageTitle}</title>
-  <meta name="description" content="How the search's boxes and controls work, and how to type Greek in Beta Code." />
+  <meta name="description" content="How the search's boxes, controls, and results work, and how to type Greek in Beta Code." />
   {canonical && <link rel="canonical" href={canonical} />}
   <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
   <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
@@ -44,38 +45,75 @@ const canonical = Astro.site ? new URL(`${base}/search/how/`, Astro.site).href :
 
       <h2>The controls</h2>
       <dl>
-        <dt>Words</dt>
-        <dd>“All words” finds lines with every word you typed. “Any of them” finds lines with at least one. “Exact phrase” finds the words together, in the order typed. The Greek and the English each have this setting.</dd>
-        <dt>Forms</dt>
-        <dd>“Any form of the word” matches every inflected form of the word’s headword. “Only as typed” matches the word as written. In English, “Any form of the word” also matches plurals and possessives.</dd>
+        <dt>all, any, exact</dt>
+        <dd>“all” finds speeches with every word you typed in the same part: a long speech is searched in parts of about 40 to 100 lines. “any” finds speeches with at least one. “exact” finds the words together, in the order typed. The Greek and the English each have this setting.</dd>
+        <dt>any form, exact form, running text</dt>
+        <dd>“any form” finds every form of the word: <span lang="grc">δίκη</span> finds <span lang="grc">δίκης</span> and <span lang="grc">δίκας</span>. A form that can come from more than one word finds the forms of each: <span lang="grc">πόλεις</span> can come from <span lang="grc">πόλις</span>, <span lang="grc">πολύς</span>, or <span lang="grc">πολέω</span>. “exact form” finds the spelling you typed and no other. “running text” reads each play’s Greek as one text, across word breaks: <span lang="grc">λογ</span> finds <span lang="grc">λόγος</span> and <span lang="grc">ἀναλογία</span>. The English has “any form” and “exact form”; there “any form” also finds plurals and possessives.</dd>
         <dt>Accents</dt>
-        <dd>“Accents ignored” treats λόγος and λογός as the same word. “Accents matter” treats them as different words; a word typed without accents then matches only unaccented words.</dd>
-        <dt>Greek text</dt>
-        <dd>“Each play’s main text” searches the Greek text each play opens with. Choosing an edition searches that edition, in Greek-only searches, in the plays that have it.</dd>
-        <dt>Wildcard</dt>
-        <dd>Use <code>*</code> for a wildcard: <code>fron*</code> matches φρόνησις, φρόνιμος, etc.</dd>
-        <dt>Lemma search</dt>
-        <dd>With “Any form of the word”, lists the dictionary headwords your word can come from. Untick a headword to leave its forms out. Example: <span lang="grc">πόλεις</span> can come from <span lang="grc">πόλις</span>, <span lang="grc">πολύς</span> or <span lang="grc">πολέω</span>.</dd>
-        <dt>Near</dt>
-        <dd>Under “Advanced search ›”. Limit results to places where a Greek word occurs near a second term. The second term can be an “exact word”, a “lemma” (any form of the word; tick the headwords to include), or a “word form”: any word with a particular grammatical form (e.g., feminine dative plural). Choose whether the second term is “before”, “after”, or “on either side of” the first word, and how far away it should be (a number of “words” or “lines”; 0 lines is the same line). The “add a word” link adds up to two more, each placed against the first word, with its own “remove”. With more than one, “In this order” keeps them in the order given. Each must match a different word.</dd>
-        <dt>Form</dt>
-        <dd>With “word form”, sets the grammar of the term. Choose “a verb form”, “a noun or adjective form”, or “a word class”, then the categories, for example “aorist” and “optative”. A category left at “any” is not checked.</dd>
+        <dd>Ticked, accents and breathings count: <span lang="grc">λόγος</span> and <span lang="grc">λογός</span> are different words, and a word typed without accents finds only words without them. Ticking it moves “any form” to “exact form”.</dd>
+        <dt>Lemma</dt>
+        <dd>Ticked, the Greek box takes one dictionary word: type it, then pick it from the list under the box. The search finds that word in all its forms.</dd>
+        <dt>Punctuation</dt>
+        <dd>With “running text”, ticked, the search matches the stops between words: , . ; and · (typed · or :). Unticked, each break between words is one space.</dd>
+        <dt>Each play’s main text</dt>
+        <dd>The menu under the Greek box. “Each play’s main text” searches the Greek each play opens with. Choosing an edition searches that edition, in Greek-only searches, in the plays that have it. A note over the results names any play searched in another text.</dd>
+        <dt>Wildcards</dt>
+        <dd><code>*</code> stands for any letters: <code>fron*</code> finds <span lang="grc">φρόνησις</span>, <span lang="grc">φρόνιμος</span>, and so on. <code>?</code> is one letter, <code>[εη]</code> one of these letters, and <code>^</code> and <code>$</code> the start and end of the word; in Greek letters <code>(ος|ου)</code> is one or the other. In Beta Code a leading <code>*</code> is a capital, so write <code>.*ikos$</code> for words ending in -ικος. English takes <code>*</code> and <code>?</code> only.</dd>
+        <dt>and, and/or, or</dt>
+        <dd>With both boxes filled, the word between them. “and” (“Both languages”) finds speeches where the Greek and the English both match. “and/or” (“Either or both”), the default, finds speeches where either matches. “or” (“One language, not both”) finds speeches where one matches and the other does not.</dd>
         <dt>English near</dt>
-        <dd>Under “Advanced search ›”. Finds the English you typed with a second English word close by, in the same translation. Choose “before”, “after”, or “on either side of”, and a number of words.</dd>
-        <dt>Together</dt>
-        <dd>With both boxes filled: “Lines where both the Greek and the English match”, or “Lines where the Greek or the English matches”.</dd>
+        <dd>Finds the English you typed with another English word close by, in the same translation. Choose “on either side of”, “before”, or “after”, and how many “words away”.</dd>
         <dt>In</dt>
-        <dd>“All 44 plays”, one author’s plays, or the plays you tick under “choose plays”.</dd>
+        <dd>“all plays”, or “choose plays…” to pick them: “Only these” or “Add these” for a playwright’s plays, or a play at a time.</dd>
+      </dl>
+
+      <h2 id="proximity">Proximity</h2>
+      <p>“Proximity” opens a form of terms in place of the Greek box: Greek words that must occur near each other.</p>
+      <dl>
+        <dt>Kind</dt>
+        <dd>“any form”: type a word, then pick the dictionary word from the list. “as typed”: the word as written. “exact phrase”: the words together, in order. “by grammar”: any word of a grammatical form. Choose its “word class”, then the categories, for example “verb”, “aor”, and “opt”. A category left at “any” is not checked. A grammar term on its own searches only the plays you choose, not all of them.</dd>
+        <dt>Relation</dt>
+        <dd>Each term after the first is “near”, “before”, or “after” another term (term 1 unless you choose another), or “not near” it: no such word within the distance. Joined by “or” in place of “and”, a term is an alternative to the one above it.</dd>
+        <dt>Distance</dt>
+        <dd>“within” a number of “words” (1 to 50, counted from the nearer end of each term) or “lines” (0 to 10, on either side of term 1’s line; 0 lines is the same line). Each term must match a different word.</dd>
+        <dt>Add term, In this order, Keep hits that cross a speech</dt>
+        <dd>“Add term” adds a term, up to four; “Remove” drops one. “In this order” keeps the terms in the order given. “Keep hits that cross a speech”, on at first, keeps a match whose terms fall in different speeches; the match counts in the speech of its first word.</dd>
+        <dt>Turn off, Change, Guide</dt>
+        <dd>While proximity is on, the search reads as a sentence over the results. “Turn off” goes back to the Greek box. “Change” opens the terms again, and “Close” shuts them. “Guide” opens this page.</dd>
+      </dl>
+
+      <h2 id="results">The results</h2>
+      <dl>
+        <dt>Speeches and hits</dt>
+        <dd>The count gives the speeches with hits, then the hits. With Greek and English, the rows under it give the speeches with “Greek and English”, “Greek only”, and “English only”.</dd>
+        <dt>Group by, Sort, Context, Per page</dt>
+        <dd>“Group by” lists the hits “By play”, “By form”, or “By grammar”. “Sort” orders the page: “Line order”, “Plays A–Z”, “Forms A–Z”, or “Commonest form first”. “Context” shows “1 line”, “3 lines”, or the “Whole speech”. “Per page” shows 20, 40, or 100; at 100 each hit is its reference and a few words, opened with a click.</dd>
+        <dt>Show the whole speech</dt>
+        <dd>Under a hit, shows the speech it is in. “Show less” shuts it.</dd>
+        <dt>Plays with hits, Translations</dt>
+        <dd>The plays and translations with hits, most first. Click one to show only its hits; click it again to show all.</dd>
+        <dt>Phrases</dt>
+        <dd>The English phrases around the English hits, most first. Tick “Exclude” to set a phrase aside; its hits leave every count.</dd>
+        <dt>Forms</dt>
+        <dd>The Greek forms found, under their dictionary words. Untick a form and press “Apply” to drop its hits.</dd>
+        <dt>Grammar</dt>
+        <dd>With “By grammar”, tick a case, tense, and so on to keep only the hits in that form.</dd>
+        <dt>Find this phrase in any inflection</dt>
+        <dd>Searches a Greek phrase again with each word in any form.</dd>
+        <dt>Export results as CSV</dt>
+        <dd>Saves every hit, not just the page, as a spreadsheet file.</dd>
+        <dt>Filter, View</dt>
+        <dd>On a phone these buttons over the results hold the lists and the menus above.</dd>
       </dl>
 
       <h2 id="share">Sharing a search</h2>
-      <p>The page address holds the whole search. Copy it to share or bookmark the search.</p>
+      <p>The page address holds the whole search. Copy it to share or bookmark the search. “Save search” keeps it in this browser, under <a href={`${base}/saved`}>Saved searches</a>.</p>
 
       <h2 id="phrases">The phrase index</h2>
       <p>Lists every phrase of two to five words that occurs at least twice in the plays. <a href={`${base}/search/phrases`}>Open the phrase index</a></p>
       <dl>
         <dt>Count</dt>
-        <dd>“Greek, as written” keeps <span lang="grc">ὦ τέκνον</span> and <span lang="grc">ὦ τέκνα</span> apart. “Greek, any form” counts them together. “English (main translation)” lists phrases in each play’s main translation. Type the words as printed.</dd>
+        <dd>“Greek, as written” keeps <span lang="grc">ὦ τέκνον</span> and <span lang="grc">ὦ τέκνα</span> apart. “Greek, any form” counts them together. “English (main translation)” lists phrases in each play’s main translation. In “Phrase starts with”, type the words as printed.</dd>
         <dt>Length and At least</dt>
         <dd>“2 words” to “5 words” sets the phrase lengths shown. “At least” sets how many times a phrase must occur.</dd>
         <dt>Order</dt>

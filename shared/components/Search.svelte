@@ -5400,7 +5400,7 @@
       {#if worksOpen}
         <div class="works-body">
           <div class="works-actions">
-            <span class="works-count">{selectedWorks.size} of {WORKS.length} works</span>
+            <span class="works-count">{selectedWorks.size} of {WORKS.length} {WORKS.length === 1 ? 'play' : 'plays'}</span>
             <button type="button" class="works-action" on:click={selectAll} disabled={allSelected}>Select all</button>
             <button type="button" class="works-action" on:click={clearWorks} disabled={selectedWorks.size === 0}>Clear</button>
             <button type="button" class="works-done" on:click={closeWorks}>Done</button>
@@ -5430,8 +5430,8 @@
               <div class="works-group-head">
                 <span class="works-group-name">{grp.ref ? `${grp.ref}. ` : ''}{grp.label}</span>
                 <span class="works-group-scope">
-                  <button type="button" class="scope-btn" on:click={() => selectOnly(grp.ids)} title="Search only this division">Only these {grp.ids.length}</button>
-                  <button type="button" class="scope-btn" on:click={() => addGroup(grp.ids)} title="Add this division to the selection">Add these {grp.ids.length}</button>
+                  <button type="button" class="scope-btn" on:click={() => selectOnly(grp.ids)} title="Search only this playwright's plays">Only these {grp.ids.length}</button>
+                  <button type="button" class="scope-btn" on:click={() => addGroup(grp.ids)} title="Add this playwright's plays to the selection">Add these {grp.ids.length}</button>
                 </span>
               </div>
               <div class="works-chips">
@@ -5469,9 +5469,8 @@
 
           {#if speakerMode === 'anyone'}
             <p class="speaker-note">
-              Every word in a dialogue has a speaker. Choose a mode to hold the
-              search to one voice — <span lang="grc">ἀρετή</span> in Socrates'
-              mouth only, or anywhere but.
+              Every speech in a play has a speaker. Choose a mode to hold the
+              search to one voice, or to leave one out.
               <a class="guide-link" href={`${BASE_URL}/search/how`} target="_blank" rel="noreferrer">What is this?</a>
             </p>
           {:else}
@@ -5484,7 +5483,7 @@
               </p>
             {:else if !cast.length}
               <p class="speaker-note">
-                None of the selected works carries speaker labels the filter can
+                None of the selected plays carries speaker labels the filter can
                 use, so there is nobody to choose.
                 {#if unlabelledWorks.length}
                   {listNames(unlabelledWorks)} {unlabelledWorks.length > 1 ? 'are' : 'is'} narrated without
@@ -5494,7 +5493,7 @@
                   {listNames(narratedWorks)} {narratedWorks.length > 1 ? 'are' : 'is'} reported by a narrator —
                   the text labels the frame, not the speeches inside it.
                 {/if}
-                Add a dialogue to the works above.
+                Add a play above.
               </p>
             {:else}
               <div class="works-actions">
@@ -5509,13 +5508,13 @@
                     class:on={speakerNames.has(s.name)}
                     aria-pressed={speakerNames.has(s.name)}
                     on:click={() => toggleSpeaker(s.name)}
-                    title={`${s.turns} ${s.turns === 1 ? 'speech' : 'speeches'} across ${s.works} ${s.works === 1 ? 'work' : 'works'}`}
+                    title={`${s.turns} ${s.turns === 1 ? 'speech' : 'speeches'} across ${s.works} ${s.works === 1 ? 'play' : 'plays'}`}
                   >{s.name} <span class="speaker-turns">{s.turns}</span></button>
                 {/each}
               </div>
               <p class="speaker-note">
-                Greek hits are held to the word; English hits to the passage,
-                because the translation is aligned to the section, not the word.
+                Greek hits are held to the word; English hits to the speech,
+                because the translation is aligned to the speech, not the word.
                 {#if unlabelledWorks.length}
                   {listNames(unlabelledWorks)} {unlabelledWorks.length > 1 ? 'are' : 'is'} narrated without
                   speaker labels and will be left out of a filtered search.
@@ -5574,7 +5573,7 @@
           {/each}
         </div>
 
-        <h3>Accents &amp; breathings <span class="help-note">(optional — ignored when matching)</span></h3>
+        <h3>Accents &amp; breathings <span class="help-note">(optional — ignored unless Accents is ticked)</span></h3>
         <p class="help-sub">Type the mark right after the vowel:</p>
         <ul class="mark-list">
           {#each BETA_MARKS as M}
@@ -5591,7 +5590,7 @@
 
         <p class="help-foot">
           Long vowels are distinct: <code>h</code> = η (not <code>e</code> = ε), <code>w</code> = ω (not <code>o</code> = ο).
-          Type them exactly. Accents and breathings may be included or left off.
+          Type them exactly. Accents and breathings may be left off unless Accents is ticked.
         </p>
 
         <h3>Wildcards</h3>
@@ -6032,7 +6031,7 @@
             {#if unsupportedWorks.length}
               <div class="sx-note warn">
                 <span class="k">Note</span>
-                <span>Near uses each play’s main Greek text. These plays were searched in the chosen edition without Near: {playsPhrase(unsupportedWorks)}.</span>
+                <span>Proximity uses each play’s main Greek text. These plays were searched in the chosen edition without it: {playsPhrase(unsupportedWorks)}.</span>
               </div>
             {/if}
             {#if mainTextWorks.length}
