@@ -154,7 +154,7 @@ def run(searches, works):
         for w, p in plays.items():
             L = p['lines']
             if s.get('greek'):
-                idx = json.loads((DIST / w / 'search' / 'lemma.json').read_text())
+                idx = json.loads((DIST / w / 'search' / 'greek_lemma.json').read_text())
                 for si, pos in idx.get(s['greek'], []):
                     i, off = p['toks'][si][pos]
                     ln = L[i]; g_hits += 1

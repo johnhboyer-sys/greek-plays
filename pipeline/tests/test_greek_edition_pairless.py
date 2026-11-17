@@ -112,4 +112,4 @@ def test_pairless_edition_builds_end_to_end_into_a_greek_only_book():
     assert book['speakerRoster'][:len(reference['speakerRoster'])] == reference['speakerRoster']
     assert not (target / 'footnotes.json').exists() and not (target / 'manifest.json').exists()
     assert json.loads((target / 'concordance.json').read_text(encoding='utf-8'))
-    assert (target / 'search' / 'form.json').exists() and not (target / 'search' / 'english.json').exists()
+    assert (target / 'search' / 'greek_form.json').exists() and not (target / 'search' / 'english.json').exists()

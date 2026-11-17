@@ -109,9 +109,14 @@ def _stage_artifacts(build: Path) -> None:
     _write_json(build / "stage5" / "lemma_map.json", {})
     _write_json(build / "stage5" / "summary.json", {"lsj_entries_kept": 0})
     _write_json(build / "stage5" / "missing_lemmata.json", [])
-    for name in ("lemma.json", "form.json", "english.json", "meta.json",
-                 "offsets.json", "grammar-dict.json"):
+    for name in ("greek_lemma.json", "greek_form.json", "grammar-dict.json"):
         _write_json(build / "stage6" / name, {})
+    # Stage 7 builds the English indexes from the books it writes, reading
+    # the segment order (meta) and offsets stage 6 left.
+    _write_json(build / "stage6" / "meta.json",
+                [{"id": sid, "book": 1, "column": sid.split(":")[1]} for sid in SEG_IDS])
+    _write_json(build / "stage6" / "offsets.json",
+                {"token_count": 0, "seg_base_offset": [0, 0, 0], "chapter_bounds": []})
     (build / "stage6" / "grammar-col.bin").write_bytes(b"")
 
 

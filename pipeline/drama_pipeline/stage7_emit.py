@@ -28,6 +28,7 @@ from pathlib import Path
 
 from . import scheme as scheme_mod
 from . import stage5_lsj
+from . import stage6_search
 from .config import BUILD_DIR, SOURCES_DIR, Manifest, private_translation_ids
 from .parse_filter import filter_parses
 from .refs import column_key
@@ -296,6 +297,23 @@ def _play_line_display(label: str, sigla_norm: dict, overrides, ref) -> tuple[st
     if key in sigla_norm:
         return sigla_norm[key], True
     return base, False
+
+
+def _private_english_slots(manifest: Manifest) -> set[str]:
+    """The English index slots ('english', 'secondary', 'third',
+    'overlay-<id>') whose translation the manifest marks private: never
+    indexed, as stage 6 never put them in meta.json's english_slots."""
+    english = manifest.data.get("english") or {}
+    private = private_translation_ids(manifest.data)
+    out = set()
+    for key, slot in (("primary", "english"), ("secondary", "secondary"), ("third", "third")):
+        entry = english.get(key)
+        if isinstance(entry, dict) and (entry.get("private") or entry.get("id") in private):
+            out.add(slot)
+    for entry in english.get("overlays") or []:
+        if isinstance(entry, dict) and (entry.get("private") or entry.get("id") in private):
+            out.add(f"overlay-{entry.get('id')}")
+    return out
 
 
 def _canonicalize_play_line_speakers(
@@ -1945,6 +1963,20 @@ def run(manifest: Manifest) -> Path:
                 "bekker": range_map[(ch["book"], ch["chapter"])],
             }
         )
+    # A play's chapters are its speeches (stage 6's speeches.json): the search
+    # counts and pages by them, and its outline (Search.svelte fetchOutline)
+    # names each by the printed ref its cue stands on. The play reader shows
+    # no chapter list (ReaderShell hides it on play-line works).
+    speeches_path = BUILD_DIR / "stage6" / "speeches.json"
+    speeches = (json.loads(speeches_path.read_text(encoding="utf-8"))
+                if sch.play_line_scheme and speeches_path.exists() else [])
+    for sp in speeches:
+        chapters_by_book[str(sp["book"])].append({
+            "chapter": sp["name"],
+            "column": sp["column"],
+            "line": str(sp["line"]),
+            "bekker": sp["bekker"],
+        })
     (out_dir / "chapters.json").write_text(
         json.dumps(chapters_by_book, ensure_ascii=False, indent=1), encoding="utf-8"
     )
@@ -1984,6 +2016,10 @@ def run(manifest: Manifest) -> Path:
             parts = chunk["column"].split(".", 1)
             chapter = parts[1] if len(parts) > 1 else parts[0]
             titles_by_book[str(chunk["book"])][chapter] = chunk["title"]
+    # A speech is headed by its speaker (the display name; the label as
+    # printed where none maps; a dash where the edition names no one).
+    for sp in speeches:
+        titles_by_book[str(sp["book"])][sp["name"]] = sp["title"]
     if titles_by_book:
         (out_dir / "chapter-titles.json").write_text(
             json.dumps(titles_by_book, ensure_ascii=False, indent=1), encoding="utf-8"
@@ -1998,12 +2034,23 @@ def run(manifest: Manifest) -> Path:
         _merge_shared_lsj(manifest.language)
 
     (out_dir / "search").mkdir(exist_ok=True)
-    search_files = ["lemma.json", "form.json", "meta.json",
+    search_files = ["greek_lemma.json", "greek_form.json", "meta.json",
                     "offsets.json", "grammar-dict.json", "grammar-col.bin"]
-    if not manifest.data["work"].get("edition_id"):
-        search_files.insert(2, "english.json")
+    # Stage 6 writes the running text wherever it has the spine, as every
+    # real build does.
+    if (BUILD_DIR / "stage6" / "running.json").exists():
+        search_files.append("running.json")
     for f in search_files:
         shutil.copy(BUILD_DIR / "stage6" / f, out_dir / "search" / f)
+    # The English indexes are built from the books just written: the words
+    # the reader shows. A Greek edition has no English search of its own.
+    if not manifest.data["work"].get("edition_id"):
+        english_summary = stage6_search.emit_translation_indexes(
+            out_dir, speeches, _private_english_slots(manifest)
+        )
+        (BUILD_DIR / "stage6" / "english_summary.json").write_text(
+            json.dumps(english_summary, indent=1), encoding="utf-8"
+        )
 
     work = public_work(manifest.data["work"])
     (out_dir / "manifest.json").write_text(

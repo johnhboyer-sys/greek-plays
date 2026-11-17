@@ -1,23 +1,16 @@
 """Stage 6: build the search index for the Astro frontend.
 
-Emits these files under build/stage6/ (source-language-neutral names, per
-docs/wave2-latin-design.md §2/§6 — the index is a "source-language index vs
-english.json" axis, not a Greek-only one):
+Emits these files under build/stage6/, in the shapes the Aristotle reader's
+search reads (its pipeline/aristotle_pipeline/stage6_search.py):
 
-  lemma.json — {fold(key, language): [[seg_idx, token_pos], ...]}
+  greek_lemma.json — {fold(key, language): [[seg_idx, token_pos], ...]}
                  keyed by the token's dictionary HEADWORD (lemma), so a query
                  finds every inflected form of a word. fold() strips all
-                 accents/marks (Greek: Beta Code diacritics; Latin: unifies
-                 u/v and i/j — see fold() below), so wildcard prefix matching
-                 works uniformly.
+                 accents/marks, so wildcard prefix matching works uniformly.
 
-  form.json  — {fold(surface, language): [[seg_idx, token_pos], ...]}
+  greek_form.json  — {fold(surface, language): [[seg_idx, token_pos], ...]}
                  keyed by the SURFACE form as written (the inflected token), so
                  a query can match the exact form rather than the whole lemma.
-
-  english.json — {word: [[seg_idx, translation_id], ...]}
-                 Every published translation gets its own posting. Phrase
-                 checks use that translation's full text in meta.json.
 
   meta.json    — [{id, book, column, head, tokens, english_head, english_slots}]
                  Ordered list of segment metadata, indexed by seg_idx.
@@ -25,6 +18,18 @@ english.json" axis, not a Greek-only one):
                  tokens: space-joined fold token sequence (phrase search).
                  english_head: the FULL primary chunk (legacy name).
                  english_slots: full non-primary texts by translation id.
+
+  offsets.json — the global token offset primitive, with one `chapter_bounds`
+                 entry per SPEECH and `turn_bounds` for the same speeches
+                 (speeches.py: the plays count by speech, John 2026-11-16).
+  speeches.json — every speech with its cue, name, title and line span, for
+                 stage 7's chapters.json, chapter-titles.json and
+                 eng-chapters.json.
+  running.json — the Greek as one running text (running_text.py).
+
+The English indexes (english.json, english-<slot>.json, eng-chapters.json)
+are written by stage 7 through emit_translation_indexes below, from the
+emitted books: the text the reader shows.
 
 Stage 7 also copies offsets.json, grammar-dict.json, and grammar-col.bin to
 build/dist/<work>/search/. They share one global token offset space.
@@ -41,7 +46,10 @@ import unicodedata
 from collections import defaultdict
 from pathlib import Path
 
+from . import scheme as scheme_mod
+from . import speeches as speeches_mod
 from .config import BUILD_DIR, Manifest, private_translation_ids
+from .running_text import build_running_text, check_alignment, spells_a_letter
 from .stage2_validate import check_grammar, check_ngram_streams, check_offsets
 
 _FOLD = re.compile(r"[^a-z']")  # keep only base letters and apostrophe
@@ -178,6 +186,211 @@ def slot_text(chunks: object) -> str:
     if isinstance(chunks, list):
         return "\n".join(c.get("text", "") for c in chunks if isinstance(c, dict))
     return ""
+
+
+# -- English indexes, in the Aristotle reader's shapes -------------------------
+#
+# One index per translation, so a query asking for every word to be present
+# asks it of one translator's prose: english.json for the primary,
+# english-<slot>.json beyond it ('secondary', 'third', 'overlay-<id>'), each
+# {word: [[seg_idx, word_pos], ...]} with word_pos counted as english_words
+# counts the segment's text for that slot (pieces run on, no reset), as the
+# reader's englishWords counts translationTexts(). Stage 7 calls
+# emit_translation_indexes after writing the books, so the words are the ones
+# the reader shows.
+
+# An overlay id names a file and a shard source; the plays' ids carry hyphens
+# (murray-verse), which Aristotle's [a-z0-9_]+ refused.
+_OVERLAY_ID = re.compile(r"[a-z0-9_-]+")
+
+# A speaker cue as the reader finds it in a comparison translation's text
+# (extractPrefixedEnglishTurns, shared/lib/speakers.ts): a name of up to 80
+# characters at the start of the text or after a blank line, then a full stop.
+_CUE = re.compile(r"(^|\n{2,})([^.\n]{1,80})\.\s+")
+
+
+def _cue_norm(value: str) -> str:
+    return re.sub(r"[\W_]+", " ", (value or "").lower()).strip()
+
+
+def segment_pieces(seg: dict) -> dict[str, list[dict]]:
+    """The non-primary translation pieces of one emitted segment, by slot:
+    'secondary' (emitted as `ross`; both are read), 'third', 'overlay-<id>'."""
+    out: dict[str, list[dict]] = {}
+    secondary = seg.get("secondary") or seg.get("ross")
+    if secondary:
+        out["secondary"] = secondary
+    if seg.get("third"):
+        out["third"] = seg["third"]
+    for tid, pieces in (seg.get("overlays") or {}).items():
+        if not _OVERLAY_ID.fullmatch(tid):
+            raise ValueError(f"overlay id {tid!r} cannot name an index file")
+        if pieces:
+            out[f"overlay-{tid}"] = pieces
+    return out
+
+
+def translation_index_name(slot: str) -> str:
+    return "english.json" if slot == "english" else f"english-{slot}.json"
+
+
+def segment_texts(seg: dict) -> dict[str, list[str]]:
+    """Every translation's text of one emitted segment, by slot, primary
+    ('english') included, as the reader's translationTexts() returns it."""
+    out = {slot: [p.get("text") or "" for p in pieces] for slot, pieces in segment_pieces(seg).items()}
+    text = (seg.get("english") or {}).get("text")
+    if text:
+        out["english"] = [text]
+    return out
+
+
+def segment_cue_words(seg: dict, roster: list[str]) -> dict[str, list[int] | None]:
+    """Where each speaker cue of each translation begins in one segment, as
+    a word position of that slot's index. The primary's cues are its
+    `english.turns` (character offsets into its text); a comparison
+    translation's are found in its pieces' text the way the reader finds
+    them. None for a slot where a cue falls inside a word."""
+    out: dict[str, list[int] | None] = {}
+    eng = seg.get("english") or {}
+    if eng.get("text"):
+        text = eng["text"]
+        whole = english_words(text)
+        at: list[int] | None = []
+        for turn in eng.get("turns") or []:
+            off = turn["offset"]
+            before = english_words(text[:off])
+            if before + english_words(text[off:]) != whole:
+                at = None
+                break
+            at.append(len(before))
+        out["english"] = at
+    for slot, pieces in segment_pieces(seg).items():
+        pos, at = 0, []
+        for piece in pieces:
+            text = piece.get("text") or ""
+            known = {_cue_norm(n) for n in [*roster, *(piece.get("cueSpeakers") or [])]}
+            for m in _CUE.finditer(text):
+                label = m.group(2).strip()
+                if _cue_norm(label) in known or (
+                    sum(c.isalpha() for c in label) >= 2 and label == label.upper()
+                ):
+                    at.append(pos + len(english_words(text[:m.start(2)])))
+            pos += len(english_words(text))
+        out[slot] = at
+    return out
+
+
+def speech_starts(
+    seg: dict, si: int, opening: dict, cued: list[dict], roster: list[str]
+) -> tuple[dict[str, list[list]], dict[str, str]]:
+    """eng-chapters entries for one emitted segment: per slot, where each
+    speech that starts in the segment begins in that translation's words,
+    [[word_pos, speech name], ...].
+
+    `opening` is the speech in force at the segment's first Greek token (the
+    client's fallback for words before the first listed start), `cued` the
+    speeches whose cues stand in the segment, in order. A segment holding one
+    speech needs no entry. Where it holds more, a translation is split only
+    when it carries exactly as many speaker cues in the segment as the Greek
+    has: cue i then opens speech i. The names may differ (a translator gives
+    a line to another speaker; John 2026-09-29 keeps the translation's own
+    colour there), the order still pairs them. Otherwise the segment is left
+    out and every word of it counts in `opening`.
+
+    Returns (entries, outcome by slot: 'split' or 'fallback'; slots of a
+    one-speech segment are not reported).
+    """
+    names = {opening["name"], *(sp["name"] for sp in cued)}
+    entries: dict[str, list[list]] = {}
+    outcome: dict[str, str] = {}
+    if len(names) < 2:
+        return entries, outcome
+    for slot, at in segment_cue_words(seg, roster).items():
+        if at is not None and cued and len(at) == len(cued):
+            entries[slot] = [[pos, sp["name"]] for pos, sp in zip(at, cued)]
+            outcome[slot] = "split"
+        else:
+            outcome[slot] = "fallback"
+    return entries, outcome
+
+
+def emit_translation_indexes(
+    work_dir: Path, speeches: list[dict], excluded: set[str] = frozenset()
+) -> dict[str, dict[str, int]]:
+    """Write search/english.json, english-<slot>.json and eng-chapters.json.
+
+    Reads the work's emitted book-NN.json and search/meta.json, which must
+    already be in place; seg_idx is a segment's position in meta.json.
+    `speeches` is stage 6's speeches.json. `excluded` names slots never to
+    index (a private translation). Any english*.json or eng-chapters.json
+    left from an earlier build is removed first, so an index can never
+    outlive its translation. Returns, per slot, the words and segments
+    indexed and how many multi-speech segments were split or left to the
+    client's fallback.
+    """
+    search_dir = work_dir / "search"
+    meta = json.loads((search_dir / "meta.json").read_text(encoding="utf-8"))
+    seg_idx = {m["id"]: i for i, m in enumerate(meta)}
+    # The speech in force at each segment's first token, and the cued
+    # speeches standing in each segment.
+    by_seg: dict[int, list[dict]] = defaultdict(list)
+    for sp in speeches:
+        if sp["cued"]:
+            by_seg[sp["seg"]].append(sp)
+    offsets = json.loads((search_dir / "offsets.json").read_text(encoding="utf-8"))
+    base = offsets["seg_base_offset"]
+    if speeches and [(sp["name"], sp["start"]) for sp in speeches] != [
+        (c["chapter"], c["start"]) for c in offsets["chapter_bounds"]
+    ]:
+        raise ValueError(f"{work_dir.name}: speeches.json disagrees with search/offsets.json — stale stage 6")
+
+    posts: dict[str, dict[str, list]] = defaultdict(lambda: defaultdict(list))
+    segments: dict[str, set[int]] = defaultdict(set)
+    chapters: dict[str, dict[str, list]] = defaultdict(dict)
+    outcomes: dict[str, dict[str, int]] = defaultdict(lambda: {"split": 0, "fallback": 0})
+    k = 0
+    for book_path in sorted(work_dir.glob("book-*.json")):
+        doc = json.loads(book_path.read_text(encoding="utf-8"))
+        roster = doc.get("speakerRoster") or []
+        for seg in doc["segments"]:
+            si = seg_idx.get(seg["id"])
+            if si is None:
+                raise ValueError(f"{book_path.name}: segment {seg['id']} is not in search/meta.json")
+            while k + 1 < len(speeches) and speeches[k + 1]["start"] <= base[si]:
+                k += 1
+            texts = {slot: t for slot, t in segment_texts(seg).items() if slot not in excluded}
+            for slot, chunks in texts.items():
+                pos = 0
+                for text in chunks:
+                    for word in english_words(text):
+                        posts[slot][word].append([si, pos])
+                        pos += 1
+                if pos:
+                    segments[slot].add(si)
+            if speeches:
+                entries, outcome = speech_starts(seg, si, speeches[k], by_seg.get(si, []), roster)
+                for slot, at in entries.items():
+                    if slot in texts:
+                        chapters[slot][str(si)] = at
+                for slot, how in outcome.items():
+                    if slot in texts:
+                        outcomes[slot][how] += 1
+
+    for stale in [*search_dir.glob("english*.json"), search_dir / "eng-chapters.json"]:
+        stale.unlink(missing_ok=True)
+    (search_dir / "eng-chapters.json").write_text(
+        json.dumps(chapters, ensure_ascii=False), encoding="utf-8"
+    )
+    summary: dict[str, dict[str, int]] = {}
+    for slot in sorted(posts):
+        # In document order, as Aristotle's english.json is.
+        index = {word: sorted(plist) for word, plist in posts[slot].items()}
+        (search_dir / translation_index_name(slot)).write_text(
+            json.dumps(index, ensure_ascii=False), encoding="utf-8"
+        )
+        summary[slot] = {"words": len(posts[slot]), "segments": len(segments[slot]),
+                         **outcomes[slot]}
+    return summary
 
 
 def build_lemma_map(current: dict, work_id: str, build_dir: Path = BUILD_DIR) -> None:
@@ -345,18 +558,6 @@ def run(manifest: Manifest) -> Path:
     lemma_idx = _dedupe(lemma_posts)
     form_idx = _dedupe(form_posts)
 
-    # -- English inverted index -----------------------------------------------
-    # word -> [[segment index, translation id], ...]
-    eng_posts: dict[str, set] = defaultdict(set)
-    for seg in segments:
-        si = seg_idx[seg["id"]]
-        for slot_id, chunks in slot_chunks.items():
-            # The same words the phrase index (stage 8) and the reader count:
-            # curly apostrophes made straight, æ as ae, edge quotes dropped.
-            for word in english_words(slot_text(chunks.get(seg["id"]))):
-                eng_posts[word].add((si, slot_id))
-    english_idx = {w: [list(pair) for pair in sorted(pairs)] for w, pairs in eng_posts.items()}
-
     # -- Segment metadata -----------------------------------------------------
     meta = []
     greek_only = bool(manifest.data["work"].get("edition_id"))
@@ -399,10 +600,10 @@ def run(manifest: Manifest) -> Path:
     # running line number, which is what nearness is measured on, but a hit is
     # cited and linked by its ref, as the reader prints it.
     spine_path = BUILD_DIR / "stage1" / "greek_spine.json"
+    spine = json.loads(spine_path.read_text(encoding="utf-8")) if spine_path.exists() else None
     spine_refs: dict[str, list] = {}
-    if spine_path.exists():
-        for spine_seg in json.loads(spine_path.read_text(encoding="utf-8")).get("segments", []):
-            spine_refs[spine_seg.get("id")] = [ln.get("ref") for ln in spine_seg.get("lines", [])]
+    for spine_seg in (spine or {}).get("segments", []):
+        spine_refs[spine_seg.get("id")] = [ln.get("ref") for ln in spine_seg.get("lines", [])]
     seg_base_offset: list[int] = []
     seg_coords: list[dict] = []
     running = 0
@@ -437,7 +638,17 @@ def run(manifest: Manifest) -> Path:
         if not book_bounds or book_bounds[-1]["book"] != seg["book"]:
             book_bounds.append({"book": seg["book"], "start": seg_base_offset[i]})
 
-    chapter_bounds: list[dict] = []
+    # The plays count by speech (speeches.py), so each speech is a chapter.
+    # A speech's title is its speaker's display name, which stage 7 gives the
+    # spine's events (_canonicalize_play_line_speakers); it runs here too, on
+    # this stage's own copy of the spine, so the names agree with the books.
+    if spine is not None and scheme_mod.for_manifest(manifest).play_line_scheme:
+        from .stage7_emit import _canonicalize_play_line_speakers
+        _canonicalize_play_line_speakers(spine, manifest)
+    speeches = speeches_mod.build_speeches(
+        segments, spine["segments"] if spine is not None else None, seg_base_offset
+    )
+    chapter_bounds = speeches_mod.chapter_bounds(speeches)
 
     offsets = {
         # Doubles as a build fingerprint: every artifact indexed by global
@@ -447,6 +658,7 @@ def run(manifest: Manifest) -> Path:
         "segments": seg_coords,
         "book_bounds": book_bounds,
         "chapter_bounds": chapter_bounds,
+        "turn_bounds": speeches_mod.turn_bounds(speeches),
     }
 
     # -- Grammatical index -----------------------------------------------------
@@ -541,6 +753,28 @@ def run(manifest: Manifest) -> Path:
 
     out_dir = BUILD_DIR / "stage6"
     out_dir.mkdir(parents=True, exist_ok=True)
+    # Every stage 3 token as Beta Code with the punctuation between, the n-th
+    # run being global token n; built only where the spine (the printed
+    # text) is at hand, which every real build has. A token with no letter
+    # (an OCR edition's "…" or metrical signs, ¯˘) has no run to be, so a
+    # Greek edition that keeps one goes without running-text search; in a
+    # reference work it is an error, raised by build_running_text.
+    (out_dir / "running.json").unlink(missing_ok=True)
+    letterless = [t["t"] for seg in segments for line in seg["lines"] for t in line["tokens"]
+                  if not spells_a_letter(t["t"])]
+    if letterless and manifest.data["work"].get("edition_id"):
+        print(f"stage6: no running.json: {len(letterless)} tokens with no letter, "
+              f"e.g. {letterless[:3]}")
+    elif spine is not None:
+        running_text = build_running_text(segments, spine)
+        check_alignment(manifest.work_id, running_text, segments, token_count)
+        (out_dir / "running.json").write_text(
+            json.dumps({"v": 1, "token_count": token_count, "text": running_text}, ensure_ascii=False),
+            encoding="utf-8",
+        )
+    (out_dir / "speeches.json").write_text(
+        json.dumps(speeches, ensure_ascii=False), encoding="utf-8"
+    )
     (out_dir / "offsets.json").write_text(
         json.dumps(offsets, ensure_ascii=False), encoding="utf-8"
     )
@@ -565,7 +799,10 @@ def run(manifest: Manifest) -> Path:
                     # disagree with the offsets they are supposed to index.
                     "token_count": token_count,
                     "book_bounds": book_bounds,
-                    "chapter_bounds": chapter_bounds,
+                    # Phrases are counted across speeches as before: stage 8
+                    # reads these bounds only to flag a phrase that straddles
+                    # a chapter, and a speech is not a chapter in that sense.
+                    "chapter_bounds": [],
                     "form": form_stream,
                     "lemma": lemma_stream,
                     "surface": surface_stream,
@@ -578,24 +815,22 @@ def run(manifest: Manifest) -> Path:
             ),
             encoding="utf-8",
         )
-    (out_dir / "lemma.json").write_text(
+    for stale in ("lemma.json", "form.json", "english.json"):
+        (out_dir / stale).unlink(missing_ok=True)
+    (out_dir / "greek_lemma.json").write_text(
         json.dumps(lemma_idx, ensure_ascii=False), encoding="utf-8"
     )
-    (out_dir / "form.json").write_text(
+    (out_dir / "greek_form.json").write_text(
         json.dumps(form_idx, ensure_ascii=False), encoding="utf-8"
     )
-    if not manifest.data["work"].get("edition_id"):
-        (out_dir / "english.json").write_text(
-            json.dumps(english_idx, ensure_ascii=False), encoding="utf-8"
-        )
     (out_dir / "meta.json").write_text(
         json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8"
     )
     summary = {
         "lemmata": len(lemma_idx),
         "forms": len(form_idx),
-        "english_terms": len(english_idx),
         "segments": len(meta),
+        "speeches": len(speeches),
         "tokens": token_count,
         "signatures": grammar_check["signatures"],
         "tokens_unanalysed": grammar_check["tokens_unanalysed"],
