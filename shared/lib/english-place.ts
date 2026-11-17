@@ -31,6 +31,31 @@ export function overlayPieces(seg: Segment, t: Pick<TranslationRef, 'id' | 'slot
   return [];
 }
 
+// A play's English ticks name the printed line a stretch starts at ("810"),
+// where its Greek lines count on in running numbers (796): the two agree only
+// where the edition prints no gap, doublet or lacuna. This moves each tick to
+// the running number of the line that prints it (or the next line printed
+// after it), so a tick and a line compare. Other schemes print no `ref`, and
+// their ticks stand as they are.
+const runningTicks = new WeakMap<object, unknown[]>();
+export function lineTicks<T extends { n: number }>(seg: Segment, ticks: T[] | undefined): T[] {
+  if (!ticks?.length || !seg.greek.some(l => l.ref)) return ticks ?? [];
+  let out = runningTicks.get(ticks) as T[] | undefined;
+  if (!out) {
+    const span = seg.greek.map(l => {
+      const m = /^(\d+)(?:-(\d+))?/.exec(l.ref ?? '');
+      return m ? [Number(m[1]), Number(m[2] ?? m[1])] : null;
+    });
+    out = ticks.map(t => {
+      let i = span.findIndex(r => r !== null && r[0] <= t.n && t.n <= r[1]);
+      if (i < 0) i = span.findIndex(r => r !== null && r[0] >= t.n);
+      return { ...t, n: i >= 0 ? seg.greek[i].n : (seg.greek.at(-1)?.n ?? t.n) + 1 };
+    });
+    runningTicks.set(ticks, out);
+  }
+  return out;
+}
+
 function piecesOf(seg: Segment, t: Pick<TranslationRef, 'id' | 'slot'>): Piece[] {
   if (t.slot === 'english') {
     return seg.english
@@ -204,7 +229,7 @@ function lineFor(seg: Segment, piece: Piece, offset: number): { line: number; su
   const lines = seg.greek;
   if (!lines.length) return { line: 1 };
   let estimate: number | null = null;
-  const ticks = piece.bekker ?? [];
+  const ticks = lineTicks(seg, piece.bekker);
   if (ticks.length) {
     let i = 0;
     while (i + 1 < ticks.length && ticks[i + 1].offset <= offset) i++;

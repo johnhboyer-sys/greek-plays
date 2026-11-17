@@ -11,6 +11,7 @@
 // Pure: no Svelte, no fetching. Ported between the sister readers as one file.
 import type { BookData, Segment } from './data';
 import { englishPlace, overlayPieces, plainEnglish, translationTexts } from './english-hit';
+import { lineTicks } from './english-place';
 import { englishWords } from './search';
 import type { TranslationRef } from './works';
 
@@ -105,7 +106,7 @@ export function pairUnits(book: Book, translations: Ref[]): PairIndex {
 
   if (!pins.length) {
     for (const seg of segs) {
-      const ticks = seg.english?.bekker ?? [];
+      const ticks = lineTicks(seg, seg.english?.bekker);
       const starts = [...new Set([seg.greek[0]?.n ?? 1, ...ticks.map(t => t.n)])].sort((a,b) => a-b);
       const units = starts.map((n, i): PairUnit => {
         const end = starts[i+1] ?? Infinity;
@@ -225,11 +226,11 @@ export function bekkerEnglish(seg: Segment, t: Ref, from: number, to: number): s
   const start = (piece: typeof pieces[number]) => {
     const chapter = 'chapter' in piece ? piece.chapter : undefined;
     const cont = 'cont' in piece && piece.cont;
-    return cont ? seg.greek[0]?.n ?? 1 : seg.chapterStarts?.find(c => c.chapter === chapter)?.beforeLine ?? piece.bekker?.[0]?.n ?? seg.greek[0]?.n ?? 1;
+    return cont ? seg.greek[0]?.n ?? 1 : seg.chapterStarts?.find(c => c.chapter === chapter)?.beforeLine ?? lineTicks(seg, piece.bekker)[0]?.n ?? seg.greek[0]?.n ?? 1;
   };
   return pieces.map((piece, k) => {
     if (to <= start(piece) || from >= (pieces[k+1] ? start(pieces[k+1]) : Infinity)) return '';
-    const ticks = piece.bekker ?? [];
+    const ticks = lineTicks(seg, piece.bekker);
     let at = -1;
     for (let i=0;i<ticks.length;i++) { if (ticks[i].n <= from) at=i; else break; }
     const end = ticks.find(t => t.n >= to)?.offset ?? piece.text.length;
@@ -327,7 +328,8 @@ export function unitAtEnglish(index: PairIndex, seg: Segment, t: Ref, wordPos: n
   if (!index.book.turnFlow) {
     const words = translationTexts(seg,t).flatMap(text => englishWords(text));
     const place = englishPlace(seg,t,[wordPos],[words[wordPos]?.word ?? '*'],false);
-    const units = index.bySection.get(seg.column) ?? [];
+    // This segment's own units: two segments may print one column (Seven's 810).
+    const units = [...new Set(index.owners.get(seg.id) ?? index.bySection.get(seg.column) ?? [])];
     return units.find(u => u.greek.some(l => l.n === place?.line)) ?? wholeSection(index,seg);
   }
   let n = wordPos;
@@ -407,7 +409,7 @@ export function pairEnglishWindow(seg: Segment, t: Ref, unit: PairUnit, line: nu
   if (center === undefined) {
     const pieces = t.slot === 'english' ? (seg.english ? [seg.english] : []) : overlayPieces(seg, t);
     for (const piece of pieces) {
-      const ticks = piece.bekker ?? [];
+      const ticks = lineTicks(seg, piece.bekker);
       const before = [...ticks].reverse().find(tick => tick.n <= line);
       const after = ticks.find(tick => tick.n > line);
       if (!before) continue;

@@ -202,9 +202,9 @@ describe('the phone rules in b-search.css', () => {
     expect(rule(narrow, '.search-page .prox-go .prox-search')).toMatch(/height:\s*48px/);
   });
 
-  it('puts each tool\'s icon over a 14px label, and the form\'s menus at the foot of the screen', () => {
+  it('puts each tool\'s icon over a 16px label, and the form\'s menus at the foot of the screen', () => {
     expect(rule(narrow, '.search-page .sq-tool')).toMatch(/flex-direction:\s*column/);
-    expect(rule(narrow, '.search-page .sq-tool-l')).toMatch(/font:\s*600 14px/);
+    expect(rule(narrow, '.search-page .sq-tool-l')).toMatch(/font:\s*400 16px/); // the Vase's label: UI face, 16px (the 14px floor holds)
     const sheet = rule(narrow, '.search-page :is(.sheet, .search-form .opt-panel.sheet)');
     expect(sheet).toMatch(/position:\s*fixed/);
     // S5b (§5.9): the sheet ends where its foot band begins, and the band is

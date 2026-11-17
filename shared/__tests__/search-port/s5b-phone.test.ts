@@ -173,6 +173,11 @@ describe('no target under 44px, at any width', () => {
     '.search-page .g-sw .sw', '.search-page .g-sw .sw::after',
     '.search-page .sq-glass', // the field's magnifier, drawn
     '.search-page .opt-switch .sw', '.search-page .opt-switch .sw::after', // a switch's track and knob; the switch is the target
+    // The Vase draws the track and knob, and the tick of a form's box, in one rule each; the switch and the label stay the targets.
+    '.search-page :is(.opt-switch, .g-sw) .sw',
+    '.search-page :is(.opt-switch[aria-pressed="true"], .g-sw[aria-checked="true"]) .sw::after',
+    '.search-page .sx-forms .fx input:checked::after',
+    '.search-page .sx-split .i', // a row of the count's split: text, not a control
     '.search-page :is(.search-form, .sx-display) .opt-panel .ck input', // a radio inside its 44px label
     '.search-page .work-chip::before', '.search-page .work-chip.on::after', // a work's tick, drawn
     '.search-page .advanced-trigger .prox-dot', // the dot on Proximity
@@ -194,7 +199,7 @@ describe('no target under 44px, at any width', () => {
   const LATER = new Set([
     '.search-page .seg button', '.search-page .d6 .opt-switch', '.search-page .d6-in > .lbl', '.search-page .query-clear', '.search-page .g3',
     '.search-page .query-input::-webkit-search-cancel-button',
-    '.search-page .prox-head .prox-sel', '.search-page .prox-win', '.search-page .prox-chip',
+    '.search-page .prox-head .prox-sel', '.search-page .prox-chip',
   ]);
   it('holds for every rule', () => {
     const low: string[] = [];
@@ -266,12 +271,14 @@ describe('the foot band and the sheet above it', () => {
   const here = dirname(fileURLToPath(import.meta.url));
   const B = readFileSync(resolve(here, '../../styles/vase-search.css'), 'utf-8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ');
   const rule = (sel: string) => [...B.matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter((m) => m[1].trim() === sel).map((m) => m[2]).join(';');
-  it('measures the band as it is drawn: 12px, the 48px button, 12px, and its 1px rule', () => {
+  it('measures the band as it is drawn: 12px, the 48px button, 12px, on paper with no rule', () => {
     expect(rule('.search-page')).toMatch(/--sheet-foot:\s*calc\(73px \+ env\(safe-area-inset-bottom\)\)/);
     const foot = rule('.search-page .sheet-foot');
     expect(foot).toMatch(/box-sizing:\s*border-box/);
     expect(foot).toMatch(/padding:\s*12px 18px calc\(12px \+ env\(safe-area-inset-bottom\)\)/);
-    expect(foot).toMatch(/border-top:\s*1px solid/);
+    // The Vase draws no rule above the band (no rules, boxes or shadows): the paper fills it.
+    expect(foot).toMatch(/background:\s*var\(--paper\)/);
+    expect(foot).not.toMatch(/border-top/);
     expect(rule('.search-page .sheet-done')).toMatch(/height:\s*48px/);
     expect(rule('.search-page .sx-panel .sheet-foot .sheet-done')).toMatch(/height:\s*48px/);
   });

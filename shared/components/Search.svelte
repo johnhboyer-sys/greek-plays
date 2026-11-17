@@ -299,6 +299,7 @@
   // opened on a grammar term.
   let mainTextWorks: string[] = [];
   let mainTextForEnglish = false;
+  let mainTextForRunning = false;         // the running text, which no edition indexes
   // Works whose turn starts are line-precise only; set solely when the query
   // depends on where a speech begins, so it is never noise.
   let approximateTurns: string[] = [];
@@ -785,7 +786,8 @@
   function summaryOf(html: string): string {
     const at = html.indexOf('<mark');
     const end = html.indexOf('</mark>', at);
-    const plain = (h: string) => h.replace(/<[^>]*>/g, '')
+    // Line numbers are not words, and a verse line's end is a space.
+    const plain = (h: string) => h.replace(/<span class="ln"[^>]*>[^<]*<\/span>/g, '').replace(/<span class="vl\b/g, ' $&').replace(/<[^>]*>/g, '')
       .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&');
     const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     if (at < 0 || end < 0) return esc(plain(html).trim().split(/\s+/).slice(0, 15).join(' '));
@@ -3907,6 +3909,7 @@
       unsupportedWorks = unsupported ?? [];
       mainTextWorks = mainText ?? [];
       mainTextForEnglish = !!searchCtx.engQuery;
+      mainTextForRunning = runningText;
       approximateTurns = approximate ?? [];
       approximateChapters = chaptersApproximate ?? [];
       unresolved = unresolvedTerms ?? [];
@@ -3964,8 +3967,13 @@
   async function searchText(works: string[], run: number): Promise<SearchOutcome> {
     const grk = await searchRunningText({ pattern: grkQuery, accents: accentSensitive, punctuation }, works, speakerFilter,
       (done, total) => { if (run === searchRun) rtProgress = { done, total }; });
-    if (!engQuery.trim()) return grk;
-    return joinEnglish(grk, await search('', engQuery, grkMode, engMode, 'or', works, 'lemma', engForms, speakerFilter, null, engNearNow), 'or');
+    const out = engQuery.trim()
+      ? joinEnglish(grk, await search('', engQuery, grkMode, engMode, 'or', works, 'lemma', engForms, speakerFilter, null, engNearNow), 'or')
+      : grk;
+    // The running text is each play's main text alone: a chosen edition is
+    // not read, and the page says so for the plays that hold it.
+    const held = !greekEd || greekEd === 'tlg' ? [] : works.filter(w => !out.failedWorks.includes(w) && getWork(w)?.greekEditions?.some(e => e.id === greekEd));
+    return held.length ? { ...out, mainText: held } : out;
   }
 
   // The plays: a proximity search with the English box beside it (search
@@ -6017,7 +6025,7 @@
             {#if mainTextWorks.length}
               <div class="sx-note warn">
                 <span class="k">Note</span>
-                <span>{mainTextForEnglish ? 'A search with English reads each play’s main Greek text, the text the English is matched to.' : 'A grammar term is searched in each play’s main Greek text.'} These plays were searched there, not in the chosen edition: {playsPhrase(mainTextWorks)}.</span>
+                <span>{mainTextForRunning ? 'A search of the running text reads each play’s main Greek text.' : mainTextForEnglish ? 'A search with English reads each play’s main Greek text, the text the English is matched to.' : 'A grammar term is searched in each play’s main Greek text.'} These plays were searched there, not in the chosen edition: {playsPhrase(mainTextWorks)}.</span>
               </div>
             {/if}
             {#if formsFailed}

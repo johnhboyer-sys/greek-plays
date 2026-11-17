@@ -441,11 +441,11 @@ describe('set B\'s rules', () => {
     expect(box).toMatch(/overflow-y:\s*auto/);
     // The page goes on scrolling when a list ends.
     expect(box).not.toMatch(/overscroll-behavior/);
-    // Two covers that travel with the list, two shades that stay at its edges.
-    expect(box.match(/no-repeat local/g)).toHaveLength(2);
-    expect(box.match(/radial-gradient\([^;]*?no-repeat scroll/g)).toHaveLength(2);
-    // Seven 44px rows.
-    expect(find(desk, '.search-page .sx-list').some(r => /max-height:\s*308px/.test(r.body))).toBe(true);
+    // The Vase draws no shade (no rules, boxes or shadows): the list stops
+    // half a row into the next, and the cut row says there is more.
+    expect(box).not.toMatch(/gradient/);
+    // Seven 44px rows and a half.
+    expect(find(desk, '.search-page .sx-list').some(r => /max-height:\s*330px/.test(r.body))).toBe(true);
     expect(find(desk, '.search-page .sx-forms .fx-list').some(r => /max-height:\s*330px/.test(r.body))).toBe(true);
     // Unbounded only on the forms screen of the narrow sheet, which then
     // does not scroll itself: the list fills it, and no list scrolls inside
@@ -468,7 +468,7 @@ describe('set B\'s rules', () => {
     const desk = blocks(B, DESK);
     expect(find(desk, '.search-page .sx-layout').some(r => /grid-template-columns:\s*264px minmax\(0, 1fr\)/.test(r.body) && /column-gap:\s*48px/.test(r.body))).toBe(true);
     const n = find(desk, '.search-page .rc-n').map(r => r.body).join(';');
-    expect(n).toMatch(/font:\s*700 56px\/\.95 var\(--font-english\)/);
+    expect(n).toMatch(/font:\s*400 58px\/1 var\(--font-english\)/);
     expect(n).toMatch(/color:\s*var\(--clay-deep\)/);
     // The pager is over the hits there, so the count does not repeat it.
     expect(find(desk, '.search-page .rc-p').some(r => /display:\s*none/.test(r.body))).toBe(true);
@@ -476,32 +476,32 @@ describe('set B\'s rules', () => {
     expect(find(desk, '.search-page .sx-side.wp-open > .sx-panel').some(r => /display:\s*none/.test(r.body))).toBe(true);
   });
 
-  // S5b (§5.7, r34-11): the count over "instances", then icons over 14px
-  // labels, one row over a 2px rule.
+  // S5b (§5.7, r34-11): the count over "instances", then icons over their
+  // labels (15px, Public Sans), one row; the Vase draws no rule under it.
   it('lays the count row out as one line under 961px, each icon over its label', () => {
     const narrow = blocks(B, NARROW);
-    expect(find(narrow, '.search-page .result-bar').some(r => /flex-wrap:\s*nowrap/.test(r.body) && /border-bottom:\s*2px solid var\(--ink\)/.test(r.body))).toBe(true);
+    expect(find(narrow, '.search-page .result-bar').some(r => /flex-wrap:\s*nowrap/.test(r.body) && !/border/.test(r.body))).toBe(true);
     const count = find(narrow, '.search-page .result-count').map(r => r.body).join(';');
     expect(count).toMatch(/flex-direction:\s*column/);
     expect(count).toMatch(/min-width:\s*0/);
-    expect(count).toMatch(/font:\s*600 14px/);
+    expect(count).toMatch(/font:\s*400 16px\/1\.1 var\(--font-english\)/);
     // The number in Cardo and clay (plays), smaller as it grows longer.
     const n = find(narrow, '.search-page .rc-n').map(r => r.body).join(';');
-    expect(n).toMatch(/font:\s*700 min\(46px, calc\(150px \/ var\(--d, 3\)\)\)\/\.95 var\(--font-english\)/);
+    expect(n).toMatch(/font:\s*400 min\(46px, calc\(150px \/ var\(--d, 3\)\)\)\/\.95 var\(--font-english\)/);
     expect(n).toMatch(/color:\s*var\(--clay-deep\)/);
     // The display menus are in View there; Export is too, and the
     // inflection search is in Filter.
     expect(find(narrow, '.search-page .sopt.sx-display').some(r => /display:\s*none/.test(r.body))).toBe(true);
     expect(rules(narrow).filter(r => r.sel.includes('.search-page .sx-head-more .sx-link:is(.export-btn, .sx-variants)')).some(r => /display:\s*none/.test(r.body))).toBe(true);
-    // The icons: no box, a 44px target or more, never shrunk, the label 14px.
+    // The icons: no box, a 44px target or more, never shrunk, the label 15px.
     const icon = rules(narrow).filter(r => r.sel === '.search-page :is(.sx-icon, .sx-save)').map(r => r.body).join(';');
     expect(icon).toMatch(/border:\s*0/);
     expect(icon).toMatch(/height:\s*52px/);
     expect(icon).toMatch(/min-width:\s*50px/);
     expect(icon).toMatch(/flex:\s*none/);
     expect(icon).toMatch(/flex-direction:\s*column/);
-    expect(icon).toMatch(/font:\s*600 14px/);
-    expect(find(narrow, '.search-page .sx-pg').some(r => /font:\s*600 14px/.test(r.body))).toBe(true);
+    expect(icon).toMatch(/font:\s*400 15px/);
+    expect(find(narrow, '.search-page .sx-pg').some(r => /font:\s*400 15px/.test(r.body))).toBe(true);
     // A desktop has its rail and its menus, so no icons and no page in the row.
     expect(find(blocks(B, DESK), '.search-page .sx-icon').some(r => /display:\s*none/.test(r.body))).toBe(true);
     expect(rules(blocks(B, DESK)).filter(r => r.sel === '.search-page :is(.sx-pg, .sx-save .sx-ico)').some(r => /display:\s*none/.test(r.body))).toBe(true);
@@ -509,10 +509,12 @@ describe('set B\'s rules', () => {
 
   it('gives a hit’s reference a narrow column in By work, where it is only the section', () => {
     // John, 2026-11-10: "too much blank space" beside "2a". S4a moved the
-    // results' rules to b-search.css, at round 34's widths: 84px by work,
-    // 104px where the place names its work, 20px to the text.
-    expect(find(topLevel(B), '.search-page .instance').some(r => /grid-template-columns:\s*104px minmax\(0, 1fr\)/.test(r.body) && /column-gap:\s*20px/.test(r.body))).toBe(true);
-    expect(find(topLevel(B), '.search-page .sx-results.by-work .instance').some(r => /grid-template-columns:\s*84px minmax\(0, 1fr\)/.test(r.body))).toBe(true);
+    // results' rules to the stylesheet. The Vase sets the column in
+    // --ref-col: 104px where the place names its work, 80px by work, less
+    // the 16px gap to the text.
+    expect(find(topLevel(B), '.search-page .sx-results').some(r => /--ref-col:\s*104px/.test(r.body))).toBe(true);
+    expect(find(topLevel(B), '.search-page .sx-results.by-work').some(r => /--ref-col:\s*80px/.test(r.body))).toBe(true);
+    expect(find(topLevel(B), '.search-page .instance').some(r => /grid-template-columns:\s*calc\(var\(--ref-col\) - 16px\) minmax\(0, 1fr\)/.test(r.body) && /column-gap:\s*16px/.test(r.body))).toBe(true);
     // An upright phone keeps one column, the reference over the text, in
     // every view; sideways keeps the reference column (r34-13, S5b).
     expect(find(blocks(B, NARROW), '.search-page .sx-results.by-work .instance').some(r => /grid-template-columns:\s*minmax\(0, 1fr\)/.test(r.body))).toBe(true);

@@ -1119,3 +1119,10 @@ Rebuilt on Aristotle's files; the old search is kept under `shared/lib/legacy/` 
 - `shared/lib/running-text.ts` — results carry `seg`.
 - `shared/components/Search.svelte` — the plays' copy (plays, Line order, By play, Whole speech, δίκη/justice examples), hits as printed verse lines, speaker-coloured speech heads, English near row and English beside a proximity search (`ENGLISH_BESIDE_NEAR`), the edition select behind `PUBLIC_EDITIONS=1` (per-edition books, offsets, titles, `ed=…&view=greek` links), the failure notice with Retry, the plays' CSV columns with Attribution, per-passage credit, How to search / Phrase index links.
 - `shared/styles/vase-search.css` — `.vl`, `.ln`, `.work-who`, `.eng-near`, `.inst-credit`, `.sx-help-links`.
+
+### Search port, last cleanups (2026-11-17)
+
+- `shared/lib/english-place.ts`, `shared/lib/paired-hit.ts` — no longer copied unchanged: `lineTicks` moves a play's English ticks (the printed line, "810") to the running line number of the Greek line that prints it (796), so a unit's English is read at its own line; `unitAtEnglish` looks in the segment's own units, since two segments may print one column (Seven 810). Before, an English hit there showed no text (`plays-seven-810-english.test.ts`). Other schemes print no `ref` and read as before.
+- `shared/components/Search.svelte` — the 100 page's summary drops line numbers and puts a space at each verse line's end (`summaryOf`); a running-text search with a chosen Greek edition says it read each play's main text, as the English and grammar searches do (`mainTextForRunning`; `plays-final-cleanups.test.ts`).
+- `shared/styles/vase-search.css` — the proximity editor's distance box (`.prox-win`) is 44px at every width, its line and number where they were.
+- `shared/__tests__/search-port/{s5a-phone,s5b-phone,search-display-bar}.test.ts` — rules the Vase dress replaced are claimed in the Vase's form (labels 15–16px in the UI face, no rule or shade, Cardo count, `--ref-col` columns); the 44px check names the Vase's switch, tick and count-split rules as parts, and `.prox-win` is no longer exempt.
