@@ -48,7 +48,7 @@ const canonical = Astro.site ? new URL(`${base}/search/how/`, Astro.site).href :
         <dt>all, any, exact</dt>
         <dd>“all” finds speeches with every word you typed in the same part: a long speech is searched in parts of about 40 to 100 lines. “any” finds speeches with at least one. “exact” finds the words together, in the order typed. The Greek and the English each have this setting.</dd>
         <dt>any form, exact form, running text</dt>
-        <dd>“any form” finds every form of the word: <span lang="grc">δίκη</span> finds <span lang="grc">δίκης</span> and <span lang="grc">δίκας</span>. A form that can come from more than one word finds the forms of each: <span lang="grc">πόλεις</span> can come from <span lang="grc">πόλις</span>, <span lang="grc">πολύς</span>, or <span lang="grc">πολέω</span>. “exact form” finds the spelling you typed and no other. “running text” reads each play’s Greek as one text, across word breaks: <span lang="grc">λογ</span> finds <span lang="grc">λόγος</span> and <span lang="grc">ἀναλογία</span>. The English has “any form” and “exact form”; there “any form” also finds plurals and possessives.</dd>
+        <dd>“any form” finds every form of the word: <span lang="grc">δίκη</span> finds <span lang="grc">δίκης</span> and <span lang="grc">δίκας</span>. A form that can come from more than one word finds the forms of each: <span lang="grc">πόλεις</span> can come from <span lang="grc">πόλις</span>, <span lang="grc">πολύς</span>, or <span lang="grc">πολέω</span>. “exact form” finds the word as typed, with capitals ignored, and accents and breathings too unless “Accents” is ticked. “running text” reads each play’s Greek as one text, across word breaks: <span lang="grc">λογ</span> finds <span lang="grc">λόγος</span> and <span lang="grc">ἀναλογία</span>. The English has “any form” and “exact form”; there “any form” also finds plurals and possessives.</dd>
         <dt>Accents</dt>
         <dd>Ticked, accents and breathings count: <span lang="grc">λόγος</span> and <span lang="grc">λογός</span> are different words, and a word typed without accents finds only words without them. Ticking it moves “any form” to “exact form”.</dd>
         <dt>Lemma</dt>
@@ -56,28 +56,28 @@ const canonical = Astro.site ? new URL(`${base}/search/how/`, Astro.site).href :
         <dt>Punctuation</dt>
         <dd>With “running text”, ticked, the search matches the stops between words: , . ; and · (typed · or :). Unticked, each break between words is one space.</dd>
         <dt>Each play’s main text</dt>
-        <dd>The menu under the Greek box. “Each play’s main text” searches the Greek each play opens with. Choosing an edition searches that edition, in Greek-only searches, in the plays that have it. A note over the results names any play searched in another text.</dd>
+        <dd>The menu under the Greek box. “Each play’s main text” searches the Greek each play opens with. Choosing an edition searches that edition, in Greek-only word searches, in the plays that have it; “running text” always reads each play’s main text. A note over the results names any play searched in another text.</dd>
         <dt>Wildcards</dt>
-        <dd><code>*</code> stands for any letters: <code>fron*</code> finds <span lang="grc">φρόνησις</span>, <span lang="grc">φρόνιμος</span>, and so on. <code>?</code> is one letter, <code>[εη]</code> one of these letters, and <code>^</code> and <code>$</code> the start and end of the word; in Greek letters <code>(ος|ου)</code> is one or the other. In Beta Code a leading <code>*</code> is a capital, so write <code>.*ikos$</code> for words ending in -ικος. English takes <code>*</code> and <code>?</code> only.</dd>
+        <dd><code>*</code> stands for any letters: <code>fron*</code> finds <span lang="grc">φρόνησις</span>, <span lang="grc">φρόνιμος</span>, and so on. <code>?</code> is one letter, <code>[εη]</code> one of these letters, and <code>^</code> and <code>$</code> the start and end of the word; in Greek letters <code>(ος|ου)</code> is one or the other. In Beta Code a leading <code>*</code> is a capital, so write <code>.*ikos$</code> for words ending in -ικος. English takes <code>*</code> and <code>?</code> only. These are for word searches: “running text” takes regular expressions, where <code>.*</code> is any run of letters.</dd>
         <dt>and, and/or, or</dt>
         <dd>With both boxes filled, the word between them. “and” (“Both languages”) finds speeches where the Greek and the English both match. “and/or” (“Either or both”), the default, finds speeches where either matches. “or” (“One language, not both”) finds speeches where one matches and the other does not.</dd>
         <dt>English near</dt>
         <dd>Finds the English you typed with another English word close by, in the same translation. Choose “on either side of”, “before”, or “after”, and how many “words away”.</dd>
         <dt>In</dt>
-        <dd>“all plays”, or “choose plays…” to pick them: “Only these” or “Add these” for a playwright’s plays, or a play at a time.</dd>
+        <dd>“all plays”, or “choose plays…” to pick them: “Only these” or “Add these” with a playwright’s number of plays, or a play at a time.</dd>
       </dl>
 
       <h2 id="proximity">Proximity</h2>
       <p>“Proximity” opens a form of terms in place of the Greek box: Greek words that must occur near each other.</p>
       <dl>
         <dt>Kind</dt>
-        <dd>“any form”: type a word, then pick the dictionary word from the list. “as typed”: the word as written. “exact phrase”: the words together, in order. “by grammar”: any word of a grammatical form. Choose its “word class”, then the categories, for example “verb”, “aor”, and “opt”. A category left at “any” is not checked. A grammar term on its own searches only the plays you choose, not all of them.</dd>
+        <dd>“any form”: type a word, then pick the dictionary word from the list. “as typed”: the word as written. “exact phrase”: the words together, in order. “by grammar”: any word of a grammatical form. Choose its “word class”, then the categories, for example “verb”, “aor”, and “opt”. A category left at “any” is not checked. A grammar term on its own needs fewer than all the plays, or a speaker chosen.</dd>
         <dt>Relation</dt>
         <dd>Each term after the first is “near”, “before”, or “after” another term (term 1 unless you choose another), or “not near” it: no such word within the distance. Joined by “or” in place of “and”, a term is an alternative to the one above it.</dd>
         <dt>Distance</dt>
         <dd>“within” a number of “words” (1 to 50, counted from the nearer end of each term) or “lines” (0 to 10, on either side of term 1’s line; 0 lines is the same line). Each term must match a different word.</dd>
         <dt>Add term, In this order, Keep hits that cross a speech</dt>
-        <dd>“Add term” adds a term, up to four; “Remove” drops one. “In this order” keeps the terms in the order given. “Keep hits that cross a speech”, on at first, keeps a match whose terms fall in different speeches; the match counts in the speech of its first word.</dd>
+        <dd>“Add term” adds a term, up to four; “Remove” drops one. “In this order” keeps the terms in the order given. “Keep hits that cross a speech”, on at first, keeps a match whose terms fall in different speeches; the match counts in the speech of term 1’s word.</dd>
         <dt>Turn off, Change, Guide</dt>
         <dd>While proximity is on, the search reads as a sentence over the results. “Turn off” goes back to the Greek box. “Change” opens the terms again, and “Close” shuts them. “Guide” opens this page.</dd>
       </dl>
@@ -85,7 +85,7 @@ const canonical = Astro.site ? new URL(`${base}/search/how/`, Astro.site).href :
       <h2 id="results">The results</h2>
       <dl>
         <dt>Speeches and hits</dt>
-        <dd>The count gives the speeches with hits, then the hits. With Greek and English, the rows under it give the speeches with “Greek and English”, “Greek only”, and “English only”.</dd>
+        <dd>The count gives the speeches with hits and, where it can, the hits: with Greek and English, the hits are the Greek words; with English alone, the hits show when each play has one translation searched. With Greek and English, the rows under it give the speeches with “Greek and English”, “Greek only”, and “English only”.</dd>
         <dt>Group by, Sort, Context, Per page</dt>
         <dd>“Group by” lists the hits “By play”, “By form”, or “By grammar”. “Sort” orders the page: “Line order”, “Plays A–Z”, “Forms A–Z”, or “Commonest form first”. “Context” shows “1 line”, “3 lines”, or the “Whole speech”. “Per page” shows 20, 40, or 100; at 100 each hit is its reference and a few words, opened with a click.</dd>
         <dt>Show the whole speech</dt>
@@ -107,7 +107,7 @@ const canonical = Astro.site ? new URL(`${base}/search/how/`, Astro.site).href :
       </dl>
 
       <h2 id="share">Sharing a search</h2>
-      <p>The page address holds the whole search. Copy it to share or bookmark the search. “Save search” keeps it in this browser, under <a href={`${base}/saved`}>Saved searches</a>.</p>
+      <p>The page address holds the search as you ran it. Copy it to share or bookmark the search; it does not keep a search widened with “Find this phrase in any inflection”. “Save search” keeps it in this browser, under <a href={`${base}/saved`}>Saved searches</a>.</p>
 
       <h2 id="phrases">The phrase index</h2>
       <p>Lists every phrase of two to five words that occurs at least twice in the plays. <a href={`${base}/search/phrases`}>Open the phrase index</a></p>

@@ -5513,8 +5513,8 @@
                 {/each}
               </div>
               <p class="speaker-note">
-                Greek hits are held to the word; English hits to the speech,
-                because the translation is aligned to the speech, not the word.
+                Greek hits are held to the word's speaker; English hits to every
+                speaker in their passage, which can hold more than one speech.
                 {#if unlabelledWorks.length}
                   {listNames(unlabelledWorks)} {unlabelledWorks.length > 1 ? 'are' : 'is'} narrated without
                   speaker labels and will be left out of a filtered search.
