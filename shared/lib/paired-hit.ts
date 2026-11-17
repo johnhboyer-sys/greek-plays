@@ -233,6 +233,8 @@ export function bekkerEnglish(seg: Segment, t: Ref, from: number, to: number): s
     const ticks = lineTicks(seg, piece.bekker);
     let at = -1;
     for (let i=0;i<ticks.length;i++) { if (ticks[i].n <= from) at=i; else break; }
+    // A line ticked twice (two speakers share it) reads from its first tick.
+    while (at > 0 && ticks[at-1].n === ticks[at].n) at--;
     const end = ticks.find(t => t.n >= to)?.offset ?? piece.text.length;
     return piece.text.slice(at >= 0 ? ticks[at].offset : 0, end).trim();
   }).filter(Boolean).join(' ');

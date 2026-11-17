@@ -3403,8 +3403,10 @@
       const matched = new Map<string, number>();
       for (const row of insts.flatMap(inst => inst.rows ?? [])) matched.set(row.translation, (matched.get(row.translation) ?? 0) + row.hits);
       // A translation's text here is its pieces that lie in this section,
-      // wherever the index filed them, in order.
+      // wherever the index filed them, in order. Where two segments print
+      // one column (Seven's 810), only this segment's own.
       const sectionHtml = (t: TranslationRef) => books.get(pair)!.segments
+        .filter(s => !segId || s.id === segId || s.column !== column)
         .flatMap(s => piecesOf(pair, ix, s, t).map((piece, k) => ({ ...piece, key: `${pair}:${t.id}:${s.id}:${k}` })))
         .filter(piece => piece.section === column)
         .map(piece => markWordsHtml(piece.text, held.get(`${piece.key}:${ch}`) ?? new Set()).trim())

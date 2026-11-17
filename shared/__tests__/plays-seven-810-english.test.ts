@@ -33,6 +33,26 @@ describe.skipIf(!built)('Seven, English "dust", built data', () => {
     const at810 = rows.find(li => li.querySelector('.inst-ref')?.textContent?.trim() === '810')!;
     expect(at810.querySelector('.inst-snippet')?.textContent).toContain('dust');
   }, 40000);
+
+  it('opens the hit at 810 to its own segment\'s English, not the other 810\'s', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async input => {
+      const file = `${dist}/${String(input).replace(/^.*?\/data\//, '')}`;
+      return existsSync(file) && !file.endsWith('/')
+        ? { ok: true, status: 200, json: async () => JSON.parse(readFileSync(file, 'utf8')) } as Response
+        : { ok: false, status: 404, json: async () => ({}) } as Response;
+    });
+    history.replaceState(null, '', '/search?e=dust&w=seven-against-thebes');
+    const { default: Search } = await import('../components/Search.svelte');
+    const { container } = render(Search);
+    await waitFor(() => expect(container.querySelectorAll('li.instance').length).toBeGreaterThan(5), { timeout: 20000 });
+    const at810 = [...container.querySelectorAll('li.instance')].find(li => li.querySelector('.inst-ref')?.textContent?.trim() === '810')!;
+    (at810.querySelector('button.inst-more') as HTMLButtonElement).click();
+    await waitFor(() => expect(at810.classList.contains('open')).toBe(true));
+    const en = at810.querySelector('.inst-en .inst-snippet')?.textContent ?? '';
+    expect(en).toContain('dust');
+    expect(en).not.toContain('lying out there');
+  }, 40000);
 });
 
 // No build needed: two segments print the ref 810, and a tick names the line
