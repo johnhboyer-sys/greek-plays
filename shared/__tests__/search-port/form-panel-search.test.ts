@@ -85,7 +85,7 @@ const text = (el: Element | null | undefined) => (el?.textContent ?? '').replace
 const rows = (panel: HTMLElement) => [...panel.querySelectorAll('label')].map(label =>
   `${text(label)}${(label.querySelector('input') as HTMLInputElement).checked ? ' ✓' : ''}`);
 const box = (panel: HTMLElement, form: string) => within(panel).getByRole('checkbox', { name: new RegExp(`^${form}`) });
-const G = `/search?g=${encodeURIComponent('εἰμί')}`;
+const G = `/search?g=${encodeURIComponent('εἰμί')}&m=lemma`;
 
 describe('Search.svelte: the form panel', () => {
   it('lists every form found with its count, commonest first, all ticked', async () => {
@@ -150,7 +150,7 @@ describe('Search.svelte: the form panel', () => {
       byResult: FORMS.byResult,
       headwords: new Map([['esti', ['eimi']], ['einai', ['eimi']], ['hn', ['eimi']]]), failedWorks: [],
     };
-    const { panel } = await open(`/search?g=${encodeURIComponent('εἰμί')}`, forms);
+    const { panel } = await open(`/search?g=${encodeURIComponent('εἰμί')}&m=lemma`, forms);
     const groups = [...panel.querySelectorAll('.fx-group')];
     expect(groups).toHaveLength(1);
     const head = groups[0].querySelector('.fx-head')!;
@@ -165,7 +165,7 @@ describe('Search.svelte: the form panel', () => {
       byResult: FORMS.byResult,
       headwords: new Map([['esti', ['eimi']], ['einai', ['eimi']], ['hn', ['eimi', 'os']]]), failedWorks: [],
     };
-    const { panel } = await open(`/search?g=${encodeURIComponent('ἦν')}`, forms);
+    const { panel } = await open(`/search?g=${encodeURIComponent('ἦν')}&m=lemma`, forms);
     const groups = [...panel.querySelectorAll('.fx-group')].map(g =>
       `${text(g.querySelector('.fx-head'))}: ${[...g.querySelectorAll('label')].map(text).join(', ')}`);
     expect(groups).toEqual(['ειμι: εστι 3, ειναι 1, ην 1', 'ος: ην 1']);

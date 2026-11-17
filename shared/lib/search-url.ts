@@ -313,7 +313,8 @@ export function encodeSearchUrl(s: UrlSearch, allWorks: string[]): string {
       // The running text is one pattern: no word match mode belongs to it.
       const text = s.matchMode === 'text';
       if (s.grkMode !== 'all' && !text) put('gm', s.grkMode);
-      if (s.matchMode !== 'lemma' && s.matchMode !== 'headword') put('m', s.matchMode);
+      // Always named: a link with Greek and no m is an old one, read as the exact form.
+      put('m', s.matchMode === 'headword' ? 'lemma' : s.matchMode);
       if (s.accent) put('acc', '1');
       if (text && s.punctuation) put('pu', '1');
     }
@@ -365,7 +366,10 @@ export function decodeSearchUrl(search: string | URLSearchParams, allWorks: stri
   s.grkMode = pick(p.get('gm'), MODES, 'all');
   s.engMode = pick(p.get('em'), MODES, 'all');
   const m = p.get('m');
-  s.matchMode = m === 'form' || m === 'text' ? m : 'lemma';
+  // A link with Greek and no m is from the old page, whose Greek box matched
+  // the exact form (John: keep old links, as with op). Every link written
+  // now names m; a search typed into a blank page keeps the default, lemma.
+  s.matchMode = m === 'form' || m === 'text' || m === 'lemma' ? m : s.grk && m === null ? 'form' : 'lemma';
   s.accent = p.get('acc') === '1';
   s.punctuation = p.get('pu') === '1';
   s.caseExact = false;   // cs is ignored: case never matters

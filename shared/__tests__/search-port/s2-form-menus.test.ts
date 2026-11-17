@@ -48,7 +48,7 @@ describe('w=auth in the address', () => {
     expect(new URLSearchParams(qs).get('w')).toBe('auth');
     expect(decodeSearchUrl(qs, ALL).works).toEqual(ALL.filter((id) => AUTHENTIC_IDS.includes(id)));
     // In any order, as a selection is a set.
-    expect(encodeSearchUrl(base({ grk: 'a', works: [...AUTHENTIC_IDS].reverse() }), ALL)).toBe('g=a&w=auth');
+    expect(encodeSearchUrl(base({ grk: 'a', works: [...AUTHENTIC_IDS].reverse() }), ALL)).toBe('g=a&m=lemma&w=auth');
   });
 
   it('reads every older spelling of the same search as before', () => {
@@ -60,12 +60,12 @@ describe('w=auth in the address', () => {
     // Lists and exclusions that are not the authentic works are untouched.
     expect(decodeSearchUrl('?g=a&w=EN,Pol', ALL).works).toEqual(['EN', 'Pol']);
     expect(decodeSearchUrl('?g=a&w=-Cat,Int', ALL).works).toEqual(ALL.filter((id) => id !== 'Cat' && id !== 'Int'));
-    expect(encodeSearchUrl(base({ grk: 'a', works: ['EN', 'Pol'] }), ALL)).toBe('g=a&w=EN,Pol');
-    expect(encodeSearchUrl(base({ grk: 'a', works: ALL.filter((id) => id !== 'Cat') }), ALL)).toBe('g=a&w=-Cat');
+    expect(encodeSearchUrl(base({ grk: 'a', works: ['EN', 'Pol'] }), ALL)).toBe('g=a&m=lemma&w=EN,Pol');
+    expect(encodeSearchUrl(base({ grk: 'a', works: ALL.filter((id) => id !== 'Cat') }), ALL)).toBe('g=a&m=lemma&w=-Cat');
   });
 
   it('is not written for all works, a subset of them, or one work more', () => {
-    expect(encodeSearchUrl(base({ grk: 'a' }), ALL)).toBe('g=a');
+    expect(encodeSearchUrl(base({ grk: 'a' }), ALL)).toBe('g=a&m=lemma');
     expect(encodeSearchUrl(base({ grk: 'a', works: AUTHENTIC_IDS.slice(1) }), ALL)).not.toContain('w=auth');
     expect(encodeSearchUrl(base({ grk: 'a', works: [...AUTHENTIC_IDS, 'Oec'] }), ALL)).not.toContain('w=auth');
   });

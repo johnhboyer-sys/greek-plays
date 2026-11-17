@@ -82,10 +82,10 @@ it('places a Bekker English hit in its chapter and exports the plays’ CSV colu
  await vi.waitFor(() => expect(csv).toBeDefined());
  const content = await new Promise<string>(resolve => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.readAsText(csv!); });
  const [header, row] = content.replace(/^\uFEFF/, '').split('\r\n');
- // The plays' columns (search port, decision 8), Attribution last.
- expect(header).toBe('Play,Line,Speaker,Language,Translation,Snippet,URL,Attribution');
+ // The plays' columns (search port, decision 8), the old order: URL and Attribution before the Snippet.
+ expect(header).toBe('Play,Line,Speaker,Language,Translation,URL,Attribution,Snippet');
  // An English hit cites its column, its link the line (John, 13 Nov).
- expect(row).toMatch(/^Nicomachean Ethics,1094a,[^,]*,English,Rackham,.*virtue.*,http[^,]*loc=1094a:18[^,]*,$/);
+ expect(row).toMatch(/^Nicomachean Ethics,1094a,[^,]*,English,Rackham,http[^,]*loc=1094a:18[^,]*,[^,]*,.*virtue.*$/);
 });
 // The per-passage credit (Lyceum finding 1, ported from components.test.ts):
 // a passage whose English carries its own translator and licence shows them
@@ -111,9 +111,9 @@ it('credits a passage\'s own translator beside an English hit and in the CSV', a
  await vi.waitFor(() => expect(csv).toBeDefined());
  const content = await new Promise<string>(resolve => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.readAsText(csv!); });
  const [, row] = content.replace(/^\uFEFF/, '').split('\r\n');
- expect(row).toMatch(/,Tr\. Jurgen R\. Gatt \(2022\) — CC BY-NC-ND 4\.0\.$/);
+ expect(row).toMatch(/,Rackham · Tr\. Jurgen R\. Gatt \(2022\) — CC BY-NC-ND 4\.0\.,[^,]*virtue/);
 });
-it('shows no credit beside an English hit whose passage has none', async () => {
+it('shows no credit beside an English hit whose passage has none (the translation is named in the row)', async () => {
  const { search } = await import('../../lib/search');
  vi.mocked(search).mockResolvedValueOnce({ results: [{ work: 'EN', meta: { id: '1:1094a', book: 1, column: '1094a' }, grkMatch: false, engMatch: true, grkPositions: [], engHits: [{ translation: 'rackham', positions: [4] }] }], failedWorks: [] });
  window.history.replaceState(null, '', '/search?e=virtue');

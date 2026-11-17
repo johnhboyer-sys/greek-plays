@@ -7,8 +7,8 @@ import {
   listSaved, noteSaved, renameSaved, savedAvailable, summarizeSearch,
 } from '../../lib/saved-searches';
 
-const REP = `/search?g=${encodeURIComponent('δικαιοσύνη')}&w=Pol`;
-const SOC = `/search?g=${encodeURIComponent('ψυχή')}&sp=only&sn=Socrates`;
+const REP = `/search?g=${encodeURIComponent('δικαιοσύνη')}&m=lemma&w=Pol`;
+const SOC = `/search?g=${encodeURIComponent('ψυχή')}&m=lemma&sp=only&sn=Socrates`;
 
 // As a full store: reads work, every write throws QuotaExceededError.
 function fill() {

@@ -15,14 +15,14 @@ describe('search URL', () => {
   });
 
   it('leaves out every default', () => {
-    expect(encodeSearchUrl(base({ grk: 'λόγος' }), ALL)).toBe(`g=${encodeURIComponent('λόγος')}`);
+    expect(encodeSearchUrl(base({ grk: 'λόγος' }), ALL)).toBe(`g=${encodeURIComponent('λόγος')}&m=lemma`);
     expect(encodeSearchUrl(base({ eng: 'virtue' }), ALL)).toBe('e=virtue');
   });
 
   it('reads the command palette hand-off unchanged', () => {
     // CommandPalette builds `/search?g=` or `?e=` with encodeURIComponent.
     expect(decodeSearchUrl(`?g=${encodeURIComponent('τὸ τί ἦν εἶναι')}`, ALL))
-      .toEqual(base({ grk: 'τὸ τί ἦν εἶναι' }));
+      .toEqual(base({ grk: 'τὸ τί ἦν εἶναι', matchMode: 'form' }));
     expect(decodeSearchUrl(`?e=${encodeURIComponent('practical wisdom')}`, ALL))
       .toEqual(base({ eng: 'practical wisdom' }));
   });
@@ -31,7 +31,7 @@ describe('search URL', () => {
     // search.astro's JSON-LD advertises /search/?q={search_term_string}.
     expect(decodeSearchUrl('?q=happiness', ALL)).toEqual(base({ eng: 'happiness' }));
     expect(decodeSearchUrl(`?q=${encodeURIComponent('εὐδαιμονία')}`, ALL))
-      .toEqual(base({ grk: 'εὐδαιμονία' }));
+      .toEqual(base({ grk: 'εὐδαιμονία', matchMode: 'form' }));
     // Beta Code reads the same as English, so Latin letters go to English.
     expect(decodeSearchUrl('?q=logos', ALL)).toEqual(base({ eng: 'logos' }));
     expect(hasSearch(decodeSearchUrl('?q=happiness', ALL))).toBe(true);
@@ -40,7 +40,7 @@ describe('search URL', () => {
   it('lets ?g= and ?e= outrank ?q=', () => {
     expect(decodeSearchUrl('?q=happiness&e=virtue', ALL)).toEqual(base({ eng: 'virtue' }));
     expect(decodeSearchUrl(`?q=happiness&g=${encodeURIComponent('λόγος')}`, ALL))
-      .toEqual(base({ grk: 'λόγος' }));
+      .toEqual(base({ grk: 'λόγος', matchMode: 'form' }));
     expect(hasSearch(decodeSearchUrl('?q=%20', ALL))).toBe(false);
     // Present but empty still outranks: the search is then empty.
     for (const qs of ['?q=happiness&g=', '?q=happiness&e=', '?q=happiness&g=%20', '?q=happiness&e=%20']) {
@@ -54,9 +54,9 @@ describe('search URL', () => {
     expect(decodeSearchUrl('?q=virtue%CE%87', ALL)).toEqual(base({ eng: 'virtue\u0387' }));
     expect(decodeSearchUrl('?q=%CF%A2', ALL)).toEqual(base({ eng: '\u03e2' }));
     // Monotonic, and decomposed polytonic, are still Greek.
-    expect(decodeSearchUrl(`?q=${encodeURIComponent('λόγος')}`, ALL)).toEqual(base({ grk: 'λόγος' }));
+    expect(decodeSearchUrl(`?q=${encodeURIComponent('λόγος')}`, ALL)).toEqual(base({ grk: 'λόγος', matchMode: 'form' }));
     const nfd = 'εὐδαιμονία'.normalize('NFD');
-    expect(decodeSearchUrl(`?q=${encodeURIComponent(nfd)}`, ALL)).toEqual(base({ grk: nfd }));
+    expect(decodeSearchUrl(`?q=${encodeURIComponent(nfd)}`, ALL)).toEqual(base({ grk: nfd, matchMode: 'form' }));
   });
 
   it('round-trips every option of a plain search', () => {
@@ -75,7 +75,7 @@ describe('search URL', () => {
     const qs = encodeSearchUrl(base({ eng: 'soul', grkMode: 'any', matchMode: 'form', accent: true, langOp: 'or' }), ALL);
     expect(qs).toBe('e=soul');
     // No English: a translator filter has nothing to narrow.
-    expect(encodeSearchUrl(base({ grk: 'yuxh', trans: 'ross' }), ALL)).toBe('g=yuxh');
+    expect(encodeSearchUrl(base({ grk: 'yuxh', trans: 'ross' }), ALL)).toBe('g=yuxh&m=lemma');
   });
 
   // Capitals are always ignored (ruling 5, 12 Nov 2026): an old cs=1 reads
@@ -84,15 +84,15 @@ describe('search URL', () => {
     const q = `g=${encodeURIComponent('Σωκράτης')}&acc=1&w=EN`;
     expect(decodeSearchUrl(`?${q}&cs=1`, ALL)).toEqual(decodeSearchUrl(`?${q}`, ALL));
     expect(decodeSearchUrl(`?${q}&cs=1`, ALL).caseExact).toBe(false);
-    expect(decodeSearchUrl(`?${q}&cs=1`, ALL)).toEqual(base({ grk: 'Σωκράτης', accent: true, works: ['EN'] }));
-    expect(encodeSearchUrl(base({ grk: 'Σωκράτης', caseExact: true }), ALL)).toBe(`g=${encodeURIComponent('Σωκράτης')}`);
+    expect(decodeSearchUrl(`?${q}&cs=1`, ALL)).toEqual(base({ grk: 'Σωκράτης', accent: true, works: ['EN'], matchMode: 'form' }));
+    expect(encodeSearchUrl(base({ grk: 'Σωκράτης', caseExact: true }), ALL)).toBe(`g=${encodeURIComponent('Σωκράτης')}&m=lemma`);
     expect(encodeSearchUrl(base({ eng: 'Socrates', caseExact: true }), ALL)).toBe('e=Socrates');
   });
 
   it('lists the works left out when that is shorter, and omits all', () => {
     const allBut = ALL.filter(id => id !== 'Meta' && id !== 'EE');
-    expect(encodeSearchUrl(base({ grk: 'a', works: allBut }), ALL)).toBe('g=a&w=-Meta,EE');
-    expect(encodeSearchUrl(base({ grk: 'a', works: [...ALL].reverse() }), ALL)).toBe('g=a');
+    expect(encodeSearchUrl(base({ grk: 'a', works: allBut }), ALL)).toBe('g=a&m=lemma&w=-Meta,EE');
+    expect(encodeSearchUrl(base({ grk: 'a', works: [...ALL].reverse() }), ALL)).toBe('g=a&m=lemma');
     expect(roundTrip(base({ grk: 'a', works: allBut })).works).toEqual(allBut);
   });
 
@@ -205,14 +205,14 @@ describe('search URL', () => {
     // Any form is the default, and is left out.
     expect(encodeSearchUrl(base({ eng: 'virtue' }), ALL)).toBe('e=virtue');
     // No English: there is nothing for it to match.
-    expect(encodeSearchUrl(base({ grk: 'a', engForms: false }), ALL)).toBe('g=a');
+    expect(encodeSearchUrl(base({ grk: 'a', engForms: false }), ALL)).toBe('g=a&m=lemma');
     expect(roundTrip(base({ eng: 'virtue', engForms: false }))).toEqual(base({ eng: 'virtue', engForms: false }));
     expect(decodeSearchUrl('?e=virtue', ALL).engForms).toBe(true);
     expect(decodeSearchUrl('?e=virtue&ef=1', ALL).engForms).toBe(true);
   });
 
   it('writes the works filter, and reads it back', () => {
-    expect(encodeSearchUrl(base({ grk: 'a', workFilter: 'Meta' }), ALL)).toBe('g=a&wf=Meta');
+    expect(encodeSearchUrl(base({ grk: 'a', workFilter: 'Meta' }), ALL)).toBe('g=a&m=lemma&wf=Meta');
     expect(roundTrip(base({ eng: 'soul', workFilter: 'EN', works: ['Meta', 'EN'] })))
       .toEqual(base({ eng: 'soul', workFilter: 'EN', works: ['Meta', 'EN'] }));
     // No search: nothing to narrow.
@@ -240,7 +240,7 @@ describe('search URL: the speaker filter', () => {
   });
 
   it('writes nothing for anyone, and reads a filter without names as anyone', () => {
-    expect(encodeSearchUrl(base({ grk: 'a', speaker: { mode: 'only', names: [] } }), ALL)).toBe('g=a');
+    expect(encodeSearchUrl(base({ grk: 'a', speaker: { mode: 'only', names: [] } }), ALL)).toBe('g=a&m=lemma');
     expect(decodeSearchUrl('?g=a&sp=only', ALL).speaker).toBeNull();
     expect(decodeSearchUrl('?g=a&sp=nobody&sn=Socrates', ALL).speaker).toBeNull();
   });
@@ -267,7 +267,7 @@ describe('search URL: forms set aside', () => {
   it('writes xf only when a form is set aside, and reads it back', () => {
     expect(encodeSearchUrl(base({ grk: 'λόγος' }), ALL)).not.toContain('xf=');
     const s = base({ grk: 'λόγος', xforms: ['logon', "d'"] });
-    expect(encodeSearchUrl(s, ALL)).toBe(`g=${encodeURIComponent('λόγος')}&xf=logon,d'`);
+    expect(encodeSearchUrl(s, ALL)).toBe(`g=${encodeURIComponent('λόγος')}&m=lemma&xf=logon,d'`);
     expect(roundTrip(s)).toEqual(s);
     expect(decodeSearchUrl('?g=logos', ALL).xforms).toEqual([]);
   });
@@ -282,7 +282,7 @@ describe('search URL: forms set aside', () => {
 
 describe('search URL: view and grammar facets', () => {
   it('writes v and gf only when they differ from the default, and reads them back', () => {
-    const g = `g=${encodeURIComponent('λόγος')}`;
+    const g = `g=${encodeURIComponent('λόγος')}&m=lemma`;
     expect(encodeSearchUrl(base({ grk: 'λόγος', view: 'page', facets: {} }), ALL)).toBe(g);
     const s = base({ grk: 'λόγος', view: 'grammar', facets: { case: ['gen'], number: ['pl', 'dual'] } });
     expect(encodeSearchUrl(s, ALL)).toBe(`${g}&v=grammar&gf=case.gen,number.pl,number.dual`);
@@ -307,7 +307,7 @@ describe('search URL: view and grammar facets', () => {
     const s = decodeSearchUrl('?g=logos&v=table&gf=case.gen,number,.pl,mood.,case.gen,voice.mid', ALL);
     expect(s.view).toBe('page');
     expect(s.facets).toEqual({ case: ['gen'], voice: ['mid'] });
-    expect(decodeSearchUrl('?g=logos', ALL)).toEqual(base({ grk: 'logos' }));
+    expect(decodeSearchUrl('?g=logos', ALL)).toEqual(base({ grk: 'logos', matchMode: 'form' }));
   });
 });
 
@@ -322,7 +322,7 @@ describe('search URL: a facet category that is not one', () => {
 });
 
 describe('search URL: context, sort and page size', () => {
-  const g = `g=${encodeURIComponent('λόγος')}`;
+  const g = `g=${encodeURIComponent('λόγος')}&m=lemma`;
   it('writes nothing for the defaults', () => {
     const s = base({ grk: 'λόγος', context: '3', sort: 'page', pageSize: '40' });
     expect(encodeSearchUrl(s, ALL)).toBe(g);
@@ -383,7 +383,7 @@ describe('search URL: running text (PR 9)', () => {
   });
 
   it('writes pu only in running-text mode, and no word-search match or case there', () => {
-    expect(encodeSearchUrl(base({ grk: 'logos', punctuation: true }), ALL)).toBe('g=logos');
+    expect(encodeSearchUrl(base({ grk: 'logos', punctuation: true }), ALL)).toBe('g=logos&m=lemma');
     expect(encodeSearchUrl(base({ grk: 'logos', matchMode: 'form', punctuation: true }), ALL)).toBe('g=logos&m=form');
     expect(encodeSearchUrl(base({ grk: 'w(s dokei', matchMode: 'text', grkMode: 'phrase', caseExact: true }), ALL))
       .toBe('g=w(s%20dokei&m=text');

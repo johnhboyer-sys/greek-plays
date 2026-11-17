@@ -3,6 +3,8 @@
   import {
     search,
     searchCombo,
+    searchComboInEdition,
+    translationCredit,
     searchPhraseVariants,
     speakerRoster,
     greekFold,
@@ -287,6 +289,8 @@
   let searched = false;
   let error = '';
   let failedWorks: string[] = [];         // works whose index didn't load this run
+  // The plays: plays that hold the chosen Greek edition, searched in it without Near.
+  let unsupportedWorks: string[] = [];
   // Works whose turn starts are line-precise only; set solely when the query
   // depends on where a speech begins, so it is never noise.
   let approximateTurns: string[] = [];
@@ -1498,7 +1502,9 @@
     return _accentMatch.get(q) ?? null;
   }
   function accentTokenMatch(token: string, terms: string[]): boolean {
-    const t = letterClusters(accentNorm(token));
+    // The printed word, less the punctuation and brackets round it ("φίλος.]"),
+    // as the index folds it away; an elision mark stays.
+    const t = letterClusters(accentNorm(token).replace(/^[^\p{L}\p{M}']+|[^\p{L}\p{M}']+$/gu, ''));
     return terms.some(q => accentMatcher(q)?.(t) ?? false);
   }
 
@@ -3778,6 +3784,7 @@
     loading = true;
     error = '';
     failedWorks = [];
+    unsupportedWorks = [];
     unsearched = [];
     unresolved = [];
     approximateTurns = [];
@@ -3828,7 +3835,7 @@
         langOp,
         speaker: speakerFilter,
       };
-      const { results: found, failedWorks: failed, approximateTurns: approximate, approximateChapters: chaptersApproximate, unsearchedTranslations, unresolvedTerms, unnarrowed } = comboActive
+      const { results: found, failedWorks: failed, approximateTurns: approximate, approximateChapters: chaptersApproximate, unsearchedTranslations, unresolvedTerms, unnarrowed, unsupported } = comboActive
         ? await searchComboEnglish(works)
         // Picked headwords are OR-ed: choosing two spellings of one word, or two
         // homonyms, asks for either, never for both in the same passage.
@@ -3853,6 +3860,7 @@
       formFolded = true;
       if (fromEditor && advancedOpen) void foldEditor();
       failedWorks = failed;
+      unsupportedWorks = unsupported ?? [];
       approximateTurns = approximate ?? [];
       approximateChapters = chaptersApproximate ?? [];
       unresolved = unresolvedTerms ?? [];
@@ -3918,10 +3926,11 @@
   // port, decision 2), joined as search() joins its two languages; "and" is
   // then settled by speech (joined).
   async function searchComboEnglish(works: string[]): Promise<SearchOutcome> {
-    const grk = await searchCombo(comboSearchSlots, comboOptions, works);
+    // A play that holds the chosen Greek edition is searched in it without Near.
+    const grk = await searchComboInEdition(comboSearchSlots, comboOptions, works, greekEd, engForms, searchCombo);
     if (!ENGLISH_BESIDE_NEAR || !engQuery.trim() || grk.unnarrowed) return grk;
     const eng = await search('', engQuery, grkMode, engMode, 'or', works, 'lemma', engForms, speakerFilter, null, engNearNow);
-    return { ...joinEnglish(grk, eng, 'or'), approximateTurns: grk.approximateTurns, approximateChapters: grk.approximateChapters };
+    return { ...joinEnglish(grk, eng, 'or'), approximateTurns: grk.approximateTurns, approximateChapters: grk.approximateChapters, unsupported: grk.unsupported };
   }
 
   // Greek keyword-in-context: a window of surface tokens around the match,
@@ -4226,12 +4235,15 @@
   function formatSearchCredit(credit: TranslationCredit): string {
     return `Tr. ${credit.translator} (${credit.year})${credit.licence ? ` — ${credit.licence.name}` : ''}.`;
   }
-  function creditOf(segs: Map<string, Segment>, inst: Instance, translation: string): string {
-    const t = translationRef(inst.work, translation);
-    if (t && t.slot !== 'english') return '';
+  // The CSV's Attribution: the translation's registry label, then any credit of
+  // the passage's own. Beside a hit the translation is already named (tr-names),
+  // so only the passage's own credit is shown there (`own`).
+  function creditOf(segs: Map<string, Segment>, inst: Instance, translation: string, own = false): string {
     let seg = inst.seg ? segs.get(`${inst.work}:${inst.seg}`) : undefined;
     if (!seg) for (const [key, s] of segs) if (key.startsWith(`${inst.work}:`) && s.column === inst.column) { seg = s; break; }
-    return seg?.english?.credit ? formatSearchCredit(seg.english.credit) : '';
+    const passage = seg?.english?.credit ? formatSearchCredit(seg.english.credit) : undefined;
+    const full = translationCredit(inst.work, translation, passage);
+    return own ? (full && passage && full.endsWith(passage) ? passage : '') : full;
   }
 
   // --- CSV export (the FULL result set, every page) ------------------------
@@ -4257,10 +4269,12 @@
       const { groups: allGroups, failed, segs } = await buildGroups(shownResults, searchCtx, '3', true);
       const origin = typeof location !== 'undefined' ? location.origin : '';
       // One row per hit, with quoted text fields: the play, the printed line,
-      // the speech's speaker, the language, whose translation, the snippet,
-      // the reader URL, and a credited passage's attribution (the old page's
-      // Attribution column, finding 1).
-      const rows: string[][] = [['Play', 'Line', 'Speaker', 'Language', 'Translation', 'Snippet', 'URL', 'Attribution']];
+      // the speech's speaker, the language, whose translation, the reader URL,
+      // a credited passage's attribution, and the snippet last. As on the old
+      // page, URL and Attribution come before the free-text Snippet: its
+      // commas split a row in iPad Excel and Numbers, which would otherwise
+      // move the URL to a different column on each row.
+      const rows: string[][] = [['Play', 'Line', 'Speaker', 'Language', 'Translation', 'URL', 'Attribution', 'Snippet']];
       for (const g of allGroups) {
         const w = getWork(g.work);
         const play = w?.title ?? g.work;
@@ -4272,7 +4286,7 @@
             rows.push([
               play, inst.ref, speaker,
               inst.lang === 'grk' ? 'Greek' : 'English',
-              '', stripHtml(inst.html), origin + inst.jumpUrl, '',
+              '', origin + inst.jumpUrl, '', stripHtml(inst.html),
             ]);
           }
           // An English row cites its column (John, 13 Nov), even under a
@@ -4282,7 +4296,7 @@
             const t = translationRef(g.work, row.translation);
             rows.push([
               play, engRef, speaker, 'English',
-              t?.short ?? row.translation, stripHtml(row.html), origin + row.jumpUrl, creditOf(segs, inst, row.translation),
+              t?.short ?? row.translation, origin + row.jumpUrl, creditOf(segs, inst, row.translation), stripHtml(row.html),
             ]);
           }
         }
@@ -4868,7 +4882,7 @@
                 </span>
               {/if}
               {#if shown}
-                {@const credit = creditOf(pageSegs, inst, shown.translation)}
+                {@const credit = creditOf(pageSegs, inst, shown.translation, true)}
                 <div class="inst-en inst-rows" class:inst-hit-en={!whole && inst.lang === 'eng'} lang="en">
                   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                   <span class="inst-snippet">{@html shown.html}</span>
@@ -5921,7 +5935,7 @@
             {#if paged}{@render pager('')}{/if}
           </div>
         {/if}
-        {#if failedWorks.length || chaptersFailed.length || formsFailed || grammarFailed || unsearched.length || unresolved.length || approximateTurns.length}
+        {#if failedWorks.length || unsupportedWorks.length || chaptersFailed.length || formsFailed || grammarFailed || unsearched.length || unresolved.length || approximateTurns.length}
           <!-- Notices are rows: what kind, what happened, and what to do. -->
           <div class="sx-notes">
             {#if chaptersFailed.length}
@@ -5937,6 +5951,12 @@
                 <span class="k">Warning</span>
                 <span>Some plays could not be searched: {playsPhrase(failedWorks)}.</span>
                 <button type="button" class="a retry-btn" on:click={doSearch} disabled={loading}>Retry</button>
+              </div>
+            {/if}
+            {#if unsupportedWorks.length}
+              <div class="sx-note warn">
+                <span class="k">Note</span>
+                <span>Near uses each play’s main Greek text. These plays were searched in the chosen edition without Near: {playsPhrase(unsupportedWorks)}.</span>
               </div>
             {/if}
             {#if formsFailed}

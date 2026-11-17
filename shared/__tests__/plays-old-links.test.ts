@@ -119,6 +119,58 @@ describe('the plays\' old addresses', () => {
   });
 });
 
+describe('old Greek and English parameters keep their old meaning', () => {
+  // On the old page a Greek box with no m matched the exact form; a link the
+  // new page writes names m whenever it has Greek (John: keep old links).
+  it.each([
+    ['g=δίκη', 'δίκη', 'all'],
+    ['g=φιλ*', 'φιλ*', 'all'],
+    ['g=dikh', 'dikh', 'all'],
+    ['g=ὦ Ζεῦ&gm=phrase', 'ὦ Ζεῦ', 'phrase'],
+    ['q=δίκη', 'δίκη', 'all'],
+  ])('reads %s as the exact form', (query, grk, grkMode) => {
+    const s = decode(query);
+    expect(s).toMatchObject({ grk, matchMode: 'form', grkMode });
+  });
+
+  it('reads m as given, and a blank page keeps the new default', () => {
+    expect(decode('g=δίκη&m=lemma').matchMode).toBe('lemma');
+    expect(decode('g=δίκη&m=form').matchMode).toBe('form');
+    expect(decode('g=δίκη&m=text').matchMode).toBe('text');
+    expect(emptyUrlSearch(works).matchMode).toBe('lemma');
+    expect(decode('').matchMode).toBe('lemma');
+    expect(decode('e=virtue').matchMode).toBe('lemma');
+  });
+
+  it('names m in every link it writes with Greek, and reads it back', () => {
+    for (const matchMode of ['lemma', 'form', 'text'] as const) {
+      const s: UrlSearch = { ...emptyUrlSearch(works), grk: 'δίκη', matchMode };
+      const q = encodeSearchUrl(s, works);
+      expect(new URLSearchParams(q).get('m')).toBe(matchMode);
+      expect(decode(q)).toEqual(s);
+    }
+    // No Greek, no m.
+    expect(new URLSearchParams(encodeSearchUrl({ ...emptyUrlSearch(works), eng: 'justice' }, works)).has('m')).toBe(false);
+  });
+
+  // The old English parameters, each absent: the same meaning as before.
+  it('reads an old English link with em, ef, en, enr, enw absent as the old page did', () => {
+    const s = decode('e=justice');
+    expect(s).toMatchObject({ eng: 'justice', engMode: 'all', engForms: true, engNear: null, langOp: 'or' });
+    expect(decode('e=justice&em=phrase').engMode).toBe('phrase');
+    expect(decode('e=justice&em=junk').engMode).toBe('all');
+    expect(decode('e=justice&ef=0').engForms).toBe(false);
+    expect(decode('e=justice&en=right').engNear).toEqual({ term: 'right', relation: 'near', window: 10 });
+    expect(decode('e=justice&en=right&enr=a&enw=3').engNear).toEqual({ term: 'right', relation: 'after', window: 3 });
+    expect(decode('e=justice&acc=1').accent).toBe(true);
+  });
+
+  it('keeps the old "and" of a Greek and English link, now beside the exact form', () => {
+    const s = decode('g=δίκη&e=justice');
+    expect(s).toMatchObject({ langOp: 'and', matchMode: 'form' });
+  });
+});
+
 describe('the plays\' new address', () => {
   it('keeps the English box beside a proximity search', () => {
     const s: UrlSearch = { ...emptyUrlSearch(works), eng: 'justice', engMode: 'phrase', engForms: false, langOp: 'or', trans: 'smyth',

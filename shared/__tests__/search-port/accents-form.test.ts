@@ -91,7 +91,7 @@ describe('Accents and Form', () => {
   });
 
   it('keeps any form when the URL sets acc=1', async () => {
-    await open('/search?g=ἀρετή&acc=1');
+    await open('/search?g=ἀρετή&acc=1&m=lemma');
     expect(screen.getByRole('button', { name: 'Accents' })).toHaveAttribute('aria-pressed', 'true');
     expect(form('lemma')).toBeChecked();
     expect(summary()).toHaveTextContent('any form');

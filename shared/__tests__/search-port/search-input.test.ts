@@ -233,7 +233,7 @@ describe('Search: dictionary words under the Greek box', () => {
   });
 
   it('Back or Forward shuts the list over the restored search', async () => {
-    window.history.replaceState(null, '', `/search?g=${encodeURIComponent('Σωκράτης')}`);
+    window.history.replaceState(null, '', `/search?g=${encodeURIComponent('Σωκράτης')}&m=lemma`);
     render(Search);
     await vi.waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('2 hits'));
     await type('log');
@@ -480,7 +480,7 @@ describe('Search: capitals and accents', () => {
     await key('Escape');
     await fireEvent.click(screen.getByRole('button', { name: 'Search' }));
     await vi.waitFor(() => expect(search).toHaveBeenCalled());
-    expect(window.location.search).toBe(`?g=${encodeURIComponent('Σωκράτης')}`);
+    expect(window.location.search).toBe(`?g=${encodeURIComponent('Σωκράτης')}&m=lemma`);
   });
 
   it('Accents is a one-tap switch too, drawn alone, read from the address and written back (John, 2026-11-11; ruling 5)', async () => {

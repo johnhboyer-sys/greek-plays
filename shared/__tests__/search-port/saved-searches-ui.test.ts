@@ -47,7 +47,7 @@ vi.mock('../../lib/data', async (importOriginal) => {
 const RESULTS: SearchResult[] = [
   { work: 'EN', meta: { id: '1:70a', book: 1, column: '70a' }, grkMatch: true, engMatch: false, grkPositions: [0] },
 ];
-const G = `/search?g=${encodeURIComponent('ψυχή')}`;
+const G = `/search?g=${encodeURIComponent('ψυχή')}&m=lemma`;
 const SOC = `${G}&sp=only&sn=Socrates`;
 
 async function open(url: string) {

@@ -110,6 +110,16 @@ const searchUrl = (key: string) => {
   const [work, ed] = key.slice(0, at).split('@');
   return `${searchBase(work, ed)}/${key.slice(at + 1)}`;
 };
+/** The credit beside an English hit and in the CSV's Attribution column, as the
+ * old page wrote it: the translation's registry label (translator and year),
+ * then, for the play's primary translation, the passage's own credit where its
+ * English carries one. Empty for a translation the registry does not hold. */
+export function translationCredit(work: string, translation: string, passage?: string): string {
+  const w = getWork(work);
+  const t = w ? searchableTranslations(w).find(x => x.id === translation) : undefined;
+  if (!t) return '';
+  return [t.short, t.slot === 'english' ? passage : undefined].filter(Boolean).join(' · ');
+}
 export const edKey = (work: string, ed?: string | null) => (ed && ed !== 'tlg' ? `${work}@${ed}` : work);
 // The edition a Greek-only search reads in a play: the one asked for where
 // the play holds it, else none (the reference text). English is indexed on
@@ -1094,6 +1104,9 @@ export interface SearchOutcome {
   // precision the source does not have.
   approximateChapters?: string[];
   approximateTurns?: string[];
+  // The plays: plays that hold the Greek edition chosen, searched in it without
+  // Near (searchComboInEdition).
+  unsupported?: string[];
 }
 
 // Positions of a single term across segments: seg_idx → [token positions].
@@ -3123,4 +3136,34 @@ export interface ComboHit {
   positions: number[];     // every matched token position in that segment
   certain: boolean;        // false if ANY slot rested on an ambiguous parse
   values?: Record<string, string[]>;
+}
+
+/** The plays: a proximity search with a Greek edition chosen. Near reads only
+ * each play's main Greek text, so a play that holds the edition is not asked
+ * the Near search: as on the old page, its first term is searched in the
+ * edition alone, and the play is named in `unsupported` for the page's note. */
+export async function searchComboInEdition(
+  slots: ComboSlot[],
+  opts: ComboOptions,
+  works: string[],
+  ed: string | null | undefined,
+  engForms = false,
+  run: typeof searchCombo = searchCombo,
+): Promise<SearchOutcome> {
+  const held = !ed || ed === 'tlg' ? [] : works.filter(w => getWork(w)?.greekEditions?.some(e => e.id === ed));
+  const near = await run(slots, opts, works);
+  if (!held.length || near.unnarrowed) return near;
+  const first = slots[0];
+  const text = first?.terms?.join(' ') ?? '';
+  const plain: SearchOutcome = !text ? { results: [], failedWorks: [] }
+    : await search(text, '', first.kind === 'phrase' ? 'phrase' : first.kind === 'lemma' ? 'any' : 'all', 'all', 'or',
+      held, first.kind === 'lemma' ? 'headword' : 'form', engForms, opts.speaker, ed);
+  const order = new Map(WORKS.map((w, i) => [w.id, i]));
+  const results = [...near.results.filter(r => !held.includes(r.work)), ...plain.results]
+    .sort((a, b) => (order.get(a.work) ?? 0) - (order.get(b.work) ?? 0));
+  return {
+    ...near, results,
+    failedWorks: [...near.failedWorks.filter(w => !held.includes(w)), ...plain.failedWorks],
+    unsupported: held,
+  };
 }
