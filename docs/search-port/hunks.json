@@ -1,29 +1,29 @@
 [
  {
   "file": "shared/components/Search.svelte",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/components/Search.svelte",
   "plays": 1797,
-  "aristotle": 5442,
+  "aristotle": 5882,
   "base": 1698,
   "aristotle_before_redesign": 2991,
   "identical": false,
   "port": {
-   "hunks": 19,
-   "plays_lines": 20,
-   "aristotle_lines": 2985
+   "hunks": 18,
+   "plays_lines": 22,
+   "aristotle_lines": 3148
   },
   "keep": {
-   "hunks": 16,
-   "plays_lines": 451,
+   "hunks": 15,
+   "plays_lines": 444,
    "aristotle_lines": 83
   },
   "both": {
-   "hunks": 42,
-   "plays_lines": 1114,
-   "aristotle_lines": 2162
+   "hunks": 40,
+   "plays_lines": 1124,
+   "aristotle_lines": 2444
   },
-  "same_lines": 212,
+  "same_lines": 207,
   "hunk_list": [
    {
     "cls": "both",
@@ -33,10 +33,10 @@
     ],
     "aristotle": [
      2,
-     81
+     83
     ],
     "pl": 11,
-    "al": 80,
+    "al": 82,
     "first": "import { tick, onMount } from 'svelte';"
    },
    {
@@ -46,8 +46,8 @@
      20
     ],
     "aristotle": [
-     83,
-     91
+     85,
+     93
     ],
     "pl": 7,
     "al": 9,
@@ -60,8 +60,8 @@
      24
     ],
     "aristotle": [
-     96,
-     97
+     98,
+     99
     ],
     "pl": 0,
     "al": 2,
@@ -74,8 +74,8 @@
      27
     ],
     "aristotle": [
-     100,
-     101
+     102,
+     103
     ],
     "pl": 1,
     "al": 2,
@@ -88,11 +88,11 @@
      37
     ],
     "aristotle": [
-     104,
-     148
+     106,
+     153
     ],
     "pl": 8,
-    "al": 45,
+    "al": 48,
     "first": "documentOrder: number;"
    },
    {
@@ -102,8 +102,8 @@
      39
     ],
     "aristotle": [
-     150,
-     176
+     155,
+     181
     ],
     "pl": 1,
     "al": 27,
@@ -116,8 +116,8 @@
      41
     ],
     "aristotle": [
-     178,
-     177
+     183,
+     182
     ],
     "pl": 1,
     "al": 0,
@@ -130,8 +130,8 @@
      45
     ],
     "aristotle": [
-     181,
-     180
+     186,
+     185
     ],
     "pl": 1,
     "al": 0,
@@ -144,8 +144,8 @@
      47
     ],
     "aristotle": [
-     182,
-     182
+     187,
+     187
     ],
     "pl": 1,
     "al": 1,
@@ -154,16 +154,16 @@
    {
     "cls": "both",
     "plays": [
-     57,
+     56,
      68
     ],
     "aristotle": [
-     192,
-     199
+     196,
+     204
     ],
-    "pl": 12,
-    "al": 8,
-    "first": "let matchMode: MatchMode = 'form';"
+    "pl": 13,
+    "al": 9,
+    "first": "let langOp: LangOp = 'and';"
    },
    {
     "cls": "both",
@@ -172,8 +172,8 @@
      314
     ],
     "aristotle": [
-     201,
-     200
+     206,
+     205
     ],
     "pl": 245,
     "al": 0,
@@ -186,12 +186,12 @@
      318
     ],
     "aristotle": [
-     205,
-     208
+     210,
+     233
     ],
     "pl": 0,
-    "al": 4,
-    "first": "let totalPassages = 0;"
+    "al": 24,
+    "first": "const isBoth = (s: UrlSearch | null) => !!s?.eng.trim() && (!!s?.grk.trim() || !!s?.lemmas"
    },
    {
     "cls": "keep",
@@ -200,8 +200,8 @@
      319
     ],
     "aristotle": [
-     210,
-     210
+     235,
+     235
     ],
     "pl": 0,
     "al": 1,
@@ -214,40 +214,26 @@
      323
     ],
     "aristotle": [
-     214,
-     314
+     239,
+     246
     ],
     "pl": 1,
-    "al": 101,
+    "al": 8,
     "first": "let failedWorks: string[] = [];"
    },
    {
     "cls": "port",
     "plays": [
-     326,
-     330
-    ],
-    "aristotle": [
-     317,
-     322
-    ],
-    "pl": 5,
-    "al": 6,
-    "first": "// it a page at a time, snapping page breaks to whole books so a chapter never"
-   },
-   {
-    "cls": "port",
-    "plays": [
-     332,
+     325,
      331
     ],
     "aristotle": [
-     324,
-     324
+     248,
+     347
     ],
-    "pl": 0,
-    "al": 1,
-    "first": "let shownResults: SearchResult[] = [];  // every page's results, once each"
+    "pl": 7,
+    "al": 100,
+    "first": "// Pagination. search() returns the complete hit list (index-only); we render"
    },
    {
     "cls": "both",
@@ -256,11 +242,11 @@
      344
     ],
     "aristotle": [
-     335,
-     1050
+     358,
+     1400
     ],
     "pl": 3,
-    "al": 716,
+    "al": 1043,
     "first": "interface SearchCtx { grkQuery: string; engQuery: string; engTerms: string[]; engForms: bo"
    },
    {
@@ -270,8 +256,8 @@
      355
     ],
     "aristotle": [
-     1060,
-     1092
+     1410,
+     1442
     ],
     "pl": 2,
     "al": 33,
@@ -284,8 +270,8 @@
      359
     ],
     "aristotle": [
-     1094,
-     1807
+     1444,
+     2157
     ],
     "pl": 3,
     "al": 714,
@@ -298,8 +284,8 @@
      366
     ],
     "aristotle": [
-     1811,
-     1815
+     2161,
+     2165
     ],
     "pl": 4,
     "al": 5,
@@ -312,8 +298,8 @@
      379
     ],
     "aristotle": [
-     1829,
-     1829
+     2179,
+     2179
     ],
     "pl": 0,
     "al": 1,
@@ -326,8 +312,8 @@
      380
     ],
     "aristotle": [
-     1831,
-     1836
+     2181,
+     2186
     ],
     "pl": 0,
     "al": 6,
@@ -340,8 +326,8 @@
      396
     ],
     "aristotle": [
-     1843,
-     1906
+     2193,
+     2256
     ],
     "pl": 10,
     "al": 64,
@@ -354,8 +340,8 @@
      404
     ],
     "aristotle": [
-     1909,
-     1925
+     2259,
+     2275
     ],
     "pl": 6,
     "al": 17,
@@ -368,8 +354,8 @@
      420
     ],
     "aristotle": [
-     1927,
-     1928
+     2277,
+     2278
     ],
     "pl": 15,
     "al": 2,
@@ -382,8 +368,8 @@
      761
     ],
     "aristotle": [
-     1930,
-     1933
+     2280,
+     2283
     ],
     "pl": 340,
     "al": 4,
@@ -396,8 +382,8 @@
      767
     ],
     "aristotle": [
-     1935,
-     1949
+     2285,
+     2299
     ],
     "pl": 5,
     "al": 15,
@@ -410,8 +396,8 @@
      772
     ],
     "aristotle": [
-     1952,
-     1953
+     2302,
+     2303
     ],
     "pl": 3,
     "al": 2,
@@ -424,8 +410,8 @@
      774
     ],
     "aristotle": [
-     1955,
-     1955
+     2305,
+     2305
     ],
     "pl": 1,
     "al": 1,
@@ -438,8 +424,8 @@
      782
     ],
     "aristotle": [
-     1959,
-     1970
+     2309,
+     2320
     ],
     "pl": 5,
     "al": 12,
@@ -452,8 +438,8 @@
      783
     ],
     "aristotle": [
-     1972,
-     2035
+     2322,
+     2385
     ],
     "pl": 0,
     "al": 64,
@@ -466,8 +452,8 @@
      817
     ],
     "aristotle": [
-     2038,
-     2075
+     2388,
+     2425
     ],
     "pl": 32,
     "al": 38,
@@ -480,8 +466,8 @@
      832
     ],
     "aristotle": [
-     2077,
-     2159
+     2427,
+     2509
     ],
     "pl": 14,
     "al": 83,
@@ -494,8 +480,8 @@
      843
     ],
     "aristotle": [
-     2161,
-     2175
+     2511,
+     2525
     ],
     "pl": 10,
     "al": 15,
@@ -508,8 +494,8 @@
      933
     ],
     "aristotle": [
-     2177,
-     2179
+     2527,
+     2529
     ],
     "pl": 89,
     "al": 3,
@@ -522,8 +508,8 @@
      941
     ],
     "aristotle": [
-     2182,
-     2185
+     2532,
+     2535
     ],
     "pl": 6,
     "al": 4,
@@ -536,8 +522,8 @@
      976
     ],
     "aristotle": [
-     2188,
-     2215
+     2538,
+     2565
     ],
     "pl": 33,
     "al": 28,
@@ -550,8 +536,8 @@
      987
     ],
     "aristotle": [
-     2217,
-     2227
+     2567,
+     2577
     ],
     "pl": 10,
     "al": 11,
@@ -564,8 +550,8 @@
      1241
     ],
     "aristotle": [
-     2229,
-     2236
+     2579,
+     2586
     ],
     "pl": 253,
     "al": 8,
@@ -578,8 +564,8 @@
      1272
     ],
     "aristotle": [
-     2266,
-     2265
+     2616,
+     2615
     ],
     "pl": 2,
     "al": 0,
@@ -592,8 +578,8 @@
      1290
     ],
     "aristotle": [
-     2278,
-     2278
+     2628,
+     2628
     ],
     "pl": 6,
     "al": 1,
@@ -606,8 +592,8 @@
      1293
     ],
     "aristotle": [
-     2281,
-     2281
+     2631,
+     2631
     ],
     "pl": 1,
     "al": 1,
@@ -620,11 +606,11 @@
      1297
     ],
     "aristotle": [
-     2286,
-     3989
+     2636,
+     4370
     ],
     "pl": 0,
-    "al": 1704,
+    "al": 1735,
     "first": "// Map a hit's (column, line) to the group it falls in, for one book."
    },
    {
@@ -634,8 +620,8 @@
      1300
     ],
     "aristotle": [
-     3992,
-     4054
+     4373,
+     4435
     ],
     "pl": 1,
     "al": 63,
@@ -648,8 +634,8 @@
      1342
     ],
     "aristotle": [
-     4056,
-     4124
+     4437,
+     4505
     ],
     "pl": 41,
     "al": 69,
@@ -662,11 +648,11 @@
      1343
     ],
     "aristotle": [
-     4126,
-     4414
+     4507,
+     4814
     ],
     "pl": 0,
-    "al": 289,
+    "al": 308,
     "first": "{/if}"
    },
    {
@@ -676,8 +662,8 @@
      1344
     ],
     "aristotle": [
-     4416,
-     4420
+     4816,
+     4820
     ],
     "pl": 0,
     "al": 5,
@@ -690,8 +676,8 @@
      1355
     ],
     "aristotle": [
-     4422,
-     4439
+     4822,
+     4839
     ],
     "pl": 10,
     "al": 18,
@@ -704,8 +690,8 @@
      1365
     ],
     "aristotle": [
-     4441,
-     4568
+     4841,
+     4968
     ],
     "pl": 9,
     "al": 128,
@@ -718,8 +704,8 @@
      1366
     ],
     "aristotle": [
-     4570,
-     4640
+     4970,
+     5040
     ],
     "pl": 0,
     "al": 71,
@@ -732,8 +718,8 @@
      1497
     ],
     "aristotle": [
-     4642,
-     4641
+     5042,
+     5041
     ],
     "pl": 130,
     "al": 0,
@@ -746,8 +732,8 @@
      1500
     ],
     "aristotle": [
-     4645,
-     4728
+     5045,
+     5128
     ],
     "pl": 0,
     "al": 84,
@@ -760,8 +746,8 @@
      1513
     ],
     "aristotle": [
-     4742,
-     4742
+     5142,
+     5142
     ],
     "pl": 0,
     "al": 1,
@@ -774,8 +760,8 @@
      1515
     ],
     "aristotle": [
-     4744,
-     4743
+     5144,
+     5143
     ],
     "pl": 1,
     "al": 0,
@@ -788,8 +774,8 @@
      1521
     ],
     "aristotle": [
-     4748,
-     4754
+     5148,
+     5154
     ],
     "pl": 2,
     "al": 7,
@@ -802,8 +788,8 @@
      1523
     ],
     "aristotle": [
-     4756,
-     4768
+     5156,
+     5168
     ],
     "pl": 1,
     "al": 13,
@@ -816,8 +802,8 @@
      1530
     ],
     "aristotle": [
-     4771,
-     4775
+     5171,
+     5175
     ],
     "pl": 5,
     "al": 5,
@@ -830,8 +816,8 @@
      1537
     ],
     "aristotle": [
-     4778,
-     4791
+     5178,
+     5191
     ],
     "pl": 5,
     "al": 14,
@@ -844,8 +830,8 @@
      1539
     ],
     "aristotle": [
-     4793,
-     4798
+     5193,
+     5198
     ],
     "pl": 1,
     "al": 6,
@@ -858,8 +844,8 @@
      1543
     ],
     "aristotle": [
-     4803,
-     4823
+     5203,
+     5223
     ],
     "pl": 0,
     "al": 21,
@@ -872,8 +858,8 @@
      1545
     ],
     "aristotle": [
-     4826,
-     4831
+     5226,
+     5231
     ],
     "pl": 0,
     "al": 6,
@@ -883,71 +869,29 @@
     "cls": "both",
     "plays": [
      1547,
-     1568
-    ],
-    "aristotle": [
-     4833,
-     5213
-    ],
-    "pl": 22,
-    "al": 381,
-    "first": "{#if unsupportedWorks.length}"
-   },
-   {
-    "cls": "keep",
-    "plays": [
-     1570,
-     1576
-    ],
-    "aristotle": [
-     5215,
-     5214
-    ],
-    "pl": 7,
-    "al": 0,
-    "first": "{#if pages.length > 1}"
-   },
-   {
-    "cls": "both",
-    "plays": [
-     1578,
-     1583
-    ],
-    "aristotle": [
-     5216,
-     5221
-    ],
-    "pl": 6,
-    "al": 6,
-    "first": "{#if pageError}"
-   },
-   {
-    "cls": "both",
-    "plays": [
-     1585,
      1612
     ],
     "aristotle": [
-     5223,
-     5239
+     5233,
+     5276
     ],
-    "pl": 28,
-    "al": 17,
-    "first": "{#each groupsByWork as wg}"
+    "pl": 66,
+    "al": 44,
+    "first": "{#if unsupportedWorks.length}"
    },
    {
     "cls": "both",
     "plays": [
-     1614,
+     1615,
      1614
     ],
     "aristotle": [
-     5241,
-     5288
+     5279,
+     5728
     ],
-    "pl": 1,
-    "al": 48,
-    "first": "</ul>"
+    "pl": 0,
+    "al": 450,
+    "first": "{/if}"
    },
    {
     "cls": "both",
@@ -956,8 +900,8 @@
      1617
     ],
     "aristotle": [
-     5290,
-     5290
+     5730,
+     5730
     ],
     "pl": 2,
     "al": 1,
@@ -970,8 +914,8 @@
      1625
     ],
     "aristotle": [
-     5292,
-     5300
+     5732,
+     5740
     ],
     "pl": 7,
     "al": 9,
@@ -984,8 +928,8 @@
      1627
     ],
     "aristotle": [
-     5303,
-     5334
+     5743,
+     5774
     ],
     "pl": 0,
     "al": 32,
@@ -998,8 +942,8 @@
      1633
     ],
     "aristotle": [
-     5336,
-     5345
+     5776,
+     5785
     ],
     "pl": 5,
     "al": 10,
@@ -1012,8 +956,8 @@
      1638
     ],
     "aristotle": [
-     5347,
-     5359
+     5787,
+     5799
     ],
     "pl": 4,
     "al": 13,
@@ -1026,8 +970,8 @@
      1665
     ],
     "aristotle": [
-     5361,
-     5363
+     5801,
+     5803
     ],
     "pl": 26,
     "al": 3,
@@ -1040,8 +984,8 @@
      1751
     ],
     "aristotle": [
-     5365,
-     5365
+     5805,
+     5805
     ],
     "pl": 85,
     "al": 1,
@@ -1054,8 +998,8 @@
      1756
     ],
     "aristotle": [
-     5367,
-     5375
+     5807,
+     5815
     ],
     "pl": 4,
     "al": 9,
@@ -1068,8 +1012,8 @@
      1763
     ],
     "aristotle": [
-     5378,
-     5384
+     5818,
+     5824
     ],
     "pl": 5,
     "al": 7,
@@ -1082,8 +1026,8 @@
      1782
     ],
     "aristotle": [
-     5386,
-     5411
+     5826,
+     5851
     ],
     "pl": 18,
     "al": 26,
@@ -1096,8 +1040,8 @@
      1795
     ],
     "aristotle": [
-     5413,
-     5440
+     5853,
+     5880
     ],
     "pl": 12,
     "al": 28,
@@ -1107,7 +1051,7 @@
  },
  {
   "file": "shared/components/SavedSearches.svelte",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/components/SavedSearches.svelte",
   "plays": null,
   "aristotle": 141,
@@ -1116,16 +1060,16 @@
  },
  {
   "file": "shared/styles/b-search.css",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/styles/b-search.css",
   "plays": null,
-  "aristotle": 2237,
+  "aristotle": 2293,
   "base": null,
   "aristotle_before_redesign": null
  },
  {
   "file": "shared/styles/b.css",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/styles/b.css",
   "plays": null,
   "aristotle": 1391,
@@ -1137,14 +1081,14 @@
   "base_rev": "cpr",
   "plays_file": "shared/lib/search.ts + shared/lib/search-advanced.ts (concatenated)",
   "plays": 1547,
-  "aristotle": 2870,
+  "aristotle": 2882,
   "base": 428,
   "aristotle_before_redesign": 1625,
   "identical": false,
   "port": {
    "hunks": 24,
    "plays_lines": 40,
-   "aristotle_lines": 771
+   "aristotle_lines": 774
   },
   "keep": {
    "hunks": 4,
@@ -1154,7 +1098,7 @@
   "both": {
    "hunks": 44,
    "plays_lines": 656,
-   "aristotle_lines": 1718
+   "aristotle_lines": 1727
   },
   "same_lines": 381,
   "hunk_list": [
@@ -1320,10 +1264,10 @@
     ],
     "aristotle": [
      124,
-     152
+     161
     ],
     "pl": 8,
-    "al": 29,
+    "al": 38,
     "first": "// Drop a work's cached index files (meta/lemma/form/english.json) so the next"
    },
    {
@@ -1333,8 +1277,8 @@
      135
     ],
     "aristotle": [
-     156,
-     163
+     165,
+     172
     ],
     "pl": 3,
     "al": 8,
@@ -1347,8 +1291,8 @@
      141
     ],
     "aristotle": [
-     169,
-     169
+     178,
+     178
     ],
     "pl": 1,
     "al": 1,
@@ -1361,8 +1305,8 @@
      150
     ],
     "aristotle": [
-     178,
-     178
+     187,
+     187
     ],
     "pl": 1,
     "al": 1,
@@ -1375,8 +1319,8 @@
      161
     ],
     "aristotle": [
-     183,
-     182
+     192,
+     191
     ],
     "pl": 7,
     "al": 0,
@@ -1389,8 +1333,8 @@
      170
     ],
     "aristotle": [
-     191,
-     194
+     200,
+     203
     ],
     "pl": 1,
     "al": 4,
@@ -1403,8 +1347,8 @@
      185
     ],
     "aristotle": [
-     201,
-     206
+     210,
+     215
     ],
     "pl": 9,
     "al": 6,
@@ -1417,8 +1361,8 @@
      188
     ],
     "aristotle": [
-     208,
-     225
+     217,
+     234
     ],
     "pl": 2,
     "al": 18,
@@ -1431,8 +1375,8 @@
      193
     ],
     "aristotle": [
-     227,
-     270
+     236,
+     279
     ],
     "pl": 4,
     "al": 44,
@@ -1445,8 +1389,8 @@
      196
     ],
     "aristotle": [
-     272,
-     272
+     281,
+     281
     ],
     "pl": 2,
     "al": 1,
@@ -1459,8 +1403,8 @@
      206
     ],
     "aristotle": [
-     275,
-     279
+     284,
+     288
     ],
     "pl": 8,
     "al": 5,
@@ -1473,8 +1417,8 @@
      209
     ],
     "aristotle": [
-     282,
-     288
+     291,
+     297
     ],
     "pl": 1,
     "al": 7,
@@ -1487,8 +1431,8 @@
      222
     ],
     "aristotle": [
-     290,
-     301
+     299,
+     310
     ],
     "pl": 12,
     "al": 12,
@@ -1501,8 +1445,8 @@
      225
     ],
     "aristotle": [
-     303,
-     333
+     312,
+     342
     ],
     "pl": 2,
     "al": 31,
@@ -1515,8 +1459,8 @@
      232
     ],
     "aristotle": [
-     336,
-     551
+     345,
+     560
     ],
     "pl": 5,
     "al": 216,
@@ -1529,8 +1473,8 @@
      237
     ],
     "aristotle": [
-     553,
-     556
+     562,
+     565
     ],
     "pl": 4,
     "al": 4,
@@ -1543,8 +1487,8 @@
      244
     ],
     "aristotle": [
-     560,
-     561
+     569,
+     570
     ],
     "pl": 4,
     "al": 2,
@@ -1557,8 +1501,8 @@
      245
     ],
     "aristotle": [
-     563,
-     577
+     572,
+     586
     ],
     "pl": 0,
     "al": 15,
@@ -1571,8 +1515,8 @@
      246
     ],
     "aristotle": [
-     579,
-     579
+     588,
+     588
     ],
     "pl": 0,
     "al": 1,
@@ -1585,8 +1529,8 @@
      248
     ],
     "aristotle": [
-     581,
-     583
+     590,
+     592
     ],
     "pl": 1,
     "al": 3,
@@ -1599,8 +1543,8 @@
      273
     ],
     "aristotle": [
-     606,
-     611
+     615,
+     620
     ],
     "pl": 3,
     "al": 6,
@@ -1613,8 +1557,8 @@
      736
     ],
     "aristotle": [
-     623,
-     633
+     632,
+     642
     ],
     "pl": 452,
     "al": 11,
@@ -1627,8 +1571,8 @@
      746
     ],
     "aristotle": [
-     644,
-     647
+     653,
+     656
     ],
     "pl": 0,
     "al": 4,
@@ -1641,8 +1585,8 @@
      750
     ],
     "aristotle": [
-     652,
-     653
+     661,
+     662
     ],
     "pl": 0,
     "al": 2,
@@ -1655,8 +1599,8 @@
      753
     ],
     "aristotle": [
-     656,
-     658
+     665,
+     667
     ],
     "pl": 1,
     "al": 3,
@@ -1669,8 +1613,8 @@
      757
     ],
     "aristotle": [
-     663,
-     663
+     672,
+     672
     ],
     "pl": 0,
     "al": 1,
@@ -1683,8 +1627,8 @@
      765
     ],
     "aristotle": [
-     671,
-     673
+     680,
+     682
     ],
     "pl": 1,
     "al": 3,
@@ -1697,8 +1641,8 @@
      767
     ],
     "aristotle": [
-     676,
-     676
+     685,
+     685
     ],
     "pl": 0,
     "al": 1,
@@ -1711,8 +1655,8 @@
      786
     ],
     "aristotle": [
-     695,
-     695
+     704,
+     704
     ],
     "pl": 1,
     "al": 1,
@@ -1725,8 +1669,8 @@
      793
     ],
     "aristotle": [
-     698,
-     698
+     707,
+     707
     ],
     "pl": 5,
     "al": 1,
@@ -1739,8 +1683,8 @@
      805
     ],
     "aristotle": [
-     706,
-     707
+     715,
+     716
     ],
     "pl": 5,
     "al": 2,
@@ -1753,8 +1697,8 @@
      835
     ],
     "aristotle": [
-     717,
-     727
+     726,
+     736
     ],
     "pl": 21,
     "al": 11,
@@ -1767,8 +1711,8 @@
      837
     ],
     "aristotle": [
-     730,
-     803
+     739,
+     812
     ],
     "pl": 0,
     "al": 74,
@@ -1781,11 +1725,11 @@
      868
     ],
     "aristotle": [
-     835,
-     1187
+     844,
+     1199
     ],
     "pl": 0,
-    "al": 353,
+    "al": 356,
     "first": "// -- Public search API ----------------------------------------------------"
    },
    {
@@ -1795,8 +1739,8 @@
      873
     ],
     "aristotle": [
-     1190,
-     1192
+     1202,
+     1204
     ],
     "pl": 3,
     "al": 3,
@@ -1809,8 +1753,8 @@
      887
     ],
     "aristotle": [
-     1206,
-     1209
+     1218,
+     1221
     ],
     "pl": 1,
     "al": 4,
@@ -1823,8 +1767,8 @@
      895
     ],
     "aristotle": [
-     1216,
-     1236
+     1228,
+     1248
     ],
     "pl": 2,
     "al": 21,
@@ -1837,8 +1781,8 @@
      906
     ],
     "aristotle": [
-     1247,
-     1276
+     1259,
+     1288
     ],
     "pl": 1,
     "al": 30,
@@ -1851,8 +1795,8 @@
      908
     ],
     "aristotle": [
-     1278,
-     1278
+     1290,
+     1290
     ],
     "pl": 1,
     "al": 1,
@@ -1865,8 +1809,8 @@
      923
     ],
     "aristotle": [
-     1280,
-     1284
+     1292,
+     1296
     ],
     "pl": 14,
     "al": 5,
@@ -1879,8 +1823,8 @@
      927
     ],
     "aristotle": [
-     1286,
-     1291
+     1298,
+     1303
     ],
     "pl": 3,
     "al": 6,
@@ -1893,8 +1837,8 @@
      930
     ],
     "aristotle": [
-     1294,
-     1294
+     1306,
+     1306
     ],
     "pl": 1,
     "al": 1,
@@ -1907,8 +1851,8 @@
      946
     ],
     "aristotle": [
-     1298,
-     1300
+     1310,
+     1312
     ],
     "pl": 13,
     "al": 3,
@@ -1921,8 +1865,8 @@
      952
     ],
     "aristotle": [
-     1305,
-     1308
+     1317,
+     1320
     ],
     "pl": 2,
     "al": 4,
@@ -1935,8 +1879,8 @@
      955
     ],
     "aristotle": [
-     1312,
-     1496
+     1324,
+     1508
     ],
     "pl": 0,
     "al": 185,
@@ -1949,8 +1893,8 @@
      973
     ],
     "aristotle": [
-     1515,
-     1521
+     1527,
+     1533
     ],
     "pl": 0,
     "al": 7,
@@ -1963,8 +1907,8 @@
      975
     ],
     "aristotle": [
-     1523,
-     1546
+     1535,
+     1558
     ],
     "pl": 1,
     "al": 24,
@@ -1977,8 +1921,8 @@
      982
     ],
     "aristotle": [
-     1553,
-     1556
+     1565,
+     1568
     ],
     "pl": 1,
     "al": 4,
@@ -1991,8 +1935,8 @@
      989
     ],
     "aristotle": [
-     1563,
-     1571
+     1575,
+     1583
     ],
     "pl": 1,
     "al": 9,
@@ -2005,8 +1949,8 @@
      1000
     ],
     "aristotle": [
-     1582,
-     1583
+     1594,
+     1595
     ],
     "pl": 1,
     "al": 2,
@@ -2019,8 +1963,8 @@
      1011
     ],
     "aristotle": [
-     1594,
-     2791
+     1606,
+     2803
     ],
     "pl": 1,
     "al": 1198,
@@ -2033,8 +1977,8 @@
      1016
     ],
     "aristotle": [
-     2797,
-     2799
+     2809,
+     2811
     ],
     "pl": 0,
     "al": 3,
@@ -2047,8 +1991,8 @@
      1042
     ],
     "aristotle": [
-     2825,
-     2824
+     2837,
+     2836
     ],
     "pl": 1,
     "al": 0,
@@ -2061,8 +2005,8 @@
      1052
     ],
     "aristotle": [
-     2835,
-     2837
+     2847,
+     2849
     ],
     "pl": 0,
     "al": 3,
@@ -2075,8 +2019,8 @@
      1058
     ],
     "aristotle": [
-     2843,
-     2843
+     2855,
+     2855
     ],
     "pl": 1,
     "al": 1,
@@ -2089,8 +2033,8 @@
      1060
     ],
     "aristotle": [
-     2845,
-     2845
+     2857,
+     2857
     ],
     "pl": 1,
     "al": 1,
@@ -2103,8 +2047,8 @@
      1066
     ],
     "aristotle": [
-     2851,
-     2851
+     2863,
+     2863
     ],
     "pl": 1,
     "al": 1,
@@ -2117,8 +2061,8 @@
      1070
     ],
     "aristotle": [
-     2855,
-     2855
+     2867,
+     2867
     ],
     "pl": 1,
     "al": 1,
@@ -2131,8 +2075,8 @@
      1073
     ],
     "aristotle": [
-     2858,
-     2858
+     2870,
+     2870
     ],
     "pl": 1,
     "al": 1,
@@ -2145,8 +2089,8 @@
      1284
     ],
     "aristotle": [
-     2861,
-     2860
+     2873,
+     2872
     ],
     "pl": 209,
     "al": 0,
@@ -2159,8 +2103,8 @@
      1547
     ],
     "aristotle": [
-     2871,
-     2870
+     2883,
+     2882
     ],
     "pl": 253,
     "al": 0,
@@ -2173,13 +2117,13 @@
   "base_rev": "8dabb65815",
   "plays_file": "shared/lib/search-url.ts",
   "plays": 174,
-  "aristotle": 368,
+  "aristotle": 377,
   "base": 201,
   "aristotle_before_redesign": 213,
   "identical": false,
   "port": {
    "hunks": 3,
-   "plays_lines": 1,
+   "plays_lines": 2,
    "aristotle_lines": 5
   },
   "keep": {
@@ -2190,9 +2134,9 @@
   "both": {
    "hunks": 11,
    "plays_lines": 42,
-   "aristotle_lines": 321
+   "aristotle_lines": 331
   },
-  "same_lines": 34,
+  "same_lines": 33,
   "hunk_list": [
    {
     "cls": "both",
@@ -2202,10 +2146,10 @@
     ],
     "aristotle": [
      1,
-     51
+     53
     ],
     "pl": 3,
-    "al": 51,
+    "al": 53,
     "first": "// Search state for links and browser history. Defaults follow Search.svelte."
    },
    {
@@ -2215,8 +2159,8 @@
      5
     ],
     "aristotle": [
-     53,
-     89
+     55,
+     91
     ],
     "pl": 1,
     "al": 37,
@@ -2229,8 +2173,8 @@
      10
     ],
     "aristotle": [
-     94,
-     94
+     96,
+     96
     ],
     "pl": 1,
     "al": 1,
@@ -2243,8 +2187,8 @@
      11
     ],
     "aristotle": [
-     96,
-     97
+     98,
+     99
     ],
     "pl": 0,
     "al": 2,
@@ -2257,11 +2201,11 @@
      22
     ],
     "aristotle": [
-     99,
-     111
+     101,
+     114
     ],
     "pl": 10,
-    "al": 13,
+    "al": 14,
     "first": "engForms: boolean;"
    },
    {
@@ -2271,8 +2215,8 @@
      27
     ],
     "aristotle": [
-     115,
-     118
+     118,
+     121
     ],
     "pl": 2,
     "al": 4,
@@ -2285,8 +2229,8 @@
      30
     ],
     "aristotle": [
-     121,
-     228
+     124,
+     231
     ],
     "pl": 1,
     "al": 108,
@@ -2299,11 +2243,11 @@
      43
     ],
     "aristotle": [
-     231,
-     275
+     234,
+     279
     ],
     "pl": 11,
-    "al": 45,
+    "al": 46,
     "first": "if (!hasSearch(s)) return '';"
    },
    {
@@ -2313,8 +2257,8 @@
      48
     ],
     "aristotle": [
-     277,
-     284
+     281,
+     288
     ],
     "pl": 4,
     "al": 8,
@@ -2327,8 +2271,8 @@
      80
     ],
     "aristotle": [
-     286,
-     286
+     290,
+     290
     ],
     "pl": 31,
     "al": 1,
@@ -2341,8 +2285,8 @@
      101
     ],
     "aristotle": [
-     289,
-     289
+     293,
+     293
     ],
     "pl": 19,
     "al": 1,
@@ -2355,8 +2299,8 @@
      104
     ],
     "aristotle": [
-     293,
-     295
+     297,
+     299
     ],
     "pl": 0,
     "al": 3,
@@ -2369,8 +2313,8 @@
      109
     ],
     "aristotle": [
-     300,
-     300
+     304,
+     304
     ],
     "pl": 1,
     "al": 1,
@@ -2383,8 +2327,8 @@
      115
     ],
     "aristotle": [
-     303,
-     306
+     307,
+     310
     ],
     "pl": 4,
     "al": 4,
@@ -2394,15 +2338,15 @@
     "cls": "port",
     "plays": [
      117,
-     116
+     117
     ],
     "aristotle": [
-     308,
-     309
+     312,
+     313
     ],
-    "pl": 0,
+    "pl": 1,
     "al": 2,
-    "first": "s.punctuation = p.get('pu') === '1';"
+    "first": "s.langOp = p.get('op') === 'or' ? 'or' : 'and';"
    },
    {
     "cls": "both",
@@ -2411,11 +2355,11 @@
      120
     ],
     "aristotle": [
-     312,
-     354
+     315,
+     363
     ],
     "pl": 2,
-    "al": 43,
+    "al": 49,
     "first": "const ed = p.get('ed');"
    },
    {
@@ -2425,8 +2369,8 @@
      124
     ],
     "aristotle": [
-     356,
-     362
+     365,
+     371
     ],
     "pl": 3,
     "al": 7,
@@ -2439,8 +2383,8 @@
      172
     ],
     "aristotle": [
-     364,
-     363
+     373,
+     372
     ],
     "pl": 47,
     "al": 0,
@@ -2453,8 +2397,8 @@
      174
     ],
     "aristotle": [
-     366,
-     368
+     375,
+     377
     ],
     "pl": 0,
     "al": 3,
@@ -2464,7 +2408,7 @@
  },
  {
   "file": "shared/lib/search-pages.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/search-pages.ts",
   "plays": null,
   "aristotle": 57,
@@ -2473,16 +2417,16 @@
  },
  {
   "file": "shared/lib/chapter-pages.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/chapter-pages.ts",
   "plays": null,
-  "aristotle": 160,
+  "aristotle": 276,
   "base": null,
   "aristotle_before_redesign": null
  },
  {
   "file": "shared/lib/result-views.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/result-views.ts",
   "plays": null,
   "aristotle": 544,
@@ -2491,7 +2435,7 @@
  },
  {
   "file": "shared/lib/form-panel.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/form-panel.ts",
   "plays": null,
   "aristotle": 79,
@@ -2500,7 +2444,7 @@
  },
  {
   "file": "shared/lib/english-hit.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/english-hit.ts",
   "plays": null,
   "aristotle": 244,
@@ -2509,7 +2453,7 @@
  },
  {
   "file": "shared/lib/english-place.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/english-place.ts",
   "plays": null,
   "aristotle": 236,
@@ -2518,7 +2462,7 @@
  },
  {
   "file": "shared/lib/paired-hit.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/paired-hit.ts",
   "plays": null,
   "aristotle": 433,
@@ -2527,7 +2471,7 @@
  },
  {
   "file": "shared/lib/proximity-sentence.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/proximity-sentence.ts",
   "plays": null,
   "aristotle": 110,
@@ -2536,7 +2480,7 @@
  },
  {
   "file": "shared/lib/running-text.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/running-text.ts",
   "plays": null,
   "aristotle": 414,
@@ -2545,7 +2489,7 @@
  },
  {
   "file": "shared/lib/running-text.worker.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/running-text.worker.ts",
   "plays": null,
   "aristotle": 22,
@@ -2554,7 +2498,7 @@
  },
  {
   "file": "shared/lib/running-match.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/running-match.ts",
   "plays": null,
   "aristotle": 22,
@@ -2563,7 +2507,7 @@
  },
  {
   "file": "shared/lib/greek-keys.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/greek-keys.ts",
   "plays": null,
   "aristotle": 70,
@@ -2768,7 +2712,7 @@
  },
  {
   "file": "shared/lib/saved-searches.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/saved-searches.ts",
   "plays": null,
   "aristotle": 195,
@@ -2777,7 +2721,7 @@
  },
  {
   "file": "shared/lib/speakers.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/speakers.ts",
   "plays": 1453,
   "aristotle": 460,
@@ -3169,7 +3113,7 @@
  },
  {
   "file": "shared/lib/sect-ticks.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/sect-ticks.ts",
   "plays": null,
   "aristotle": 147,
@@ -3178,7 +3122,7 @@
  },
  {
   "file": "shared/lib/speaker-colors.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/speaker-colors.ts",
   "plays": 70,
   "aristotle": 70,
@@ -3234,7 +3178,7 @@
  },
  {
   "file": "shared/lib/corpus-tools.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/corpus-tools.ts",
   "plays": null,
   "aristotle": 214,
@@ -3243,7 +3187,7 @@
  },
  {
   "file": "shared/lib/inscription.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/inscription.ts",
   "plays": null,
   "aristotle": 17,
@@ -3252,7 +3196,7 @@
  },
  {
   "file": "shared/lib/data.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/data.ts",
   "plays": 1115,
   "aristotle": 874,
@@ -3798,7 +3742,7 @@
  },
  {
   "file": "shared/lib/works.ts",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/lib/works.ts",
   "plays": 647,
   "aristotle": 1597,
@@ -4610,7 +4554,7 @@
  },
  {
   "file": "shared/styles/global.css",
-  "base_rev": "cpr:233ec2547a",
+  "base_rev": "cpr",
   "plays_file": "shared/styles/global.css",
   "plays": 5808,
   "aristotle": 2454,
@@ -6511,5 +6455,14 @@
     "first": "body.lyceum-chrome.lyc-shell .page {"
    }
   ]
+ },
+ {
+  "file": "shared/lib/phrase-list.ts",
+  "base_rev": "cpr",
+  "plays_file": "shared/lib/phrase-list.ts",
+  "plays": null,
+  "aristotle": 79,
+  "base": null,
+  "aristotle_before_redesign": null
  }
 ]

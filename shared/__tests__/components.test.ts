@@ -257,8 +257,12 @@ vi.mock('../lib/search', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../lib/search')>();
   return {
     ...actual,
+    // The plays' old Near links open as proximity searches (search port).
+    searchCombo: vi.fn(async () => ({ results: [], failedWorks: [] })),
     search: vi.fn(async () => ({
+      // search port: the ported engine reports failedWorks (was failed).
       failed: [] as string[],
+      failedWorks: [] as string[],
       results: [
         {
           work: 'EN',
@@ -336,7 +340,7 @@ describe('Search.svelte', () => {
   it('labels each result group with its author, disambiguating two same-titled works', async () => {
     const { search } = await import('../lib/search');
     (search as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      failed: [],
+      failedWorks: [],
       results: [
         {
           work: 'FragA',
@@ -355,10 +359,10 @@ describe('Search.svelte', () => {
     await fireEvent.input(screen.getByLabelText('Greek'), { target: { value: 'panta' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Search' }));
 
-    // UI pass 2 (direction B): the title heads the group and the author leads
-    // the line beside it ("Heraclitus · …"), so the two still read apart.
-    await waitFor(() => expect(container.querySelectorAll('.grp h2')).toHaveLength(2));
-    const heads = Array.from(container.querySelectorAll('.grp h2')).map((h) => h.textContent ?? '');
+    // The ported page (search port): the title heads the play's group and
+    // the author leads the line beside it (.work-who), so the two read apart.
+    await waitFor(() => expect(container.querySelectorAll('h2.book-header')).toHaveLength(2));
+    const heads = Array.from(container.querySelectorAll('h2.book-header')).map((h) => h.textContent ?? '');
     expect(heads.some((t) => t.includes('Fragments') && t.includes('Heraclitus'))).toBe(true);
     expect(heads.some((t) => t.includes('Fragments') && t.includes('Empedocles'))).toBe(true);
   });
@@ -372,7 +376,8 @@ describe('Search.svelte', () => {
   // that stripped the trailing digit instead, yielding "B1"). The row must
   // now read as the bare fragment citation, with no "Chapter" prefix and no
   // truncated second token.
-  it('labels a dk fragment work\'s result group with the bare column, no "Chapter" prefix or truncated pairing', async () => {
+  // search port: not ported. The plays have no dk citation scheme; a play's hits group under its title and speeches.
+  it.skip('labels a dk fragment work\'s result group with the bare column, no "Chapter" prefix or truncated pairing', async () => {
     const { search } = await import('../lib/search');
     const { fetchBook, fetchSections } = await import('../lib/data');
 
@@ -423,7 +428,8 @@ describe('Search.svelte', () => {
   // "chapter"; this used to say "Chapter 1.1" for Cicero's De Officiis, which
   // is actually book 1 section 1), with the truncation bug also fixed for
   // its own dotted column ("4.23" no longer clipped to "4.2").
-  it('labels a book-section work\'s result group "Section", with its full untruncated column', async () => {
+  // search port: not ported. The plays have no book-section citation scheme; a play's hits group under its title and speeches.
+  it.skip('labels a book-section work\'s result group "Section", with its full untruncated column', async () => {
     const { search } = await import('../lib/search');
     const { fetchBook, fetchSections } = await import('../lib/data');
 
@@ -460,7 +466,8 @@ describe('Search.svelte', () => {
   // Regression test (finding 2, Sol review): a letter-scheme work's result
   // group heading hardcoded "Book" — Seneca's Epistle 47 showed "Book 47"
   // instead of "Letter 47".
-  it('labels a letter-scheme work\'s result group heading "Letter", not "Book"', async () => {
+  // search port: not ported. The plays have no letter citation scheme; a play's hits group under its title and speeches.
+  it.skip('labels a letter-scheme work\'s result group heading "Letter", not "Book"', async () => {
     const { search } = await import('../lib/search');
     const { fetchBook, fetchSections } = await import('../lib/data');
 
@@ -522,7 +529,7 @@ describe('Search.svelte partial index failures (Astra lane A, F10)', () => {
     const { search } = await import('../lib/search');
     (search as unknown as ReturnType<typeof vi.fn>).mockImplementation(async () => ({
       results: [hit],
-      failed: ['frogs'],
+      failedWorks: ['frogs'],
     }));
 
     const { container } = render(Search);
@@ -537,22 +544,22 @@ describe('Search.svelte partial index failures (Astra lane A, F10)', () => {
     expect(retry.getAttribute('type')).toBe('button');
   });
 
-  it('joins two skipped titles with a comma and three with an Oxford comma', async () => {
+  it('joins two skipped titles with "and" and three with an Oxford comma', async () => {
     const { search } = await import('../lib/search');
     const mockSearch = search as unknown as ReturnType<typeof vi.fn>;
-    mockSearch.mockImplementation(async () => ({ results: [hit], failed: ['agamemnon', 'frogs'] }));
+    mockSearch.mockImplementation(async () => ({ results: [hit], failedWorks: ['agamemnon', 'frogs'] }));
     const two = render(Search);
     const twoUi = within(two.container);
     await fireEvent.input(twoUi.getByLabelText('Greek'), { target: { value: 'logos' } });
     await fireEvent.click(twoUi.getByRole('button', { name: 'Search' }));
-    await waitFor(() => expect(two.container.textContent).toContain('Some plays could not be searched: Agamemnon, Frogs.'));
+    await waitFor(() => expect(two.container.textContent).toContain('Some plays could not be searched: Agamemnon and Frogs.'));
     two.unmount();
     // The first search is in the address now; start the second from a clean one.
     history.replaceState(null, '', '/');
 
     mockSearch.mockImplementation(async () => ({
       results: [hit],
-      failed: ['persians', 'agamemnon', 'frogs'],
+      failedWorks: ['persians', 'agamemnon', 'frogs'],
     }));
     const three = render(Search);
     const threeUi = within(three.container);
@@ -565,7 +572,7 @@ describe('Search.svelte partial index failures (Astra lane A, F10)', () => {
     const { search } = await import('../lib/search');
     (search as unknown as ReturnType<typeof vi.fn>).mockImplementation(async () => ({
       results: [hit],
-      failed: [],
+      failedWorks: [],
     }));
     const { container } = render(Search);
     const ui = within(container);
@@ -575,7 +582,11 @@ describe('Search.svelte partial index failures (Astra lane A, F10)', () => {
     expect(container.textContent).not.toContain('Some plays could not be searched');
   });
 
-  it('keeps Near under Advanced search, with headword checks for a lemma term', async () => {
+  // search port: the old Advanced search Near rows are gone; Aristotle's
+  // proximity editor replaced them, its lemma picker covered in
+  // search-port/s3-proximity-editor.test.ts, and an old link's nf= headwords
+  // in plays-old-links.test.ts.
+  it.skip('keeps Near under Advanced search, with headword checks for a lemma term', async () => {
     const { search } = await import('../lib/search');
     const mockSearch = search as unknown as ReturnType<typeof vi.fn>;
     mockSearch.mockClear();
@@ -608,37 +619,41 @@ describe('Search.svelte partial index failures (Astra lane A, F10)', () => {
     }
   });
 
-  it('reopens a third Near term from the address and searches with it', async () => {
-    const { search } = await import('../lib/search');
-    const mockSearch = search as unknown as ReturnType<typeof vi.fn>;
-    mockSearch.mockClear();
-    mockSearch.mockImplementation(async () => ({ results: [hit], failed: [] }));
+  // An old Near link opens as the proximity search it was (search port,
+  // decision 3), with the plays' Near rules on.
+  it('reopens a third Near term from an old address and searches with it', async () => {
+    const { searchCombo } = await import('../lib/search');
     history.replaceState(null, '', `/search?g=${encodeURIComponent('ὦ')}&n=f&nt=${encodeURIComponent('τέκνον')}&nr=a&nw=3&no=1&n2=g&ng2=case.voc`);
-    const { container } = render(Search);
-    await waitFor(() => expect(mockSearch).toHaveBeenCalled());
-    expect(mockSearch.mock.calls[0][8]).toMatchObject({
-      near: { kind: 'form', terms: ['τέκνον'], relation: 'after', window: 3, ordered: true },
-      nearMore: [{ kind: 'grammatical', query: { case: 'voc' }, relation: 'near' }],
-    });
-    expect((container.querySelector('select[aria-label="Term 3: kind of term"]') as HTMLSelectElement).value).toBe('grammatical');
-    expect((container.querySelector('select[aria-label="Term 3: case"]') as HTMLSelectElement).value).toBe('voc');
-    expect(container.textContent).toContain('In this order');
+    render(Search);
+    await waitFor(() => expect(searchCombo).toHaveBeenCalled());
+    const [slots, options] = vi.mocked(searchCombo).mock.calls[0];
+    expect(slots).toEqual([
+      { kind: 'form', terms: ['ὦ'] },
+      // In this order with "after" beside it: the lock wins and the relation
+      // reads as near (Aristotle's rule; the same hits, term 2 after term 1).
+      { kind: 'form', terms: ['τέκνον'], relation: 'near' },
+      { kind: 'grammatical', query: { case: 'voc' } },
+    ].map(slot => expect.objectContaining(slot)));
+    expect(options).toMatchObject({ window: 3, unit: 'words', ordered: true, distinctWords: true, fromNearerEnd: true, byFirstWord: true, preferCertain: true });
   });
 
-  it('reopens a shared address: the rows are restored and the search runs with them', async () => {
-    const { search } = await import('../lib/search');
-    const mockSearch = search as unknown as ReturnType<typeof vi.fn>;
-    mockSearch.mockClear();
-    mockSearch.mockImplementation(async () => ({ results: [hit], failed: [] }));
+  it('reopens a shared address: the proximity search runs, its English beside it, joined by "and"', async () => {
+    const { search, searchCombo } = await import('../lib/search');
     history.replaceState(null, '', `/search?g=${encodeURIComponent('μή')}&e=sword&ef=0&n=g&ng=mood.opt&nr=a&nw=1`);
-    const { container } = render(Search);
-    await waitFor(() => expect(mockSearch).toHaveBeenCalled());
-    const args = mockSearch.mock.calls[0];
-    expect(args[0]).toBe('μή');
+    render(Search);
+    await waitFor(() => expect(searchCombo).toHaveBeenCalled());
+    const [slots, options] = vi.mocked(searchCombo).mock.calls[0];
+    expect(slots).toEqual([expect.objectContaining({ kind: 'form', terms: ['μή'] }), expect.objectContaining({ kind: 'grammatical', query: { mood: 'opt' }, relation: 'after' })]);
+    expect(options).toMatchObject({ window: 1, unit: 'words' });
+    // The English runs beside it, as the old page ran it.
+    await waitFor(() => expect(search).toHaveBeenCalled());
+    const args = vi.mocked(search).mock.calls[0];
+    expect(args[0]).toBe('');
     expect(args[1]).toBe('sword');
-    expect(args[8]).toMatchObject({ engForms: false, near: { kind: 'grammatical', query: { mood: 'opt' }, relation: 'after', window: 1 } });
-    expect((container.querySelector('select[aria-label="Near: kind of term"]') as HTMLSelectElement).value).toBe('grammatical');
-    expect((container.querySelector('select[aria-label="Form: mood"]') as HTMLSelectElement).value).toBe('opt');
+    expect(args[7]).toBe(false);
+    expect((screen.getByLabelText('English') as HTMLTextAreaElement).value).toBe('sword');
+    // No op in an old link: "and", shown in the join between the boxes.
+    expect(document.querySelector('details.join summary b')?.textContent).toBe('and');
   });
 });
 
@@ -671,7 +686,8 @@ describe('Search.svelte — per-passage credit on English hits (finding 1)', () 
     english: { text: 'Plain translation, no credit.', notes: [], markers: [] },
   };
 
-  it('shows the translator and licence beside a credited English hit', async () => {
+  // search port: ported to search-port/s1-round1.test.ts, whose harness the new page renders in.
+  it.skip('shows the translator and licence beside a credited English hit', async () => {
     const { search } = await import('../lib/search');
     const { fetchBook } = await import('../lib/data');
     (fetchBook as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
@@ -699,7 +715,8 @@ describe('Search.svelte — per-passage credit on English hits (finding 1)', () 
 
   // The regression that matters: a hit with no column_sources credit at
   // all renders exactly as it did before this fix.
-  it('shows nothing beside an uncredited English hit', async () => {
+  // search port: ported to search-port/s1-round1.test.ts, whose harness the new page renders in.
+  it.skip('shows nothing beside an uncredited English hit', async () => {
     const { search } = await import('../lib/search');
     const { fetchBook } = await import('../lib/data');
     (fetchBook as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
@@ -724,7 +741,8 @@ describe('Search.svelte — per-passage credit on English hits (finding 1)', () 
     expect(container.querySelector('.inst-credit')).toBeNull();
   });
 
-  it('CSV export carries an Attribution column, filled only for the credited row', async () => {
+  // search port: ported to search-port/s1-round1.test.ts, whose harness the new page renders in.
+  it.skip('CSV export carries an Attribution column, filled only for the credited row', async () => {
     const { search } = await import('../lib/search');
     const { fetchBook } = await import('../lib/data');
     // mockResolvedValue (not -Once): exportCsv rebuilds groups over the FULL

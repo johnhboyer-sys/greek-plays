@@ -109,9 +109,10 @@ def _build(tmp_path, monkeypatch, *, edition=False, spine=None, unkeyed=False):
         "grammar": load("grammar-dict.json"),
         "column": (out / "grammar-col.bin").read_bytes(),
         "meta": load("meta.json"),
-        "english": load("english.json") if not edition else None,
-        "form": load("form.json"),
-        "lemma": load("lemma.json"),
+        "form": load("greek_form.json"),
+        "lemma": load("greek_lemma.json"),
+        "speeches": load("speeches.json"),
+        "running": load("running.json"),
         "out": out,
         "ngrams": (json.loads((build / "ngrams" / "TST.json").read_text(encoding="utf-8"))
                    if not edition else None),
@@ -231,7 +232,13 @@ def test_grammar_column_joins_tokens_by_global_offset(tmp_path, monkeypatch):
     assert grammar["sigs"][column[1]] == [{"marker": ["conj"]}]
     assert grammar["sigs"][column[2]] == [{"case": ["acc", "nom"], "gender": ["neut"], "number": ["sg"]}]
     assert column[0] == grammar["reserved"]["unanalysed"]
-    assert got["offsets"]["chapter_bounds"] == []
+    # No speaker cues: each book is one uncued speech, named by its first
+    # line, and no turn names a speaker.
+    assert got["offsets"]["chapter_bounds"] == [
+        {"book": 1, "chapter": "4", "start": 0, "accuracy": "exact"},
+        {"book": 2, "chapter": "1", "start": 16, "accuracy": "exact"},
+    ]
+    assert got["offsets"]["turn_bounds"] == []
 
 
 def test_offsets_preserve_transposed_and_noninteger_line_labels(tmp_path, monkeypatch):

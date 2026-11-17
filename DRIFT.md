@@ -1089,3 +1089,44 @@ CI had failed on every run since the first push (2026-09-09). The fixes:
 - `pipeline/drama_pipeline/{stage6_search,stage8_ngrams}.py`, `shared/lib/data.ts`, `shared/components/Phrases.svelte` — 2026-10-25 (John: "Do it"): the phrase index shows phrases with accents: as written, the commonest printed spelling; any form, the accented LSJ headwords (aristotle-reader shows the unaccented key). `shared/lib/search-url.ts` — the search's address uses short parameters (lp, n/nt/nr/nw/nu/no/ng, sh, en/enr/enw) in place of aristotle-reader's JSON.
 - `app/src/styles/reader-drama.css` — 2026-11-14: a verse translation's first line runs on from the speaker's name (each printed line was a block, so the name sat alone above); the paragraph carries the hanging indent; comparison unchanged.
 - `shared/components/Reader.svelte`, `app/src/styles/reader-drama.css` — 2026-11-14: a direction that opens a verse speech (Murray's `(sneering)`) runs in after the speaker's name, bracketed, and the first verse line follows on the same line.
+
+## Search port (2026-11-16): aristotle-reader's search page, origin/main 3fd71978e
+
+Rebuilt on Aristotle's files; the old search is kept under `shared/lib/legacy/` (`search.ts`, `search-advanced.ts`, `search-url.ts`) for `Phrases.svelte` and its tests (`shared/__tests__/legacy/`). Reader-facing "chapter" is "speech" throughout (John, 2026-11-16).
+
+- `shared/lib/search.ts` — replaced by aristotle-reader's; data through `data.ts` (`dataRoot`, `editionBase`); this repo's lemma-map pairs (`[fold, headword]`) read as folds; offsets `segments[i].refs` give the printed line ref (`offsetRef().ref`, play-line cites by it); crossTurn unset now crosses a speaker change (only `false` stops it; `plays-cross-turn.test.ts`); a Greek-only search may read a play's edition (`ed`, `edKey`, `greekEditionOf`, `SearchResult.ed`; `plays-edition-search.test.ts`).
+- `shared/lib/search-url.ts` — replaced by aristotle-reader's; adds `ed=` (written only with a Greek query or picks; `tlg` reads as none).
+- `shared/components/Search.svelte` — replaced by aristotle-reader's: speech for chapter in every string, `/search/how` for `/advanced`, no Authentic scope (`AUTH_SPLIT` false), play hits cited and linked by printed line ref, speech heads show speaker and first line ref; WordPopup without `rail`; no edition choice on the page yet (`ed: null`).
+- `shared/components/SavedSearches.svelte`, `app/src/pages/saved.astro` — new, from aristotle-reader, in this site's frame and the Vase's tokens.
+- `shared/lib/{search-pages,chapter-pages,phrase-list,result-views,form-panel,english-hit,english-place,paired-hit,running-text,running-text.worker,running-match,greek-keys,saved-searches}.ts` — new, copied from aristotle-reader unchanged.
+- `shared/lib/proximity-sentence.ts` — new, from aristotle-reader; its chapter unit reads "in the same speech".
+- `shared/lib/works.ts` — `narrator?`, `searchableTranslations`, `AUTHENTIC_IDS` (every play), `HAS_SPEAKERS = true`, `SEARCH_GROUPS` (by author) for the ported page.
+- `shared/lib/data.ts` — `isChapterSection` (always false), `GreekLine.sub`, `FlowTurn.es` and the sub/alt `es` types the ported page reads.
+- `shared/lib/betacode.ts` — `LIVE_RANK` exported, `liveGreek` keeps a wildcard `*` and takes digamma, `betaQueryToGreek` added, as aristotle-reader's.
+- `shared/lib/text.ts` — `esc` exported.
+- `shared/components/Phrases.svelte` — reads the legacy search's lemma options.
+- `shared/styles/vase-search.css` — new, aristotle-reader's `b-search.css` under `.vase-search` in the Vase's tokens (clay for red ink, `--hair`, `--hit`, Cardo and Alegreya Sans).
+- `app/src/pages/search.astro` — mounts the ported page with each play's `chapter-titles.json` (speech names) inside `.vase-search`.
+- `shared/__tests__/search-port/` — aristotle-reader's search tests against its own registry (`aristotle-works.ts`) and stubs; skips marked `// search port:`. Old tests of removed behaviour are `it.skip` with `// search-port lane 2:`.
+
+### Search port, lane 2: the plays' features on the ported page (2026-11-16)
+
+- `shared/lib/search.ts` — Near rules as `ComboOptions` switches (`distinctWords`, `fromNearerEnd`, `linesEitherSide`, `byFirstWord`, `preferCertain`; off keeps Aristotle's engine), a lemma phrase slot (`options`, `match`), `SearchResult.seg`, English near (`EngNear`, `englishNear`, `search(..., engNear)`), `lemmaHeads`; under `byFirstWord` a match the engine finds twice (two picked headwords on one word) is listed once.
+- `shared/lib/works.ts` — `NEAR_RULES` (all on) and `NEAR_WINDOW_DEFAULT = 10`; `search-port/aristotle-works.ts` sets them off and 5.
+- `shared/lib/search-url.ts` — reads the plays' old links (`n, nt, ng, nf, nr, nw, nu, no, n2, n3, sh, lp`, no `op` = "and"), writes English beside a proximity search, `en/enr/enw`, `cw` for lines either side, `q:` lemma phrase slots; `resolveUrlLemmas`.
+- `shared/lib/chapter-pages.ts` — a hit's speech is found by its segment index where it has one (Seven 803/810, Helen post 1226).
+- `shared/lib/english-hit.ts` — `englishMarked`/`markEnglishHtml` take extra runs (English near's word).
+- `shared/lib/running-text.ts` — results carry `seg`.
+- `shared/components/Search.svelte` — the plays' copy (plays, Line order, By play, Whole speech, δίκη/justice examples), hits as printed verse lines, speaker-coloured speech heads, English near row and English beside a proximity search (`ENGLISH_BESIDE_NEAR`), the edition select behind `PUBLIC_EDITIONS=1` (per-edition books, offsets, titles, `ed=…&view=greek` links), the failure notice with Retry, the plays' CSV columns with Attribution, per-passage credit, How to search / Phrase index links.
+- `shared/styles/vase-search.css` — `.vl`, `.ln`, `.work-who`, `.eng-near`, `.inst-credit`, `.sx-help-links`.
+
+### Search port, last cleanups (2026-11-17)
+
+- `shared/lib/english-place.ts`, `shared/lib/paired-hit.ts` — no longer copied unchanged: `lineTicks` moves a play's English ticks (the printed line, "810") to the running line number of the Greek line that prints it (796), so a unit's English is read at its own line; `unitAtEnglish` looks in the segment's own units, since two segments may print one column (Seven 810). Before, an English hit there showed no text (`plays-seven-810-english.test.ts`). Other schemes print no `ref` and read as before. A tick maps only onto Greek lines printed in number order (the longest rising run), so a line the edition prints out of order (Ag. 1290, El. 693) or two refs on one range line (IA 784-785) never sends the ticks backward; a tick that would fall joins the stretch before it (`plays-transposed-english.test.ts`); a tick past every in-order line (Libation Bearers 165) joins the segment's last line, never one past it (`plays-tick-in-segment.test.ts`).
+- `shared/components/Search.svelte` — the 100 page's summary drops line numbers and puts a space at each verse line's end (`summaryOf`); a running-text search with a chosen Greek edition says it read each play's main text, as the English and grammar searches do (`mainTextForRunning`; `plays-final-cleanups.test.ts`).
+- `shared/styles/vase-search.css` — the proximity editor's distance box (`.prox-win`) is 44px at every width, its line and number where they were.
+- `shared/__tests__/search-port/{s5a-phone,s5b-phone,search-display-bar}.test.ts` — rules the Vase dress replaced are claimed in the Vase's form (labels 15–16px in the UI face, no rule or shade, Cardo count, `--ref-col` columns); the 44px check names the Vase's switch, tick and count-split rules as parts, and `.prox-win` is no longer exempt.
+- `shared/lib/paired-hit.ts` — `bekkerEnglish` reads a line the translation ticks twice (two speakers share it, Ajax 591) from its first tick, so the first speaker's half is in the line's unit; before it was in none (574 such ticks in 29 plays; `plays-english-ticks-review.test.ts`).
+- `shared/components/Search.svelte` — "Show the whole speech" on a hit in one of two segments that print one column (Seven 803/810, Helen post 1226) shows only that segment's English (`plays-seven-810-english.test.ts`).
+- `shared/components/Search.svelte` — the picks of an old multiword lemma search (`lp=`) end when the Greek words or the match mode change, so retyping the old words or returning to any-form mode does not bring them back (`plays-review-fixes-page.test.ts`).
+- `shared/components/Search.svelte` — the `lp=` picks compare the words folded as the index keys them (`greekFold`), so changing only capitals, accents, or Beta Code for Greek keeps them, while a word the engine reads as a pattern or an invalid term (`compilePattern`, now exported from `search.ts`: wildcards, a leading * in Greek script, + | ( ) [ ] ^ $) makes another search and drops them (`plays-review-fixes-page.test.ts`).

@@ -42,7 +42,10 @@ def check_offsets(offsets: dict, segments: list[dict]) -> dict:
     not exist yet when stage 2 runs.
 
     A base that moves backwards or misses its segment's token count would
-    make every offset-based search read the wrong word. Drama has no chapters.
+    make every offset-based search read the wrong word. The plays' chapters
+    are their speeches (speeches.py): each book's first speech starts on the
+    book's first token, starts never go back and are all tokens, and a name
+    is used once per book (chapter-pages.ts finds a chapter by its name).
     """
     base = offsets["seg_base_offset"]
     coords = offsets["segments"]
@@ -104,10 +107,37 @@ def check_offsets(offsets: dict, segments: list[dict]) -> dict:
                 if to_local(base[i] + pos) != (i, pos):
                     problems.append(f"round-trip failed at seg {i} pos {pos}")
 
+    token_count = offsets["token_count"]
+    book_starts = {b["book"]: b["start"] for b in offsets.get("book_bounds", [])}
+    for key, label in (("chapter_bounds", "chapter"), ("turn_bounds", "speaker")):
+        prev = None
+        for c in offsets.get(key, []):
+            name = f"{key} {c['book']}.{c.get(label)}"
+            if not 0 <= c["start"] < max(token_count, 1):
+                problems.append(f"{name}: start {c['start']} out of range")
+            if prev is not None and c["start"] < prev:
+                problems.append(f"{name}: start {c['start']} before the bound above ({prev})")
+            prev = c["start"]
+    names: dict[int, set] = {}
+    first: dict[int, int] = {}
+    for c in offsets.get("chapter_bounds", []):
+        first.setdefault(c["book"], c["start"])
+        if c["chapter"] in names.setdefault(c["book"], set()):
+            problems.append(f"chapter {c['book']}.{c['chapter']}: name used twice")
+        names[c["book"]].add(c["chapter"])
+    for book, start in first.items():
+        if book_starts.get(book) != start:
+            problems.append(
+                f"book {book}: first chapter starts at {start}, not the book's first token "
+                f"{book_starts.get(book)}"
+            )
+
     return {
         "token_count": offsets["token_count"],
         "segments": len(segments),
         "round_trips_sampled": sampled,
+        "chapter_bounds": len(offsets.get("chapter_bounds", [])),
+        "turn_bounds": len(offsets.get("turn_bounds", [])),
         "problems": problems,
         "ok": not problems,
     }

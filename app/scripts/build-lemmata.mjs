@@ -187,7 +187,7 @@ function lsjHead(key, dir = 'lsj') {
 // The concordance below is a PAGES index: primary analysis only, stopwords
 // dropped, count >= MIN_COUNT. The combo-search lemma picker needs the opposite
 // — every headword a lemma search can actually match — so it is accumulated
-// separately here, by the same rule stage 6 uses to key search/lemma.json:
+// separately here, by the same rule stage 6 uses to key search/greek_lemma.json:
 // fold(every analysis's lemma), not just the primary one. Built from the same
 // walk, so there is no second pass over the corpus.
 //
@@ -350,7 +350,7 @@ mkdirSync(PICKER_OUT, { recursive: true });
 // when an analysis has none, so `n` is counted from the postings, and a key only
 // the index knows is listed under its fold rather than dropped.
 for (const w of worksGrc) {
-  const p = join(DATA, w, 'search', 'lemma.json');
+  const p = join(DATA, w, 'search', 'greek_lemma.json');
   if (!existsSync(p)) continue;
   for (const [f, posts] of Object.entries(JSON.parse(readFileSync(p, 'utf8')))) {
     pickerTokens.set(f, (pickerTokens.get(f) ?? 0) + posts.length);

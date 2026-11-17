@@ -7,7 +7,7 @@ does; both = both sides changed lines in the hunk, or base lines it spans
 (a deletion counts as a change). Prints JSON."""
 import difflib, json, subprocess, sys, os
 PLAYS = sys.argv[1]
-AR = os.path.expanduser('~/Developer/aristotle-reader')
+AR = os.environ.get('AR_REPO') or os.path.expanduser('~/Developer/aristotle-reader')  # a clone whose origin/main is current
 CPR = os.path.expanduser('~/Developer/classical-philosophy-reader')
 BASE, AR_OLD, AR_NEW = '233ec2547a', '6941109fb7', 'de57f687c6'
 def show(repo, rev, path):

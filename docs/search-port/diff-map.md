@@ -41,8 +41,8 @@ Aristotle's counting PR (`HANDOFF-SEARCH-FOLLOWUPS.md`, PR 1) and for John's two
 ## Headline
 
 - **Rebuild on Aristotle's file; don't port hunk by hunk.** Of the plays' 1,797 lines of
-  `Search.svelte`, 212 also appear in Aristotle's 5,442. 42 of the 77 hunks between them are
-  both-changed, and they hold 1,114 of the plays' lines. The engine under the page differs the same way
+  `Search.svelte`, 207 also appear in Aristotle's 5,882. 40 of the 73 hunks between them are
+  both-changed, and they hold 1,124 of the plays' lines. The engine under the page differs the same way
   (`search.ts` plus the plays' `search-advanced.ts`: 381 lines shared of 1,547). Aristotle's page also
   stands on 13 library files and two stylesheets the plays don't have.
 - **The plays' own search work is a short list:** about ten features (§4). Each comes back onto
@@ -80,13 +80,19 @@ ranges and its first line.
 
 ## 2. The files
 
+**Re-run 16 Nov, evening, against aristotle-reader `origin/main` `3fd71978e`** (after #197–#206). Since
+`de57f687c6`, nine shared files changed: `Search.svelte` (918 lines changed), `chapter-pages.ts`
+(160 → 276), `b-search.css`, `search-url.ts`, `search.ts`, and small edits; `phrase-list.ts` is new. The
+sort moved little (`Search.svelte` 207 lines in common, was 212), so the headline stands: rebuild.
+`hunks.py` reads the clone named by `AR_REPO`.
+
 Lines are plays / Aristotle. Hunk columns read "hunks: plays lines / Aristotle lines".
 
 | File (`shared/…`) | Plays | Aristotle | port | keep | both | Lines in common |
 |---|---|---|---|---|---|---|
-| `components/Search.svelte` | 1,797 | 5,442 | 19: 20 / 2,985 | 16: 451 / 83 | 42: 1,114 / 2,162 | 212 |
-| `lib/search.ts` (+ plays' `search-advanced.ts`) | 1,547 | 2,870 | 24: 40 / 771 | 4: 470 / 0 | 44: 656 / 1,718 | 381 |
-| `lib/search-url.ts` | 174 | 368 | 3: 1 / 5 | 5: 97 / 8 | 11: 42 / 321 | 34 |
+| `components/Search.svelte` | 1,797 | 5,882 | 18: 22 / 3,148 | 15: 444 / 83 | 40: 1,124 / 2,444 | 207 |
+| `lib/search.ts` (+ plays' `search-advanced.ts`) | 1,547 | 2,882 | 24: 40 / 774 | 4: 470 / 0 | 44: 656 / 1,727 | 381 |
+| `lib/search-url.ts` | 174 | 377 | 3: 2 / 5 | 5: 97 / 8 | 11: 42 / 331 | 33 |
 | `lib/betacode.ts` | 199 | 223 | 0 | 12: 12 / 36 | 0 | 187 |
 | `lib/speakers.ts` | 1,453 | 460 | 14: 22 / 30 | 9: 36 / 6 | 3: 978 / 7 | 417 |
 | `lib/speaker-colors.ts` | 70 | 70 | 0 | 2: 2 / 2 | 0 | 68 |
@@ -99,9 +105,10 @@ These files are new in Aristotle and absent from the plays. All are port:
 | File (`shared/…`) | Lines | What it does |
 |---|---|---|
 | `components/SavedSearches.svelte` | 141 | the `/saved` page |
-| `styles/b-search.css` | 2,237 | the search page's styles (B) |
+| `styles/b-search.css` | 2,293 | the search page's styles (B) |
 | `styles/b.css` | 1,391 | B's tokens and layout; the search stands on them |
-| `lib/chapter-pages.ts` | 160 | counting and paging by chapter, from the index alone |
+| `lib/chapter-pages.ts` | 276 | counting by chapter, the and / and/or / or split, rows a page |
+| `lib/phrase-list.ts` | 79 | the English phrase list, Exclude (ruling C, #202) |
 | `lib/search-pages.ts` | 57 | hit counts (`hitCount`, `engHitCount`) |
 | `lib/result-views.ts` | 544 | Group by (work, form, grammar), context, facets |
 | `lib/form-panel.ts` | 79 | the Filter panel's form list (excluded forms) |
@@ -165,11 +172,11 @@ Notes on the table:
 back one at a time.
 
 - **There is little left to merge.** 212 of 1,797 plays lines survive in Aristotle's file. A
-  hunk-by-hunk port would hand-resolve 42 both-changed hunks covering 1,114 lines, 62% of the plays' file, and
+  hunk-by-hunk port would hand-resolve 40 both-changed hunks covering 1,124 lines, 63% of the plays' file, and
   each one is two different designs, not two edits to one design.
 - **The plays' own work is easy to list.** It sits in a few places: the LSJ checks, the verse-line
   hits, the Near engine, the edition switch, and the How to search sheet (§4). A list can be
-  rebuilt and tested item by item; a merge of 77 hunks cannot be checked as easily.
+  rebuilt and tested item by item; a merge of 73 hunks cannot be checked as easily.
 - **The direction of travel.** Aristotle's file is where the follow-ups land: counting, phrase Include
   and Exclude, the page-67 fix. Plato's port will start from the same file. Rebuilding on it keeps the
   plays one diff from the other readers. A hunk port would leave a third design to keep in step by
