@@ -1,7 +1,7 @@
 [
   {
     "name": "Greek exact form",
-    "url": "http://localhost:4403/search?g=%CE%B4%CE%AF%CE%BA%CE%B7",
+    "url": "http://localhost:4406/search?g=%CE%B4%CE%AF%CE%BA%CE%B7",
     "total": 72,
     "plays": null,
     "speeches": 69,
@@ -15,7 +15,7 @@
   },
   {
     "name": "Greek lemma",
-    "url": "http://localhost:4403/search?g=%CE%B4%CE%AF%CE%BA%CE%B7&m=lemma",
+    "url": "http://localhost:4406/search?g=%CE%B4%CE%AF%CE%BA%CE%B7&m=lemma",
     "total": 424,
     "plays": null,
     "speeches": 361,
@@ -29,7 +29,7 @@
   },
   {
     "name": "Greek wildcard",
-    "url": "http://localhost:4403/search?g=%CF%86%CE%B9%CE%BB*",
+    "url": "http://localhost:4406/search?g=%CF%86%CE%B9%CE%BB*",
     "total": 1621,
     "plays": null,
     "speeches": 1206,
@@ -43,7 +43,7 @@
   },
   {
     "name": "Beta Code typed",
-    "url": "http://localhost:4403/search?g=dikh",
+    "url": "http://localhost:4406/search?g=dikh",
     "total": 72,
     "plays": null,
     "speeches": 69,
@@ -57,7 +57,7 @@
   },
   {
     "name": "Greek any word (lemma)",
-    "url": "http://localhost:4403/search?g=%CE%B8%CE%B5%CF%8C%CF%82+%CE%B4%CE%B1%CE%AF%CE%BC%CF%89%CE%BD&gm=any&m=lemma",
+    "url": "http://localhost:4406/search?g=%CE%B8%CE%B5%CF%8C%CF%82+%CE%B4%CE%B1%CE%AF%CE%BC%CF%89%CE%BD&gm=any&m=lemma",
     "total": 1999,
     "plays": null,
     "speeches": 1464,
@@ -71,7 +71,7 @@
   },
   {
     "name": "Greek phrase",
-    "url": "http://localhost:4403/search?g=%E1%BD%A6+%CE%96%CE%B5%E1%BF%A6&gm=phrase",
+    "url": "http://localhost:4406/search?g=%E1%BD%A6+%CE%96%CE%B5%E1%BF%A6&gm=phrase",
     "total": 82,
     "plays": null,
     "speeches": 80,
@@ -85,7 +85,7 @@
   },
   {
     "name": "Accents observed",
-    "url": "http://localhost:4403/search?g=%CF%86%CE%AF%CE%BB%CE%BF%CF%82&acc=1",
+    "url": "http://localhost:4406/search?g=%CF%86%CE%AF%CE%BB%CE%BF%CF%82&acc=1",
     "total": 102,
     "plays": null,
     "speeches": 96,
@@ -99,21 +99,21 @@
   },
   {
     "name": "English",
-    "url": "http://localhost:4403/search?e=justice",
+    "url": "http://localhost:4406/search?e=justice",
     "total": 246,
     "plays": null,
     "speeches": 246,
     "hits": null,
-    "pages": 8,
+    "pages": 9,
     "page1_rows": 40,
     "page1_greek_rows": 0,
     "page1_english_rows": 40,
     "notes": [],
-    "shown": "246 speeches · page 1 of 8"
+    "shown": "246 speeches · page 1 of 9"
   },
   {
     "name": "English phrase",
-    "url": "http://localhost:4403/search?e=woe+is+me&em=phrase",
+    "url": "http://localhost:4406/search?e=woe+is+me&em=phrase",
     "total": 149,
     "plays": null,
     "speeches": 149,
@@ -127,49 +127,49 @@
   },
   {
     "name": "English, no other forms",
-    "url": "http://localhost:4403/search?e=god&ef=0",
+    "url": "http://localhost:4406/search?e=god&ef=0",
     "total": 1279,
     "plays": null,
     "speeches": 1279,
     "hits": null,
-    "pages": 39,
+    "pages": 40,
     "page1_rows": 40,
     "page1_greek_rows": 0,
     "page1_english_rows": 40,
     "notes": [],
-    "shown": "1279 speeches · page 1 of 39"
+    "shown": "1279 speeches · page 1 of 40"
   },
   {
     "name": "Both, and",
-    "url": "http://localhost:4403/search?g=%CE%B4%CE%AF%CE%BA%CE%B7&m=lemma&e=justice",
+    "url": "http://localhost:4406/search?g=%CE%B4%CE%AF%CE%BA%CE%B7&m=lemma&e=justice",
     "total": 194,
     "plays": null,
     "speeches": 146,
     "hits": 194,
     "pages": 7,
     "page1_rows": 40,
-    "page1_greek_rows": 28,
-    "page1_english_rows": 12,
+    "page1_greek_rows": 25,
+    "page1_english_rows": 15,
     "notes": [],
     "shown": "146 speeches · 194 hits · page 1 of 7"
   },
   {
     "name": "Both, or",
-    "url": "http://localhost:4403/search?g=%CE%B4%CE%AF%CE%BA%CE%B7&m=lemma&e=justice&op=or",
+    "url": "http://localhost:4406/search?g=%CE%B4%CE%AF%CE%BA%CE%B7&m=lemma&e=justice&op=or",
     "total": 424,
     "plays": null,
     "speeches": 461,
     "hits": 424,
-    "pages": 15,
+    "pages": 16,
     "page1_rows": 40,
-    "page1_greek_rows": 24,
-    "page1_english_rows": 16,
+    "page1_greek_rows": 22,
+    "page1_english_rows": 18,
     "notes": [],
-    "shown": "461 speeches · 424 hits · page 1 of 15"
+    "shown": "461 speeches · 424 hits · page 1 of 16"
   },
   {
     "name": "Near: δίκη near θεός (lemmas)",
-    "url": "http://localhost:4403/search?g=%CE%B4%CE%AF%CE%BA%CE%B7&m=lemma&n=l&nt=%CE%B8%CE%B5%CF%8C%CF%82",
+    "url": "http://localhost:4406/search?g=%CE%B4%CE%AF%CE%BA%CE%B7&m=lemma&n=l&nt=%CE%B8%CE%B5%CF%8C%CF%82",
     "total": 74,
     "plays": null,
     "speeches": 65,
@@ -183,7 +183,7 @@
   },
   {
     "name": "Oresteia only",
-    "url": "http://localhost:4403/search?g=%CE%B4%CE%AF%CE%BA%CE%B7&m=lemma&w=agamemnon%2Clibation-bearers%2Ceumenides",
+    "url": "http://localhost:4406/search?g=%CE%B4%CE%AF%CE%BA%CE%B7&m=lemma&w=agamemnon%2Clibation-bearers%2Ceumenides",
     "total": 96,
     "plays": null,
     "speeches": 73,
@@ -197,7 +197,7 @@
   },
   {
     "name": "Murray OCT edition",
-    "url": "http://localhost:4403/search?g=%CE%B4%CE%AF%CE%BA%CE%B7&m=lemma&ed=murray-oct",
+    "url": "http://localhost:4406/search?g=%CE%B4%CE%AF%CE%BA%CE%B7&m=lemma&ed=murray-oct",
     "total": 424,
     "plays": null,
     "speeches": 361,
