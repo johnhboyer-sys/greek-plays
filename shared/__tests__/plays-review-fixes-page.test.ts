@@ -154,4 +154,27 @@ describe('review fix 4: an old multiword lemma search on the page', () => {
     expect(vi.mocked(search).mock.calls.at(-1)![11]).toBeUndefined();
     expect(window.location.search).not.toContain('lp=');
   });
+  it('does not bring the picks back after a mode change, or after the words change and return', async () => {
+    const { search } = await import('../lib/search');
+    window.history.replaceState(null, '', '/search?g=logou%20qeous&m=lemma&lp=logos~qea');
+    const { container } = render(Search);
+    await vi.waitFor(() => expect(search).toHaveBeenCalled());
+    const radio = (v: string) => container.querySelector(`input[name="matchmode"][value="${v}"]`) as HTMLInputElement;
+    const run = async () => { const n = vi.mocked(search).mock.calls.length; await fireEvent.submit(container.querySelector('form.search-form')!); await vi.waitFor(() => expect(vi.mocked(search).mock.calls.length).toBeGreaterThan(n)); };
+    await fireEvent.click(radio('form'));
+    await run();
+    await fireEvent.click(radio('lemma'));
+    await run();
+    expect(vi.mocked(search).mock.calls.at(-1)![11]).toBeUndefined();
+    expect(window.location.search).not.toContain('lp=');
+    // Words changed, searched, then the originals typed back.
+    window.history.replaceState(null, '', '/search?g=logou%20qeous&m=lemma&lp=logos~qea');
+    const input = container.querySelector('#grk-input') as HTMLInputElement;
+    await fireEvent.input(input, { target: { value: 'logou qeou' } });
+    await run();
+    await fireEvent.input(input, { target: { value: 'logou qeous' } });
+    await run();
+    expect(vi.mocked(search).mock.calls.at(-1)![11]).toBeUndefined();
+    expect(window.location.search).not.toContain('lp=');
+  });
 });

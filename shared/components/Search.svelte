@@ -3556,6 +3556,10 @@
   const pickWords = (q: string) => q.trim().split(/\s+/).filter(Boolean).join(' ');
   const grkPickNow = () => (grkPick && matchMode === 'lemma' && !soloLemmaActive && pickWords(grkQuery) === grkPick.query ? grkPick.picks : undefined);
 
+  // A change of words or mode ends the picks for good: coming back to the old
+  // words or mode does not bring them back.
+  $: if (grkPick && (matchMode !== 'lemma' || pickWords(grkQuery) !== grkPick.query)) grkPick = null;
+
   function currentSearch(): UrlSearch {
     return {
       grk: grkQuery, eng: engQuery, grkMode, engMode, matchMode, accent: accentSensitive, punctuation, caseExact, langOp, engForms,
