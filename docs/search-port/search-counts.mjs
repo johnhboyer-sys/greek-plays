@@ -34,7 +34,15 @@ const executablePath = process.env.CHROME_PATH || (existsSync(SHELL) ? SHELL : u
 
 const args = process.argv.slice(2);
 const flag = name => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : undefined; };
-if (!flag('--base') || !flag('--out')) throw new Error('Usage: --base URL --out FILE.json');
+if (!flag('--base') || !flag('--out')) throw new Error('Usage: --base URL --out FILE.json [--pages] [--extra "ctx=1&ps=20"] [--loads]');
+// --pages: walk every page and record its rows (reference and link), so two
+// builds can be compared row for row (compare-counts.mjs). --extra: settings
+// added to every search. --loads: record the play books (book-NN.json) page 1
+// fetches, with their bytes, until the network is quiet. From aristotle-reader
+// app/scripts/search-counts.mjs (PR #208).
+const walk = args.includes('--pages');
+const loads = args.includes('--loads');
+const extra = flag('--extra') ? new URLSearchParams(flag('--extra')) : null;
 
 const queries = [
   ['Greek exact form', { g: 'δίκη' }],
@@ -54,13 +62,43 @@ const queries = [
   ['Murray OCT edition', { g: 'δίκη', m: 'lemma', ed: 'murray-oct' }],
 ];
 
+// Every page's rows, from the first to the last, by the pager's Next.
+async function pageRows(page) {
+  const rows = [];
+  for (let i = 1; ; i++) {
+    await page.waitForFunction(n => {
+      const status = document.querySelector('.pager-status')?.textContent ?? '';
+      return document.querySelectorAll('li.instance').length > 0 && !/Loading/.test(status)
+        && (n === 1 || status.startsWith(`Page ${n} `));
+    }, i, { timeout: 120000 });
+    rows.push(await page.$$eval('li.instance', lis => lis.map(li => {
+      const a = li.querySelector('a.inst-ref, a.cmp-ref, .cmp-ref');
+      return `${a?.textContent?.trim()} ${a?.getAttribute?.('href') ?? ''}`;
+    })));
+    const next = page.locator('button.pager-next').first();
+    if (!(await next.count()) || await next.isDisabled()) break;
+    await next.click();
+  }
+  return rows;
+}
+
 const browser = await resolvePlaywright().chromium.launch({ headless: true, executablePath });
 const results = [];
 try {
   const page = await browser.newPage();
   for (const [name, params] of queries) {
     try {
-      const url = new URL(`/search?${new URLSearchParams(params)}`, flag('--base')).href;
+      const query = new URLSearchParams(params);
+      if (extra) for (const [k, v] of extra) query.set(k, v);
+      const url = new URL(`/search?${query}`, flag('--base')).href;
+      const books = new Map();
+      const onResponse = async r => {
+        const m = /\/data\/([^/]+)\/(?:ed\/[^/]+\/)?book-\d+\.json/.exec(r.url());
+        if (!m) return;
+        const body = await r.body().catch(() => null);
+        books.set(r.url(), { play: m[1], bytes: body ? body.length : 0 });
+      };
+      if (loads) page.on('response', onResponse);
       await page.goto(url);
       // Done when the bar is up and page 1's rows have loaded (or an error shows).
       await page.waitForFunction(() => {
@@ -108,6 +146,16 @@ try {
       // not an error (Search.svelte: failedWorks, pageError). Reject it.
       const failed = counts.notes.filter(n => /could not be searched|didn.t load/i.test(n));
       if (failed.length) throw new Error(`partial results: ${failed.join(' | ')}`);
+      if (loads) {
+        await page.waitForLoadState('networkidle');
+        await page.waitForTimeout(1500);
+        page.off('response', onResponse);
+        // A play's reader is /read/<author>/<play>: the play is the second part.
+        const drawn = await page.$$eval('li.instance a.inst-ref, li.instance a.cmp-ref', as => [...new Set(as.map(a => /\/read\/[^/?#]+\/([^/?#]+)/.exec(a.getAttribute('href') ?? '')?.[1]).filter(Boolean))].sort());
+        const read = [...new Set([...books.values()].map(b => b.play))].sort();
+        counts.page1_loads = { books: books.size, plays: read.length, bytes: [...books.values()].reduce((n, b) => n + b.bytes, 0), drawn_plays: drawn.length, read, drawn };
+      }
+      if (walk) counts.rows = await pageRows(page);
       results.push({ name, url, ...counts });
       console.log(name, counts.shown, `rows ${counts.page1_rows}`);
     } catch (error) { throw new Error(`${name}: ${error.message}`, { cause: error }); }
