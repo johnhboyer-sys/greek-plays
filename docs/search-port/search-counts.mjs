@@ -73,6 +73,10 @@ try {
         const live = document.querySelector('p.sr-only[role="status"]');
         if (live && (!live.textContent.trim() || /Searching/.test(live.textContent))) return false;
         if (bar === 'No passages found.') return true;
+        // Rows fill as books load (Aristotle's ruling D): the pager reads
+        // "page 1 of …" until every book is in.
+        const full = document.querySelector('.result-count').getAttribute('title') || bar;
+        if (/of …/.test(full)) return false;
         const status = document.querySelector('.pager-status')?.textContent ?? '';
         return !/Loading/.test(status) && document.querySelectorAll('li.instance').length > 0;
       }, null, { timeout: 120000 });
