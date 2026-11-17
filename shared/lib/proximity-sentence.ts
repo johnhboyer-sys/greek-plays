@@ -5,6 +5,10 @@
 // or ἡδονή"; ", in authentic works" (or the In value) closes it when the
 // search is not over all works.
 import { comboGroups, type GrammarQuery, type SlotKind, type SlotRelation, type WindowUnit } from './search';
+import { NEAR_RULES } from './works';
+
+// The plays' lines unit: lines either side of the first word's, 0 the same line.
+const LINES_EITHER_SIDE = (NEAR_RULES as { linesEitherSide?: boolean }).linesEitherSide === true;
 
 export interface SentenceTerm {
   kind: SlotKind;
@@ -85,7 +89,8 @@ export function proximitySentence(
   let first = '';
   if (groups.length > 1) {
     const distance = opts.unit === 'words' ? `within ${opts.window} word${opts.window === 1 ? '' : 's'}`
-      : opts.unit === 'line' ? 'in the same line'
+      : opts.unit === 'line' ? (!LINES_EITHER_SIDE ? 'in the same line'
+        : opts.window > 0 ? `within ${opts.window} line${opts.window === 1 ? '' : 's'}` : 'on the same line')
       // The plays' chapter is the speech (John, 16 Nov).
       : opts.unit === 'chapter' ? 'in the same speech'
       : 'in the same speech';

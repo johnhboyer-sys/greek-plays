@@ -309,6 +309,20 @@ def test_stale_speeches_are_refused(tmp_path):
         emit_translation_indexes(work, speeches)
 
 
+def test_a_play_missing_its_speeches_fails_the_build(tmp_path):
+    # Review fix 8: a missing speeches.json read as no speeches.
+    from drama_pipeline.stage7_emit import load_speeches
+    (tmp_path / "stage6").mkdir()
+    with pytest.raises(FileNotFoundError, match="speeches.json"):
+        load_speeches(tmp_path, play_line=True)
+    # An empty list would skip stage 6's stale-speech check: refused too.
+    (tmp_path / "stage6" / "speeches.json").write_text("[]", encoding="utf-8")
+    with pytest.raises(ValueError, match="no speeches"):
+        load_speeches(tmp_path, play_line=True)
+    (tmp_path / "stage6" / "speeches.json").write_text('[{"name": "1"}]', encoding="utf-8")
+    assert load_speeches(tmp_path, play_line=True) == [{"name": "1"}]
+
+
 # -- Stage 9 -----------------------------------------------------------------
 
 def test_shards_take_aristotles_sources_vocab_and_accents(tmp_path):

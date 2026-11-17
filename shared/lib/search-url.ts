@@ -54,6 +54,10 @@ import { AUTHENTIC_IDS, HAS_SPEAKERS, NEAR_RULES, NEAR_WINDOW_DEFAULT } from './
 //   en, enr, enw  the plays' English near: the near word or phrase, b | a
 //            (before, after; none = near), and the distance in words
 //            (default 10). Written beside e, and with a proximity search
+//   ed       the plays' Greek edition, on any search it was chosen for
+//   lp       the plays' lemma search of several words: each word's ticked
+//            headwords, folds joined by ".", words by "~" (the old page's
+//            form; an empty word is looked up as typed)
 //
 // The plays (search port): a proximity search keeps the English box beside
 // it (e, em, ef, op, t, xp), joined by speech; the window opens at 10 words
@@ -137,6 +141,10 @@ export interface UrlSearch {
   ed: string | null;
   // The plays' English near (en=); null for none.
   engNear: EngNear | null;
+  // The plays: a lemma search of several words, each word's ticked headwords
+  // (lp=, as the old page wrote it); a word's empty list is looked up as typed.
+  // Absent for none.
+  lemmaPick?: string[][];
 }
 
 export const emptyUrlSearch = (allWorks: string[]): UrlSearch => ({
@@ -305,6 +313,7 @@ export function encodeSearchUrl(s: UrlSearch, allWorks: string[]): string {
     if (combo.window !== windowDefault(combo.unit)) put('cw', String(combo.window));
     if (combo.ordered) put('co', '1');
     if (!combo.crossChapter) put('cx', '0');
+    if (s.ed) put('ed', s.ed);
     if (eng && LINES_EITHER_SIDE) english(true);
   } else {
     if (s.lemmas.length) put('l', s.lemmas.join(','));
@@ -317,9 +326,10 @@ export function encodeSearchUrl(s: UrlSearch, allWorks: string[]): string {
       put('m', s.matchMode === 'headword' ? 'lemma' : s.matchMode);
       if (s.accent) put('acc', '1');
       if (text && s.punctuation) put('pu', '1');
+      if (s.matchMode === 'lemma' && s.lemmaPick?.some(f => f.length)) put('lp', s.lemmaPick.map(f => f.join('.')).join('~'));
     }
     if ((s.lemmas.length || grk) && s.xforms.length) put('xf', s.xforms.join(','));
-    if ((s.lemmas.length || grk) && s.ed) put('ed', s.ed);
+    if ((s.lemmas.length || grk || eng) && s.ed) put('ed', s.ed);
     if (eng) english(!!(s.lemmas.length || grk));
   }
   if (combo && s.trans && !(eng && LINES_EITHER_SIDE)) put('t', s.trans);
@@ -547,6 +557,9 @@ function decodeOldPlays(p: URLSearchParams, s: UrlSearch): void {
     s.lemmas = lp[0];
     s.grk = '';
   }
+  // Several words: each searched by its ticked headwords, as the old engine
+  // searched them (legacy search.ts lemmaPick).
+  if (lemma && typed.length > 1 && lp?.some(f => f.length)) s.lemmaPick = typed.map((_, i) => lp[i] ?? []);
 }
 
 /** The headwords of each old-link lemma term (resolve) and of each word of a

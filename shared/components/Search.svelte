@@ -133,9 +133,9 @@
     // The chapter the hit is counted in (chapterPlaces), which it is drawn
     // under, on that chapter's page.
     ch?: ChapterAt;
-    // Greek hits: the segment the token stands in, for its readings, and the
-    // token as printed and folded, for the form view (greekFold of the
-    // surface is the form index's key).
+    // The segment the hit stands in (a Greek hit's token, for its readings;
+    // an English hit's unit), and a Greek hit's token as printed and folded,
+    // for the form view (greekFold of the surface is the form index's key).
     seg?: string;
     surface?: string;
     form?: string;
@@ -258,6 +258,9 @@
   // The plays keep the English box beside a proximity search (search port,
   // decision 2); Aristotle's page sets it aside. On with the plays' Near rules.
   const ENGLISH_BESIDE_NEAR = NEAR_RULES.linesEitherSide === true;
+  // The plays' lines unit: 0 (the same line) to 10 lines either side.
+  const LINES_EITHER_SIDE = NEAR_RULES.linesEitherSide === true;
+  const LINES_MAX = 10;
   const isBoth = (s: UrlSearch | null) => !!s?.eng.trim() && (!!s?.grk.trim() || !!s?.lemmas.length || (ENGLISH_BESIDE_NEAR && !!s?.combo));
   $: bothSearch = isBoth(lastSearch);
   $: engSearch = !!lastSearch?.eng.trim() && !bothSearch;
@@ -291,6 +294,11 @@
   let failedWorks: string[] = [];         // works whose index didn't load this run
   // The plays: plays that hold the chosen Greek edition, searched in it without Near.
   let unsupportedWorks: string[] = [];
+  // Plays holding the chosen edition that were searched in their main text
+  // (SearchOutcome.mainText), and why: the search had English, else Near
+  // opened on a grammar term.
+  let mainTextWorks: string[] = [];
+  let mainTextForEnglish = false;
   // Works whose turn starts are line-precise only; set solely when the query
   // depends on where a speech begins, so it is never noise.
   let approximateTurns: string[] = [];
@@ -1682,6 +1690,8 @@
   }
   // The plays' Near opens at 10 words (works.ts NEAR_WINDOW_DEFAULT).
   let comboWindow = NEAR_WINDOW_DEFAULT;
+  // The plays' lines either side, kept apart from the words (review fix 7).
+  let comboLines = 0;
   let comboUnit: WindowUnit = 'words';
   let comboOrdered = false;
   let comboCrossChapter = true;
@@ -1748,8 +1758,9 @@
   $: comboActive = comboReady && (advancedOpen || proxOn);
   let narrowPrompt = false;
   // The plays' Near rules ride on every proximity search (works.ts NEAR_RULES).
+  $: comboWindowNow = LINES_EITHER_SIDE && comboUnit === 'line' ? comboLines : comboWindow;
   $: comboOptions = {
-    window: comboWindow,
+    window: comboWindowNow,
     unit: comboUnit,
     ordered: comboLocked,
     crossChapter: comboCrossChapter,
@@ -1765,7 +1776,7 @@
       || (groups.length === 1 && groups[0].relation !== 'not' && groups[0].members.every(m => m.editor.kind === 'grammatical'));
     return ready ? { slots: flatSlots(groups, urlSlot), window, unit, ordered: locked, crossChapter } : null;
   }
-  $: comboNow = editorCombo(comboEditors, comboWindow, comboUnit, comboLocked, comboCrossChapter);
+  $: comboNow = editorCombo(comboEditors, comboWindowNow, comboUnit, comboLocked, comboCrossChapter);
   const comboKey = (c: UrlCombo | null | undefined) => (c ? JSON.stringify(c) : '');
   // What the proximity search shown is, in one sentence; and the editor's,
   // when it differs and is not yet searched (d28).
@@ -1857,6 +1868,7 @@
     advancedOpen = false;
     comboEditors = [newComboEditor('lemma'), newComboEditor('lemma')];
     comboWindow = NEAR_WINDOW_DEFAULT;
+    comboLines = 0;
     comboUnit = 'words';
     comboOrdered = false;
     comboCrossChapter = true;
@@ -1956,6 +1968,9 @@
   function setComboText(id: number, text: string) {
     const editor = comboEditors.find((slot) => slot.id === id);
     if (!editor) return;
+    // A headword phrase's headwords belong to the words they were found for:
+    // new words are a phrase as typed (review fix 2).
+    if (editor.options && text !== editor.text) delete editor.options;
     editor.text = text;
     comboEditors = [...comboEditors];
   }
@@ -2228,10 +2243,12 @@
   }
 
   function clampComboWindow() {
-    // Lines on either side: 0 (the same line) to 10; words: 1 to 50.
-    comboWindow = comboUnit === 'line'
-      ? Math.max(0, Math.min(Math.trunc(Number(comboWindow)) || 0, 10))
-      : Math.max(1, Math.min(Number(comboWindow) || NEAR_WINDOW_DEFAULT, COMBO_WINDOW_MAX));
+    // Words: 1 to 50.
+    comboWindow = Math.max(1, Math.min(Number(comboWindow) || NEAR_WINDOW_DEFAULT, COMBO_WINDOW_MAX));
+  }
+  function clampComboLines() {
+    // Lines on either side: 0 (the same line) to 10.
+    comboLines = Math.max(0, Math.min(Math.trunc(Number(comboLines)) || 0, LINES_MAX));
   }
 
   // Shared option list for the per-language mode selectors.
@@ -2931,6 +2948,20 @@
       if (!ix) { ix = pairUnits(books.get(pair)!, translationsOf(work)); pairIx.set(pair, ix); }
       return ix;
     };
+    // The segment each unit stands in, by the tokens it owns (a whole-section
+    // unit, by its segment): built once a book.
+    const unitSegs = new Map<string, Map<PairUnit, Segment>>();   // work:book
+    const segOfUnit = (pair: string, ix: PairIndex, unit: PairUnit): Segment | undefined => {
+      let m = unitSegs.get(pair);
+      if (!m) {
+        m = new Map();
+        const byId = new Map(books.get(pair)!.segments.map(s => [s.id, s]));
+        for (const [id, units] of ix.owners) for (const u of units) if (u && !m.has(u)) m.set(u, byId.get(id)!);
+        for (const [id, u] of ix.whole) if (!m.has(u)) m.set(u, byId.get(id)!);
+        unitSegs.set(pair, m);
+      }
+      return m.get(unit);
+    };
 
     // A translation's texts for a segment, each with the section its words
     // lie in: cut by unit where they can be (unitPieces), else as the index
@@ -3194,11 +3225,13 @@
             const inUnit = engByUnit.get(unit) ?? engByUnit.set(unit, new Map()).get(unit)!;
             let inst = inUnit.get(at.key);
             if (!inst) {
-              const unitSeg = books.get(pair)!.segments.find(x => x.column === unit.section) ?? seg;
+              // The segment the unit stands in, by id: two segments may print
+              // one ref (Seven's 810, Helen's 1226), review fix 3.
+              const unitSeg = segOfUnit(pair, ix, unit) ?? seg;
               const engRef = playLine(r.work)
                 ? printedRefOf(unitSeg, hitLine) ?? printedRefOf(unitSeg, line) ?? unit.section
                 : formatCite(r.work, unit.section, englishCiteLine(r.work, books.get(pair)!.turnFlow, line));
-              inst = { lang: 'eng', work: r.work, book: r.meta.book, column: unit.section, line, ref: engRef, html: '', jumpUrl: '', rows: [], unit, at: unit.first, ch: at,
+              inst = { lang: 'eng', work: r.work, book: r.meta.book, column: unit.section, line, ref: engRef, html: '', jumpUrl: '', rows: [], unit, at: unit.first, ch: at, seg: unitSeg.id,
                 ...(playLine(r.work) ? { docOrder: verseOf(books.get(pair)!).base.get(unitSeg.id) ?? 0 } : {}), pairGreek: books.get(pair)!.turnFlow ? undefined : pairGreekHtml(r.work, seg, greekWindow, true) };
               inUnit.set(at.key, inst);
               made.push({ work: r.work, book: r.meta.book, inst });
@@ -3231,7 +3264,7 @@
       const grk = firstGrk.get(inst.unit!)?.get(inst.ch!.key);
       if (grk) { grk.rows = inst.rows; merged.add(inst); }
       else {
-        const seg = books.get(`${work}:${book}`)?.segments.find(x => x.column === inst.unit!.section);
+        const seg = books.get(`${work}:${book}`)?.segments.find(x => x.id === inst.seg);
         inst.pairGreek = inst.pairGreek || (seg && pairGreekHtml(work, seg, pairContext(pairsOf(`${work}:${book}`, work), seg, inst.unit!, textContext), !books.get(`${work}:${book}`)!.turnFlow)) || undefined;
       }
     }
@@ -3348,8 +3381,7 @@
     // A section a chapter starts in is filed once in each chapter, with
     // that chapter's hits. A Greek hit names its segment: two segments of a
     // play may share a column (Seven's 803 and 810).
-    // An English hit names only its column: it goes with the first segment
-    // that has it, as a Greek hit there without a segment would.
+    // An English hit names the segment its unit stands in.
     for (const { work, book, inst } of placed) {
       const segId = inst.seg ?? books.get(`${work}:${book}`)?.segments.find(x => x.column === inst.column)?.id;
       const key = `${work}:${book}:${segId ?? inst.column}:${inst.ch!.key}`;
@@ -3512,6 +3544,13 @@
   // and the URL keeps the search they were taken from.
   const WORK_IDS = WORKS.map(w => w.id);
   let lastSearch: UrlSearch | null = null;   // the submitted search, as written
+  // The plays: an old address's ticked headwords for each word of a lemma
+  // search (lp=), held for the words they were ticked for: retyping the box
+  // or leaving lemma mode drops them, as the old page's picks were dropped
+  // when the words changed (review fix 4).
+  let grkPick: { query: string; picks: string[][] } | null = null;
+  const pickWords = (q: string) => q.trim().split(/\s+/).filter(Boolean).join(' ');
+  const grkPickNow = () => (grkPick && matchMode === 'lemma' && !soloLemmaActive && pickWords(grkQuery) === grkPick.query ? grkPick.picks : undefined);
 
   function currentSearch(): UrlSearch {
     return {
@@ -3525,6 +3564,7 @@
       xforms: [],
       xphrases: [],
       lemmas: [...soloLemma.picked],
+      ...(!comboActive && grkPickNow() ? { lemmaPick: grkPickNow() } : {}),
       combo: comboActive ? comboNow : null,
       speaker: speakerFilter ?? null,
       view,
@@ -3573,6 +3613,7 @@
   // plain search clears what a later one set.
   function applySearch(s: UrlSearch) {
     grkQuery = s.grk;
+    grkPick = s.lemmaPick ? { query: pickWords(s.grk), picks: s.lemmaPick.map(f => [...f]) } : null;
     engQuery = s.eng;
     grkMode = s.grkMode;
     engMode = s.engMode;
@@ -3605,7 +3646,9 @@
     // there, the relations reading as near (the old editor's rule).
     if (combo?.ordered && orderSet(eds)) for (const ed of eds) if (ed.relation === 'before' || ed.relation === 'after') ed.relation = 'near';
     comboEditors = eds;
-    comboWindow = combo?.window ?? NEAR_WINDOW_DEFAULT;
+    const inLines = LINES_EITHER_SIDE && combo?.unit === 'line';
+    comboWindow = (!inLines && combo?.window) || NEAR_WINDOW_DEFAULT;
+    comboLines = inLines ? combo!.window : 0;
     comboUnit = combo?.unit ?? 'words';
     comboOrdered = combo?.ordered ?? false;
     comboCrossChapter = combo?.crossChapter ?? true;
@@ -3785,6 +3828,7 @@
     error = '';
     failedWorks = [];
     unsupportedWorks = [];
+    mainTextWorks = [];
     unsearched = [];
     unresolved = [];
     approximateTurns = [];
@@ -3835,7 +3879,7 @@
         langOp,
         speaker: speakerFilter,
       };
-      const { results: found, failedWorks: failed, approximateTurns: approximate, approximateChapters: chaptersApproximate, unsearchedTranslations, unresolvedTerms, unnarrowed, unsupported } = comboActive
+      const { results: found, failedWorks: failed, approximateTurns: approximate, approximateChapters: chaptersApproximate, unsearchedTranslations, unresolvedTerms, unnarrowed, unsupported, mainText } = comboActive
         ? await searchComboEnglish(works)
         // Picked headwords are OR-ed: choosing two spellings of one word, or two
         // homonyms, asks for either, never for both in the same passage.
@@ -3847,7 +3891,7 @@
           ? await search(soloLemma.picked.join(' '), engQuery, 'any', engMode, 'or', works, 'headword', engForms, speakerFilter, greekEd, engNearNow)
           : runningText
             ? await searchText(works, run)
-            : await search(grkQuery, engQuery, grkMode, engMode, 'or', works, matchMode === 'text' ? 'lemma' : matchMode, engForms, speakerFilter, greekEd, engNearNow);
+            : await search(grkQuery, engQuery, grkMode, engMode, 'or', works, matchMode === 'text' ? 'lemma' : matchMode, engForms, speakerFilter, greekEd, engNearNow, lastSearch.lemmaPick);
       if (run !== searchRun) return;
       // Accents and case exact: filtered before anything counts the results.
       const results = await exactFilter(found, searchCtx);
@@ -3861,6 +3905,8 @@
       if (fromEditor && advancedOpen) void foldEditor();
       failedWorks = failed;
       unsupportedWorks = unsupported ?? [];
+      mainTextWorks = mainText ?? [];
+      mainTextForEnglish = !!searchCtx.engQuery;
       approximateTurns = approximate ?? [];
       approximateChapters = chaptersApproximate ?? [];
       unresolved = unresolvedTerms ?? [];
@@ -3927,10 +3973,13 @@
   // then settled by speech (joined).
   async function searchComboEnglish(works: string[]): Promise<SearchOutcome> {
     // A play that holds the chosen Greek edition is searched in it without Near.
-    const grk = await searchComboInEdition(comboSearchSlots, comboOptions, works, greekEd, engForms, searchCombo);
-    if (!ENGLISH_BESIDE_NEAR || !engQuery.trim() || grk.unnarrowed) return grk;
+    // With English, every play is read in its main text, the text the
+    // English is aligned to (review fix 1).
+    const english = ENGLISH_BESIDE_NEAR && !!engQuery.trim();
+    const grk = await searchComboInEdition(comboSearchSlots, comboOptions, works, greekEd, engForms, searchCombo, english);
+    if (!english || grk.unnarrowed) return grk;
     const eng = await search('', engQuery, grkMode, engMode, 'or', works, 'lemma', engForms, speakerFilter, null, engNearNow);
-    return { ...joinEnglish(grk, eng, 'or'), approximateTurns: grk.approximateTurns, approximateChapters: grk.approximateChapters, unsupported: grk.unsupported };
+    return { ...joinEnglish(grk, eng, 'or'), approximateTurns: grk.approximateTurns, approximateChapters: grk.approximateChapters, unsupported: grk.unsupported, mainText: grk.mainText };
   }
 
   // Greek keyword-in-context: a window of surface tokens around the match,
@@ -5276,14 +5325,20 @@
                       <span>within</span>
                       <input type="number" class="prox-win" min="1" max={COMBO_WINDOW_MAX} aria-label="Distance in words"
                         bind:value={comboWindow} on:blur={clampComboWindow} />
+                    {:else if comboUnit === 'line' && LINES_EITHER_SIDE}
+                      <!-- The plays: lines either side of term 1's line, 0 the same line. -->
+                      <span>within</span>
+                      <input type="number" class="prox-win" min="0" max={LINES_MAX} aria-label="Distance in lines"
+                        title="Lines either side; 0 is the same line" bind:value={comboLines} on:blur={clampComboLines} />
                     {:else}
                       <span>in</span>
                     {/if}
                     <span class="prox-sel">
-                      <span class="prox-selv" aria-hidden="true">{comboUnit === 'words' ? 'words' : comboUnit === 'line' ? 'the same line' : 'the same speech'}</span>
-                      <select aria-label="Distance measured in" bind:value={comboUnit}>
+                      <span class="prox-selv" aria-hidden="true">{comboUnit === 'words' ? 'words' : comboUnit === 'line' ? (LINES_EITHER_SIDE ? (comboLines === 1 ? 'line' : 'lines') : 'the same line') : 'the same speech'}</span>
+                      <select aria-label="Distance measured in" value={comboUnit}
+                        on:change={(e) => (comboUnit = e.currentTarget.value as WindowUnit)}>
                         <option value="words">words</option>
-                        <option value="line">the same line</option>
+                        <option value="line">{LINES_EITHER_SIDE ? 'lines' : 'the same line'}</option>
                         {#if comboUnit === 'chapter'}<option value="chapter">the same speech</option>{/if}
                       </select>
                     </span>
@@ -5935,7 +5990,7 @@
             {#if paged}{@render pager('')}{/if}
           </div>
         {/if}
-        {#if failedWorks.length || unsupportedWorks.length || chaptersFailed.length || formsFailed || grammarFailed || unsearched.length || unresolved.length || approximateTurns.length}
+        {#if failedWorks.length || unsupportedWorks.length || mainTextWorks.length || chaptersFailed.length || formsFailed || grammarFailed || unsearched.length || unresolved.length || approximateTurns.length}
           <!-- Notices are rows: what kind, what happened, and what to do. -->
           <div class="sx-notes">
             {#if chaptersFailed.length}
@@ -5957,6 +6012,12 @@
               <div class="sx-note warn">
                 <span class="k">Note</span>
                 <span>Near uses each play’s main Greek text. These plays were searched in the chosen edition without Near: {playsPhrase(unsupportedWorks)}.</span>
+              </div>
+            {/if}
+            {#if mainTextWorks.length}
+              <div class="sx-note warn">
+                <span class="k">Note</span>
+                <span>{mainTextForEnglish ? 'A search with English reads each play’s main Greek text, the text the English is matched to.' : 'A grammar term is searched in each play’s main Greek text.'} These plays were searched there, not in the chosen edition: {playsPhrase(mainTextWorks)}.</span>
               </div>
             {/if}
             {#if formsFailed}

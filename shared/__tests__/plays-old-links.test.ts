@@ -111,6 +111,35 @@ describe('the plays\' old addresses', () => {
     expect(decode('g=x&ed=tlg').ed).toBeNull();
   });
 
+  // Review fix 6: a Near search, and an English one, kept their edition.
+  it('keeps the edition on every search it was set on, Near and English included', () => {
+    for (const query of [`g=${encodeURIComponent('δίκη')}&n=f&nt=${encodeURIComponent('θεός')}&ed=smyth-loeb`,
+      'c=f:a&c=f:b&e=word&ed=smyth-loeb', 'e=word&ed=smyth-loeb', 'g=x&e=word&ed=smyth-loeb']) {
+      const s = decode(query);
+      expect(s.ed, query).toBe('smyth-loeb');
+      const q = encodeSearchUrl(s, works);
+      expect(new URLSearchParams(q).get('ed'), query).toBe('smyth-loeb');
+      expect(decode(q), query).toEqual(s);
+    }
+    // An address with nothing to search writes nothing, edition or not.
+    expect(encodeSearchUrl({ ...emptyUrlSearch(works), ed: 'smyth-loeb' }, works)).toBe('');
+  });
+
+  // Review fix 4: the old page restricted each word of a multiword lemma
+  // search to its ticked headwords (legacy search.ts lemmaPick), Near or not.
+  it('keeps an old multiword lemma search\'s headword picks, and writes them back', () => {
+    const s = decode('g=logou%20qeous&m=lemma&lp=logos~qea');
+    expect(s).toMatchObject({ grk: 'logou qeous', matchMode: 'lemma', lemmaPick: [['logos'], ['qea']], combo: null });
+    const q = encodeSearchUrl(s, works);
+    expect(new URLSearchParams(q).get('lp')).toBe('logos~qea');
+    expect(decode(q)).toEqual(s);
+    // A word with nothing ticked is looked up as typed.
+    expect(decode('g=logou%20qeous&m=lemma&lp=~qea').lemmaPick).toEqual([[], ['qea']]);
+    // By form the picks asked nothing, as on the old page.
+    expect(decode('g=logou%20qeous&lp=logos~qea').lemmaPick).toBeUndefined();
+    expect(encodeSearchUrl({ ...emptyUrlSearch(works), grk: 'a b', matchMode: 'form', lemmaPick: [['x'], ['y']] }, works)).not.toContain('lp=');
+  });
+
   it('writes the opened search in the new address, and reads it back the same', async () => {
     const s = decode(`g=${encodeURIComponent('ὦ')}&e=sword&n=f&nt=${encodeURIComponent('τέκνον')}&nr=a&nw=3&nu=l&en=hand&enr=b`);
     const q = encodeSearchUrl(s, works);

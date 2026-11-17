@@ -299,6 +299,23 @@ def _play_line_display(label: str, sigla_norm: dict, overrides, ref) -> tuple[st
     return base, False
 
 
+def load_speeches(build_dir: Path, play_line: bool) -> list[dict]:
+    """A play's speeches, from stage 6's speeches.json. Stage 6 writes them for
+    every play, and every play has at least one, so a missing file or an empty
+    list fails here, loudly: read as no speeches, the play's search would
+    count and page by nothing, and the English index's stale-speech check
+    (stage6_search.emit_translation_indexes) skips an empty list."""
+    if not play_line:
+        return []
+    path = build_dir / "stage6" / "speeches.json"
+    if not path.exists():
+        raise FileNotFoundError(f"{path}: missing; stage 6 writes every play's speeches (run `all --work <id>`)")
+    speeches = json.loads(path.read_text(encoding="utf-8"))
+    if not speeches:
+        raise ValueError(f"{path}: no speeches; every play has one (stale stage 6? run `all --work <id>`)")
+    return speeches
+
+
 def _private_english_slots(manifest: Manifest) -> set[str]:
     """The English index slots ('english', 'secondary', 'third',
     'overlay-<id>') whose translation the manifest marks private: never
@@ -1967,9 +1984,7 @@ def run(manifest: Manifest) -> Path:
     # counts and pages by them, and its outline (Search.svelte fetchOutline)
     # names each by the printed ref its cue stands on. The play reader shows
     # no chapter list (ReaderShell hides it on play-line works).
-    speeches_path = BUILD_DIR / "stage6" / "speeches.json"
-    speeches = (json.loads(speeches_path.read_text(encoding="utf-8"))
-                if sch.play_line_scheme and speeches_path.exists() else [])
+    speeches = load_speeches(BUILD_DIR, sch.play_line_scheme)
     for sp in speeches:
         chapters_by_book[str(sp["book"])].append({
             "chapter": sp["name"],

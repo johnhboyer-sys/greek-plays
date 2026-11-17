@@ -1107,6 +1107,10 @@ export interface SearchOutcome {
   // The plays: plays that hold the Greek edition chosen, searched in it without
   // Near (searchComboInEdition).
   unsupported?: string[];
+  // The plays: plays that hold the Greek edition chosen but were searched in
+  // their main text, which alone has English aligned to it and a grammar
+  // index: a search with English, or Near opening on a grammar term.
+  mainText?: string[];
 }
 
 // Positions of a single term across segments: seg_idx → [token positions].
@@ -2789,9 +2793,11 @@ export async function searchCombo(
  * names it: an inflection searched as itself finds nothing, and the reader
  * must not take that for the corpus's answer.
  */
-async function resolveHeadwords(terms: string[]): Promise<{ terms: string[][]; unresolved: string[] }> {
+async function resolveHeadwords(terms: string[], picks?: string[][]): Promise<{ terms: string[][]; unresolved: string[] }> {
   const unresolved: string[] = [];
-  const resolved = await Promise.all(terms.map(async term => {
+  const resolved = await Promise.all(terms.map(async (term, i) => {
+    // Headwords the reader ticked are searched as they are.
+    if (picks?.[i]?.length) return [...picks[i]];
     const pattern = compilePattern(term, greekFold);
     if (!pattern || !('exact' in pattern)) return [term];
     const fold = pattern.exact;
@@ -2995,6 +3001,9 @@ export async function search(
   speaker?: SpeakerFilter,
   ed?: string | null,
   engNear?: EngNear | null,
+  // The plays: a lemma search's ticked headwords, one list per typed word
+  // (the old page's lp=); a word with an empty list is looked up as typed.
+  picks?: string[][] | null,
 ): Promise<SearchOutcome> {
   if (!grkQuery.trim() && !engQuery.trim()) return { results: [], failedWorks: [] };
   if (!engNear?.term.trim() || !engQuery.trim()) engNear = null;
@@ -3005,7 +3014,7 @@ export async function search(
 
   const typedGrk = grkQuery.trim().split(/\s+/).filter(Boolean);
   const { terms: grkTerms, unresolved: unresolvedTerms } = matchMode === 'lemma'
-    ? await resolveHeadwords(typedGrk)
+    ? await resolveHeadwords(typedGrk, picks ?? undefined)
     : { terms: typedGrk.map(t => [t]), unresolved: [] };
   const engUnits = englishQueryUnits(engQuery);
   // "Any form" looks each word's forms up in the index it is handed, which on
@@ -3047,11 +3056,15 @@ export async function search(
   if (failedWorks.length === works.length) {
     throw new Error('Could not load the search index — check your connection and try again.');
   }
+  // The plays that would have read the edition but for the English.
+  const mainText = grkTerms.length && engUnits.length
+    ? works.filter(w => !failedWorks.includes(w) && greekEditionOf(w, ed, false)) : [];
   return {
     results: perWork.flat(),
     failedWorks,
     ...(unsearchedTranslations.length ? { unsearchedTranslations } : {}),
     ...(unresolvedTerms.length ? { unresolvedTerms } : {}),
+    ...(mainText.length ? { mainText } : {}),
   };
 }
 
@@ -3141,7 +3154,11 @@ export interface ComboHit {
 /** The plays: a proximity search with a Greek edition chosen. Near reads only
  * each play's main Greek text, so a play that holds the edition is not asked
  * the Near search: as on the old page, its first term is searched in the
- * edition alone, and the play is named in `unsupported` for the page's note. */
+ * edition alone, and the play is named in `unsupported` for the page's note.
+ * A search with English (`english`), whose English is aligned to the main
+ * text alone, and one opening on a grammar term, which no edition indexes,
+ * read the main text with Near in every play, naming those that hold the
+ * edition in `mainText`. */
 export async function searchComboInEdition(
   slots: ComboSlot[],
   opts: ComboOptions,
@@ -3149,15 +3166,26 @@ export async function searchComboInEdition(
   ed: string | null | undefined,
   engForms = false,
   run: typeof searchCombo = searchCombo,
+  english = false,
 ): Promise<SearchOutcome> {
   const held = !ed || ed === 'tlg' ? [] : works.filter(w => getWork(w)?.greekEditions?.some(e => e.id === ed));
   const near = await run(slots, opts, works);
   if (!held.length || near.unnarrowed) return near;
   const first = slots[0];
-  const text = first?.terms?.join(' ') ?? '';
+  if (english || first?.kind === 'grammatical') {
+    const mainText = held.filter(w => !near.failedWorks.includes(w));
+    return mainText.length ? { ...near, mainText } : near;
+  }
+  // A phrase by headword: each word by its headwords (a word whose list is
+  // empty has none, and matches nothing, as in Near).
+  const options = first?.options;
+  const text = options ? (options.every(o => o.length) ? options.map(o => o[0]).join(' ') : '') : first?.terms?.join(' ') ?? '';
   const plain: SearchOutcome = !text ? { results: [], failedWorks: [] }
-    : await search(text, '', first.kind === 'phrase' ? 'phrase' : first.kind === 'lemma' ? 'any' : 'all', 'all', 'or',
-      held, first.kind === 'lemma' ? 'headword' : 'form', engForms, opts.speaker, ed);
+    : options
+      ? await search(text, '', 'phrase', 'all', 'or', held, first.match === 'form' ? 'form' : 'lemma', engForms, opts.speaker, ed, null,
+        first.match === 'form' ? null : options)
+      : await search(text, '', first.kind === 'phrase' ? 'phrase' : first.kind === 'lemma' ? 'any' : 'all', 'all', 'or',
+        held, first.kind === 'lemma' ? 'headword' : 'form', engForms, opts.speaker, ed);
   const order = new Map(WORKS.map((w, i) => [w.id, i]));
   const results = [...near.results.filter(r => !held.includes(r.work)), ...plain.results]
     .sort((a, b) => (order.get(a.work) ?? 0) - (order.get(b.work) ?? 0));
