@@ -177,4 +177,19 @@ describe('review fix 4: an old multiword lemma search on the page', () => {
     expect(vi.mocked(search).mock.calls.at(-1)![11]).toBeUndefined();
     expect(window.location.search).not.toContain('lp=');
   });
+
+  it('keeps the picks when only the capitals, accents or script of the same words change', async () => {
+    const { search } = await import('../lib/search');
+    const run = async (container: HTMLElement) => { const n = vi.mocked(search).mock.calls.length; await fireEvent.submit(container.querySelector('form.search-form')!); await vi.waitFor(() => expect(vi.mocked(search).mock.calls.length).toBeGreaterThan(n)); };
+    for (const typed of ['LOGOU QEOUS', 'λόγου θεούς', 'λογου θεους']) {
+      window.history.replaceState(null, '', '/search?g=logou%20qeous&m=lemma&lp=logos~qea');
+      const { container, unmount } = render(Search);
+      await vi.waitFor(() => expect(search).toHaveBeenCalled());
+      await fireEvent.input(container.querySelector('#grk-input') as HTMLInputElement, { target: { value: typed } });
+      await run(container);
+      expect(vi.mocked(search).mock.calls.at(-1)![11], typed).toEqual([['logos'], ['qea']]);
+      expect(window.location.search, typed).toContain('lp=logos~qea');
+      unmount();
+    }
+  });
 });

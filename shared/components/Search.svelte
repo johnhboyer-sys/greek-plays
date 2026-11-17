@@ -3553,7 +3553,9 @@
   // or leaving lemma mode drops them, as the old page's picks were dropped
   // when the words changed (review fix 4).
   let grkPick: { query: string; picks: string[][] } | null = null;
-  const pickWords = (q: string) => q.trim().split(/\s+/).filter(Boolean).join(' ');
+  // Folded as the index keys words, so capitals, accents, or Greek typed for
+  // Beta Code (λόγου for logou) are the same words and keep their picks.
+  const pickWords = (q: string) => q.trim().split(/\s+/).filter(Boolean).map(greekFold).join(' ');
   const grkPickNow = () => (grkPick && matchMode === 'lemma' && !soloLemmaActive && pickWords(grkQuery) === grkPick.query ? grkPick.picks : undefined);
 
   // A change of words or mode ends the picks for good: coming back to the old
