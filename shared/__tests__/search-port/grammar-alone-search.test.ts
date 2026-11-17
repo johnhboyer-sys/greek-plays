@@ -36,9 +36,9 @@ describe('a lone grammar term', () => {
     render(Search);
     await vi.waitFor(() => expect(prompt()).not.toBeNull());
     expect(within(prompt()!).getAllByRole('button').map(b => b.textContent))
-      .toEqual(['Choose works', 'Add a word near or not near']);
+      .toEqual(['Choose plays', 'Add a word near or not near']);
     // No sentence of explanation: the buttons' own words and nothing else.
-    expect(prompt()!.textContent!.replace(/\s+/g, ' ').trim()).toBe('Choose works Add a word near or not near');
+    expect(prompt()!.textContent!.replace(/\s+/g, ' ').trim()).toBe('Choose plays Add a word near or not near');
     const { searchCombo } = await import('../../lib/search');
     expect(searchCombo).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: 'Search' })).not.toBeDisabled();
@@ -48,7 +48,7 @@ describe('a lone grammar term', () => {
     window.history.replaceState(null, '', `/search?${AOR_PASS_PART}`);
     const { container } = render(Search);
     await vi.waitFor(() => expect(prompt()).not.toBeNull());
-    await fireEvent.click(within(prompt()!).getByRole('button', { name: 'Choose works' }));
+    await fireEvent.click(within(prompt()!).getByRole('button', { name: 'Choose plays' }));
     await vi.waitFor(() => expect((container.querySelector('#works-panel') as HTMLElement).hidden).toBe(false));
     // The focus lands on the first work, not on "Select all" or "Clear".
     await vi.waitFor(() => expect(document.activeElement?.closest('#works-panel')).not.toBeNull());
@@ -86,7 +86,7 @@ describe('a lone grammar term', () => {
     await vi.waitFor(() => expect(searchCombo).toHaveBeenCalled());
     // In is a menu (ruling 1): its value names the one work; Choose works…
     // opens the picker.
-    await fireEvent.click(screen.getByRole('radio', { name: 'choose works…' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'choose plays…' }));
     await fireEvent.click(await screen.findByRole('button', { name: 'Select all' }));
     await fireEvent.click(screen.getByRole('button', { name: 'Search' }));
     await vi.waitFor(() => expect(prompt()).not.toBeNull());
@@ -111,7 +111,7 @@ describe('a lone grammar term', () => {
     window.history.replaceState(null, '', `/search?${AOR_PASS_PART}`);
     render(Search);
     await vi.waitFor(() => expect(prompt()).not.toBeNull());
-    await fireEvent.click(within(prompt()!).getByRole('button', { name: 'Choose works' }));
+    await fireEvent.click(within(prompt()!).getByRole('button', { name: 'Choose plays' }));
     await fireEvent.click(await screen.findByRole('button', { name: 'Clear' }));
     await fireEvent.click(screen.getByRole('button', { name: 'Search' }));
     await vi.waitFor(() => expect(prompt()).not.toBeNull());
@@ -126,7 +126,7 @@ describe('a lone grammar term', () => {
     render(Search);
     const { searchCombo } = await import('../../lib/search');
     await vi.waitFor(() => expect(searchCombo).toHaveBeenCalledTimes(1));
-    await fireEvent.click(screen.getByRole('button', { name: /In all works/ }));
+    await fireEvent.click(screen.getByRole('button', { name: /In all plays/ }));
     await fireEvent.click(await screen.findByRole('button', { name: 'Clear' }));
     expect(screen.getByRole('button', { name: /Spoken by/ }).textContent).toContain('Socrates');
     await fireEvent.click(screen.getByRole('button', { name: 'Search' }));
@@ -139,7 +139,7 @@ describe('a lone grammar term', () => {
     render(Search);
     await vi.waitFor(() => expect(prompt()).not.toBeNull());
     await fireEvent.click(screen.getByRole('button', { name: 'Search' }));
-    await vi.waitFor(() => expect(document.activeElement?.textContent).toBe('Choose works'));
+    await vi.waitFor(() => expect(document.activeElement?.textContent).toBe('Choose plays'));
   });
 
   it('retires a search in flight, so its answer cannot replace the buttons', async () => {

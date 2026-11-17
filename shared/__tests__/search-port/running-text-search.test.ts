@@ -158,8 +158,8 @@ describe('Search: running text', () => {
   it('says which work did not load, and shows the rest', async () => {
     window.history.replaceState(null, '', `/search?g=${encodeURIComponent('ws dokei')}&m=text&w=Int,Prob`);
     const { container } = render(Search);
-    await vi.waitFor(() => expect(container.textContent).toContain('did not load'));
-    expect(container.textContent).toMatch(/The index for Problemata did not load/);
+    // The plays' notice names the play by title (search port, decision 8).
+    await vi.waitFor(() => expect(container.textContent).toContain('Some plays could not be searched: Problemata.'));
     // One match of two words: one instance (John, 2026-11-11).
     await vi.waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('1 hit'));
   });
@@ -177,7 +177,7 @@ describe('Search: running text', () => {
   it('follows the works as they load', async () => {
     window.history.replaceState(null, '', '/search?g=ws&m=text&w=Int,Oec');
     const { container } = render(Search);
-    await vi.waitFor(() => expect(container.querySelector('.rt-progress')).toHaveTextContent('Searching 1 of 2 works…'));
+    await vi.waitFor(() => expect(container.querySelector('.rt-progress')).toHaveTextContent('Searching 1 of 2 plays…'));
     release();
     await vi.waitFor(() => expect(container.querySelector('.rt-progress')).toBeNull());
     await vi.waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('2 hits'));

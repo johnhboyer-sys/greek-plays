@@ -145,8 +145,8 @@ describe('Search.svelte: the display bar', () => {
   });
 
   const cases = [
-    { legend: 'Group by', label: 'By form', b: 'form', param: 'v=form', entry: 'By form', back: 'By work', backB: 'work' },
-    { legend: 'Sort', label: 'Commonest form first', b: 'Commonest form first', param: 'so=freq', entry: 'Commonest form first', back: 'Bekker order', backB: 'Bekker order' },
+    { legend: 'Group by', label: 'By form', b: 'form', param: 'v=form', entry: 'By form', back: 'By play', backB: 'play' },
+    { legend: 'Sort', label: 'Commonest form first', b: 'Commonest form first', param: 'so=freq', entry: 'Commonest form first', back: 'Line order', backB: 'Line order' },
     { legend: 'Context', label: '1 line', b: '1 line', param: 'ctx=1', entry: '1 line', back: '3 lines', backB: '3 lines' },
   ];
   for (const c of cases) {
@@ -189,11 +189,11 @@ describe('Search.svelte: the display bar', () => {
     const m = menu('Sort');
     m.open = true;
     // An arrow key moves the choice: the browser follows it with the change.
-    await fireEvent.keyDown(radio('Sort', 'Bekker order'), { key: 'ArrowDown' });
-    await fireEvent.click(radio('Sort', 'Works A–Z'));
+    await fireEvent.keyDown(radio('Sort', 'Line order'), { key: 'ArrowDown' });
+    await fireEvent.click(radio('Sort', 'Plays A–Z'));
     await vi.waitFor(() => expect(window.location.search).toContain('so=work'));
     expect(m.open).toBe(true);
-    await fireEvent.keyDown(radio('Sort', 'Works A–Z'), { key: 'ArrowDown' });
+    await fireEvent.keyDown(radio('Sort', 'Plays A–Z'), { key: 'ArrowDown' });
     await fireEvent.click(radio('Sort', 'Forms A–Z'));
     await vi.waitFor(() => expect(window.location.search).toContain('so=form'));
     expect(m.open).toBe(true);
@@ -204,7 +204,7 @@ describe('Search.svelte: the display bar', () => {
     expect(document.activeElement).toBe(m.querySelector('summary'));
     // A click after that shuts the menu as before.
     m.open = true;
-    await fireEvent.click(radio('Sort', 'Bekker order'));
+    await fireEvent.click(radio('Sort', 'Line order'));
     await vi.waitFor(() => expect(window.location.search).not.toContain('so='));
     expect(m.open).toBe(false);
   });
@@ -213,7 +213,7 @@ describe('Search.svelte: the display bar', () => {
     await open(G);
     // Ctrl+arrow moves no radio, so no change follows the key.
     menu('Sort').open = true;
-    await fireEvent.keyDown(radio('Sort', 'Bekker order'), { key: 'ArrowDown', ctrlKey: true });
+    await fireEvent.keyDown(radio('Sort', 'Line order'), { key: 'ArrowDown', ctrlKey: true });
     await new Promise(r => setTimeout(r, 0));
     const m = menu('Context');
     m.open = true;
@@ -318,8 +318,8 @@ describe('Search.svelte: the rail\'s lists', () => {
   // Round 34 (§8 item 5): the list whole, in a box that scrolls; no "more".
   it('Works lists every work with hits, by count, in a box of its own', async () => {
     await open(G, WIDE, WIDE_FORMS);
-    const works = screen.getByRole('group', { name: 'Show hits from one work' });
-    expect(text(works.querySelector('.k'))).toBe('Works with hits by count');
+    const works = screen.getByRole('group', { name: 'Show hits from one play' });
+    expect(text(works.querySelector('.k'))).toBe('Plays with hits by count');
     const box = works.querySelector(':scope > .sx-list')!;
     expect(box.querySelectorAll('button.i')).toHaveLength(7);
     expect(works.querySelectorAll('button.i')).toHaveLength(7);
@@ -329,7 +329,7 @@ describe('Search.svelte: the rail\'s lists', () => {
   it('draws the chosen work in its place, with its ×, and choosing it again lifts it', async () => {
     const { search } = await import('../../lib/search');
     await open(`${G}&wf=Meta`, WIDE, WIDE_FORMS);
-    const works = screen.getByRole('group', { name: 'Show hits from one work' });
+    const works = screen.getByRole('group', { name: 'Show hits from one play' });
     expect(works.querySelectorAll('button.i')).toHaveLength(7);
     const on = within(works).getByRole('button', { pressed: true });
     expect(text(on.querySelector('.i-t'))).toBe('Metaphysics');

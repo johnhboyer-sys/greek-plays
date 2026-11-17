@@ -1108,3 +1108,14 @@ Rebuilt on Aristotle's files; the old search is kept under `shared/lib/legacy/` 
 - `shared/styles/vase-search.css` — new, aristotle-reader's `b-search.css` under `.vase-search` in the Vase's tokens (clay for red ink, `--hair`, `--hit`, Cardo and Alegreya Sans).
 - `app/src/pages/search.astro` — mounts the ported page with each play's `chapter-titles.json` (speech names) inside `.vase-search`.
 - `shared/__tests__/search-port/` — aristotle-reader's search tests against its own registry (`aristotle-works.ts`) and stubs; skips marked `// search port:`. Old tests of removed behaviour are `it.skip` with `// search-port lane 2:`.
+
+### Search port, lane 2: the plays' features on the ported page (2026-11-16)
+
+- `shared/lib/search.ts` — Near rules as `ComboOptions` switches (`distinctWords`, `fromNearerEnd`, `linesEitherSide`, `byFirstWord`, `preferCertain`; off keeps Aristotle's engine), a lemma phrase slot (`options`, `match`), `SearchResult.seg`, English near (`EngNear`, `englishNear`, `search(..., engNear)`), `lemmaHeads`; under `byFirstWord` a match the engine finds twice (two picked headwords on one word) is listed once.
+- `shared/lib/works.ts` — `NEAR_RULES` (all on) and `NEAR_WINDOW_DEFAULT = 10`; `search-port/aristotle-works.ts` sets them off and 5.
+- `shared/lib/search-url.ts` — reads the plays' old links (`n, nt, ng, nf, nr, nw, nu, no, n2, n3, sh, lp`, no `op` = "and"), writes English beside a proximity search, `en/enr/enw`, `cw` for lines either side, `q:` lemma phrase slots; `resolveUrlLemmas`.
+- `shared/lib/chapter-pages.ts` — a hit's speech is found by its segment index where it has one (Seven 803/810, Helen post 1226).
+- `shared/lib/english-hit.ts` — `englishMarked`/`markEnglishHtml` take extra runs (English near's word).
+- `shared/lib/running-text.ts` — results carry `seg`.
+- `shared/components/Search.svelte` — the plays' copy (plays, Line order, By play, Whole speech, δίκη/justice examples), hits as printed verse lines, speaker-coloured speech heads, English near row and English beside a proximity search (`ENGLISH_BESIDE_NEAR`), the edition select behind `PUBLIC_EDITIONS=1` (per-edition books, offsets, titles, `ed=…&view=greek` links), the failure notice with Retry, the plays' CSV columns with Attribution, per-passage credit, How to search / Phrase index links.
+- `shared/styles/vase-search.css` — `.vl`, `.ln`, `.work-who`, `.eng-near`, `.inst-credit`, `.sx-help-links`.

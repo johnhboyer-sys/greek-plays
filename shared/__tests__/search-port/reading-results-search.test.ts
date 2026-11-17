@@ -284,7 +284,7 @@ describe('Search.svelte: context', () => {
     await open(G('κ15'), [grk('99a', [15])], 1);
     const row = control('Context');
     expect(options('Context')).toEqual([
-      ['1 line', 'false'], ['3 lines', 'true'], ['Whole section', 'false'],
+      ['1 line', 'false'], ['3 lines', 'true'], ['Whole speech', 'false'],
     ]);
     for (const r of within(row).getAllByRole('radio')) expect(r.closest('label')!.className).toContain('ck');
     await press('Context', '1 line');
@@ -304,7 +304,7 @@ describe('Search.svelte: context', () => {
     expect(text(greek()).endsWith('κ27 …')).toBe(true);
     await press('Context', '1 line');
     await vi.waitFor(() => expect(wordsIn(greek())).toEqual(Array.from({ length: 9 }, (_, i) => `κ${i + 11}`)));
-    await press('Context', 'Whole section');
+    await press('Context', 'Whole speech');
     await vi.waitFor(() => expect(wordsIn(greek())).toHaveLength(31));
     expect(text(greek())).not.toContain('…');
     expect(marks(items(container)[0])).toEqual(['κ15']);
@@ -328,7 +328,7 @@ describe('Search.svelte: context', () => {
     expect(items(container)).toHaveLength(3);
     const counts = () => [...container.querySelectorAll('.group-count')].map(text);
     expect(counts()).toEqual(['3 hits']);
-    await press('Context', 'Whole section');
+    await press('Context', 'Whole speech');
     await vi.waitFor(async () => {
       await expectAllOpen(container);
       expect(items(container)).toHaveLength(2);
@@ -370,7 +370,7 @@ describe('Search.svelte: context', () => {
         `${text(h.querySelector('.group-label'))} ${text(h.querySelector('.group-count'))}`);
       const before = heads();
       expect(before).toEqual(groups);
-      await press('Context', 'Whole section');
+      await press('Context', 'Whole speech');
       await vi.waitFor(async () => {
         await expectAllOpen(container);
         expect(items(container)[0].querySelector('.inst-more')).toBeNull();
@@ -388,7 +388,7 @@ describe('Search.svelte: context', () => {
       expect(marks(h)).toEqual(['η']);
       expect(status()).toHaveTextContent('1 speech · 3 hits');
       // The work view: one instance per section, as before.
-      await press('Group by', 'By work');
+      await press('Group by', 'By play');
       await vi.waitFor(async () => {
         await expectAllOpen(container);
         expect(items(container)).toHaveLength(2);
@@ -426,7 +426,7 @@ describe('Search.svelte: context', () => {
     const before = [a.innerHTML, b.innerHTML];
     const more = a.querySelector('button.inst-more')!;
     expect(more).toHaveAttribute('aria-expanded', 'false');
-    expect(text(more)).toBe('Show the whole section');
+    expect(text(more)).toBe('Show the whole speech');
     await fireEvent.click(more);
     await vi.waitFor(() => expect(more).toHaveAttribute('aria-expanded', 'true'));
     expect(text(more)).toBe('Show less');
@@ -439,7 +439,7 @@ describe('Search.svelte: context', () => {
     expect(b.innerHTML).toBe(before[1]);
     expect(window.location.search).not.toContain('ctx');
     await fireEvent.click(a.querySelector('.inst-ohead button')!);
-    await vi.waitFor(() => expect(text(more)).toBe('Show the whole section'));
+    await vi.waitFor(() => expect(text(more)).toBe('Show the whole speech'));
     expect(a.innerHTML).toBe(before[0]);
   });
 
@@ -462,7 +462,7 @@ describe('Search.svelte: context', () => {
     expect(li.querySelector('.inst-rows')!.innerHTML).toContain('virtue Nueve <mark>virtue</mark>.');
     expect(marks(li)).toEqual(['virtue']);
     // The whole section: the same.
-    await press('Context', 'Whole section');
+    await press('Context', 'Whole speech');
     await vi.waitFor(() => expect(items(container)[0].querySelector('.inst-more')).toBeNull());
     await expectAllOpen(container);
     const [s] = items(container);
@@ -504,12 +504,12 @@ describe('Search.svelte: sort', () => {
     const { search } = await import('../../lib/search');
     const { container } = await open(G('ω'), RESULTS, 7);
     expect(options('Sort')).toEqual([
-      ['Bekker order', 'true'], ['Works A–Z', 'false'], ['Forms A–Z', 'false'], ['Commonest form first', 'false'],
+      ['Line order', 'true'], ['Plays A–Z', 'false'], ['Forms A–Z', 'false'], ['Commonest form first', 'false'],
     ]);
     expect(order(container)).toEqual(['Meta:0', 'EN:0', 'EN:1', 'EN:2', 'EN:3', 'EN:4', 'EN:5']);
     await sorted(container, 'Forms A–Z');
     expect(window.location.search).toContain('so=form');
-    await sorted(container, 'Bekker order');
+    await sorted(container, 'Line order');
     expect(window.location.search).not.toContain('so=');
     expect(search).toHaveBeenCalledTimes(1);
   });
@@ -517,7 +517,7 @@ describe('Search.svelte: sort', () => {
   it('page view: by work reorders the works; by form and by frequency the hits in each group', async () => {
     const { container } = await open(G('ω'), RESULTS, 7);
     expect([...container.querySelectorAll('.work-name')].map(text)).toEqual([getWork('Meta')!.title, getWork('EN')!.title]);
-    await sorted(container, 'Works A–Z');
+    await sorted(container, 'Plays A–Z');
     expect([...container.querySelectorAll('.work-name')].map(text)).toEqual([getWork('Meta')!.title, getWork('EN')!.title]);
     expect(order(container)).toEqual(['Meta:0', 'EN:0', 'EN:1', 'EN:2', 'EN:3', 'EN:4', 'EN:5']);
     await sorted(container, 'Forms A–Z');
@@ -536,7 +536,7 @@ describe('Search.svelte: sort', () => {
     await sorted(container, 'Commonest form first');
     expect(heads(container)).toEqual(['ω', 'β', 'α']);
     // By work: the groups as by default, and in each the hits by work.
-    await sorted(container, 'Works A–Z');
+    await sorted(container, 'Plays A–Z');
     expect(heads(container)).toEqual(['ω', 'β', 'α']);
     expect(order(container).slice(0, 4)).toEqual(['Meta:0', 'EN:0', 'EN:2', 'EN:5']);
     expect(status()).toHaveTextContent('7 hits');
@@ -548,7 +548,7 @@ describe('Search.svelte: sort', () => {
   it('grammar view: the rows keep the paradigm\'s order under every sort', async () => {
     const { container } = await open('/search?l=w&v=grammar', RESULTS, 7);
     expect(heads(container)).toEqual(['ω', 'ω', 'β', 'α']);
-    for (const so of ['Forms A–Z', 'Commonest form first', 'Works A–Z']) {
+    for (const so of ['Forms A–Z', 'Commonest form first', 'Plays A–Z']) {
       await sorted(container, so);
       expect(heads(container)).toEqual(['ω', 'ω', 'β', 'α']);
     }
@@ -611,7 +611,7 @@ describe('Search.svelte: page size', () => {
     await vi.waitFor(() => expect(pager(container)).toBe('Page 2 of 2'));
     expect(items(container)).toHaveLength(7);
     // A section's hits are one row in every context: the page stands.
-    await press('Context', 'Whole section');
+    await press('Context', 'Whole speech');
     await vi.waitFor(() => expect(window.location.search).toContain('ctx=s'));
     await vi.waitFor(() => expect(pager(container)).toBe('Page 2 of 2'));
     await vi.waitFor(() => expect(items(container)).toHaveLength(7));
@@ -731,7 +731,7 @@ describe('Search.svelte: a proximity hit', () => {
 
   it('whole section: a window that runs on into the next section carries on into it (John, 2026-11-11)', async () => {
     const { container } = await open(URL, [grk('70a', [4, 5], 'EN', { windows: [[4, 5]] })], 1, { combo: true });
-    await press('Context', 'Whole section');
+    await press('Context', 'Whole speech');
     await vi.waitFor(() => expect(items(container)[0].querySelector('.sec-on')).not.toBeNull());
     const [li] = items(container);
     expect(items(container)).toHaveLength(1);
@@ -751,7 +751,7 @@ describe('Search.svelte: a proximity hit', () => {
     // An exact phrase: a proximity search is not offered By form (John, 13 Nov).
     const results = [grk('70a', [0, 3, 4, 5], 'EN', { windows: [[0, 3], [4, 5]] })];
     const { container } = await open(`${G('α δ')}&gm=phrase&v=form`, results, 2);
-    await press('Context', 'Whole section');
+    await press('Context', 'Whole speech');
     await vi.waitFor(() => expect(container.querySelector('.sec-on')).not.toBeNull());
     const views = items(container).map(li => [text(li.querySelector('.inst-snippet.greek')), text(li.querySelector('.inst-pair'))]);
     expect(views).toEqual([
@@ -768,7 +768,7 @@ describe('Search.svelte: a proximity hit', () => {
       at('70a', { engMatch: true, engHits: [{ translation: 'ross', positions: [0] }] }),
     ];
     const { container } = await open(`${G('μ')}&e=uno&t=ross`, results, 1);
-    await press('Context', 'Whole section');
+    await press('Context', 'Whole speech');
     await vi.waitFor(() => expect(container.querySelector('.sec-on')).not.toBeNull());
     const li = items(container).find(x => text(x.querySelector('.inst-ref')) === '70c')!;
     expect(text(li.querySelector('.inst-pair'))).toBe('twelve thirteen Residual words here Last. 71a Plain words Rackham');
@@ -776,7 +776,7 @@ describe('Search.svelte: a proximity hit', () => {
 
   it('whole section: a window inside its section shows that section only', async () => {
     const { container } = await open(URL, [grk('70a', [0, 3], 'EN', { windows: [[0, 3]] })], 1, { combo: true });
-    await press('Context', 'Whole section');
+    await press('Context', 'Whole speech');
     await vi.waitFor(() => expect(text(items(container)[0].querySelector('.inst-snippet.greek'))).toBe('α β γ δ ε'));
     expect(items(container)[0].querySelector('.sec-on')).toBeNull();
   });
@@ -827,8 +827,8 @@ describe('Search.svelte: no setting changes a count', () => {
   // Each search in the views it is offered (John, 13 Nov): one word typed,
   // By form; a dictionary word, By grammar, whose rows add up to their headword.
   for (const [url, views] of [
-    [`${G('α')}&e=one+two+three+seis&em=any&op=or`, ['By work', 'By form']],
-    ['/search?l=a&e=one+two+three+seis&em=any&op=or', ['By work', 'By grammar']],
+    [`${G('α')}&e=one+two+three+seis&em=any&op=or`, ['By play', 'By form']],
+    ['/search?l=a&e=one+two+three+seis&em=any&op=or', ['By play', 'By grammar']],
   ] as const) it(`the total, the side counts and the sum of the group counts, in every view, context and sort (${views[1]})`, async () => {
     const { greekHitForms } = await import('../../lib/search');
     // 70a: α and δ, Rackham's three words, and Ross's "seis", which falls in
@@ -865,11 +865,11 @@ describe('Search.svelte: no setting changes a count', () => {
       await press(group, name);
       await vi.waitFor(() => expect(within(control(group)).getByRole('radio', { name })).toBeChecked());
     };
-    for (const cx of ['1 line', '3 lines', 'Whole section']) {
+    for (const cx of ['1 line', '3 lines', 'Whole speech']) {
       await pick('Context', cx);
       for (const v of views) {
         await pick('Group by', v);
-        for (const so of ['Bekker order', 'Works A–Z', 'Forms A–Z', 'Commonest form first']) {
+        for (const so of ['Line order', 'Plays A–Z', 'Forms A–Z', 'Commonest form first']) {
           await pick('Sort', so);
           await vi.waitFor(() => expect(`${cx} ${v} ${so}: ${sum()}`).toBe(`${cx} ${v} ${so}: 6`));
           expect(status()).toHaveTextContent('2 speeches · 6 hits');

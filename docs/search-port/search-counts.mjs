@@ -5,9 +5,11 @@
 //
 //   node docs/search-port/search-counts.mjs --base http://localhost:4321 --out counts.json
 //
-// The bar reads "N lines in M plays · page X of Y". N is the page's own
+// The old bar reads "N lines in M plays · page X of Y". N is the page's own
 // instance count (Search.svelte instCount: one per Greek hit position plus
 // one per English hit, in every translation), not a count of verse lines.
+// The ported bar (search port) reads "N speeches · M hits · page X of Y",
+// whole in its title; the script reads either and records speeches and hits.
 // Playwright comes from PW_DIR, the project, or the npx cache; the browser
 // from CHROME_PATH or the installed headless shell 1228.
 import { createRequire } from 'node:module';
@@ -66,24 +68,35 @@ try {
         if (err) throw new Error(err.textContent.trim());
         const bar = document.querySelector('.result-count')?.textContent?.trim();
         if (!bar) return false;
+        // The ported page draws its bar before the search ends; its live
+        // region holds the count only once the search is done.
+        const live = document.querySelector('p.sr-only[role="status"]');
+        if (live && (!live.textContent.trim() || /Searching/.test(live.textContent))) return false;
         if (bar === 'No passages found.') return true;
         const status = document.querySelector('.pager-status')?.textContent ?? '';
         return !/Loading/.test(status) && document.querySelectorAll('li.instance').length > 0;
       }, null, { timeout: 120000 });
       const counts = await page.evaluate(() => {
-        const shown = document.querySelector('.result-count').textContent.trim().replace(/\s+/g, ' ');
+        const bar = document.querySelector('.result-count');
+        const shown = (bar.getAttribute('title') || bar.textContent).trim().replace(/\s+/g, ' ');
+        const num = v => Number(v.replaceAll(',', ''));
         const m = shown.match(/^([\d,]+) lines? in ([\d,]+) plays?/);
-        if (!m && shown !== 'No passages found.') throw new Error(`Unreadable bar: ${shown}`);
+        const n = m ? null : shown.match(/^([\d,]+) (speech(?:es)?|hits?)(?: · ([\d,]+) hits?)?/);
+        if (!m && !n && shown !== 'No passages found.') throw new Error(`Unreadable bar: ${shown}`);
         const pages = shown.match(/page \d+ of (\d+)/i);
         const rows = [...document.querySelectorAll('li.instance')];
+        const speeches = n && /^speech/.test(n[2]) ? num(n[1]) : null;
+        const hits = n ? (n[3] ? num(n[3]) : /^hit/.test(n[2]) ? num(n[1]) : null) : null;
         return {
-          total: m ? Number(m[1].replaceAll(',', '')) : 0,
-          plays: m ? Number(m[2].replaceAll(',', '')) : 0,
-          pages: pages ? Number(pages[1]) : m ? 1 : 0,
+          total: m ? num(m[1]) : hits ?? speeches ?? 0,
+          plays: m ? num(m[2]) : null,
+          speeches,
+          hits,
+          pages: pages ? Number(pages[1]) : m || n ? 1 : 0,
           page1_rows: rows.length,
           page1_greek_rows: rows.filter(r => r.querySelector('.inst-snippet.greek')).length,
           page1_english_rows: rows.filter(r => !r.querySelector('.inst-snippet.greek')).length,
-          notes: [...document.querySelectorAll('.search-note')].map(n => n.textContent.trim().replace(/\s+/g, ' ')),
+          notes: [...document.querySelectorAll('.search-note, .sx-note')].map(n => n.textContent.trim().replace(/\s+/g, ' ')),
           shown,
         };
       });

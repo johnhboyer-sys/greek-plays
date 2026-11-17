@@ -59,7 +59,7 @@ it.each(['3', '1', 's'])('holds each chapter to its hits at Context %s', async c
     ] } as never);
   const c = await open(bookOf(...Array.from({ length: 22 }, (_, i) => line(i + 1, 'α'))),
     [hit('70a', Array.from({ length: 22 }, (_, i) => i))], `&ps=20&ctx=${ctx}`);
-  await vi.waitFor(() => expect(marksByChapter(c)).toEqual([['Speech 1', 20], ['Speech 2', 2]]));
+  await vi.waitFor(() => expect(marksByChapter(c)).toEqual([['1', 20], ['2', 2]]));
   expect(c.querySelector('.pager-bottom')).toBeNull();
 });
 
@@ -81,8 +81,8 @@ it('marks only the current chapter’s English hits under Whole section', async 
   const c = await open(book, [result], '&e=one%20two&ps=20&ctx=s');
   const englishMarks = () => [...c.querySelectorAll('.run-heading')].map(h =>
     [text(h.querySelector('.sx-chap')), [...h.nextElementSibling!.querySelectorAll('li.instance .inst-en mark')].map(text)]);
-  await vi.waitFor(() => expect(marksByChapter(c)).toEqual([['Speech 1', 20], ['Speech 2', 2]]));
-  expect(englishMarks()).toEqual([['Speech 1', ['One']], ['Speech 2', ['two']]]);
+  await vi.waitFor(() => expect(marksByChapter(c)).toEqual([['1', 20], ['2', 2]]));
+  expect(englishMarks()).toEqual([['1', ['One']], ['2', ['two']]]);
 });
 
 // Finding 4: a proximity window whose terms stand lines apart, in a section
@@ -120,7 +120,7 @@ it('lets only the latest render of the page write', async () => {
     const radio = within(c.querySelector('.sx-display') ?? c).getByRole('radio', { name: label });
     await fireEvent.click(radio);
   };
-  await choose('Whole section');   // slow: its book is held back
+  await choose('Whole speech');   // slow: its book is held back
   await choose('1 line');          // fast
   await vi.waitFor(() => expect(text(c.querySelector('li.instance .greek'))).toContain('α'));
   release(bookOf(line(1, 'ω ψ')));

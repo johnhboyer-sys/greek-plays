@@ -38,6 +38,8 @@
     type HitGrammar,
     type Reading,
     type SearchOutcome,
+    type EngNear,
+    edKey,
     pool,
   } from '../lib/search';
   import { joinEnglish, searchRunningText } from '../lib/running-text';
@@ -46,8 +48,10 @@
     pairGreekWindow, pairEnglishWindow, PAIR_GREEK_LINES, bekkerEnglish, pairContext, pairUnits, sectionEnglish, unitAtEnglish, unitAtGreek, unitEnglish, unitPieces,
     type PairIndex, type PairUnit,
   } from '../lib/paired-hit';
-  import { AUTHENTIC_IDS, HAS_SPEAKERS } from '../lib/works';
-  import { isChapterSection } from '../lib/data';
+  import { AUTHENTIC_IDS, HAS_SPEAKERS, NEAR_RULES, NEAR_WINDOW_DEFAULT } from '../lib/works';
+  import { isChapterSection, editionBase, type GreekLine, type TranslationCredit } from '../lib/data';
+  import { assignSpeakerSlots } from '../lib/speaker-colors';
+  import { getAuthor } from '../lib/authors';
   import { loadEngChapters, loadOffsets, offsetRef, type EngChapters, type Offsets } from '../lib/search';
   import { engHitCount, hitCount } from '../lib/search-pages';
   import { chapterJoin, chapterOnly, chapterPlaces, measure, type ChapterAt, type ChapterPlaces, type Measure } from '../lib/chapter-pages';
@@ -68,7 +72,7 @@
   } from '../lib/data';
   import { WORKS, getWork, workPath, WORK_ORDER, SEARCH_GROUPS, searchableTranslations, type TranslationRef } from '../lib/works';
   import { formatCite, formatLocValue, schemeFor } from '../lib/citation';
-  import { decodeSearchUrl, encodeSearchUrl, hasSearch, type UrlCombo, type UrlSearch } from '../lib/search-url';
+  import { decodeSearchUrl, encodeSearchUrl, hasSearch, resolveUrlLemmas, type UrlCombo, type UrlSearch } from '../lib/search-url';
   import { grammarWords, proximitySentence, termWords } from '../lib/proximity-sentence';
   import { FULL, addSaved, findSaved, savedAvailable, summarizeSearch } from '../lib/saved-searches';
   import { betaQueryToGreek, betaToGreek, liveGreek } from '../lib/betacode';
@@ -138,6 +142,10 @@
     // it holds is spelled, one apiece, for its group's heading.
     group?: string;
     spellings?: string[];
+    // The plays: where the hit stands in its book (its section's place, then
+    // its word's), so a speech's hits keep the printed order, transposed
+    // lines as printed.
+    docOrder?: number;
     // Greek hits: the tokens the instance counts, each a hit (a match of
     // several words, its window, is one hit together).
     toks?: number[];
@@ -185,6 +193,8 @@
     chapter: string;
     order: number;     // chapter position within the book, for sorting
     title?: string;    // the chapter's title, where the corpus has one
+    spk?: number;      // the plays: its speaker's colour slot (speaker-colors)
+    ed?: string;       // the plays: the Greek edition its hits come from
     instances: Instance[];
   }
 
@@ -203,11 +213,50 @@
   let rtProgress: { done: number; total: number } | null = null;
   // English "any form": a word also finds its plurals and possessives.
   let engForms = true;
+  // The plays' English near (en=): a second English word close to the English
+  // box's words, in the same translation (the old page's row, John-approved
+  // wording: "on either side of", "before", "after").
+  let engNearText = '';
+  let engNearRel: EngNear['relation'] = 'near';
+  let engNearWindow = NEAR_WINDOW_DEFAULT;
+  const ENG_NEAR_WINDOWS = [1, 2, 3, 5, 10, 15, 20, 30, 50];
+  $: engNearNow = engQuery.trim() && engNearText.trim()
+    ? { term: engNearText.trim(), relation: engNearRel, window: engNearWindow } satisfies EngNear : null;
+  // Greek text to search (plan 4.5): the reference, or one of the editions the
+  // registry lists, behind PUBLIC_EDITIONS=1. One choice per distinct edition
+  // id; a play that lacks the chosen edition searches the reference, and so
+  // does any search with English or a proximity search.
+  let greekEd = 'tlg';
+  const editionChoices = import.meta.env.PUBLIC_EDITIONS === '1'
+    ? [...new Map(WORKS.flatMap(w => (w.greekEditions ?? []).filter(e => e.id !== 'tlg')
+        .map(e => [e.id, { id: e.id, label: e.short.replace(/\s*\(\d{4}\)$/, '') }] as const))).values()]
+    : [];
+  // The Greek text a play's hits come from, for its heading: the edition the
+  // engine searched, else the play's reference text ("Smyth 1926").
+  function greekTextOf(work: string, ed?: string): string {
+    const w = getWork(work);
+    if (!w) return '';
+    const e = ed ? w.greekEditions?.find(x => x.id === ed) : undefined;
+    const short = e?.short ?? w.greekSource.short;
+    return short.replace(/\s*\((?:[^)]*?,\s*)?(\d{4})\)\s*$/, ' $1');
+  }
+  // The plays: the plays named in a notice, by title, an Oxford comma before
+  // the last of three or more.
+  function playsPhrase(ids: string[]): string {
+    const titles = ids.map(id => getWork(id)?.title ?? id);
+    if (titles.length < 3) return titles.join(' and ');
+    return `${titles.slice(0, -1).join(', ')}, and ${titles[titles.length - 1]}`;
+  }
   // Which works to search. Default: all. Selected in the collapsible panel below.
   let selectedWorks = new Set<string>(WORKS.map(w => w.id));
   let worksOpen = false;  // is the works "Refine" panel expanded?
   let groups: ChapterGroup[] = [];        // chapter groups of the CURRENT page
-  const isBoth = (s: UrlSearch | null) => !!s?.eng.trim() && (!!s?.grk.trim() || !!s?.lemmas.length);
+  // The plays: a proximity search with the English box is a Both search too,
+  // joined by speech (search port, decision 2).
+  // The plays keep the English box beside a proximity search (search port,
+  // decision 2); Aristotle's page sets it aside. On with the plays' Near rules.
+  const ENGLISH_BESIDE_NEAR = NEAR_RULES.linesEitherSide === true;
+  const isBoth = (s: UrlSearch | null) => !!s?.eng.trim() && (!!s?.grk.trim() || !!s?.lemmas.length || (ENGLISH_BESIDE_NEAR && !!s?.combo));
   $: bothSearch = isBoth(lastSearch);
   $: engSearch = !!lastSearch?.eng.trim() && !bothSearch;
   // The English of the results on screen: the widened results of a Both
@@ -361,6 +410,8 @@
     grkCaseTerms: string[];   // "Case exact": the terms whose capitals must match
     engPhrase: boolean;   // the English terms are a phrase: mark the run, not each word
     engForms: boolean;    // the English terms matched any form of each word
+    // The plays' English near term, as a run to mark beside the query's.
+    engNearUnits?: string[][];
     langOp: LangOp;       // how the two queries were joined, for the translation filter
     // The speaker filter the results on screen were produced under. Frozen with
     // the rest of the query: "widen to all inflections" runs after the fact,
@@ -604,7 +655,7 @@
   // `short`: its label on the phone's View sheet, two to a row (p04).
   interface DisplayChoice { id: string; label: string; short?: string; value: string; gloss?: string; rule?: boolean }
   const VIEWS: (DisplayChoice & { id: ResultView })[] = [
-    { id: 'page', label: 'By work', value: 'work', gloss: 'a heading for each work' },
+    { id: 'page', label: 'By play', value: 'play', gloss: 'a heading for each play' },
     { id: 'form', label: 'By form', value: 'form', gloss: 'each spelling apart' },
     { id: 'grammar', label: 'By grammar', value: 'grammar', gloss: 'case, number, tense, and so on' },
   ];
@@ -682,7 +733,7 @@
   const CONTEXTS: (DisplayChoice & { id: ResultContext })[] = [
     { id: '1', label: '1 line', value: '1 line', gloss: 'the line with the hit' },
     { id: '3', label: '3 lines', value: '3 lines', gloss: 'a line either side' },
-    { id: 's', label: 'Whole section', value: 'whole section', gloss: 'the section the hit is in' },
+    { id: 's', label: 'Whole speech', value: 'whole speech', gloss: 'the speech the hit is in' },
   ];
   function setContext(next: ResultContext) {
     if (next === context) return;
@@ -760,7 +811,9 @@
   // The plays: a speech's heading is its speaker (its title) and the line it
   // opens on (its name, the line's printed ref; a later speech on the same
   // line carries a letter, 104b).
-  const chapterName = (c: { n: string; title?: string }) => ({ label: c.title || 'Speech', title: c.n });
+  // A speech's line: its speaker, where the pipeline names one, then its
+  // printed line ref; with no speaker, the ref alone.
+  const chapterName = (c: { n: string; title?: string }) => ({ label: c.title ?? '', title: c.n });
   // The book an instance is in, where its work has several.
   const bookOf = (inst: Instance) => {
     const labels = getWork(inst.work)?.bookLabels ?? [];
@@ -769,8 +822,8 @@
   // The order of the page in view: within it only, so a sort never moves a
   // hit to another page (lib/result-views orderHits).
   const SORTS: (DisplayChoice & { id: ResultSort })[] = [
-    { id: 'page', label: 'Bekker order', value: 'Bekker order', gloss: 'page, column, and line' },
-    { id: 'work', label: 'Works A–Z', value: 'Works A–Z', gloss: 'by title' },
+    { id: 'page', label: 'Line order', value: 'Line order', gloss: 'play and line, as printed' },
+    { id: 'work', label: 'Plays A–Z', value: 'Plays A–Z', gloss: 'by title' },
     { id: 'form', label: 'Forms A–Z', value: 'Forms A–Z', gloss: 'by spelling' },
     { id: 'freq', label: 'Commonest form first', short: 'Commonest form', value: 'Commonest form first', gloss: 'the biggest group on top' },
   ];
@@ -895,8 +948,8 @@
     const names = [...new Set(multi.flatMap(w => searchableTranslations(w).slice(1).map(t => t.short)))];
     if (!multi.length) return '';
     return names.length === 1
-      ? `in the ${multi.length} works that carry ${names[0]}`
-      : `in the ${multi.length} works with a second translation`;
+      ? `in the ${multi.length} plays that carry ${names[0]}`
+      : `in the ${multi.length} plays with a second translation`;
   })();
 
   // ── Works ──────────────────────────────────────────────────────────────────
@@ -1004,8 +1057,10 @@
     const eng = new Map<string, EngChapters | null>();
     const failed: string[] = [];
     const english = new Set(results.filter(r => r.engMatch).map(r => r.work));
+    // The plays: a play read in a Greek edition is placed by that edition's offsets.
+    const edOf = new Map(results.filter(r => r.ed).map(r => [r.work, r.ed!]));
     await Promise.all([...new Set(results.map(r => r.work))].map(async work => {
-      const [o, e] = await Promise.allSettled([loadOffsets(work), english.has(work) ? loadEngChapters(work) : Promise.resolve({})]);
+      const [o, e] = await Promise.allSettled([loadOffsets(edKey(work, edOf.get(work))), english.has(work) ? loadEngChapters(work) : Promise.resolve({})]);
       offsets.set(work, o.status === 'fulfilled' ? o.value : null);
       eng.set(work, e.status === 'fulfilled' ? e.value : null);
       if (o.status === 'rejected' || e.status === 'rejected') failed.push(work);
@@ -1306,7 +1361,7 @@
   // opens it as the display settings. Focus goes into it, and back to the
   // icon that opened it when it shuts.
   type SheetScreen = 'menu' | 'works' | 'trans' | 'phrases' | 'forms' | 'grammar';
-  const SCREEN_LABELS: Record<SheetScreen, string> = { menu: 'Filter', works: 'Works', trans: 'Translations', phrases: 'Phrases', forms: 'Forms', grammar: 'Grammar' };
+  const SCREEN_LABELS: Record<SheetScreen, string> = { menu: 'Filter', works: 'Plays', trans: 'Translations', phrases: 'Phrases', forms: 'Forms', grammar: 'Grammar' };
   let sheetOpen = false;
   let sheetKind: 'filter' | 'sort' = 'filter';
   let sheetScreen: SheetScreen = 'menu';
@@ -1488,15 +1543,18 @@
     if (!ctx.grkAccentTerms.length && !ctx.grkCaseTerms.length) return results;
     const pass = (tok: string) => (!ctx.grkAccentTerms.length || accentTokenMatch(tok, ctx.grkAccentTerms))
       && (!ctx.grkCaseTerms.length || caseTokenMatch(tok, ctx.grkCaseTerms));
+    // A play read in a Greek edition is filtered on that edition's words
+    // (keys work:ed:segId).
+    const edOf = new Map(results.filter(r => r.ed).map(r => [r.work, r.ed!]));
     const pairs = [...new Set(results.filter(r => r.grkMatch).map(r => `${r.work}:${r.meta.book}`))];
     const segs = new Map<string, Segment>();
     await pool(pairs, 8, async pair => {
       const [w, b] = pair.split(':');
-      try { for (const s of (await fetchBook(w, Number(b))).segments) segs.set(`${w}:${s.id}`, s); }
+      try { for (const s of (await fetchBook(w, Number(b), edOf.get(w))).segments) segs.set(`${w}:${edOf.get(w) ?? ''}:${s.id}`, s); }
       catch (err) { console.warn(`search: book failed for ${pair} —`, err); }
     });
     return results.flatMap(r => {
-      const seg = segs.get(`${r.work}:${r.meta.id}`);
+      const seg = segs.get(`${r.work}:${r.ed ?? ''}:${r.meta.id}`);
       if (!r.grkMatch || !seg) return [r];
       const toks = segTokens(seg).map(tok => tok.t);
       const ok = new Set(r.grkPositions.filter(p => pass(toks[p] ?? '')));
@@ -1548,7 +1606,7 @@
     { v: 'not', l: 'not near' },
   ];
   // An empty term's example, so it never reads as entered.
-  const TERM_EXAMPLES = ['ἀρετή', 'ἕξις', 'ἡδονή', 'λύπη'];
+  const TERM_EXAMPLES = ['δίκη', 'θεός', 'πόλις', 'τέκνον'];
 
   interface LemmaMatch {
     key: string;
@@ -1572,6 +1630,9 @@
     relation: SlotRelation;
     or: boolean;                 // joined to the term before by "or"
     targetId: number | null;     // the editor it is measured from; null = term 1
+    // The plays: a phrase matched by headword, each word's folds (an old
+    // link's first term, the Greek box's words).
+    options?: string[][];
   }
 
   let nextComboId = 1;
@@ -1613,7 +1674,8 @@
     if (id === soloLemma.id) soloLemma = soloLemma;
     else comboEditors = [...comboEditors];
   }
-  let comboWindow = COMBO_WINDOW_DEFAULT;
+  // The plays' Near opens at 10 words (works.ts NEAR_WINDOW_DEFAULT).
+  let comboWindow = NEAR_WINDOW_DEFAULT;
   let comboUnit: WindowUnit = 'words';
   let comboOrdered = false;
   let comboCrossChapter = true;
@@ -1650,11 +1712,13 @@
   }
   function engineSlot(ed: ComboEditor): ComboSlot {
     if (ed.kind === 'grammatical') return { kind: ed.kind, query: { ...ed.grammar } };
+    if (ed.kind === 'phrase' && ed.options) return { kind: 'phrase', options: ed.options.map(o => [...o]), match: 'lemma' };
     if (ed.kind === 'lemma') return { kind: ed.kind, terms: [...ed.picked] };
     const text = ed.text.trim();
     return { kind: ed.kind, terms: ed.kind === 'phrase' ? text.split(/\s+/) : [text] };
   }
-  const urlSlot = (ed: ComboEditor) => ({ kind: ed.kind, text: ed.text, picked: [...ed.picked], grammar: { ...ed.grammar } });
+  const urlSlot = (ed: ComboEditor) => ({ kind: ed.kind, text: ed.text, picked: [...ed.picked], grammar: { ...ed.grammar },
+    ...(ed.kind === 'phrase' && ed.options ? { options: ed.options.map(o => [...o]) } : {}) });
 
   $: comboGroupsNow = editorGroups(comboEditors);
   $: comboSearchSlots = flatSlots(comboGroupsNow, engineSlot);
@@ -1677,12 +1741,14 @@
   let advancedOpen = false;
   $: comboActive = comboReady && (advancedOpen || proxOn);
   let narrowPrompt = false;
+  // The plays' Near rules ride on every proximity search (works.ts NEAR_RULES).
   $: comboOptions = {
     window: comboWindow,
     unit: comboUnit,
     ordered: comboLocked,
     crossChapter: comboCrossChapter,
     speaker: speakerFilter,
+    ...NEAR_RULES,
   } satisfies ComboOptions;
 
   // The editor's search as the address would write it; null until its terms
@@ -1717,7 +1783,7 @@
     works.length === WORK_IDS.length ? null
       : sameSet(works, new Set(AUTHENTIC_IDS)) ? 'authentic works'
       : sameSet(works, chosen) ? label
-      : `${works.length} works`;
+      : `${works.length} plays`;
   $: proxSentence = proxLive && lastSearch?.combo
     ? proximitySentence(lastSearch.combo.slots, lastSearch.combo, headsOf(pickInfo), inValue(lastSearch.works, selectedWorks, worksValue), false) + (lastSearch.combo.crossChapter === false ? ', inside one speech' : '') : '';
   // Proximity opens the editor in one click (ruling 2), and shuts it.
@@ -1784,7 +1850,7 @@
     proxOn = false;
     advancedOpen = false;
     comboEditors = [newComboEditor('lemma'), newComboEditor('lemma')];
-    comboWindow = COMBO_WINDOW_DEFAULT;
+    comboWindow = NEAR_WINDOW_DEFAULT;
     comboUnit = 'words';
     comboOrdered = false;
     comboCrossChapter = true;
@@ -2156,7 +2222,10 @@
   }
 
   function clampComboWindow() {
-    comboWindow = Math.max(1, Math.min(Number(comboWindow) || COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX));
+    // Lines on either side: 0 (the same line) to 10; words: 1 to 50.
+    comboWindow = comboUnit === 'line'
+      ? Math.max(0, Math.min(Math.trunc(Number(comboWindow)) || 0, 10))
+      : Math.max(1, Math.min(Number(comboWindow) || NEAR_WINDOW_DEFAULT, COMBO_WINDOW_MAX));
   }
 
   // Shared option list for the per-language mode selectors.
@@ -2212,7 +2281,7 @@
 
   // Compact summary for the collapsed trigger.
   $: worksSummary = allSelected
-    ? 'All works'
+    ? 'All plays'
     : selectedWorks.size === 0
       ? 'None selected'
       : `${selectedWorks.size} of ${WORKS.length}`;
@@ -2225,12 +2294,12 @@
   // choice and no authorship filter in the picker.
   const AUTH_SPLIT = AUTHENTIC_IDS.length < WORKS.length;
   const WORKS_SCOPES: { v: WorksScope; l: string; g: string }[] = [
-    { v: 'all', l: 'All works', g: 'dubious and spurious included' },
+    { v: 'all', l: 'All plays', g: `all ${WORKS.length} plays` },
     { v: 'auth', l: 'Authentic works', g: `the ${AUTHENTIC_IDS.length} authentic works only` },
-    { v: 'pick', l: 'Choose works…', g: 'pick works from the list' },
+    { v: 'pick', l: 'Choose plays…', g: 'pick plays from the list' },
   ].filter((sc) => AUTH_SPLIT || sc.v !== 'auth') as { v: WorksScope; l: string; g: string }[];
   $: worksScope = (allSelected ? 'all' : AUTH_SPLIT && activeAuthScope === 'genuine' ? 'auth' : 'pick') as WorksScope;
-  $: worksValue = worksScope === 'all' ? 'all works' : worksScope === 'auth' ? 'authentic works' : lower1(worksSummary);
+  $: worksValue = worksScope === 'all' ? 'all plays' : worksScope === 'auth' ? 'authentic works' : lower1(worksSummary);
   // On click, not change: "Choose works…" is already the checked radio when
   // the selection is a choice, and must still open the picker.
   async function setWorksScope(v: WorksScope, e: Event) {
@@ -2252,7 +2321,7 @@
     worksOpen = false;
     document.querySelector<HTMLElement>('.d6-in [role=radio]:last-child')?.focus();
   }
-  // The picker's "Find a work": title or abbreviation, any case.
+  // The picker's "Find a play": title or abbreviation, any case.
   let worksFind = '';
   function findsWork(id: string, find: string): boolean {
     const q = find.trim().toLowerCase();
@@ -2385,7 +2454,7 @@
     // Only from a roster that describes this search's works; a stale one would
     // claim an exclusion that did not happen, and saying nothing is better.
     if (rosterFresh && (unlabelledWorks.length || narratedWorks.length)) {
-      note += ' Narrated works are left out: a speaker’s words cannot be picked out in them.';
+      note += ' Narrated plays are left out: a speaker’s words cannot be picked out in them.';
     }
     return note;
   }
@@ -2400,14 +2469,16 @@
   interface ViewRun {
     key: string;
     book?: { label: string; hits?: number };
-    chapter?: { n: string; title?: string };
+    chapter?: { n: string; title?: string; spk?: number };
     instances: Instance[];
   }
   // By grammar, a headword's group holds its paradigm (`rows`): a row for
   // each spelling, headed by its parse in words (`label`, "" where there is
   // none) and the spelling.
   interface ViewRow { key: string; label: string; spelling: string; instances: Instance[]; runs: ViewRun[] }
-  interface ViewGroup { key: string; label: string; greek?: boolean; instances: Instance[]; runs: ViewRun[]; rows?: ViewRow[] }
+  // `who`: the plays' heading line beside a play's title, its playwright and
+  // the Greek text its hits come from.
+  interface ViewGroup { key: string; label: string; who?: string; greek?: boolean; instances: Instance[]; runs: ViewRun[]; rows?: ViewRow[] }
   interface ViewSection { key: string; work?: string; groups: ViewGroup[] }
   // A headword as the reader knows it: its first dictionary form.
   // The key is folded (areth); a pick the address gave with its marks
@@ -2482,7 +2553,9 @@
     for (const g of groups) {
       let sec = sections.get(g.work);
       if (!sec) {
-        sec = { key: `page:${g.work}`, work: g.work, groups: [{ key: `page:${g.work}`, label: title(g.work), instances: [], runs: [] }] };
+        const who = [getAuthor(getWork(g.work)?.author ?? '')?.name,
+          groups.some(x => x.work === g.work && x.instances.some(inst => inst.lang === 'grk')) ? greekTextOf(g.work, g.ed) : ''].filter(Boolean).join(' · ');
+        sec = { key: `page:${g.work}`, work: g.work, groups: [{ key: `page:${g.work}`, label: title(g.work), ...(who ? { who } : {}), instances: [], runs: [] }] };
         sections.set(g.work, sec);
       }
       const vg = sec.groups[0];
@@ -2496,7 +2569,7 @@
       vg.runs.push({
         key: `${g.work}:${g.book}:${byChapter ? g.chapter : ''}`,
         book: !sameBook && (w?.bookLabels.length ?? 0) > 1 ? { label: w?.bookLabels[g.book - 1] ?? String(g.book), hits: counted.hits === null ? undefined : 0 } : undefined,
-        chapter: named ? { n: g.chapter, title: g.title } : undefined,
+        chapter: named ? { n: g.chapter, title: g.title, spk: g.spk } : undefined,
         instances: [...g.instances],
       });
     }
@@ -2582,11 +2655,11 @@
   ];
 
   const BETA_EXAMPLES: { beta: string; greek: string }[] = [
-    { beta: 'a)reth/', greek: 'ἀρετή' },
-    { beta: 'lo/gos', greek: 'λόγος' },
+    { beta: 'di/kh', greek: 'δίκη' },
+    { beta: 'qeo/s', greek: 'θεός' },
     { beta: 'yuxh/', greek: 'ψυχή' },
-    { beta: 'h(donh/', greek: 'ἡδονή' },
-    { beta: 'eu)daimoni/a', greek: 'εὐδαιμονία' },
+    { beta: 'h(/lios', greek: 'ἥλιος' },
+    { beta: 'w)= Zeu=', greek: 'ὦ Ζεῦ' },
     { beta: 'fron*', greek: 'φρόν… (wildcard)' },
   ];
 
@@ -2753,9 +2826,13 @@
     // of a grammatical or proximity search — not whatever begins like the
     // typed text. The `loc=` value composes through the work's citation
     // scheme: "17a" for Stephanus, which has no user-facing lines.
-    return (work: string, book: number, column: string, line: number, trans?: string, hits?: number[]) =>
+    // The plays: a hit in a Greek edition opens that edition (ed=) in the
+    // Greek view, which carries the edition picker (a saved English-only
+    // view would hide the line); loc= stays last, so a line's letter can follow.
+    return (work: string, book: number, column: string, line: number, trans?: string, hits?: number[], ed?: string) =>
       `${BASE_URL}${workPath(work, book)}?${base}${base ? '&' : ''}`
       + `${trans ? `trans=${encodeURIComponent(trans)}&` : ''}`
+      + `${ed ? `ed=${encodeURIComponent(ed)}&view=greek&` : ''}`
       + `${hits?.length ? `hlt=${column}:${hits.join(',')}&` : ''}loc=${formatLocValue(work, column, line)}`;
   }
 
@@ -2796,11 +2873,19 @@
     const wbPairs = [...new Set(results.map(r => `${r.work}:${r.meta.book}`))];
     const workSet = [...new Set(results.map(r => r.work))];
     const failed: string[] = [];
+    // The plays: a play's hits come from one Greek text in a search, the
+    // edition the engine read (r.ed), else the reference; its book, segments
+    // and speech names are that text's. Segments are keyed work:segId: one
+    // text per play, so an id names one segment.
+    const edOf = new Map(results.filter(r => r.ed).map(r => [r.work, r.ed!]));
+    const edTitles = new Map<string, Record<string, Record<string, string>>>();
 
     const chaptersByWork = new Map<string, Record<string, OutlineRef[]>>();
     await pool(workSet, 8, async w => {
       try { chaptersByWork.set(w, await fetchOutline(w)); }
       catch (err) { console.warn(`search: outline failed for ${w} —`, err); failed.push(w); }
+      const ed = edOf.get(w);
+      if (ed) edTitles.set(w, await fetchEditionTitles(w, ed));
     });
     const segMap = new Map<string, Segment>();             // key: work:segId
     const books = new Map<string, BookData>();             // key: work:book
@@ -2817,7 +2902,7 @@
       const chapters = outline?.[String(b)] ?? (outline && playLine(w) ? [] : undefined);
       if (!chapters) { failed.push(pair); return; }
       try {
-        const data = await fetchBook(w, b);
+        const data = await fetchBook(w, b, edOf.get(w));
         for (const s of data.segments) segMap.set(`${w}:${s.id}`, s);
         books.set(pair, data);
         lookups.set(pair, chapterLookup(data, chapters));
@@ -2859,12 +2944,26 @@
       inst.ch?.chapter ? inst.ch : lookups.get(`${work}:${book}`)!(inst.column, inst.line ?? 1);
 
     const gmap = new Map<string, ChapterGroup>();
+    // The plays: a speech's title is its speaker, coloured as the reader
+    // colours that speaker (speaker-colors, the book's roster); a speech the
+    // pipeline names no speaker for ("—") has no title.
+    const slotsOf = new Map<string, Map<string, number>>();
+    const speakerSlot = (work: string, book: number, name: string) => {
+      const key = `${work}:${book}`;
+      let slots = slotsOf.get(key);
+      if (!slots) { slots = assignSpeakerSlots(books.get(key)?.speakerRoster ?? []); slotsOf.set(key, slots); }
+      return slots.get(name);
+    };
     const add = (work: string, book: number, inst: Instance) => {
       const ch = chapterOf(work, book, inst);
       const key = `${work}:${book}:${ch.chapter}`;
       let g = gmap.get(key);
       if (!g) {
-        g = { work, book, chapter: ch.chapter, order: ch.order, title: chapterTitles[work]?.[String(book)]?.[ch.chapter] || undefined, instances: [] };
+        const raw = (edOf.has(work) ? edTitles.get(work) : chapterTitles[work])?.[String(book)]?.[ch.chapter] || undefined;
+        const title = raw === '—' ? undefined : raw;
+        g = { work, book, chapter: ch.chapter, order: ch.order, title, instances: [],
+          ...(title && playLine(work) ? { spk: speakerSlot(work, book, title) } : {}),
+          ...(edOf.has(work) ? { ed: edOf.get(work) } : {}) };
         gmap.set(key, g);
       }
       g.instances.push(inst);
@@ -2875,8 +2974,9 @@
     const jumpAt = jumpLinks(ctx);
     const jumpFor = (work: string, book: number, column: string, line: number, trans?: string, hits?: number[]) =>
       jumpAt(work, book, playLine(work)
-        ? printedRefOf(books.get(`${work}:${book}`)?.segments.find(x => x.column === column), line) ?? column
-        : column, line, trans, hits);
+        ? printedRefOf(books.get(`${work}:${book}`)?.segments.find(x => x.column === column && x.greek.some(l => l.n === line))
+          ?? books.get(`${work}:${book}`)?.segments.find(x => x.column === column), line) ?? column
+        : column, line, trans, hits, edOf.get(work));
 
     // Every instance is made first and placed in its group afterwards: a
     // Greek and an English hit in one unit become one instance, and the two
@@ -2943,11 +3043,25 @@
           const inst: Instance = { lang: 'grk', work: r.work, book: r.meta.book, seg: r.meta.id, surface, form: greekFold(surface ?? ''), group: formKey(spelling), spellings: [spelling], column: seg.column, line, sub, ref: playLine(r.work) ? printedRefAt(seg, pos) ?? seg.column : formatCite(r.work, seg.column, line) + (sub ?? ''), html: windows?.length
             ? greekKwic(r.work, seg, kept, greekReach, [own[0], own[own.length - 1]], after)
             : greekKwic(r.work, seg, [pos], greekReach),
-            toks: own, grkHits: 1, jumpUrl: jumpFor(r.work, r.meta.book, seg.column, line, undefined, kept) + (sub ? sub : ''), held, speaker, unit, at: pos, ch: places.grk(r, pos) };
+            toks: own, grkHits: 1, jumpUrl: jumpFor(r.work, r.meta.book, seg.column, line, undefined, playLine(r.work) ? kept.filter(p => p >= 0 && p < segTokens(seg).length) : kept) + (sub ? sub : ''), held, speaker, unit, at: pos, ch: places.grk(r, pos) };
           // Drawn by whole lines, a window runs on to its last word's line;
           // a window that runs on into the next section keeps its words.
           const last = own[own.length - 1];
-          if (!books.get(pair)!.turnFlow && seg.english?.bekker?.length && !isChapterSection(getWork(r.work))
+          if (playLine(r.work)) {
+            // The plays: the whole printed verse line of every word of the
+            // hit, numbered as printed (search port, decision 5), a near
+            // word's line from the section before or after where it stands
+            // there; 3 lines adds the line before and after.
+            const book = books.get(pair)!;
+            const around = textContext === '1' ? 0 : 1;
+            inst.html = verseHtml(r.work, book, seg, new Set(own), around);
+            inst.docOrder = verseOf(book).base.get(seg.id)! + pos;
+            const [from, to] = verseReach(book, seg, own, around);
+            shownOf.set(inst, {
+              key: `${pair}:${seg.id}:verse`, from, to, turns: false,
+              draw: (_from, _to, marked) => verseHtml(r.work, book, seg, marked, around),
+            });
+          } else if (!books.get(pair)!.turnFlow && seg.english?.bekker?.length && !isChapterSection(getWork(r.work))
             && last < segTokens(seg).length) {
             const win = pairGreekWindow(seg, unit, line, textContext, windows?.length ? last : undefined, sub);
             inst.html = pairGreekHtml(r.work, seg, win, true, new Set(own));
@@ -2986,7 +3100,7 @@
           // The matched words, by the unit each stands in: every unit is an
           // instance of its own, beside the Greek it translates. With nothing
           // to mark, the passage's head stands for the section.
-          const marked = englishMarked(texts, hit.positions, ctx.engUnits, ctx.engPhrase, ctx.engForms);
+          const marked = englishMarked(texts, hit.positions, ctx.engUnits, ctx.engPhrase, ctx.engForms, ctx.engNearUnits);
           const starts: number[] = [];
           texts.reduce((n, text) => { starts.push(n); return n + englishWords(text).length; }, 0);
           // A phrase is counted where its first word stands (eachHit), and
@@ -3056,7 +3170,7 @@
             // So with phrases set aside: a word inside one is not marked.
             const own = (split.get(unit) ?? 0) > 1 || asidePhrases.size ? ownMarks(clipped, indexedText, words, asidePhrases.size > 0) : null;
             // A row for each passage the words fall in; the count goes on the first.
-            const rows = [own ?? markEnglishHtml(clipped, ctx.engUnits, ctx.engPhrase, ctx.engForms)]
+            const rows = [own ?? markEnglishHtml(clipped, ctx.engUnits, ctx.engPhrase, ctx.engForms, ctx.engNearUnits)]
               .map((html, j): TransRow => ({
                 translation: t.id,
                 label: t.short,
@@ -3078,7 +3192,8 @@
               const engRef = playLine(r.work)
                 ? printedRefOf(unitSeg, hitLine) ?? printedRefOf(unitSeg, line) ?? unit.section
                 : formatCite(r.work, unit.section, englishCiteLine(r.work, books.get(pair)!.turnFlow, line));
-              inst = { lang: 'eng', work: r.work, book: r.meta.book, column: unit.section, line, ref: engRef, html: '', jumpUrl: '', rows: [], unit, at: unit.first, ch: at, pairGreek: books.get(pair)!.turnFlow ? undefined : pairGreekHtml(r.work, seg, greekWindow, true) };
+              inst = { lang: 'eng', work: r.work, book: r.meta.book, column: unit.section, line, ref: engRef, html: '', jumpUrl: '', rows: [], unit, at: unit.first, ch: at,
+                ...(playLine(r.work) ? { docOrder: verseOf(books.get(pair)!).base.get(unitSeg.id) ?? 0 } : {}), pairGreek: books.get(pair)!.turnFlow ? undefined : pairGreekHtml(r.work, seg, greekWindow, true) };
               inUnit.set(at.key, inst);
               made.push({ work: r.work, book: r.meta.book, inst });
             }
@@ -3191,7 +3306,8 @@
         const ix = pairsOf(`${work}:${book}`, work);
         const ts = translationsOf(work);
         const ref = ts.find(t => t.slot === 'english') ?? ts[0];
-        const seg = books.get(`${work}:${book}`)!.segments.find(s => s.column === inst.column)!;
+        const segs = books.get(`${work}:${book}`)!.segments;
+        const seg = (inst.seg && segs.find(s => s.id === inst.seg)) || segs.find(s => s.column === inst.column)!;
         const display = pairContext(ix, seg, inst.unit!, textContext);
         const greekWindow = pairGreekWindow(seg, display, inst.line ?? firstLine(inst.unit!), textContext, undefined, inst.sub);
         const words = greekWindow.greek.reduce((n, l) => n + l.text.split(/\s+/).length, 0);
@@ -3222,16 +3338,20 @@
     // section and holding all its hits, so the Greek and the English widen
     // together (John, 2026-11-09: "Both, to the section").
     const placed = made.filter(m => !merged.has(m.inst));
-    const bySection = new Map<string, { work: string; book: number; column: string; ch: string; insts: Instance[] }>();
+    const bySection = new Map<string, { work: string; book: number; column: string; segId?: string; ch: string; insts: Instance[] }>();
     // A section a chapter starts in is filed once in each chapter, with
-    // that chapter's hits.
+    // that chapter's hits. A Greek hit names its segment: two segments of a
+    // play may share a column (Seven's 803 and 810).
+    // An English hit names only its column: it goes with the first segment
+    // that has it, as a Greek hit there without a segment would.
     for (const { work, book, inst } of placed) {
-      const key = `${work}:${book}:${inst.column}:${inst.ch!.key}`;
-      (bySection.get(key) ?? bySection.set(key, { work, book, column: inst.column, ch: inst.ch!.key, insts: [] }).get(key)!).insts.push(inst);
+      const segId = inst.seg ?? books.get(`${work}:${book}`)?.segments.find(x => x.column === inst.column)?.id;
+      const key = `${work}:${book}:${segId ?? inst.column}:${inst.ch!.key}`;
+      (bySection.get(key) ?? bySection.set(key, { work, book, column: inst.column, segId, ch: inst.ch!.key, insts: [] }).get(key)!).insts.push(inst);
     }
-    for (const { work, book, column, ch, insts } of bySection.values()) {
+    for (const { work, book, column, segId, ch, insts } of bySection.values()) {
       const pair = `${work}:${book}`;
-      const seg = books.get(pair)!.segments.find(x => x.column === column);
+      const seg = (segId && books.get(pair)!.segments.find(x => x.id === segId)) || books.get(pair)!.segments.find(x => x.column === column);
       if (!seg) continue;
       const ix = pairsOf(pair, work);
       const ts = translationsOf(work);
@@ -3287,6 +3407,7 @@
           toks, grkHits: held.reduce((n, inst) => n + (inst.grkHits ?? 0), 0), seg: seg.id, at: toks[0] ?? 0, surface: held[0]?.surface, form: held[0]?.form,
           group: held[0]?.group, spellings: held.flatMap(inst => inst.spellings ?? []),
           held: whole.held, speaker: speakersOf(whole.held),
+          ...(playLine(work) ? { docOrder: verseOf(books.get(pair)!).base.get(seg.id) ?? 0 } : {}),
         };
       };
       const inst = sectionInst(grks, view);
@@ -3313,7 +3434,11 @@
       for (const { work, book, inst } of placed) add(work, book, inst);
     }
 
-    for (const g of gmap.values()) g.instances.sort(bekkerCmp);
+    // The plays keep the printed order: a transposed line stays where the
+    // edition prints it.
+    for (const g of gmap.values()) g.instances.sort(playLine(g.work)
+      ? (a, b) => (a.docOrder ?? 0) - (b.docOrder ?? 0) || bekkerCmp(a, b)
+      : bekkerCmp);
     const out = [...gmap.values()].sort((a, b) =>
       ((WORK_ORDER.get(a.work) ?? 0) - (WORK_ORDER.get(b.work) ?? 0)) || a.book - b.book || a.order - b.order);
     return { groups: out, failed: [...new Set(failed)], segs: segMap };
@@ -3386,9 +3511,9 @@
     return {
       grk: grkQuery, eng: engQuery, grkMode, engMode, matchMode, accent: accentSensitive, punctuation, caseExact, langOp, engForms,
       works: WORK_IDS.filter(id => selectedWorks.has(id)),
-      // The plays' Greek edition (`ed=`): the engine takes it (lib/search),
-      // but this page has no edition choice yet, so it searches the reference.
-      ed: null,
+      // The plays' Greek edition (`ed=`), behind PUBLIC_EDITIONS=1.
+      ed: greekEd !== 'tlg' ? greekEd : null,
+      engNear: engNearNow,
       trans: null,
       workFilter: null,
       xforms: [],
@@ -3451,6 +3576,10 @@
     caseExact = s.caseExact;
     langOp = s.langOp;
     engForms = s.engForms;
+    greekEd = editionChoices.some(e => e.id === s.ed) ? s.ed! : 'tlg';
+    engNearText = s.engNear?.term ?? '';
+    engNearRel = s.engNear?.relation ?? 'near';
+    engNearWindow = s.engNear?.window ?? NEAR_WINDOW_DEFAULT;
     selectedWorks = new Set(s.works);
     soloLemma = { ...newComboEditor('lemma'), picked: [...s.lemmas] };
     // A dictionary-word search is the Lemma switch on, its word in the box.
@@ -3462,14 +3591,15 @@
     });
     const combo = s.combo;
     const eds = combo
-      ? combo.slots.map(slot => ({ ...newComboEditor(slot.kind), relation: slot.relation, or: !!slot.or, text: slot.text, picked: [...slot.picked], grammar: { ...slot.grammar } }))
+      ? combo.slots.map(slot => ({ ...newComboEditor(slot.kind), relation: slot.relation, or: !!slot.or, text: slot.text, picked: [...slot.picked], grammar: { ...slot.grammar },
+        ...(slot.options ? { options: slot.options.map(o => [...o]) } : {}) }))
       : [newComboEditor('lemma'), newComboEditor('lemma')];
     combo?.slots.forEach((slot, i) => { if (slot.target) eds[i].targetId = eds[slot.target]?.id ?? null; });
     // An older link with the order lock beside before or after: the lock won
     // there, the relations reading as near (the old editor's rule).
     if (combo?.ordered && orderSet(eds)) for (const ed of eds) if (ed.relation === 'before' || ed.relation === 'after') ed.relation = 'near';
     comboEditors = eds;
-    comboWindow = combo?.window ?? COMBO_WINDOW_DEFAULT;
+    comboWindow = combo?.window ?? NEAR_WINDOW_DEFAULT;
     comboUnit = combo?.unit ?? 'words';
     comboOrdered = combo?.ordered ?? false;
     comboCrossChapter = combo?.crossChapter ?? true;
@@ -3487,18 +3617,20 @@
   // The empty page's examples: shown once the address is known to hold no
   // search, so a search arriving in it never flashes them first.
   let showTry = false;
+  // The plays' examples (DRAFT, search port): the old page had none.
   const TRY: { q: string; g: string; href: string; grc: boolean }[] = [
-    { q: 'ἀρετή', g: 'every form of the word', href: `?g=${encodeURIComponent('ἀρετή')}`, grc: true },
-    { q: 'virtue', g: 'in the English translations', href: '?e=virtue', grc: false },
-    { q: 'ἀρετή near ἕξις', g: 'within five words', href: '?c=l:areth&c=l:ecis', grc: true },
-    { q: 'τὸ τί ἦν εἶναι', g: 'an exact phrase', href: `?g=${encodeURIComponent('τὸ τί ἦν εἶναι')}&gm=phrase&m=form`, grc: true },
+    { q: 'δίκη', g: 'every form of the word', href: `?g=${encodeURIComponent('δίκη')}`, grc: true },
+    { q: 'justice', g: 'in the English translations', href: '?e=justice', grc: false },
+    { q: 'δίκη near θεός', g: 'within ten words', href: '?c=l:dikh&c=l:qeos', grc: true },
+    { q: 'ὦ Ζεῦ', g: 'an exact phrase', href: `?g=${encodeURIComponent('ὦ Ζεῦ')}&gm=phrase&m=form`, grc: true },
   ];
 
   // Runs whatever search the address bar holds; with none, clears the page.
   async function searchFromUrl() {
     popup = null;
     closeSugg();
-    const s = decodeSearchUrl(window.location.search, WORK_IDS);
+    // An old plays link's lemma terms are looked up first, as its page did.
+    const s = await resolveUrlLemmas(decodeSearchUrl(window.location.search, WORK_IDS));
     applySearch(s);
     // The reactive comboActive / soloLemmaActive / speakerFilter that doSearch
     // reads must catch up with the controls just set.
@@ -3672,9 +3804,11 @@
         // nothing for the reader to highlight on jump and no accent
         // post-filter to apply.
         grkQuery: comboActive || runningText ? '' : soloLemmaActive ? soloLemma.picked.join(' ') : grkQuery.trim(),
-        engQuery: comboActive ? '' : engQuery.trim(),
+        // The plays keep the English box beside a proximity search.
+        engQuery: comboActive && !ENGLISH_BESIDE_NEAR ? '' : engQuery.trim(),
         // The words as the index splits them: "coming-to-be" is three.
-        engUnits: comboActive ? [] : englishQueryUnits(engQuery),
+        engUnits: comboActive && !ENGLISH_BESIDE_NEAR ? [] : englishQueryUnits(engQuery),
+        engNearUnits: engNearNow ? [englishQueryUnits(engNearNow.term).flat()] : [],
         // A picked lemma is a fold key, not the reader's spelling, so there is
         // no typed accent pattern to post-filter against.
         // Beta Code is converted first: it arrives as typed from the address
@@ -3695,7 +3829,7 @@
         speaker: speakerFilter,
       };
       const { results: found, failedWorks: failed, approximateTurns: approximate, approximateChapters: chaptersApproximate, unsearchedTranslations, unresolvedTerms, unnarrowed } = comboActive
-        ? await searchCombo(comboSearchSlots, comboOptions, works)
+        ? await searchComboEnglish(works)
         // Picked headwords are OR-ed: choosing two spellings of one word, or two
         // homonyms, asks for either, never for both in the same passage.
         // 'headword', not 'lemma': the picks ARE the headword keys. Under
@@ -3703,10 +3837,10 @@
         // every headword that spelling can belong to — ἤν back to εἰμί and ὅς —
         // which is exactly what the picker exists to rule out.
         : soloLemmaActive
-          ? await search(soloLemma.picked.join(' '), engQuery, 'any', engMode, 'or', works, 'headword', engForms, speakerFilter)
+          ? await search(soloLemma.picked.join(' '), engQuery, 'any', engMode, 'or', works, 'headword', engForms, speakerFilter, greekEd, engNearNow)
           : runningText
             ? await searchText(works, run)
-            : await search(grkQuery, engQuery, grkMode, engMode, 'or', works, matchMode === 'text' ? 'lemma' : matchMode, engForms, speakerFilter);
+            : await search(grkQuery, engQuery, grkMode, engMode, 'or', works, matchMode === 'text' ? 'lemma' : matchMode, engForms, speakerFilter, greekEd, engNearNow);
       if (run !== searchRun) return;
       // Accents and case exact: filtered before anything counts the results.
       const results = await exactFilter(found, searchCtx);
@@ -3777,7 +3911,17 @@
     const grk = await searchRunningText({ pattern: grkQuery, accents: accentSensitive, punctuation }, works, speakerFilter,
       (done, total) => { if (run === searchRun) rtProgress = { done, total }; });
     if (!engQuery.trim()) return grk;
-    return joinEnglish(grk, await search('', engQuery, grkMode, engMode, 'or', works, 'lemma', engForms, speakerFilter), 'or');
+    return joinEnglish(grk, await search('', engQuery, grkMode, engMode, 'or', works, 'lemma', engForms, speakerFilter, null, engNearNow), 'or');
+  }
+
+  // The plays: a proximity search with the English box beside it (search
+  // port, decision 2), joined as search() joins its two languages; "and" is
+  // then settled by speech (joined).
+  async function searchComboEnglish(works: string[]): Promise<SearchOutcome> {
+    const grk = await searchCombo(comboSearchSlots, comboOptions, works);
+    if (!ENGLISH_BESIDE_NEAR || !engQuery.trim() || grk.unnarrowed) return grk;
+    const eng = await search('', engQuery, grkMode, engMode, 'or', works, 'lemma', engForms, speakerFilter, null, engNearNow);
+    return { ...joinEnglish(grk, eng, 'or'), approximateTurns: grk.approximateTurns, approximateChapters: grk.approximateChapters };
   }
 
   // Greek keyword-in-context: a window of surface tokens around the match,
@@ -3839,6 +3983,107 @@
     if (from > 0) html = '… ' + html;
     if (to < words.length) html += ' …';
     return html;
+  }
+
+  // ── The plays' verse lines (search port, decision 5) ──────────────────────
+  // Every printed line of a book in order, each with its section and where
+  // its first word stands counting through the book (`first`), and each
+  // section's first word (`base`): a hit's words, counted from its section's
+  // first, may stand in the section before (below 0) or after.
+  interface VerseLine { seg: Segment; line: GreekLine; first: number; n: number; at: number }
+  const verseCache = new WeakMap<BookData, { lines: VerseLine[]; base: Map<string, number> }>();
+  function verseOf(book: BookData) {
+    let v = verseCache.get(book);
+    if (!v) {
+      const lines: VerseLine[] = [];
+      const base = new Map<string, number>();
+      let t = 0;
+      for (const seg of book.segments) {
+        base.set(seg.id, t);
+        let at = 0;
+        for (const line of seg.greek) {
+          lines.push({ seg, line, first: t, n: line.tokens.length, at });
+          t += line.tokens.length;
+          at += line.tokens.length;
+        }
+      }
+      v = { lines, base };
+      verseCache.set(book, v);
+    }
+    return v;
+  }
+  // The line a word stands on: the last to start at or before it (a line
+  // with no words starts where the next does, so is never it).
+  function verseLineAt(lines: VerseLine[], t: number): number {
+    let lo = 0;
+    let hi = lines.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (lines[mid].first <= t) lo = mid;
+      else hi = mid - 1;
+    }
+    return lo;
+  }
+  // The lines a hit shows: each word's line, and `around` lines either side.
+  function verseLines(book: BookData, seg: Segment, marked: Iterable<number>, around: number): number[] {
+    const { lines, base } = verseOf(book);
+    const b0 = base.get(seg.id) ?? 0;
+    const shown = new Set<number>();
+    for (const p of marked) {
+      const t = b0 + p;
+      if (t < 0 || !lines.length) continue;
+      const i = verseLineAt(lines, t);
+      for (let k = Math.max(0, i - around); k <= Math.min(lines.length - 1, i + around); k++) shown.add(k);
+    }
+    return [...shown].sort((a, b) => a - b).filter(i => lines[i].line.text.trim());
+  }
+  // Those lines' reach in the section's own count, for joining hits whose
+  // lines meet.
+  function verseReach(book: BookData, seg: Segment, marked: number[], around: number): [number, number] {
+    const { lines, base } = verseOf(book);
+    const b0 = base.get(seg.id) ?? 0;
+    const shown = verseLines(book, seg, marked, around);
+    if (!shown.length) return [marked[0] ?? 0, (marked[0] ?? 0) + 1];
+    const first = lines[shown[0]];
+    const last = lines[shown.at(-1)!];
+    return [first.first - b0, last.first + Math.max(1, last.n) - b0];
+  }
+  // The lines as printed, punctuation kept, each word a button, the `marked`
+  // words (counted from `seg`'s first) in <mark>; each line numbered as the
+  // edition prints it where there are several, and "…" where lines are left out.
+  function verseHtml(work: string, book: BookData, seg: Segment, marked: Set<number>, around: number): string {
+    const { lines, base } = verseOf(book);
+    const b0 = base.get(seg.id) ?? 0;
+    const shown = verseLines(book, seg, marked, around);
+    const numbered = shown.length > 1;
+    let html = '';
+    shown.forEach((i, k) => {
+      const { seg: s, line, first, at } = lines[i];
+      if (k && i > shown[k - 1] + 1) html += '<span class="vl vl-gap" aria-hidden="true">…</span>';
+      const index = new Map<Token, number>();
+      line.tokens.forEach((tok, j) => index.set(tok, j));
+      const text = lineRenderParts(line.text, line.tokens).map(part => {
+        if (part.kind === 'text') return esc(part.text);
+        if (part.kind !== 'token') return '';
+        const j = index.get(part.tok)!;
+        const w = esc(part.text);
+        return wordButton(work, s, at + j, marked.has(first + j - b0) ? `<mark>${w}</mark>` : w);
+      }).join('').trim();
+      html += `<span class="vl">${numbered ? `<span class="ln" aria-hidden="true">${esc(line.ref ?? String(line.n))}</span> ` : ''}${keepStops(text)}</span>`;
+    });
+    return html;
+  }
+  // An edition's speech names, by book (its chapter-titles.json); none where
+  // it does not load.
+  const editionTitles = new Map<string, Promise<Record<string, Record<string, string>>>>();
+  function fetchEditionTitles(work: string, ed: string): Promise<Record<string, Record<string, string>>> {
+    const key = `${work}:${ed}`;
+    let p = editionTitles.get(key);
+    if (!p) {
+      p = fetch(`${editionBase(work, ed)}/chapter-titles.json`).then(r => (r.ok ? r.json() : {})).catch(() => ({}));
+      editionTitles.set(key, p);
+    }
+    return p;
   }
 
   // A whole section's Greek as the page has it: every line, punctuation kept,
@@ -3974,6 +4219,21 @@
     return a.line - b.line || (a.at ?? 0) - (b.at ?? 0);
   }
 
+  // A licensed passage's translator and licence (EnglishChunk.credit, a
+  // column_sources passage), wherever its English is shown: beside the hit
+  // and in the CSV (finding 1, Sol review). Only the primary translation is
+  // the passage's own English.
+  function formatSearchCredit(credit: TranslationCredit): string {
+    return `Tr. ${credit.translator} (${credit.year})${credit.licence ? ` — ${credit.licence.name}` : ''}.`;
+  }
+  function creditOf(segs: Map<string, Segment>, inst: Instance, translation: string): string {
+    const t = translationRef(inst.work, translation);
+    if (t && t.slot !== 'english') return '';
+    let seg = inst.seg ? segs.get(`${inst.work}:${inst.seg}`) : undefined;
+    if (!seg) for (const [key, s] of segs) if (key.startsWith(`${inst.work}:`) && s.column === inst.column) { seg = s; break; }
+    return seg?.english?.credit ? formatSearchCredit(seg.english.credit) : '';
+  }
+
   // --- CSV export (the FULL result set, every page) ------------------------
   function stripHtml(html: string): string {
     return html
@@ -3994,32 +4254,35 @@
       // retried). If some book truly can't load, the CSV omits those rows and
       // we say so rather than silently shipping a short file.
       // A row per hit, whatever the page shows.
-      const { groups: allGroups, failed } = await buildGroups(shownResults, searchCtx, '3', true);
+      const { groups: allGroups, failed, segs } = await buildGroups(shownResults, searchCtx, '3', true);
       const origin = typeof location !== 'undefined' ? location.origin : '';
-      // One row per hit, with quoted text fields and the reader URL last.
-      const rows: string[][] = [['Work', 'Book', 'Speech', 'Bekker', 'Language', 'Translation', 'Snippet', 'URL']];
+      // One row per hit, with quoted text fields: the play, the printed line,
+      // the speech's speaker, the language, whose translation, the snippet,
+      // the reader URL, and a credited passage's attribution (the old page's
+      // Attribution column, finding 1).
+      const rows: string[][] = [['Play', 'Line', 'Speaker', 'Language', 'Translation', 'Snippet', 'URL', 'Attribution']];
       for (const g of allGroups) {
         const w = getWork(g.work);
-        const workTitle = w?.title ?? g.work;
-        const book = w?.bookLabels[g.book - 1] ?? String(g.book);
+        const play = w?.title ?? g.work;
+        const speaker = g.title ?? '';
         for (const inst of g.instances) {
           // A Greek hit, then one row per translation: each is its own hit,
           // in its own words. An instance may hold both.
           if (inst.lang === 'grk' || !inst.rows) {
             rows.push([
-              workTitle, String(book), g.chapter, inst.ref,
+              play, inst.ref, speaker,
               inst.lang === 'grk' ? 'Greek' : 'English',
-              '', stripHtml(inst.html), origin + inst.jumpUrl,
+              '', stripHtml(inst.html), origin + inst.jumpUrl, '',
             ]);
           }
           // An English row cites its column (John, 13 Nov), even under a
           // Greek hit, whose own row keeps its line.
-          const engRef = inst.lang === 'eng' || isChapterSection(w) ? inst.ref : formatCite(g.work, inst.column);
+          const engRef = inst.lang === 'eng' || isChapterSection(w) || playLine(g.work) ? inst.ref : formatCite(g.work, inst.column);
           for (const row of inst.rows ?? []) {
             const t = translationRef(g.work, row.translation);
             rows.push([
-              workTitle, String(book), g.chapter, engRef, 'English',
-              t?.short ?? row.translation, stripHtml(row.html), origin + row.jumpUrl,
+              play, engRef, speaker, 'English',
+              t?.short ?? row.translation, stripHtml(row.html), origin + row.jumpUrl, creditOf(segs, inst, row.translation),
             ]);
           }
         }
@@ -4030,7 +4293,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `aristotle-search-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = `drama-search-${new Date().toISOString().slice(0, 10)}.csv`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -4051,7 +4314,7 @@
 
   type Lang = 'greek' | 'english' | 'both';
   let lang: Lang = 'greek';
-  $: lang = engQuery.trim() ? (grkQuery.trim() || soloLemmaActive ? 'both' : 'english') : 'greek';
+  $: lang = engQuery.trim() ? (grkQuery.trim() || soloLemmaActive || (ENGLISH_BESIDE_NEAR && comboActive) ? 'both' : 'english') : 'greek';
   function clearGreek() {
     grkQuery = '';
     lemmaOn = false;
@@ -4554,7 +4817,7 @@
       {#if run.book}<h3 class="sx-book">Book {run.book.label}{#if run.book.hits !== undefined}{' '}<span class="sx-book-n">{run.book.hits}</span>{/if}</h3>{/if}
       {#if run.chapter}
         {@const name = chapterName(run.chapter)}
-        <h3 class="sx-chap"><span class="sx-chap-n">{name.label}</span>{#if name.title}{' '}<span class="sx-chap-t">{name.title}</span>{/if}</h3>
+        <h3 class="sx-chap">{#if name.label}<span class="sx-chap-n" class:spk={run.chapter.spk !== undefined} style:color={run.chapter.spk !== undefined ? `var(--spk-${run.chapter.spk})` : undefined}>{name.label}</span>{' '}{/if}<span class="sx-chap-t">{name.title}</span></h3>
       {/if}
       </div>
       <ul class="instance-list">
@@ -4605,10 +4868,12 @@
                 </span>
               {/if}
               {#if shown}
+                {@const credit = creditOf(pageSegs, inst, shown.translation)}
                 <div class="inst-en inst-rows" class:inst-hit-en={!whole && inst.lang === 'eng'} lang="en">
                   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                   <span class="inst-snippet">{@html shown.html}</span>
                   {@render names(inst, rows ?? [], shown.translation, transOrder)}
+                  {#if credit}<span class="inst-credit">{credit}</span>{/if}
                 </div>
               {:else if pair}
                 <div class="inst-en inst-pair" lang="en">
@@ -4624,7 +4889,7 @@
               {/if}
               {#if !inst.isSection && inst.whole}
                 <button type="button" class="inst-more" aria-expanded={opened}
-                  on:click={() => toggleMore(inst)}>{opened ? 'Show less' : 'Show the whole section'}</button>
+                  on:click={() => toggleMore(inst)}>{opened ? 'Show less' : 'Show the whole speech'}</button>
               {/if}
             </div>
             {#if inst.speaker}
@@ -4745,7 +5010,7 @@
               <legend class="opt-title sheet-head" id="grk-form-head">{lang === 'both' ? 'Greek form' : 'Form'}</legend>
               <div class="opt-row">
                 <label class="ck"><input type="radio" name="matchmode" value="lemma" bind:group={matchMode} aria-describedby={narrowScreen ? undefined : "gf-lemma"} /><span>Any form of this word</span></label>
-                {#if !narrowScreen}<small class="opt-gloss" id="gf-lemma"><span lang="grc">ἀρετή</span> finds <span lang="grc">ἀρετῆς</span> and <span lang="grc">ἀρετάς</span></small>{/if}
+                {#if !narrowScreen}<small class="opt-gloss" id="gf-lemma"><span lang="grc">δίκη</span> finds <span lang="grc">δίκης</span> and <span lang="grc">δίκας</span></small>{/if}
               </div>
               <div class="opt-row">
                 <label class="ck"><input type="radio" name="matchmode" value="form" bind:group={matchMode} aria-describedby={narrowScreen ? undefined : "gf-form"} /><span>Only as I typed it</span></label>
@@ -4780,7 +5045,15 @@
           </div>
         </div>
 {/if}
+        {#if editionChoices.length}
+          <!-- Greek text to search (plan 4.5), behind PUBLIC_EDITIONS=1. -->
+          <div class="sopt-ed" title="An edition is searched in Greek-only searches, in the plays that have it">
+            <select aria-label="Greek text to search" value={greekEd} on:change={(e) => (greekEd = e.currentTarget.value)}><option value="tlg">Each play’s main text</option>{#each editionChoices as e}<option value={e.id}>{e.label}</option>{/each}</select>
+          </div>
+        {/if}
       </div>
+      {/if}
+      {#if ENGLISH_BESIDE_NEAR || (!comboActive && !advancedOpen && !proxLive)}
       {#if lang === 'both'}          <details class="opt join" on:toggle={closeOtherOpts}>
             <summary><span class="sr-only">Hits match </span><b>{OP_LABEL[langOp]}{@render caret()}</b></summary>
             <fieldset class="opt-panel sheet op-group" {...optSheetAttrs('hits-match-head', optSheetHead, narrowScreen)}>
@@ -4795,7 +5068,7 @@
       <div class="lg lg-e">
         <div class="sq-head h-e"><label class="query-label" for="eng-input">English</label>{#if engQuery.trim()}<button type="button" class="query-clear" aria-label="Clear English" on:click={clearEnglish}>Clear</button>{/if}</div>
         <div class="sq-row e">
-          <textarea id="eng-input" class="query-input" placeholder="e.g. virtue" rows="1" bind:value={engQuery} on:keydown={onEnter} use:growQuery={engQuery} autocomplete="off"></textarea>
+          <textarea id="eng-input" class="query-input" placeholder="e.g. justice" rows="1" bind:value={engQuery} on:keydown={onEnter} use:growQuery={engQuery} autocomplete="off"></textarea>
         </div>
         {#if engQuery.trim()}        <div class="sopt-e d6-opts d6-opts-e d6-orow">
 {#if true}
@@ -4819,7 +5092,7 @@
           </details>
           <details class="opt phone-option" on:toggle={closeOtherOpts}>
             <summary><span class="sr-only">English form{' '}</span><b>{engForms ? 'any form' : 'exact form'}{@render caret()}</b></summary>
-            <fieldset class="opt-panel sheet" {...optSheetAttrs('eng-form-head', optSheetHead, narrowScreen)} title="Any form: virtue also finds virtues and virtue’s, man finds men. Only as I typed it: the spelling you gave, and no other.">
+            <fieldset class="opt-panel sheet" {...optSheetAttrs('eng-form-head', optSheetHead, narrowScreen)} title="Any form: god also finds gods and god’s, man finds men. Only as I typed it: the spelling you gave, and no other.">
               <legend class="opt-title sheet-head" id="eng-form-head">{lang === 'both' ? 'English form' : 'Form'}</legend>
               <div class="opt-row"><label class="ck"><input type="radio" name="engforms" value={true} bind:group={engForms} /><span>Any form of this word</span></label></div>
               <div class="opt-row"><label class="ck"><input type="radio" name="engforms" value={false} bind:group={engForms} /><span>Only as I typed it</span></label></div>
@@ -4827,6 +5100,17 @@
             </fieldset>
           </details>
         </div>
+        <!-- The plays' English near (en=): the old page's row and words. -->
+        {#if ENGLISH_BESIDE_NEAR}<div class="eng-near">
+          <label class="eng-near-l" for="eng-near-input">English near</label>
+          <input id="eng-near-input" class="eng-near-in" type="search" aria-label="English near: word" placeholder="another word" bind:value={engNearText} on:keydown={onEnter} autocomplete="off" />
+          {#if engNearText.trim()}
+            <select aria-label="English near: where" bind:value={engNearRel}><option value="near">on either side of</option><option value="before">before</option><option value="after">after</option></select>
+            <span>the English words,</span>
+            <select aria-label="English near: how many words" bind:value={engNearWindow}>{#each ENG_NEAR_WINDOWS as n}<option value={n}>{n}</option>{/each}</select>
+            <span>words away</span>
+          {/if}
+        </div>{/if}
 {/if}
       </div>
       {/if}
@@ -4851,6 +5135,11 @@
           </button>
         {/if}
       </div>
+      <!-- Where the old page had them, beside Search; the Try list has its own. -->
+      {#if !(showTry && !searched && !loading && !error && !narrowPrompt)}<p class="sx-help-links">
+        <a href={`${BASE_URL}/search/how`}>How to search</a>
+        <a href={`${BASE_URL}/search/phrases`}>Phrase index</a>
+      </p>{/if}
       </div>
     </div>
     {#if lemmaOn && sugg.length}
@@ -4860,7 +5149,7 @@
     {/if}
 
     {#if loading && rtProgress}
-      <p class="rt-progress">Searching {rtProgress.done} of {rtProgress.total} work{rtProgress.total === 1 ? '' : 's'}…</p>
+      <p class="rt-progress">Searching {rtProgress.done} of {rtProgress.total} play{rtProgress.total === 1 ? '' : 's'}…</p>
     {/if}
     <!-- Proximity (§5.5): the search in one sentence while it is live, with
          Turn off · Close (Change when shut) · Guide; the editor under it. -->
@@ -4910,7 +5199,7 @@
 
                 <div class="prox-word prox-c1">
                   {#if slot.kind === 'lemma'}
-                    {@render lemmaPicker(slot, `Term ${n}`, lemmaGlosses, TERM_EXAMPLES[i] ?? 'ἀρετή')}
+                    {@render lemmaPicker(slot, `Term ${n}`, lemmaGlosses, TERM_EXAMPLES[i] ?? 'δίκη')}
                   {:else if slot.kind === 'grammatical'}
                     <span class="prox-gram" class:prox-empty={!Object.keys(slot.grammar).length}>{Object.keys(slot.grammar).length ? grammarWords(slot.grammar) : 'any word'}</span><button type="button" class="prox-link prox-gx" aria-expanded={!!slot.grammarOpen} aria-controls={`grammar-${slot.id}`} on:click={() => { slot.grammarOpen = !slot.grammarOpen; comboEditors = [...comboEditors]; }}>{slot.grammarOpen ? 'Done' : 'Change'}</button>
                   {:else}
@@ -4919,7 +5208,7 @@
                       class="prox-field"
                       lang="grc"
                       type="text"
-                      placeholder={slot.kind === 'phrase' ? 'e.g. τὸ τί ἦν εἶναι' : `e.g. ${TERM_EXAMPLES[i] ?? 'ἀρετή'}`}
+                      placeholder={slot.kind === 'phrase' ? 'e.g. ὦ Ζεῦ' : `e.g. ${TERM_EXAMPLES[i] ?? 'δίκη'}`}
                       aria-label={`Term ${n}: ${slot.kind === 'phrase' ? 'the words, in order' : 'the word as written'}`}
                       value={slot.text}
                       on:input={(e) => setComboText(slot.id, e.currentTarget.value)}
@@ -5023,7 +5312,7 @@
     {/if}
 
     <!-- The works picker, opened from In's "Choose works…". -->
-    <div id="works-panel" class="works-panel" role="group" aria-label="Works to search" hidden={!worksOpen}>
+    <div id="works-panel" class="works-panel" role="group" aria-label="Plays to search" hidden={!worksOpen}>
       {#if worksOpen}
         <div class="works-body">
           <div class="works-actions">
@@ -5033,7 +5322,7 @@
             <button type="button" class="works-done" on:click={closeWorks}>Done</button>
           </div>
 
-          <input type="search" class="works-find" placeholder="Find a work" aria-label="Find a work" bind:value={worksFind}
+          <input type="search" class="works-find" placeholder="Find a play" aria-label="Find a play" bind:value={worksFind}
             autocomplete="off" spellcheck="false" />
 
           {#if AUTH_SPLIT}<div class="works-auth" role="group" aria-label="Filter works by authorship status">
@@ -5103,7 +5392,7 @@
             </p>
           {:else}
             {#if rosterLoading}
-              <p class="speaker-note">Reading the cast of the selected works…</p>
+              <p class="speaker-note">Reading the cast of the selected plays…</p>
             {:else if rosterError}
               <p class="speaker-note warn">
                 The cast could not be loaded: {rosterError}
@@ -5266,7 +5555,7 @@
     <p class="search-error">{error}</p>
   {:else if narrowPrompt}
     <div class="narrow-prompt" role="group" aria-label="Narrow the search">
-      <button type="button" on:click={() => openNarrower('works')}>Choose works</button>
+      <button type="button" on:click={() => openNarrower('works')}>Choose plays</button>
       {#if SPEAKERS}<button type="button" on:click={() => openNarrower('speakers')}>Choose speakers</button>{/if}
       <button type="button" on:click={() => openNarrower('word')}>Add a word near or not near</button>
     </div>
@@ -5430,7 +5719,7 @@
             <div class="sx-menu">
               {#if nestRows ? nestChoice : workChoice}
                 <button type="button" class="sx-nav" bind:this={menuRows.works} on:click={() => openScreen('works')}>
-                  <span>Works</span>{' '}<small>{workFilter ? getWork(workFilter)?.title ?? workFilter : `All ${workCounts.length}`}</small>{' '}<span class="gt">›</span>
+                  <span>Plays</span>{' '}<small>{workFilter ? getWork(workFilter)?.title ?? workFilter : `All ${workCounts.length}`}</small>{' '}<span class="gt">›</span>
                 </button>
               {/if}
               {#if transChoice && !nestRows}
@@ -5460,12 +5749,12 @@
                to it, drawn as an ink bar with its ×; choosing it again lifts
                the narrowing. -->
           {#if nestRows && nestChoice && (!sheetOpen || sheetScreen === 'works')}
-            <div class="sx-row sx-works sx-nest" role="group" aria-label="Show hits from one work or one translation">
-              <span class="k">Works with hits <small>by count</small></span>
+            <div class="sx-row sx-works sx-nest" role="group" aria-label="Show hits from one play or one translation">
+              <span class="k">Plays with hits <small>by count</small></span>
               <div class="sx-list">
                 {#if sheetOpen}
                   <button type="button" class="i i-all" class:on={!workFilter && !transFilter} aria-pressed={!workFilter && !transFilter}
-                    on:click={clearNest}><span class="i-t">All works</span></button>
+                    on:click={clearNest}><span class="i-t">All plays</span></button>
                 {/if}
                 {#each nestRows as w (w.id)}
                   {@const on = nestOn(w.id, null, workFilter, transFilter)}
@@ -5482,13 +5771,13 @@
               </div>
             </div>
           {:else if workChoice && !nestRows && (!sheetOpen || sheetScreen === 'works')}
-            <div class="sx-row sx-works" role="group" aria-label="Show hits from one work">
-              <span class="k">Works with hits <small>by count</small></span>
+            <div class="sx-row sx-works" role="group" aria-label="Show hits from one play">
+              <span class="k">Plays with hits <small>by count</small></span>
               <div class="sx-list">
                 <!-- The sheet's lists are one choice of many, from all (q07). -->
                 {#if sheetOpen}
                   <button type="button" class="i i-all" class:on={!workFilter} aria-pressed={!workFilter}
-                    on:click={() => { if (workFilter) setWorkFilter(workFilter); }}><span class="i-t">All works</span></button>
+                    on:click={() => { if (workFilter) setWorkFilter(workFilter); }}><span class="i-t">All plays</span></button>
                 {/if}
                 {#each workCounts as wc}
                   <button type="button" class="i" class:on={workFilter === wc.id} aria-pressed={workFilter === wc.id}
@@ -5643,10 +5932,11 @@
               </div>
             {/if}
             {#if failedWorks.length}
+              <!-- The plays' notice (Astra lane A, F10): the plays by title, and Retry. -->
               <div class="sx-note warn" role="alert">
                 <span class="k">Warning</span>
-                <span>{failedWorks.length === 1 ? 'The index for' : 'The indexes for'} {failedWorks.map((w) => getWork(w)?.title ?? w).join(', ')} did not load, so {failedWorks.length === 1 ? 'its' : 'their'} results are missing and the counts below may be short.</span>
-                <button type="button" class="a" on:click={doSearch}>Try again</button>
+                <span>Some plays could not be searched: {playsPhrase(failedWorks)}.</span>
+                <button type="button" class="a retry-btn" on:click={doSearch} disabled={loading}>Retry</button>
               </div>
             {/if}
             {#if formsFailed}
@@ -5731,6 +6021,7 @@
                 <button type="button" class="group-head" class:work-head={!!sec.work} on:click={() => toggle(g.key)} aria-expanded={expanded.has(g.key)}>
                   {#if sec.work}
                     <span class="work-name">{g.label}</span>
+                    {#if g.who}<span class="work-who">{g.who}</span>{/if}
                   {:else}
                     <span class="group-label" class:grc={g.greek} lang={g.greek ? 'grc' : undefined}>{g.label}</span>
                   {/if}

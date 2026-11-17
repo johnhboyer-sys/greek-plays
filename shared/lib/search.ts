@@ -177,6 +177,25 @@ function loadLemmaMap(letter: string): Promise<Record<string, string[]>> {
   return _lemmaMap(letter);
 }
 
+/** The plays' Near: the headwords a typed word belongs to, as the old Near
+ * read a lemma term with none ticked (legacy headFolds): every head the
+ * lemma map gives its fold, else the fold itself; a pattern stays as typed.
+ * A map that does not load reads as the fold. */
+export async function lemmaHeads(typed: string): Promise<string[]> {
+  // In Beta Code a leading * is the capital, not a pattern.
+  const word = typed.replace(/^\*+(?=\p{L})/u, '');
+  if (word.includes('*') || word.includes('?')) return [word];
+  const fold = greekFold(word);
+  if (!fold) return [word];
+  try {
+    const shard = await loadLemmaMap(/^[a-z]/.test(fold) ? fold[0] : '_');
+    const heads = Object.hasOwn(shard, fold) ? shard[fold] : undefined;
+    return heads?.length ? [...heads] : [fold];
+  } catch {
+    return [fold];
+  }
+}
+
 // The grammatical column is binary (one small int per token, indexed by global
 // offset), so it needs arrayBuffer rather than json. Cached the same way, in
 // its own memo — the one .bin file never shares a key with a JSON index.
@@ -885,7 +904,13 @@ export type LangOp = 'and' | 'or' | 'xor';
 // A query with a unit of several words (a phrase, a hyphenated term) also
 // gives `matches`, the first word of each run the query matched, a run of
 // several words one match (John, 2026-11-11).
-export interface EngHit { translation: string; positions: number[]; matches?: number[] }
+export interface EngHit { translation: string; positions: number[]; matches?: number[]; near?: number[] }
+
+/** The plays' English near (en=): a second English word or phrase close to
+ * the English box's words, in the same translation's text, `window` words
+ * (1–50) start to start, before or after judged by the runs' ends; the two
+ * may not overlap. A hit is each run of the box's words that has one. */
+export interface EngNear { term: string; relation: 'near' | 'before' | 'after'; window: number }
 
 export interface SearchResult {
   work: string;           // which work this hit belongs to
@@ -916,6 +941,9 @@ export interface SearchResult {
   // The plays: the Greek edition the hit was found in (its meta, segment ids
   // and book are that edition's); absent for the reference text.
   ed?: string;
+  // The segment's index in its work's meta and offsets: two segments may
+  // share a book and column (Helen's two "post 1226", Seven's 803 and 810).
+  seg?: number;
 }
 
 // Windows as SearchResult keeps them: a token two share is the first's, and
@@ -1353,6 +1381,54 @@ function queryIndexes(greekStream: 'lemma' | 'form', grkTerms: string[], engTerm
   };
 }
 
+// The plays' English near, in one translation's index: each segment where a
+// run of the box's words has the near term's run within the window (EngNear),
+// with those runs' first words as the matches (one hit each), and every word
+// of both marked: the near words also in `near`.
+function englishNear(
+  idx: EngIndex,
+  units: string[][],
+  engMode: SearchMode,
+  forms: boolean,
+  near: EngNear,
+  segs: Set<number>,
+  positions: Map<number, number[]>,
+  matches: Map<number, number[]>,
+): Map<number, EngHit> {
+  const out = new Map<number, EngHit>();
+  const nearUnit = englishQueryUnits(near.term).flat();
+  if (!nearUnit.length) return out;
+  const partners = unitMatch(idx, nearUnit, forms).starts;
+  const window = Math.max(1, Math.min(Number.isFinite(near.window) ? Math.trunc(near.window) : COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX));
+  // A phrase's runs are its matches; otherwise each word is a run of one.
+  const length = engMode === 'phrase' ? Math.max(1, units.flat().length) : 1;
+  const n = nearUnit.length;
+  for (const si of segs) {
+    const others = partners.get(si);
+    if (!others?.length) continue;
+    const anchors = engMode === 'phrase' ? matches.get(si) ?? positions.get(si) ?? [] : positions.get(si) ?? [];
+    const kept = new Set<number>();
+    const marks = new Set<number>();
+    for (const a of anchors) for (const b of others) {
+      if (b < a + length && a < b + n) continue;                 // overlapping runs
+      if (near.relation === 'before' && b + n - 1 >= a) continue;
+      if (near.relation === 'after' && b <= a + length - 1) continue;
+      if (Math.abs(a - b) > window) continue;
+      kept.add(a);
+      for (let k = 0; k < n; k++) marks.add(b + k);
+    }
+    if (!kept.size) continue;
+    const anchorWords = [...kept].flatMap(a => Array.from({ length }, (_, k) => a + k));
+    out.set(si, {
+      translation: '',
+      positions: [...new Set([...anchorWords, ...marks])].sort((x, y) => x - y),
+      matches: [...kept].sort((x, y) => x - y),
+      near: [...marks].sort((x, y) => x - y),
+    });
+  }
+  return out;
+}
+
 // Search one work, returning hits tagged with that work.
 async function searchWork(
   work: string,
@@ -1364,6 +1440,7 @@ async function searchWork(
   indexes: QueryIndexes,
   engForms: boolean,
   speaker?: SpeakerFilter,
+  engNear?: EngNear,
 ): Promise<WorkOutcome> {
   // Fetch only what this query needs: the Greek index iff there are Greek
   // terms; an English index per translation iff there are English terms; the
@@ -1422,10 +1499,13 @@ async function searchWork(
       const idx = engIdxs[i];
       if (!idx) return;
       const { segs: hits, positions, matches } = englishMatch(idx, engUnits, engMode, engForms);
-      for (const si of hits) {
+      const near = engNear ? englishNear(idx, engUnits, engMode, engForms, engNear, hits, positions, matches) : null;
+      for (const si of near ? near.keys() : hits) {
         engHits!.add(si);
-        const hit: EngHit = { translation: t.id, positions: positions.get(si) ?? [] };
-        if (matches.has(si)) hit.matches = matches.get(si);
+        const n = near?.get(si);
+        const hit: EngHit = n ?? { translation: t.id, positions: positions.get(si) ?? [] };
+        if (n) hit.translation = t.id;
+        else if (matches.has(si)) hit.matches = matches.get(si);
         const arr = engBySeg.get(si);
         if (arr) arr.push(hit);
         else engBySeg.set(si, [hit]);
@@ -1520,6 +1600,7 @@ async function searchWork(
     .map(si => ({
       work,
       meta: meta[si],
+      seg: si,
       grkMatch: grkHits?.has(si) ?? false,
       engMatch: engHits?.has(si) ?? false,
       ...(engHits ? { engHits: engBySeg.get(si) ?? [] } : {}),
@@ -1776,7 +1857,7 @@ export async function searchPhraseVariants(
         const grkPositions = [...bySeg.get(si)!.keys()].sort((a, b) => a - b);
         return {
           work,
-          meta: meta[si],
+          meta: meta[si], seg: si,
           grkMatch: true,
           engMatch: false,
           grkPositions,
@@ -1841,6 +1922,12 @@ export interface ComboSlot {
   or?: boolean;
   // The index of the earlier slot this one is measured from; default 0.
   target?: number;
+  // The plays: a phrase whose every position may be any of several keys
+  // (`options`, one list per word), matched in the lemma index when `match`
+  // is 'lemma': the Greek box's words as a Near search's first term, each by
+  // its headwords (near-engine.md rule 1). `terms` is then unset.
+  options?: string[][];
+  match?: 'lemma' | 'form';
 }
 
 // The terms a query asks for: each run of or-joined slots made one, with the
@@ -1873,7 +1960,7 @@ export function comboGroups<T extends ComboJoin>(slots: T[], usable: (slot: T) =
   return out;
 }
 const slotUsable = (s: ComboSlot) =>
-  s.kind === 'grammatical' ? Object.keys(s.query ?? {}).length > 0 : (s.terms ?? []).length > 0;
+  s.kind === 'grammatical' ? Object.keys(s.query ?? {}).length > 0 : (s.terms ?? s.options ?? []).length > 0;
 
 export type WindowUnit = 'words' | 'line' | 'turn' | 'chapter';
 
@@ -1887,6 +1974,30 @@ export interface ComboOptions {
   // than filtering the anchor alone: "ἀρετή near ἐπιστήμη in Socrates' mouth"
   // should not be satisfied by his ἀρετή and Protagoras' ἐπιστήμη.
   speaker?: SpeakerFilter;
+  // The plays' Near rules (John, 25–26 Oct; works.ts NEAR_RULES turns them
+  // on). Each one unset keeps Aristotle's rule.
+  // Every term must match a word of its own: no word answers two terms, and
+  // no term overlaps another's run ("θεῶν near a genitive" is not answered
+  // by θεῶν itself). Unset, only identical terms are kept apart.
+  distinctWords?: boolean;
+  // Words between two terms counted from the nearer end of each, so a
+  // phrase before the first word is measured from its last word. Unset,
+  // start to start.
+  fromNearerEnd?: boolean;
+  // The line unit as `window` lines on either side of the first word's line
+  // (0 = its own line, up to 10), counted as the edition prints them, lacuna
+  // lines too. Unset, the line unit is the same line only.
+  linesEitherSide?: boolean;
+  // A match belongs to its first term's word: filed in that word's section,
+  // its window listing that word first (so it is counted in that word's
+  // speech), and counted once for every such word, however many words it
+  // shares with another match. Unset, a match is filed by its leftmost word
+  // and a match whose words another has all taken is dropped.
+  byFirstWord?: boolean;
+  // Of the words that could answer a term, try first one whose every reading
+  // fits, then the nearest, then the leftmost: the word marked is the likeliest.
+  // Unset, index order.
+  preferCertain?: boolean;
 }
 
 // A slot's hits in one work, as global offsets. `span` is how many tokens the
@@ -1921,12 +2032,20 @@ function slotHits(
     return out;
   }
 
-  const terms = slot.terms ?? [];
+  const terms = slot.terms ?? slot.options?.map(o => o[0] ?? '') ?? [];
   if (!terms.length) return out;
   // A lemma slot carries the exact heads the user ticked, so its terms are
   // unioned; a form or phrase slot is a single sequence.
-  const idx = slot.kind === 'lemma' ? lemmaIdx : formIdx;
+  const idx = slot.kind === 'lemma' || slot.match === 'lemma' ? lemmaIdx : formIdx;
   if (!idx) return out;
+
+  // A phrase of alternatives, one list per position (the plays' first term).
+  if (slot.kind === 'phrase' && slot.options) {
+    for (const [si, starts] of phraseStarts(idx, slot.options)) {
+      for (const p of starts) out.push({ start: base[si] + p, span: slot.options.length, certain: true });
+    }
+    return out;
+  }
 
   if (slot.kind === 'phrase' && terms.length > 1) {
     for (const [si, starts] of phraseStarts(idx, terms.map(t => [t]))) {
@@ -2079,6 +2198,20 @@ function windows(
   const turnStarts = (offsets.turn_bounds ?? []).map(t => t.start);
   const lines = opts.unit === 'line' ? lineStarts(offsets) : null;
   const words = opts.unit === 'words';
+  // The plays' rules (ComboOptions).
+  const nearer = words && !!opts.fromNearerEnd;
+  const distinct = !!opts.distinctWords;
+  // The words between two runs, counted from the nearer end of each: one
+  // word straight after a one-word run is 1 away; overlapping runs are 0.
+  const gap = (from: SlotHit, h: SlotHit) => (h.start >= from.start + from.span
+    ? h.start - (from.start + from.span) + 1
+    : h.start + h.span <= from.start ? from.start - (h.start + h.span) + 1 : 0);
+  // How far a hit stands from the one it is measured from, as the window counts.
+  const distance = (from: SlotHit, h: SlotHit) => (nearer ? gap(from, h) : Math.abs(h.start - from.start));
+  // Measured from nearer ends, a run reaches further by its length less one.
+  const longest = sorted.map(hits => hits.reduce((m, h) => Math.max(m, h.span), 1));
+  const extraBefore = (s: number) => (nearer ? longest[s] - 1 : 0);
+  const extraAfter = (from: SlotHit) => (nearer ? from.span - 1 : 0);
 
   // The offsets an anchor's partners may occupy: the structural unit the anchor
   // sits in. Computed once per anchor, so each slot is then a binary search
@@ -2092,7 +2225,17 @@ function windows(
     // Unset means true, as ComboOptions says: only an explicit false keeps a
     // match inside one speaker's turn (search port, near-engine.md rule 12).
     if (opts.crossTurn === false && turnStarts.length) clamp(unitRange(turnStarts, at, total));
-    if (opts.unit === 'line' && lines) clamp(unitRange(lines, at, total));
+    if (opts.unit === 'line' && lines) {
+      if (opts.linesEitherSide) {
+        // The anchor's line and `window` lines either side (John, 2026-10-26:
+        // "x number of lines away"; 0 lines is the same line).
+        let a = 0;
+        let b = lines.length - 1;
+        while (a < b) { const m = (a + b + 1) >> 1; if (lines[m] <= at) a = m; else b = m - 1; }
+        const n = Math.max(0, Math.trunc(opts.window) || 0);
+        clamp([lines[Math.max(0, a - n)], a + n + 1 < lines.length ? lines[a + n + 1] : total]);
+      } else clamp(unitRange(lines, at, total));
+    }
     if (opts.unit === 'turn' && turnStarts.length) clamp(unitRange(turnStarts, at, total));
     return [lo, hi];
   };
@@ -2106,7 +2249,7 @@ function windows(
   const fits = (h: SlotHit, unitLo: number, unitHi: number) => h.start >= unitLo && h.start + h.span <= unitHi;
   // Line and turn units: whether a NOT hit not exempt as the same query
   // stands in the unit, found once per unit, not once per anchor.
-  const unitBlocked = new Map<number, boolean>();
+  const unitBlocked = new Map<string, boolean>();
   const sameQueryAt = (n: NotSlot, h: SlotHit) => !!n.id && identities.some((id, k) => {
     if (id !== n.id) return false;
     const i = lowerBound(sorted[k], h.start);
@@ -2156,8 +2299,8 @@ function windows(
         if (h.start + h.span > uHi) return false;
         for (const c of children) {
           const relation = relations[c] ?? 'near';
-          const lo = Math.max(uLo, h.start - reach);
-          const hi = Math.min(uHi, h.start + reach + 1);
+          const lo = Math.max(uLo, h.start - reach - extraBefore(c));
+          const hi = Math.min(uHi, h.start + reach + 1 + extraAfter(h));
           if (!anyLive(c, relation === 'after' ? Math.max(lo, h.start + h.span) : lo, relation === 'before' ? Math.min(hi, h.start + 1) : hi)) return false;
         }
         if (opts.ordered && s + 1 < sorted.length && !anyLive(s + 1, h.start + h.span, uHi)) return false;
@@ -2193,7 +2336,7 @@ function windows(
     // to the first in the unit). A NOT hit a slot of the same query might
     // take is left to the final check, since whether it counts depends on
     // which partner is chosen; so is a NOT slot measured from a later slot.
-    const blocked = words ? undefined : unitBlocked.get(unitLo);
+    const blocked = words ? undefined : unitBlocked.get(`${unitLo}:${unitHi}`);
     if (blocked === true) continue;
     let clear = true;
     if (blocked === undefined) for (const n of nots) {
@@ -2208,7 +2351,7 @@ function windows(
       }
       if (!clear) break;
     }
-    if (!words) unitBlocked.set(unitLo, !clear);
+    if (!words) unitBlocked.set(`${unitLo}:${unitHi}`, !clear);
     if (!clear) continue;
 
     // Where slot s may stand, placed against `from`, the hit chosen for the
@@ -2218,8 +2361,8 @@ function windows(
     // first, so is read from the end; everything else from the start.
     const range = (s: number, from: SlotHit, list: SlotHit[], after: number): [number, number] => {
       const relation = relations[s] ?? 'near';
-      const lo = Math.max(unitLo, from.start - reach);
-      const hi = Math.min(unitHi, from.start + reach + 1);
+      const lo = Math.max(unitLo, from.start - reach - extraBefore(s));
+      const hi = Math.min(unitHi, from.start + reach + 1 + extraAfter(from));
       const first = Math.max(after, relation === 'after' ? Math.max(lo, from.start + from.span) : lo);
       const last = relation === 'before' ? Math.min(hi, from.start + 1) : hi;
       return [lowerBound(list, first), lowerBound(list, last)];
@@ -2228,7 +2371,8 @@ function windows(
     // and "before" measured by the END of the run, so a phrase only counts as
     // preceding when the whole run finishes first.
     const standsAt = (s: number, from: SlotHit, h: SlotHit) =>
-      h.start + h.span <= unitHi && !((relations[s] ?? 'near') === 'before' && h.start + h.span > from.start);
+      h.start + h.span <= unitHi && !((relations[s] ?? 'near') === 'before' && h.start + h.span > from.start)
+      && !(nearer && gap(from, h) > opts.window);
     const candidates = (s: number, from: SlotHit, list: SlotHit[], after: number): SlotHit[] => {
       const [i0, i1] = range(s, from, list, after);
       const picks = list.slice(i0, Math.max(i0, i1)).filter(h => standsAt(s, from, h));
@@ -2254,6 +2398,11 @@ function windows(
       return set;
     };
     taken(0)?.add(anchor.start);
+    // distinctWords: every token a chosen run holds, so no other term takes it.
+    const occupied = new Set<number>();
+    const overlaps = (h: SlotHit) => { for (let k = 0; k < h.span; k++) if (occupied.has(h.start + k)) return true; return false; };
+    const hold = (h: SlotHit, on: boolean) => { for (let k = 0; k < h.span; k++) { if (on) occupied.add(h.start + k); else occupied.delete(h.start + k); } };
+    if (distinct) hold(anchor, true);
     const place = (s: number): boolean => {
       if (s === sorted.length) return !(nots.length && excluded(take, unitLo, unitHi));
       const set = taken(s);
@@ -2262,14 +2411,24 @@ function windows(
       // The whole-query order lock: each slot after the one before it.
       const [i0, i1] = range(s, from, list, opts.ordered ? take[s - 1].start + take[s - 1].span : 0);
       const back = relations[s] === 'before';
-      for (let k = 0; k < i1 - i0; k++) {
+      let picks = Array.from({ length: Math.max(0, i1 - i0) }, (_, k) => list[back ? i1 - 1 - k : i0 + k]);
+      // preferCertain: a word every reading of which fits first (Morpheus also
+      // reads ἐμέ as the vocative of ἐμός; παῖ beside it is a vocative only),
+      // then the nearest, then the leftmost. Which word is marked changes;
+      // whether the match stands does not.
+      if (opts.preferCertain) {
+        picks = picks.sort((x, y) => Number(y.certain) - Number(x.certain)
+          || distance(from, x) - distance(from, y) || x.start - y.start);
+      }
+      for (const h of picks) {
         if (--budget.left < 0) throw new ProximityTooComplex();
-        const h = list[back ? i1 - 1 - k : i0 + k];
-        if (!standsAt(s, from, h) || set?.has(h.start)) continue;
+        if (!standsAt(s, from, h) || set?.has(h.start) || (distinct && overlaps(h))) continue;
         set?.add(h.start);
+        if (distinct) hold(h, true);
         take[s] = h;
         if (place(s + 1)) return true;
         set?.delete(h.start);
+        if (distinct) hold(h, false);
       }
       take.length = s;
       return false;
@@ -2287,9 +2446,10 @@ function windows(
         || (s + 1 < alt.length && h.start + h.span > alt[s + 1].start))) return false;
       for (let k = 0; k < alt.length; k++) {
         if (k !== s && identities[s] && identities[s] === identities[k] && h.start === alt[k].start) return false;
+        if (distinct && k !== s && h.start < alt[k].start + alt[k].span && alt[k].start < h.start + h.span) return false;
         if (k === 0 || (k !== s && targets[k] !== s)) continue;
         const from = alt[targets[k]], hit = alt[k];
-        if (words && Math.abs(hit.start - from.start) > opts.window) return false;
+        if (words && distance(from, hit) > opts.window) return false;
         if (relations[k] === 'after' && hit.start < from.start + from.span) return false;
         if (relations[k] === 'before' && hit.start + hit.span > from.start) return false;
       }
@@ -2343,8 +2503,8 @@ async function comboSearchWork(
   budget?: StepBudget,
 ): Promise<SearchResult[]> {
   const slots = groups.flatMap(g => g.members);
-  const needLemma = slots.some(s => s.kind === 'lemma');
-  const needForm = slots.some(s => s.kind === 'form' || s.kind === 'phrase');
+  const needLemma = slots.some(s => s.kind === 'lemma' || s.match === 'lemma');
+  const needForm = slots.some(s => s.kind === 'form' || (s.kind === 'phrase' && s.match !== 'lemma'));
   const needGrammar = slots.some(s => s.kind === 'grammatical');
 
   const [meta, offsets, lemmaIdx, formIdx, dict] = await Promise.all([
@@ -2411,6 +2571,7 @@ async function comboSearchWork(
     s.kind,
     s.terms ? (s.kind === 'phrase' ? s.terms.map(termMeaning) : s.terms.map(termMeaning).sort()) : null,
     s.query ? Object.fromEntries(Object.entries(s.query).sort(([a], [b]) => a.localeCompare(b))) : null,
+    ...(s.options ? [s.match ?? 'form', s.options.map(o => o.map(termMeaning).sort())] : []),
   ]);
   const slotIds = groups.map(g => (g.members.length === 1 ? slotId(g.members[0]) : JSON.stringify(g.members.map(slotId).sort())));
   const duplicated = new Set(slotIds.filter((id, i) => slotIds.indexOf(id) !== i));
@@ -2427,7 +2588,7 @@ async function comboSearchWork(
     let r = bySeg.get(si);
     if (!r) {
       r = {
-        work, meta: meta[si], grkMatch: true, engMatch: false,
+        work, meta: meta[si], seg: si, grkMatch: true, engMatch: false,
         grkPositions: [], grammar: [], windows: [],
         ...(speaker ? { speakers: [] } : {}),
       };
@@ -2443,6 +2604,10 @@ async function comboSearchWork(
   // the first's (global offsets, so a token is one token whichever section
   // a window starts in).
   const claimed = new Set<number>();
+  // byFirstWord: every match is its own, so a word two matches share is in
+  // both windows, though listed once among its section's words.
+  const byFirst = !!opts.byFirstWord;
+  const listedAt = new Map<number, Set<number>>();   // si -> positions in grkPositions
   // Report every matched token so the KWIC marks all of them. Ambiguity is
   // recorded PER SLOT, not per window: a lexically matched word is certain
   // whatever its neighbour's parse allows, and labelling it with the other
@@ -2450,11 +2615,19 @@ async function comboSearchWork(
   const mark = (si: number, list: number[], h: SlotHit) => {
     for (let k = 0; k < h.span; k++) {
       const g = h.start + k;
-      if (claimed.has(g)) continue;
-      claimed.add(g);
-      const result = resultFor(si);
       const hp = g - base[si];
-      list.push(hp);
+      if (byFirst) {
+        const own = listedAt.get(si) ?? listedAt.set(si, new Set()).get(si)!;
+        if (list.includes(hp)) continue;
+        list.push(hp);
+        if (own.has(hp)) continue;
+        own.add(hp);
+      } else {
+        if (claimed.has(g)) continue;
+        claimed.add(g);
+        list.push(hp);
+      }
+      const result = resultFor(si);
       result.grkPositions.push(hp);
       result.grammar!.push({ values: h.values ?? {}, certain: h.certain });
       // Every word of a slot's run carries the speaker it was kept on (its
@@ -2466,19 +2639,33 @@ async function comboSearchWork(
   // The matched words first, every window's, so which windows stand (and so
   // the count) is as it was; then the words in range of each anchor, on the
   // windows that stand, where no window has them.
-  const listed: { si: number; list: number[]; near: SlotHit[] }[] = [];
+  const listed: { si: number; list: number[]; near: SlotHit[]; head: number }[] = [];
+  // byFirstWord: the engine may find one match twice (from either end of a
+  // symmetric "near"); it is one hit (Libation Bearers 165, δίκη near θεός).
+  const once = new Set<string>();
   for (const w of windows) {
-    const [si] = locate(base, w.start);
+    if (byFirst) {
+      const key = w.hits.map(h => `${h.start}+${h.span}`).join(',');
+      if (once.has(key)) continue;
+      once.add(key);
+    }
+    // byFirstWord: the section of the first term's word, whatever stands
+    // before it (a partner may stand in the section before, at a position
+    // below 0, or in the next, past the section's last).
+    const [si] = locate(base, byFirst ? w.hits[0].start : w.start);
     const list: number[] = [];
     for (const h of w.hits) mark(si, list, h);
-    if (list.length) listed.push({ si, list, near: w.near });
+    if (list.length) listed.push({ si, list, near: w.near, head: byFirst ? w.hits[0].span : 0 });
   }
-  for (const { si, list, near } of listed) {
+  for (const { si, list, near, head: span } of listed) {
     // A word in range before the section the match is cited in has no place
     // on its row (positions count on from that section's first word), so it
     // is not marked; the match's own words never stand there.
     for (const h of near) if (h.start >= base[si]) mark(si, list, h);
-    bySeg.get(si)!.windows!.push(list.sort((a, b) => a - b));
+    // byFirstWord: the first term's words lead the window, so the match is
+    // counted where they stand (chapter-pages eachHit reads w[0]).
+    const head = list.splice(0, span);
+    bySeg.get(si)!.windows!.push([...head, ...list.sort((a, b) => a - b)]);
   }
   for (const r of bySeg.values()) {
     const order = r.grkPositions.map((p, i) => [p, i] as const).sort((a, b) => a[0] - b[0]);
@@ -2522,7 +2709,10 @@ export async function searchCombo(
 
   const bounded: ComboOptions = {
     ...opts,
-    window: Math.max(1, Math.min(opts.window || COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX)),
+    // The plays' lines either side: 0 (the same line) to 10.
+    window: opts.unit === 'line' && opts.linesEitherSide
+      ? Math.max(0, Math.min(Math.trunc(Number.isFinite(opts.window) ? opts.window : 0), 10))
+      : Math.max(1, Math.min(opts.window || COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX)),
   };
   const failedWorks: string[] = [];
   const budget: StepBudget = { left: COMBO_STEP_BUDGET };
@@ -2791,8 +2981,10 @@ export async function search(
   engForms = false,
   speaker?: SpeakerFilter,
   ed?: string | null,
+  engNear?: EngNear | null,
 ): Promise<SearchOutcome> {
   if (!grkQuery.trim() && !engQuery.trim()) return { results: [], failedWorks: [] };
+  if (!engNear?.term.trim() || !engQuery.trim()) engNear = null;
   if (!works.length) return { results: [], failedWorks: [] };
   // An empty name list would mean "only nobody" or "anyone but nobody"; treat
   // both as no filter rather than return an empty corpus or the whole one.
@@ -2806,9 +2998,11 @@ export async function search(
   // "Any form" looks each word's forms up in the index it is handed, which on
   // the shard path holds only the keys cut for these terms: so the forms are
   // terms here, and may fall in other shards than the word ("men", "man").
+  // The English near term is looked up in the same indexes.
+  const engWords = [...engUnits.flat(), ...(engNear ? englishQueryUnits(engNear.term).flat() : [])];
   const engTerms = engForms
-    ? engUnits.flat().flatMap(t => englishForms(englishTerm(t)))
-    : engUnits.flat();
+    ? engWords.flatMap(t => englishForms(englishTerm(t)))
+    : engWords;
   const indexes = queryIndexes(matchMode === 'form' ? 'form' : 'lemma', grkTerms.flat(), engTerms);
 
   // Bound how many works load at once, and let a single work's failed index
@@ -2821,7 +3015,7 @@ export async function search(
       // A play holding the edition asked for is read in it, Greek-only.
       const useEd = greekEditionOf(w, ed, engUnits.length > 0);
       const { results, unsearched } =
-        await searchWork(edKey(w, useEd), grkTerms, engUnits, grkMode, engMode, langOp, indexes, engForms, speaker);
+        await searchWork(edKey(w, useEd), grkTerms, engUnits, grkMode, engMode, langOp, indexes, engForms, speaker, engNear ?? undefined);
       if (useEd) for (const r of results) { r.work = w; r.ed = useEd; }
       for (const translation of unsearched) unsearchedTranslations.push({ work: w, translation });
       return results;
@@ -2880,7 +3074,7 @@ async function grammarSearchWork(work: string, query: GrammarQuery): Promise<Sea
     if (!result) {
       result = {
         work,
-        meta: meta[si],
+        meta: meta[si], seg: si,
         grkMatch: true,
         engMatch: false,
         grkPositions: [],

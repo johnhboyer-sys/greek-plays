@@ -18,11 +18,15 @@ vi.hoisted(() => {
 afterEach(() => { vi.restoreAllMocks(); history.replaceState({}, '', '/'); });
 
 describe('search hits from the fixture edition index (always runs)', () => {
-  // search-port lane 2: edition picker on the search page
-  it.skip('every hit carries ed=mini and view=greek, and lands on a segment holding the token', async () => {
+  it('every hit carries ed=mini and view=greek, and lands on a segment holding the token', async () => {
     const fixtures = resolve(process.cwd(), '../fixtures/data/sample-work');
     vi.spyOn(globalThis, 'fetch').mockImplementation(async input => {
-      const file = `${fixtures}/${String(input).replace(/^.*?\/data\/sample-work\//, '')}`;
+      // The ported engine's index names (search port); the fixture keeps the old ones.
+      const file = `${fixtures}/${String(input).replace(/^.*?\/data\/sample-work\//, '').replace(/greek_(form|lemma)\.json$/, '$1.json')}`;
+      // The ported page groups a hit under its book's outline; the fixture's
+      // chapters.json is empty, so one chapter stands for the mini book.
+      if (String(input).endsWith('/sample-work/chapters.json'))
+        return { ok: true, status: 200, json: async () => ({ '1': [{ chapter: '1', column: '1.1', line: '1' }] }) } as Response;
       return existsSync(file) && /\.json$/.test(file)
         ? { ok: true, status: 200, json: async () => JSON.parse(readFileSync(file, 'utf8')) } as Response
         : { ok: false, status: 404, json: async () => ({}) } as Response;
@@ -36,8 +40,11 @@ describe('search hits from the fixture edition index (always runs)', () => {
     const form = page.container.querySelector('form.search-form') as HTMLFormElement;
     const words = book.segments.flatMap(s => s.greek.flatMap(l => l.tokens.map(t => t.t)));
     expect(words.length).toBeGreaterThan(0);
-    for (const word of words) {
+    for (const [i, word] of words.entries()) {
       await fireEvent.input(input, { target: { value: word } });
+      // Each word as spelled: the fixture has no lemma map (the ported page
+      // searches by headword by default).
+      if (i === 0) await fireEvent.click(page.getByRole('radio', { name: 'exact form' }));
       await fireEvent.submit(form);
       await waitFor(() => expect(page.container.querySelector('.search-btn')).not.toBeDisabled());
       await waitFor(() => expect(page.container.querySelectorAll('a.inst-ref').length).toBeGreaterThan(0), { timeout: 5000 });

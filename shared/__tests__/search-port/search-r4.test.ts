@@ -56,7 +56,7 @@ it('keeps overlapping passages in their chapters', async () => {
     [hit('70a', Array.from({ length: 22 }, (_, i) => i))], '&ps=20');
   await vi.waitFor(() => expect([...c.querySelectorAll('.run-heading')].map(h =>
     [text(h.querySelector('.sx-chap')), h.nextElementSibling!.querySelectorAll('.inst-snippet.greek mark').length]))
-    .toEqual([['Speech 1', 20], ['Speech 2', 2]]));
+    .toEqual([['1', 20], ['2', 2]]));
   expect(c.querySelector('.pager-bottom')).toBeNull();
 });
 

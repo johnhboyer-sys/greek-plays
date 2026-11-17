@@ -10,6 +10,9 @@ const book = { book: 1, segments: [{ id: '1:1', column: '1',
 const files: Record<string, unknown> = {
   '/agamemnon/search/meta.json': [{ id: '1:1', book: 1, column: '1', head: 'λόγος', tokens: 'logos', english_head: '' }],
   '/agamemnon/search/form.json': { logos: [[0, 0]] },
+  // The ported page searches by headword by default (search port).
+  '/agamemnon/search/greek_lemma.json': { logos: [[0, 0]] },
+  '/lemma-map/l.json': { logos: ['logos'] },
   '/agamemnon/book-01.json': book,
   '/agamemnon/chapters.json': {},
 };
@@ -35,23 +38,21 @@ async function searchOnce(flag: boolean) {
 }
 
 describe('search page without an edition choice', () => {
-  // search-port lane 2: edition picker on the search page
-  it.skip('flag off: no edition control, no /ed/ request, no ed= on a hit', async () => {
+  it('flag off: no edition control, no /ed/ request, no ed= on a hit', async () => {
     const { page, urls, hrefs } = await searchOnce(false);
     expect(page.queryByLabelText('Greek text to search')).toBeNull();
     expect(urls.filter(u => u.includes('/ed/'))).toEqual([]);
-    expect(urls.some(u => u.endsWith('/agamemnon/search/form.json'))).toBe(true);
+    expect(urls.some(u => u.endsWith('/agamemnon/search/greek_lemma.json'))).toBe(true);
     expect(hrefs).toHaveLength(1);
     expect(hrefs[0]).not.toContain('ed=');
-    expect(hrefs[0]).toBe('/read/aeschylus/agamemnon?hlg=%CE%BB%CF%8C%CE%B3%CE%BF%CF%82&loc=1');
+    expect(hrefs[0]).toBe('/read/aeschylus/agamemnon?hlg=%CE%BB%CF%8C%CE%B3%CE%BF%CF%82&hlt=1:0&loc=1');
   });
-  // search-port lane 2: edition picker on the search page
-  it.skip('flag on, reference chosen (the default): the control shows, and still no /ed/ request or ed=', async () => {
+  it('flag on, reference chosen (the default): the control shows, and still no /ed/ request or ed=', async () => {
     const { page, urls, hrefs } = await searchOnce(true);
     expect((page.getByLabelText('Greek text to search') as HTMLSelectElement).value).toBe('tlg');
     expect(urls.filter(u => u.includes('/ed/'))).toEqual([]);
     expect(hrefs[0]).not.toContain('ed=');
-    expect(hrefs[0]).toBe('/read/aeschylus/agamemnon?hlg=%CE%BB%CF%8C%CE%B3%CE%BF%CF%82&loc=1');
+    expect(hrefs[0]).toBe('/read/aeschylus/agamemnon?hlg=%CE%BB%CF%8C%CE%B3%CE%BF%CF%82&hlt=1:0&loc=1');
   });
 });
 

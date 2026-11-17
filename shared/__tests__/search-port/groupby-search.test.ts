@@ -88,14 +88,14 @@ const g = (q: string) => `/search?g=${encodeURIComponent(q)}`;
 
 describe('the groupings each search is offered', () => {
   const cases: [string, string, string[], boolean?][] = [
-    ['one word, any form', g('ἀρετή'), ['By work ✓', 'By form']],
-    ['one word, only as typed', `${g('ἀρετή')}&m=form`, ['By work ✓', 'By form']],
-    ['an exact phrase', `${g('τὸ τί ἦν εἶναι')}&gm=phrase&m=form`, ['By work ✓', 'By form']],
-    ['a dictionary word', '/search?l=areth', ['By work ✓', 'By grammar']],
-    ['two dictionary words', '/search?l=areth,ecis', ['By work ✓', 'By grammar']],
-    ['several words, Match "all"', g('ἀρετή ἕξις'), ['By work ✓']],
-    ['several words, Match "any"', `${g('ἀρετή ἕξις')}&gm=any`, ['By work ✓']],
-    ['a proximity search', '/search?c=l:areth&c=l:ecis', ['By work ✓'], true],
+    ['one word, any form', g('ἀρετή'), ['By play ✓', 'By form']],
+    ['one word, only as typed', `${g('ἀρετή')}&m=form`, ['By play ✓', 'By form']],
+    ['an exact phrase', `${g('τὸ τί ἦν εἶναι')}&gm=phrase&m=form`, ['By play ✓', 'By form']],
+    ['a dictionary word', '/search?l=areth', ['By play ✓', 'By grammar']],
+    ['two dictionary words', '/search?l=areth,ecis', ['By play ✓', 'By grammar']],
+    ['several words, Match "all"', g('ἀρετή ἕξις'), ['By play ✓']],
+    ['several words, Match "any"', `${g('ἀρετή ἕξις')}&gm=any`, ['By play ✓']],
+    ['a proximity search', '/search?c=l:areth&c=l:ecis', ['By play ✓'], true],
   ];
   for (const [name, url, want, combo] of cases) {
     it(`${name}: ${want.join(', ')}`, async () => {
@@ -110,7 +110,7 @@ describe('the groupings each search is offered', () => {
 
   it('an address asking for a grouping not offered falls back to By work, and says so', async () => {
     const { container } = await open(`${g('ἀρετή ἕξις')}&v=form&ctx=1`);
-    expect(menu()).toEqual(['By work ✓']);
+    expect(menu()).toEqual(['By play ✓']);
     expect(container.querySelector('.work-name')).not.toBeNull();
     await vi.waitFor(() => expect(new URLSearchParams(window.location.search).get('v')).toBeNull());
     expect(new URLSearchParams(window.location.search).get('ctx')).toBe('1');
@@ -118,7 +118,7 @@ describe('the groupings each search is offered', () => {
 
   it('so does By grammar asked of one word typed', async () => {
     await open(`${g('ἀρετή')}&v=grammar`);
-    expect(menu()).toEqual(['By work ✓', 'By form']);
+    expect(menu()).toEqual(['By play ✓', 'By form']);
     await vi.waitFor(() => expect(window.location.search).not.toContain('v='));
   });
 });

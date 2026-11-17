@@ -136,11 +136,11 @@ const G = `/search?g=${encodeURIComponent('εἰμί')}`;
 const L = '/search?l=eimi';
 
 describe('Search.svelte: views', () => {
-  for (const [url, views] of [[G, ['By form', 'By work']], [L, ['By grammar', 'By work']]] as const) {
+  for (const [url, views] of [[G, ['By form', 'By play']], [L, ['By grammar', 'By play']]] as const) {
     it(`shows the same hits in every view, and marks the view in force (${url})`, async () => {
       const { container } = await open(url);
       await vi.waitFor(() => expect(status()).toHaveTextContent('6 hits'));
-      expect(viewButton('By work')).toBeChecked();
+      expect(viewButton('By play')).toBeChecked();
       await expectAllOpen(container);
       const shown = hitsShown(container);
       expect(shown).toHaveLength(6);
@@ -190,7 +190,7 @@ describe('Search.svelte: views', () => {
     expect([...first.querySelectorAll('li.instance')].map(li => [...li.querySelectorAll('.inst-snippet.greek mark')].map(text)))
       .toEqual([['ἐστί'], ['ἐστί', 'ἐστι']]);
     // Back to works: the citation is the section alone again.
-    await fireEvent.click(viewButton('By work'));
+    await fireEvent.click(viewButton('By play'));
     await expectAllOpen(container);
     expect(text(container.querySelector('.inst-ref'))).toBe('70a1');
   });
@@ -204,16 +204,16 @@ describe('Search.svelte: views', () => {
     const results = [at('Meta', '70a', [0, 1], 1), at('Meta', '70b', [1], 1), at('Meta', '70a', [3], 2), at('EN', '70b', [1])];
     const { container } = await open(G, { results, forms: { byResult: new Map(), headwords: new Map(), failedWorks: [] } });
     await vi.waitFor(() => expect(status()).toHaveTextContent('5 hits'));
-    expect(viewButton('By work')).toBeChecked();
+    expect(viewButton('By play')).toBeChecked();
     const labels = getWork('Meta')!.bookLabels;
-    // The work headings, each counting its hits on the page.
-    expect(heads(container)).toEqual(['Metaphysics 4 hits', 'Nicomachean Ethics 1 hit']);
+    // The work headings, each with the Greek text its hits come from (the plays' heading line, search port), counting its hits on the page.
+    expect(heads(container)).toEqual(['Metaphysics Ross 1953 4 hits', 'Nicomachean Ethics Bywater 1894 1 hit']);
     // Each heading holds its own button, and the button names its work.
     expect([...container.querySelectorAll('.book-header')].map(h => text(h.querySelector('button.group-head .work-name'))))
       .toEqual(['Metaphysics', 'Nicomachean Ethics']);
     expect([...container.querySelectorAll('.sx-book')].map(text)).toEqual([`Book ${labels[0]} 3`, `Book ${labels[1]} 1`, 'Book I 1']);
     // The mock outline names chapter 70 in every book, with no title.
-    expect([...container.querySelectorAll('.sx-chap')].map(text)).toEqual(['Speech 70', 'Speech 70', 'Speech 70']);
+    expect([...container.querySelectorAll('.sx-chap')].map(text)).toEqual(['70', '70', '70']);
     expect(text(container.querySelector('.sx-results'))).not.toMatch(/Stephanus/i);
     expect(container.querySelectorAll('.chapter-group')).toHaveLength(2);
     // Every hit shows, each with its section; Met 70a's two words share a
@@ -235,9 +235,9 @@ describe('Search.svelte: views', () => {
   it('reads an old address with v=work as the default view', async () => {
     const { container } = await open(`${G}&v=work`);
     await vi.waitFor(() => expect(status()).toHaveTextContent('6 hits'));
-    expect(viewButton('By work')).toBeChecked();
+    expect(viewButton('By play')).toBeChecked();
     expect(within(screen.getByRole('group', { name: 'Group by' })).getAllByRole('radio').map(r => r.closest('label')!.textContent!.trim()))
-      .toEqual(['By work', 'By form']);
+      .toEqual(['By play', 'By form']);
     expect([...container.querySelectorAll('.book-header .work-name')].map(text)).toEqual(['De Interpretatione', 'Nicomachean Ethics']);
   });
 
@@ -286,7 +286,7 @@ describe('Search.svelte: grammar facets', () => {
     await vi.waitFor(() => expect(heads(container)).toEqual([
       'ειμι 3 hits', 'Genitive or dative singular τῆς 2 hits', 'Dative plural ταῖς 1 hit',
     ]));
-    const works = screen.getByRole('group', { name: 'Show hits from one work' });
+    const works = screen.getByRole('group', { name: 'Show hits from one play' });
     expect(within(works).getAllByRole('button').map(text)).toEqual(['Nicomachean Ethics2', 'De Interpretatione1']);
     expect(formRows(screen.getByRole('group', { name: 'Greek forms found' }))).toEqual(['της 2 ✓', 'ταις 1 ✓']);
     // Counted before the facets: the other values are still there to tick.
@@ -337,8 +337,8 @@ describe('Search.svelte: grammar facets', () => {
     await vi.waitFor(() => expect(facetRow()).toBeTruthy());
     await fireEvent.click(within(facetRow()).getByRole('checkbox', { name: 'Case gen' }));
     await vi.waitFor(() => expect(status()).toHaveTextContent('2 hits'));
-    await fireEvent.click(viewButton('By work'));
-    await vi.waitFor(() => expect(heads(container)).toEqual(['De Interpretatione 1 hit', 'Nicomachean Ethics 1 hit']));
+    await fireEvent.click(viewButton('By play'));
+    await vi.waitFor(() => expect(heads(container)).toEqual(['De Interpretatione Minio-Paluello 1949 1 hit', 'Nicomachean Ethics Bywater 1894 1 hit']));
     expect(status()).toHaveTextContent('2 hits');
     expect(within(facetRow()).getByRole('checkbox', { name: 'Case gen' })).toBeChecked();
     const p = new URLSearchParams(window.location.search);

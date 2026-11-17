@@ -106,7 +106,7 @@ describe('Search.svelte: the form panel', () => {
     await fireEvent.click(within(panel).getByRole('button', { name: 'Apply' }));
     await vi.waitFor(() => expect(status()).toHaveTextContent('2 hits'));
     // Int had only ἐστι, so with one work left there is no Works row.
-    expect(screen.queryByRole('group', { name: 'Show hits from one work' })).toBeNull();
+    expect(screen.queryByRole('group', { name: 'Show hits from one play' })).toBeNull();
     // The form set aside is still listed, with its count, to tick again.
     expect(rows(panel)).toEqual(['εστι 3', 'ειναι 1 ✓', 'ην 1 ✓']);
     expect(window.location.search).toContain('xf=esti');
@@ -212,7 +212,7 @@ describe('Search.svelte: the form panel', () => {
     // Only ὤν was set aside: ἦν and εἶναι were never in view.
     expect(new URLSearchParams(window.location.search).get('xf')).toBe('wn');
     // With the work lifted they are still ticked, and there is nothing to apply.
-    const works = screen.getByRole('group', { name: 'Show hits from one work' });
+    const works = screen.getByRole('group', { name: 'Show hits from one play' });
     await fireEvent.click(within(works).getByRole('button', { name: /^De Interpretatione/ }));
     await vi.waitFor(() => expect(status()).toHaveTextContent('5 hits'));
     expect(rows(panel)).toEqual(['εστι 3 ✓', 'ειναι 1 ✓', 'ην 1 ✓', 'ων 1']);

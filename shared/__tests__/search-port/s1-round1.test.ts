@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import { afterEach, expect, it, vi } from 'vitest';
+import { afterEach, expect, it, onTestFinished, vi } from 'vitest';
 // Aristotle's registry, which these tests were written against.
 vi.mock('../../lib/works', () => import('./aristotle-works'));
 import Search from '../../components/Search.svelte';
@@ -64,7 +64,7 @@ it.skip.each([true, false])('shows distinctiveness once with the right markup (b
  expect(screen.getAllByText('rare before Aristotle')).toHaveLength(1);
  if (!b) expect(container.querySelector('em.distinct-label')).toHaveTextContent('rare before Aristotle');
 });
-it('places a Bekker English hit in its chapter and exports the Aristotle CSV columns', async () => {
+it('places a Bekker English hit in its chapter and exports the plays’ CSV columns', async () => {
  const { search } = await import('../../lib/search');
  vi.mocked(search).mockResolvedValueOnce({ results: [{ work: 'EN', meta: { id: '1:1094a', book: 1, column: '1094a' }, grkMatch: false, engMatch: true, grkPositions: [], engHits: [{ translation: 'rackham', positions: [4] }] }], failedWorks: [] });
  window.history.replaceState(null, '', '/search?e=virtue');
@@ -82,9 +82,44 @@ it('places a Bekker English hit in its chapter and exports the Aristotle CSV col
  await vi.waitFor(() => expect(csv).toBeDefined());
  const content = await new Promise<string>(resolve => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.readAsText(csv!); });
  const [header, row] = content.replace(/^\uFEFF/, '').split('\r\n');
- expect(header).toBe('Work,Book,Speech,Bekker,Language,Translation,Snippet,URL');
+ // The plays' columns (search port, decision 8), Attribution last.
+ expect(header).toBe('Play,Line,Speaker,Language,Translation,Snippet,URL,Attribution');
  // An English hit cites its column, its link the line (John, 13 Nov).
- expect(row).toMatch(/^Nicomachean Ethics,I,2,1094a,English,Rackham,.*virtue.*,http.*loc=1094a:18/);
+ expect(row).toMatch(/^Nicomachean Ethics,1094a,[^,]*,English,Rackham,.*virtue.*,http[^,]*loc=1094a:18[^,]*,$/);
+});
+// The per-passage credit (Lyceum finding 1, ported from components.test.ts):
+// a passage whose English carries its own translator and licence shows them
+// beside the hit and in the CSV's Attribution column.
+it('credits a passage\'s own translator beside an English hit and in the CSV', async () => {
+ const { search } = await import('../../lib/search');
+ const { fetchBook } = await import('../../lib/data');
+ const book = structuredClone(await fetchBook('EN', 1));
+ book.segments[0].english!.credit = { translator: 'Jurgen R. Gatt', source: 'Gorgias (Parnassos Press)', year: 2022,
+  licence: { name: 'CC BY-NC-ND 4.0', url: 'https://creativecommons.org/licenses/by-nc-nd/4.0/' } } as never;
+ const plain = vi.mocked(fetchBook).getMockImplementation()!;
+ vi.mocked(fetchBook).mockResolvedValue(book);
+ onTestFinished(() => { vi.mocked(fetchBook).mockImplementation(plain); });
+ vi.mocked(search).mockResolvedValueOnce({ results: [{ work: 'EN', meta: { id: '1:1094a', book: 1, column: '1094a' }, grkMatch: false, engMatch: true, grkPositions: [], engHits: [{ translation: 'rackham', positions: [4] }] }], failedWorks: [] });
+ window.history.replaceState(null, '', '/search?e=virtue');
+ const { container } = render(Search);
+ await vi.waitFor(() => expect(container.querySelector('.inst-credit')).toHaveTextContent('Tr. Jurgen R. Gatt (2022) — CC BY-NC-ND 4.0.'));
+ let csv: Blob | undefined;
+ URL.createObjectURL = vi.fn(blob => { csv = blob; return 'blob:test'; });
+ URL.revokeObjectURL = vi.fn();
+ vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+ await fireEvent.click(screen.getByRole('button', { name: 'Export results as CSV' }));
+ await vi.waitFor(() => expect(csv).toBeDefined());
+ const content = await new Promise<string>(resolve => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.readAsText(csv!); });
+ const [, row] = content.replace(/^\uFEFF/, '').split('\r\n');
+ expect(row).toMatch(/,Tr\. Jurgen R\. Gatt \(2022\) — CC BY-NC-ND 4\.0\.$/);
+});
+it('shows no credit beside an English hit whose passage has none', async () => {
+ const { search } = await import('../../lib/search');
+ vi.mocked(search).mockResolvedValueOnce({ results: [{ work: 'EN', meta: { id: '1:1094a', book: 1, column: '1094a' }, grkMatch: false, engMatch: true, grkPositions: [], engHits: [{ translation: 'rackham', positions: [4] }] }], failedWorks: [] });
+ window.history.replaceState(null, '', '/search?e=virtue');
+ const { container } = render(Search);
+ await vi.waitFor(() => expect(container.querySelector('li.instance')).not.toBeNull());
+ expect(container.querySelector('.inst-credit')).toBeNull();
 });
 // search port: AthPol is cited chapter.section, a scheme the plays' citation.ts does not carry
 it.skip('counts an AthPol English phrase once in its row and header', async () => {

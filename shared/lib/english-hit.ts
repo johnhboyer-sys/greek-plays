@@ -103,9 +103,11 @@ export function englishMarked(
   units: string[][],
   phrase: boolean,
   forms = false,
+  // The plays' English near: the near term's run, marked beside the query's.
+  extra: string[][] = [],
 ): number[] {
   const words = texts.flatMap(text => englishWords(text));
-  return matchedWords(words, positions, phrase ? [units.flat()] : units, forms).marked;
+  return matchedWords(words, positions, [...(phrase ? [units.flat()] : units), ...extra], forms).marked;
 }
 
 // The words the query matched, and for each the last word of the longest-
@@ -199,8 +201,8 @@ function head(text: string): string {
  * lit up "endure" and the phrase "the good" every "they" and "there".
  * With `forms`, any form of a word, as an "any form" search found it.
  * Footnote and sidenote markers pass through as text, escaped. */
-export function markEnglishHtml(text: string, units: string[][], phrase: boolean, forms = false): string {
-  const runs = (phrase ? [units.flat()] : units)
+export function markEnglishHtml(text: string, units: string[][], phrase: boolean, forms = false, extra: string[][] = []): string {
+  const runs = [...(phrase ? [units.flat()] : units), ...extra]
     .filter(run => run.length && !(run.length === 1 && run[0] === '*'));
   if (!runs.length) return esc(text);
   const words = englishWords(text);

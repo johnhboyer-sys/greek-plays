@@ -144,7 +144,7 @@ describe('Search.svelte: the side column', () => {
     await screen.findByRole('group', { name: 'Greek forms found' });
     await screen.findByRole('group', { name: 'Narrow by grammar' });
     const side = screen.getByRole('complementary', { name: 'Refine results' });
-    for (const name of ['Show hits from one work', 'Greek forms found', 'Narrow by grammar']) {
+    for (const name of ['Show hits from one play', 'Greek forms found', 'Narrow by grammar']) {
       expect(within(side).getByRole('group', { name })).toBeInTheDocument();
     }
     for (const name of ['Group by', 'Sort', 'Context', 'Per page']) {
@@ -190,7 +190,7 @@ describe('Search.svelte: the side column', () => {
   // it each translation with hits there; no separate Translations list.
   it('lists every translation with hits under its work, in one box', async () => {
     await open(`${G}&e=one&op=or`, BILINGUAL);
-    const list = screen.getByRole('group', { name: 'Show hits from one work or one translation' });
+    const list = screen.getByRole('group', { name: 'Show hits from one play or one translation' });
     expect(screen.queryByRole('group', { name: 'Show English hits from one translation' })).toBeNull();
     const box = list.querySelector(':scope > .sx-list')!;
     expect([...box.querySelectorAll('button.i')].map(b => `${b.classList.contains('sub') ? '  ' : ''}${text(b)}`))
@@ -243,11 +243,11 @@ describe('Search.svelte: "This search"', () => {
   const cases: { what: string; url: string; results?: SearchResult[]; before: string; after: string; param: string; control: () => void }[] = [
     {
       what: 'Nicomachean Ethics', url: `${G}&wf=EN`, before: '4 hits', after: '6 hits', param: 'wf=',
-      control: () => expect(pressed('Show hits from one work')).toEqual([]),
+      control: () => expect(pressed('Show hits from one play')).toEqual([]),
     },
     {
       what: 'Rackham', url: `${G}&e=one&t=rackham`, results: BILINGUAL, before: '4 hits', after: '6 hits', param: 't=',
-      control: () => expect(pressed('Show hits from one work or one translation')).toEqual([]),
+      control: () => expect(pressed('Show hits from one play or one translation')).toEqual([]),
     },
     {
       what: '1 form set aside', url: `${G}&xf=ths`, before: '4 hits', after: '6 hits', param: 'xf=',
@@ -375,7 +375,7 @@ describe('Search.svelte: the Filter sheet', () => {
     expect(document.activeElement).toBe(filter());
     // Shut, the controls are the side column again.
     expect(screen.getByRole('complementary', { name: 'Refine results' })).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: 'Show hits from one work' })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'Show hits from one play' })).toBeInTheDocument();
   });
 
   it('shuts on Close and on the backdrop', async () => {
@@ -407,8 +407,8 @@ describe('Search.svelte: the Filter sheet', () => {
     await fireEvent.click(filter());
     const sheet = await screen.findByRole('dialog', { name: 'Filter' });
     const rows = within(sheet).getAllByRole('button', { name: /›$/ }).map(text);
-    expect(rows).toEqual(['Works All 2 ›', 'Forms All 3 ›', 'Grammar Any ›']);
-    for (const name of ['Show hits from one work', 'Greek forms found', 'Narrow by grammar']) {
+    expect(rows).toEqual(['Plays All 2 ›', 'Forms All 3 ›', 'Grammar Any ›']);
+    for (const name of ['Show hits from one play', 'Greek forms found', 'Narrow by grammar']) {
       expect(within(sheet).queryByRole('group', { name })).toBeNull();
     }
     // The foot counts chapters (John, 15-16 Nov): EN's book and Int's.
@@ -422,7 +422,7 @@ describe('Search.svelte: the Filter sheet', () => {
     const sum = within(sheet).getByRole('group', { name: 'This search' });
     expect(sheet.querySelector('.sx-menu')!.compareDocumentPosition(sum) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
     expect(chosen()).toEqual(['Nicomachean Ethics']);
-    expect(text(within(sheet).getByRole('button', { name: /^Works/ }))).toBe('Works Nicomachean Ethics ›');
+    expect(text(within(sheet).getByRole('button', { name: /^Plays/ }))).toBe('Plays Nicomachean Ethics ›');
     await fireEvent.click(remove('Nicomachean Ethics'));
     await vi.waitFor(() => expect(status()).toHaveTextContent('6 hits'));
     sheet = screen.getByRole('dialog', { name: 'Filter' });
@@ -434,20 +434,20 @@ describe('Search.svelte: the Filter sheet', () => {
     await open(G);
     await fireEvent.click(filter());
     let sheet = await screen.findByRole('dialog', { name: 'Filter' });
-    await fireEvent.click(within(sheet).getByRole('button', { name: /^Works/ }));
-    sheet = await screen.findByRole('dialog', { name: 'Works' });
+    await fireEvent.click(within(sheet).getByRole('button', { name: /^Plays/ }));
+    sheet = await screen.findByRole('dialog', { name: 'Plays' });
     await vi.waitFor(() => expect(document.activeElement).toBe(within(sheet).getByRole('button', { name: '‹ Filter' })));
     expect(within(sheet).queryByRole('button', { name: /^Forms/ })).toBeNull();
     // A choice applies at once, and the screen stays.
-    await fireEvent.click(within(within(sheet).getByRole('group', { name: 'Show hits from one work' })).getByRole('button', { name: /^Nicomachean Ethics/ }));
+    await fireEvent.click(within(within(sheet).getByRole('group', { name: 'Show hits from one play' })).getByRole('button', { name: /^Nicomachean Ethics/ }));
     await vi.waitFor(() => expect(status()).toHaveTextContent('4 hits'));
-    expect(screen.getByRole('dialog', { name: 'Works' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Plays' })).toBeInTheDocument();
     expect(window.location.search).toContain('wf=EN');
     expect(search).toHaveBeenCalledTimes(1);
     await fireEvent.click(within(sheet).getByRole('button', { name: '‹ Filter' }));
     sheet = await screen.findByRole('dialog', { name: 'Filter' });
-    await vi.waitFor(() => expect(document.activeElement).toBe(within(sheet).getByRole('button', { name: /^Works/ })));
-    expect(text(document.activeElement)).toBe('Works Nicomachean Ethics ›');
+    await vi.waitFor(() => expect(document.activeElement).toBe(within(sheet).getByRole('button', { name: /^Plays/ })));
+    expect(text(document.activeElement)).toBe('Plays Nicomachean Ethics ›');
   });
 
   // S5b (q08): the foot's button applies the ticks and shows the hits they
@@ -493,18 +493,18 @@ describe('Search.svelte: the Filter sheet', () => {
   it('offers All works first on the works screen, and it lifts a chosen work', async () => {
     await open(`${G}&wf=EN`);
     await fireEvent.click(filter());
-    await fireEvent.click(within(await screen.findByRole('dialog', { name: 'Filter' })).getByRole('button', { name: /^Works/ }));
-    const sheet = await screen.findByRole('dialog', { name: 'Works' });
-    const rows = within(within(sheet).getByRole('group', { name: 'Show hits from one work' })).getAllByRole('button');
-    expect(text(rows[0])).toBe('All works');
+    await fireEvent.click(within(await screen.findByRole('dialog', { name: 'Filter' })).getByRole('button', { name: /^Plays/ }));
+    const sheet = await screen.findByRole('dialog', { name: 'Plays' });
+    const rows = within(within(sheet).getByRole('group', { name: 'Show hits from one play' })).getAllByRole('button');
+    expect(text(rows[0])).toBe('All plays');
     expect(rows[0]).toHaveAttribute('aria-pressed', 'false');
     expect(rows.filter(r => r.getAttribute('aria-pressed') === 'true').map(r => text(r.querySelector('.i-t')))).toEqual(['Nicomachean Ethics']);
     await fireEvent.click(rows[0]);
     await vi.waitFor(() => expect(status()).toHaveTextContent('6 hits'));
     expect(window.location.search).not.toContain('wf=');
-    expect(within(sheet).getByRole('button', { name: 'All works' })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(sheet).getByRole('button', { name: 'All plays' })).toHaveAttribute('aria-pressed', 'true');
     // Pressed again, All works changes nothing.
-    await fireEvent.click(within(sheet).getByRole('button', { name: 'All works' }));
+    await fireEvent.click(within(sheet).getByRole('button', { name: 'All plays' }));
     expect(window.location.search).not.toContain('wf=');
   });
 
@@ -549,17 +549,17 @@ describe('Search.svelte: the View sheet', () => {
     }
     // One word as spelled: By grammar is a dictionary word's (John, 13 Nov).
     expect([...sheet.querySelectorAll('fieldset')].map(fs => [...fs.querySelectorAll('label')].map(text))).toEqual([
-      ['By work', 'By form'],
-      ['Bekker order', 'Works A–Z', 'Forms A–Z', 'Commonest form'],
-      ['1 line', '3 lines', 'Whole section'],
+      ['By play', 'By form'],
+      ['Line order', 'Plays A–Z', 'Forms A–Z', 'Commonest form'],
+      ['1 line', '3 lines', 'Whole speech'],
       ['20', '40', '100'],
     ]);
     const on = [...sheet.querySelectorAll<HTMLInputElement>('input:checked')].map(i => text(i.closest('label')));
-    expect(on).toEqual(['By work', 'Bekker order', '3 lines', '40']);
+    expect(on).toEqual(['By play', 'Line order', '3 lines', '40']);
     expect(sheet.querySelector('.opt-gloss')).toBeNull();
     expect(within(sheet).getByRole('button', { name: 'Export results as CSV' })).toBeInTheDocument();
     expect(sheet.querySelector('.sheet-foot .sheet-done')).toHaveTextContent('Done');
-    expect(within(sheet).queryByRole('group', { name: 'Show hits from one work' })).toBeNull();
+    expect(within(sheet).queryByRole('group', { name: 'Show hits from one play' })).toBeNull();
   });
 
   it('shuts on Done, focus back on View', async () => {
@@ -594,7 +594,7 @@ describe('Search.svelte: the View sheet', () => {
     const done = within(sheet).getByRole('button', { name: 'Done' });
     done.focus();
     await fireEvent.keyDown(done, { key: 'Tab' });
-    expect(document.activeElement).toBe(within(sheet).getByRole('radio', { name: 'By work' }));
+    expect(document.activeElement).toBe(within(sheet).getByRole('radio', { name: 'By play' }));
     await fireEvent.keyDown(document.activeElement!, { key: 'Tab', shiftKey: true });
     expect(document.activeElement).toBe(done);
   });

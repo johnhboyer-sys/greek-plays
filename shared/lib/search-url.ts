@@ -1,4 +1,4 @@
-import { AUTHENTIC_IDS, HAS_SPEAKERS } from './works';
+import { AUTHENTIC_IDS, HAS_SPEAKERS, NEAR_RULES, NEAR_WINDOW_DEFAULT } from './works';
 // The search page's state as a query string, so a search can be shared,
 // bookmarked, reloaded and stepped through with the back button.
 //
@@ -51,11 +51,24 @@ import { AUTHENTIC_IDS, HAS_SPEAKERS } from './works';
 //            (default 3 lines). Not cx, which is the proximity chapter switch
 //   so       the order of a results page: work | form | freq (default page)
 //   ps       rows per results page: 20 | 100 (default 40); an old ps=c or ctx=c is 100
+//   en, enr, enw  the plays' English near: the near word or phrase, b | a
+//            (before, after; none = near), and the distance in words
+//            (default 10). Written beside e, and with a proximity search
+//
+// The plays (search port): a proximity search keeps the English box beside
+// it (e, em, ef, op, t, xp), joined by speech; the window opens at 10 words
+// (NEAR_WINDOW_DEFAULT), and cu=line takes cw as lines either side, 0 to 10
+// (default 0). A "q" slot is a phrase matched by headword, the Greek box's
+// words as the first term: its payload the words, each a run of folds joined
+// by "." where its headwords are known ("q:qeos.qea logos").
+// The plays' old addresses (before the port) still open, read by
+// decodeOldPlays below: lp, n, nt, ng, nf, nr, nw, nu, no, n2…, sh.
 
 import {
   COMBO_TERMS_MAX,
-  COMBO_WINDOW_DEFAULT,
   COMBO_WINDOW_MAX,
+  lemmaHeads,
+  type EngNear,
   type GrammarQuery,
   type LangOp,
   type MatchMode,
@@ -78,6 +91,13 @@ export interface UrlComboSlot {
   text: string;          // phrase / form
   picked: string[];      // lemma
   grammar: GrammarQuery; // grammatical
+  // The plays: a phrase matched by headword (kind 'phrase'), one list of
+  // folds per word of `text`; a list left empty is looked up from the word
+  // (resolveUrlLemmas). Absent on a phrase matched as written.
+  options?: string[][];
+  // The plays' old links: a lemma term whose headwords are to be looked up
+  // from `text` (resolveUrlLemmas), its `picked` empty till then.
+  resolve?: true;
 }
 
 export interface UrlCombo {
@@ -115,18 +135,29 @@ export interface UrlSearch {
   // The plays: the Greek edition a Greek-only search reads where a play holds
   // it (ed=); null for each play's reference text.
   ed: string | null;
+  // The plays' English near (en=); null for none.
+  engNear: EngNear | null;
 }
 
 export const emptyUrlSearch = (allWorks: string[]): UrlSearch => ({
   grk: '', eng: '', grkMode: 'all', engMode: 'all', matchMode: 'lemma',
   accent: false, punctuation: false, caseExact: false, langOp: 'or', engForms: true, works: [...allWorks], trans: null, workFilter: null,
   lemmas: [], xforms: [], xphrases: [], combo: null, speaker: null, view: 'page', facets: {},
-  context: '3', sort: 'page', pageSize: '40', ed: null,
+  context: '3', sort: 'page', pageSize: '40', ed: null, engNear: null,
 });
+
+// The window a proximity search opens at: the plays' 10, Aristotle's 5.
+const WINDOW_DEFAULT = NEAR_WINDOW_DEFAULT;
+// The plays' line unit takes cw as lines either side, 0 (the same line) to 10.
+const LINES_EITHER_SIDE = !!(NEAR_RULES as { linesEitherSide?: boolean }).linesEitherSide;
+const LINES_MAX = 10;
+const windowDefault = (unit: WindowUnit) => (unit === 'line' && LINES_EITHER_SIDE ? 0 : WINDOW_DEFAULT);
 
 const MODES: SearchMode[] = ['all', 'any', 'phrase'];
 const UNITS: WindowUnit[] = HAS_SPEAKERS ? ['words', 'line', 'turn', 'chapter'] : ['words', 'line', 'chapter'];
 const KIND_LETTER: Record<SlotKind, string> = { phrase: 'p', form: 'f', lemma: 'l', grammatical: 'g' };
+// The plays' phrase matched by headword.
+const LEMMA_PHRASE = 'q';
 const RELATION_LETTER: Record<SlotRelation, string> = { near: '', before: 'b', after: 'a', not: 'n' };
 const KINDS = Object.fromEntries(Object.entries(KIND_LETTER).map(([k, v]) => [v, k as SlotKind]));
 const RELATIONS = Object.fromEntries(Object.entries(RELATION_LETTER).map(([k, v]) => [v, k as SlotRelation]));
@@ -143,14 +174,21 @@ const authenticOf = (allWorks: string[]) => {
 
 const list = (s: string | null) => (s ?? '').split(',').map(x => x.trim()).filter(Boolean);
 
+// A headword phrase's words, each by its folds where they are known.
+const lemmaPhrasePayload = (slot: UrlComboSlot) => slot.text.trim().split(/\s+/)
+  .map((w, i) => (slot.options?.[i]?.length ? slot.options[i].join('.') : w)).join(' ');
+
 function encodeSlot(slot: UrlComboSlot): string {
-  const payload = slot.kind === 'lemma'
-    ? slot.picked.join(',')
-    : slot.kind === 'grammatical'
-      ? Object.entries(slot.grammar).map(([k, v]) => `${k}.${v}`).join(',')
-      : slot.text.trim();
+  const lemmaPhrase = slot.kind === 'phrase' && !!slot.options;
+  const payload = lemmaPhrase
+    ? lemmaPhrasePayload(slot)
+    : slot.kind === 'lemma'
+      ? slot.picked.join(',')
+      : slot.kind === 'grammatical'
+        ? Object.entries(slot.grammar).map(([k, v]) => `${k}.${v}`).join(',')
+        : slot.text.trim();
   const head = slot.or ? 'o' : `${RELATION_LETTER[slot.relation]}${slot.target ? slot.target + 1 : ''}`;
-  return `${KIND_LETTER[slot.kind]}${head}:${payload}`;
+  return `${lemmaPhrase ? LEMMA_PHRASE : KIND_LETTER[slot.kind]}${head}:${payload}`;
 }
 
 // The old pos category is retired. Aristotle's marker (word class) remains
@@ -162,13 +200,20 @@ const RETIRED_GRAMMAR = new Set(['pos']);
 // A slot that asks nothing is `empty`: dropped, but its joiner and target are
 // read so the slots after it keep theirs (decodeSlots).
 function decodeSlot(raw: string): UrlComboSlot | null | 'retired' | { empty: UrlComboSlot } {
-  const m = /^([pflg])(?:(o)|([ban]?)([1-9]\d{0,2})?):(.*)$/s.exec(raw);
+  const m = /^([pflgq])(?:(o)|([ban]?)([1-9]\d{0,2})?):(.*)$/s.exec(raw);
   if (!m) return null;
-  const slot: UrlComboSlot = { kind: KINDS[m[1]], relation: RELATIONS[m[3] ?? ''], text: '', picked: [], grammar: {} };
+  const lemmaPhrase = m[1] === LEMMA_PHRASE;
+  const slot: UrlComboSlot = { kind: lemmaPhrase ? 'phrase' : KINDS[m[1]], relation: RELATIONS[m[3] ?? ''], text: '', picked: [], grammar: {} };
   if (m[2]) slot.or = true;
   if (m[4]) slot.target = Number(m[4]) - 1;
   const payload = m[5];
-  if (slot.kind === 'lemma') slot.picked = list(payload);
+  if (lemmaPhrase) {
+    // Each word: its folds joined by "." (lower-case Beta Code letters), or
+    // the word as typed, to be looked up.
+    const words = payload.trim().split(/\s+/).filter(Boolean);
+    slot.options = words.map(w => (/^[a-z'()\\/=|+]+(?:\.[a-z'()\\/=|+]+)*$/.test(w) ? w.split('.') : []));
+    slot.text = words.join(' ');
+  } else if (slot.kind === 'lemma') slot.picked = list(payload);
   else if (slot.kind === 'grammatical') {
     let retired = false;
     for (const pair of list(payload)) {
@@ -207,7 +252,8 @@ function decodeSlots(raw: ReturnType<typeof decodeSlot>[]): UrlComboSlot[] {
       return;
     }
     if (joined && dropped) for (const k of dropped.slots) at[k] = out.length;
-    const kept: UrlComboSlot = { kind: slot.kind, relation: slot.relation, text: slot.text, picked: slot.picked, grammar: slot.grammar };
+    const kept: UrlComboSlot = { kind: slot.kind, relation: slot.relation, text: slot.text, picked: slot.picked, grammar: slot.grammar,
+      ...(slot.options ? { options: slot.options } : {}) };
     if (joined && dropped) {
       kept.relation = dropped.relation;
       if (dropped.target) kept.target = dropped.target;
@@ -239,12 +285,27 @@ export function encodeSearchUrl(s: UrlSearch, allWorks: string[]): string {
   const combo = s.combo && comboKept(s.combo.slots) ? s.combo : null;
   const grk = s.grk.trim();
   const eng = s.eng.trim();
+  // The English box beside a Greek search (or a proximity search, the plays).
+  const english = (greek: boolean) => {
+    put('e', eng);
+    if (s.engMode !== 'all') put('em', s.engMode);
+    if (!s.engForms) put('ef', '0');
+    if (greek) put('op', s.langOp);
+    if (s.engNear?.term.trim()) {
+      put('en', s.engNear.term.trim());
+      if (s.engNear.relation !== 'near') put('enr', s.engNear.relation[0]);
+      if (s.engNear.window !== WINDOW_DEFAULT) put('enw', String(s.engNear.window));
+    }
+    if (s.trans) put('t', s.trans);
+    if (s.xphrases.length) put('xp', s.xphrases.join(','));
+  };
   if (combo) {
     for (const slot of combo.slots) put('c', encodeSlot(slot));
     if (combo.unit !== 'words') put('cu', combo.unit);
-    if (combo.window !== COMBO_WINDOW_DEFAULT) put('cw', String(combo.window));
+    if (combo.window !== windowDefault(combo.unit)) put('cw', String(combo.window));
     if (combo.ordered) put('co', '1');
     if (!combo.crossChapter) put('cx', '0');
+    if (eng && LINES_EITHER_SIDE) english(true);
   } else {
     if (s.lemmas.length) put('l', s.lemmas.join(','));
     else if (grk) {
@@ -258,16 +319,9 @@ export function encodeSearchUrl(s: UrlSearch, allWorks: string[]): string {
     }
     if ((s.lemmas.length || grk) && s.xforms.length) put('xf', s.xforms.join(','));
     if ((s.lemmas.length || grk) && s.ed) put('ed', s.ed);
-    if (eng) {
-      put('e', eng);
-      if (s.engMode !== 'all') put('em', s.engMode);
-      if (!s.engForms) put('ef', '0');
-      if (s.lemmas.length || grk) put('op', s.langOp);
-      if (s.trans) put('t', s.trans);
-      if (s.xphrases.length) put('xp', s.xphrases.join(','));
-    }
+    if (eng) english(!!(s.lemmas.length || grk));
   }
-  if (combo && s.trans) put('t', s.trans);
+  if (combo && s.trans && !(eng && LINES_EITHER_SIDE)) put('t', s.trans);
   if (combo && s.xforms.length) put('xf', s.xforms.join(','));
   if (!out.length) return '';
   if (s.speaker?.names.length) {
@@ -323,8 +377,6 @@ export function decodeSearchUrl(search: string | URLSearchParams, allWorks: stri
   // A search opens on "and/or" (John, 16 Nov). A link from before that, a
   // Greek and English search with no op, meant "and" and still does; every
   // link written since names its op. op=or stays the inclusive or.
-  const op = p.get('op');
-  s.langOp = op === 'and' || op === 'or' || op === 'xor' ? op : s.eng && (s.grk || s.lemmas.length) ? 'and' : 'or';
   s.xforms = list(p.get('xf'));
   const ed = p.get('ed');
   s.ed = ed && ed !== 'tlg' ? ed : null;
@@ -337,14 +389,27 @@ export function decodeSearchUrl(search: string | URLSearchParams, allWorks: stri
   if (!decoded.includes('retired') && comboKept(slots)) {
     // Clamped as the window box clamps what is typed into it.
     const win = Number(p.get('cw'));
+    const unit = pick(p.get('cu'), UNITS, 'words');
     s.combo = {
       slots,
-      window: win > 0 ? Math.max(1, Math.min(win, COMBO_WINDOW_MAX)) : COMBO_WINDOW_DEFAULT,
-      unit: pick(p.get('cu'), UNITS, 'words'),
+      window: unit === 'line' && LINES_EITHER_SIDE
+        ? (p.has('cw') && Number.isFinite(win) ? Math.max(0, Math.min(Math.trunc(win), LINES_MAX)) : 0)
+        : win > 0 ? Math.max(1, Math.min(win, COMBO_WINDOW_MAX)) : WINDOW_DEFAULT,
+      unit,
       ordered: p.get('co') === '1',
       crossChapter: p.get('cx') !== '0',
     };
   }
+  // The plays' English near, beside the English box.
+  const en = (p.get('en') ?? '').trim();
+  if (en && s.eng && LINES_EITHER_SIDE) s.engNear = { term: en, relation: OLD_RELATIONS.get(p.get('enr') ?? '') ?? 'near', window: nearWords(p.get('enw')) };
+  // The plays' addresses from before the port.
+  if (LINES_EITHER_SIDE && !s.combo && OLD_PARAMS.some(k => p.has(k))) decodeOldPlays(p, s);
+  // A search opens on "and/or" (John, 16 Nov). A link from before that, a
+  // Greek and English search with no op, meant "and" and still does; every
+  // link written since names its op. op=or stays the inclusive or.
+  const op = p.get('op');
+  s.langOp = op === 'and' || op === 'or' || op === 'xor' ? op : s.eng && (s.grk || s.lemmas.length || s.combo) ? 'and' : 'or';
 
   const sp = p.get('sp');
   const names = list(p.get('sn'));
@@ -377,6 +442,125 @@ export function decodeSearchUrl(search: string | URLSearchParams, allWorks: stri
       : allWorks.filter(id => named.has(id));
   }
   return s;
+}
+
+// -- The plays' old addresses ----------------------------------------------
+//
+// Before the port, the plays wrote their Near search as the Greek box (g, m,
+// gm) with lp (the ticked headwords of each typed word, "polis.polew~qeos"),
+// n/nt/ng/nf/nr/nw/nu/no for the second term and n2…/n3… for more, each
+// measured from the first word, sh for a grammar term alone, and en/enr/enw
+// for English near. Such a link opens as the search it was (search port,
+// decision 3): the Near terms become a proximity search on the plays' rules,
+// a term whose headwords were not ticked looked up as the old page looked it
+// up (resolveUrlLemmas), and with no m the Greek box matched forms, the old
+// default. A plain g/e link carries none of these and reads as above.
+// (en is new too: written beside e since the port, so it marks no old link.)
+const OLD_PARAMS = ['lp', 'n', 'sh'];
+const OLD_KINDS = new Map<string, SlotKind>([['g', 'grammatical'], ['l', 'lemma'], ['f', 'form'], ['p', 'phrase']]);
+const OLD_RELATIONS = new Map<string, EngNear['relation']>([['n', 'near'], ['b', 'before'], ['a', 'after']]);
+const OLD_GRAMMAR_KEYS = new Set(['case', 'number', 'gender', 'person', 'tense', 'mood', 'voice', 'degree', 'marker']);
+const OLD_MORE = 2;   // the old page's further terms: n2 and n3
+function oldGrammar(v: string | null): GrammarQuery | null {
+  if (!v) return null;
+  const pairs = v.split('~').map(pair => pair.split('.'))
+    .filter(parts => parts.length === 2 && OLD_GRAMMAR_KEYS.has(parts[0]) && /^[a-z0-9_]+$/i.test(parts[1]));
+  return pairs.length ? Object.fromEntries(pairs) as GrammarQuery : null;
+}
+const oldFolds = (v: string | null) => (v ?? '').split('.').map(f => f.trim()).filter(f => /^[a-z']+$/.test(f));
+// Words 1 to 50, default 10, as the old Near and English near clamped them.
+const nearWords = (v: string | null) => {
+  const n = Number(v ?? NaN);
+  return v !== null && Number.isFinite(n) ? Math.max(1, Math.min(Math.trunc(n), COMBO_WINDOW_MAX)) : WINDOW_DEFAULT;
+};
+
+// One old Near term: a phrase where it has several words (whatever its kind),
+// else as its kind says; a lemma term's ticked headwords, or its word to look up.
+function oldTerm(kind: SlotKind, text: string, grammar: GrammarQuery | null, picks: string[], relation: SlotRelation): UrlComboSlot | null {
+  const slot: UrlComboSlot = { kind, relation, text: '', picked: [], grammar: {} };
+  if (kind === 'grammatical') return grammar ? { ...slot, grammar } : null;
+  const words = text.split(/\s+/).filter(Boolean);
+  if (!words.length) return null;
+  if (words.length > 1) return { ...slot, kind: 'phrase', text: words.join(' ') };
+  if (kind === 'lemma') return picks.length ? { ...slot, text: words[0], picked: picks } : { ...slot, text: words[0], resolve: true };
+  return { ...slot, kind: 'form', text: words[0] };
+}
+
+function decodeOldPlays(p: URLSearchParams, s: UrlSearch): void {
+  // With no m the old Greek box matched forms.
+  if (!p.has('m')) s.matchMode = 'form';
+  else if (p.get('m') !== 'lemma' && p.get('m') !== 'form') s.matchMode = 'form';
+  const lp = p.has('lp') ? (p.get('lp') ?? '').split('~').map(oldFolds) : null;
+  const typed = s.grk.split(/\s+/).filter(Boolean);
+  const lemma = s.matchMode === 'lemma';
+
+  const kind = OLD_KINDS.get(p.get('n') ?? '');
+  const second = kind ? oldTerm(kind, (p.get('nt') ?? '').trim(), oldGrammar(p.get('ng')), kind === 'lemma' ? oldFolds(p.get('nf')) : [],
+    OLD_RELATIONS.get(p.get('nr') ?? 'n') ?? 'near') : null;
+  if (second && typed.length) {
+    // The first term: the Greek box, a phrase when it holds several words
+    // (by headword in lemma mode, each word its ticked headwords or looked up).
+    const first: UrlComboSlot = typed.length > 1
+      ? { kind: 'phrase', relation: 'near', text: typed.join(' '), picked: [], grammar: {},
+        ...(lemma ? { options: typed.map((_, i) => lp?.[i] ?? []) } : {}) }
+      : lemma
+        ? (lp?.[0]?.length ? { kind: 'lemma', relation: 'near', text: typed[0], picked: lp[0], grammar: {} }
+          : { kind: 'lemma', relation: 'near', text: typed[0], picked: [], grammar: {}, resolve: true })
+        : { kind: 'form', relation: 'near', text: typed[0], picked: [], grammar: {} };
+    const slots = [first, second];
+    for (let k = 2; k < 2 + OLD_MORE; k++) {
+      const mk = OLD_KINDS.get(p.get(`n${k}`) ?? '');
+      if (!mk) break;
+      const more = oldTerm(mk, (p.get(`nt${k}`) ?? '').trim(), oldGrammar(p.get(`ng${k}`)), mk === 'lemma' ? oldFolds(p.get(`nf${k}`)) : [],
+        OLD_RELATIONS.get(p.get(`nr${k}`) ?? 'n') ?? 'near');
+      if (!more) break;
+      slots.push(more);
+    }
+    const lines = p.get('nu') === 'l';
+    s.combo = {
+      slots,
+      window: lines ? Math.max(0, Math.min(Math.trunc(Number(p.get('nw') ?? 0)) || 0, LINES_MAX)) : nearWords(p.get('nw')),
+      unit: lines ? 'line' : 'words',
+      // "In this order" was offered, and read, only with three terms.
+      ordered: p.get('no') === '1' && slots.length > 2,
+      crossChapter: true,
+    };
+    // The box's words are the first term now; its mode asks nothing more.
+    s.grk = '';
+    s.matchMode = 'lemma';
+    s.grkMode = 'all';
+    s.accent = false;
+    return;
+  }
+  // A grammar term alone: Aristotle's lone grammar term, run once narrowed.
+  const shape = oldGrammar(p.get('sh'));
+  if (shape && !typed.length) {
+    s.combo = { slots: [{ kind: 'grammatical', relation: 'near', text: '', picked: [], grammar: shape }], window: WINDOW_DEFAULT, unit: 'words', ordered: false, crossChapter: true };
+    return;
+  }
+  // One word with its headwords ticked: the dictionary-word search.
+  if (lemma && typed.length === 1 && lp?.[0]?.length) {
+    s.lemmas = lp[0];
+    s.grk = '';
+  }
+}
+
+/** The headwords of each old-link lemma term (resolve) and of each word of a
+ * headword phrase not yet known, looked up as the old page looked them up. */
+export async function resolveUrlLemmas(s: UrlSearch): Promise<UrlSearch> {
+  if (!s.combo?.slots.some(slot => slot.resolve || slot.options?.some(o => !o.length))) return s;
+  const slots = await Promise.all(s.combo.slots.map(async slot => {
+    if (slot.resolve) {
+      const { resolve: _, ...rest } = slot;
+      return { ...rest, picked: await lemmaHeads(slot.text) };
+    }
+    if (slot.options?.some(o => !o.length)) {
+      const words = slot.text.split(/\s+/);
+      return { ...slot, options: await Promise.all(slot.options.map((o, i) => (o.length ? o : lemmaHeads(words[i] ?? '')))) };
+    }
+    return slot;
+  }));
+  return { ...s, combo: { ...s.combo, slots } };
 }
 
 /** Whether the decoded state asks for a search at all. */

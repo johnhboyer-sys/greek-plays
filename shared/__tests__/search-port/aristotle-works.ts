@@ -1600,3 +1600,8 @@ export const DIVISION_NAMES: Record<string, string> = {
 
 // This corpus has no speaker or turn search controls.
 export const HAS_SPEAKERS = false;
+
+// The plays' Near rules (lib/works.ts): Aristotle has none, so its engine
+// rules and its 5-word default stand in these tests.
+export const NEAR_RULES = {};
+export const NEAR_WINDOW_DEFAULT = 5;

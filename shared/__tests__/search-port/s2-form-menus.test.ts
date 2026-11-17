@@ -205,8 +205,8 @@ describe('the 13 Nov form controls', () => {
     await vi.waitFor(() => expect(search).toHaveBeenCalled());
     expect(vi.mocked(search).mock.calls[0][5]).toEqual(ALL.filter(id => AUTHENTIC_IDS.includes(id)));
     expect(new URLSearchParams(location.search).get('w')).toBe('auth');
-    await fireEvent.click(screen.getByRole('radio', { name: 'all works' }));
-    expect(screen.getByRole('radio', { name: 'all works' })).toHaveAttribute('aria-checked', 'true');
+    await fireEvent.click(screen.getByRole('radio', { name: 'all plays' }));
+    expect(screen.getByRole('radio', { name: 'all plays' })).toHaveAttribute('aria-checked', 'true');
   });
 
   it('reads w=auth and the old exclusion list as their own scopes', async () => {
@@ -216,19 +216,19 @@ describe('the 13 Nov form controls', () => {
     page.unmount();
     window.history.replaceState(null, '', `/search?g=logos&w=-${MOCK_NOT.join(',')}`);
     render(Search);
-    await vi.waitFor(() => expect(screen.getByRole('radio', { name: 'choose works…' })).toHaveAttribute('aria-checked', 'true'));
+    await vi.waitFor(() => expect(screen.getByRole('radio', { name: 'choose plays…' })).toHaveAttribute('aria-checked', 'true'));
   });
 
   it('opens and filters the works picker, and Done returns focus to its word', async () => {
     render(Search); await type('log');
-    await fireEvent.click(screen.getByRole('radio', { name: 'choose works…' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'choose plays…' }));
     const panel = document.querySelector<HTMLElement>('#works-panel')!;
     expect(panel.hidden).toBe(false);
-    await fireEvent.input(within(panel).getByRole('searchbox', { name: 'Find a work' }), { target: { value: 'ethic' } });
+    await fireEvent.input(within(panel).getByRole('searchbox', { name: 'Find a play' }), { target: { value: 'ethic' } });
     expect([...panel.querySelectorAll('.work-chip')].map(b => b.textContent)).toEqual(['Nicomachean Ethics', 'Eudemian Ethics']);
     await fireEvent.click(within(panel).getByRole('button', { name: 'Done' }));
     expect(panel.hidden).toBe(true);
-    expect(screen.getByRole('radio', { name: 'choose works…' })).toHaveFocus();
+    expect(screen.getByRole('radio', { name: 'choose plays…' })).toHaveFocus();
   });
 
   it('gives each desktop segment one tab stop, and arrows select and focus with wrapping', async () => {

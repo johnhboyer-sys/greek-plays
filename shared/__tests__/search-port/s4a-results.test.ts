@@ -109,7 +109,7 @@ describe('Search.svelte S4a: a chapter name line over its hits (ruling 17)', () 
     const chapterTitles = { EN: { '1': { '7': 'The good for man' } } };
     const { container } = await draw(G('α'), [at('70a', { grkMatch: true, grkPositions: [0] }), at('71a', { grkMatch: true, grkPositions: [0] })], 2, { chapterTitles });
     const lines = [...container.querySelectorAll('h3.sx-chap')];
-    expect(lines.map(l => text(l.querySelector('.sx-chap-n')))).toEqual(['The good for man', 'Speech']);
+    expect(lines.map(l => text(l.querySelector('.sx-chap-n')))).toEqual(['The good for man', '']);
     // The plays' speech heading: its speaker (the title), then the line it
     // opens on (the name); with no title, "Speech" and the line.
     expect(text(lines[0].querySelector('.sx-chap-t'))).toBe('7');
@@ -211,9 +211,9 @@ describe('Search.svelte S4a: the menus over the hits', () => {
       [text(r.querySelector('label')), text(r.querySelector('.opt-gloss'))].filter(Boolean).join(': '))]);
     expect(read).toEqual([
       // One word as spelled: By grammar is a dictionary word's (John, 13 Nov).
-      ['Group by', 'By work', 'By form'],
-      ['Sort', 'Bekker order', 'Works A–Z', 'Forms A–Z', 'Commonest form first'],
-      ['Context', '1 line', '3 lines', 'Whole section'],
+      ['Group by', 'By play', 'By form'],
+      ['Sort', 'Line order', 'Plays A–Z', 'Forms A–Z', 'Commonest form first'],
+      ['Context', '1 line', '3 lines', 'Whole speech'],
       ['Per page', '20', '40', '100'],
     ]);
   });

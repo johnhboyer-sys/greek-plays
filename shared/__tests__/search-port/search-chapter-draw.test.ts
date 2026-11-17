@@ -83,7 +83,7 @@ it('marks only its own word in each half of a unit split by a chapter start', as
     engHits: [{ translation: 'english', positions: [0, 2] }] };
   const c = await open(book([line(1, 'α')], 'Virtue here. Virtue there.'), [r], 'e=virtue');
   await vi.waitFor(() => expect(c.querySelectorAll('li.instance')).toHaveLength(2));
-  expect(headings(c)).toEqual(['Speech 1', 'Speech 2']);
+  expect(headings(c)).toEqual(['1', '2']);
   const rows = [...c.querySelectorAll('li.instance')];
   expect(rows.map(i => i.querySelectorAll('.inst-en mark').length)).toEqual([1, 1]);
 });
@@ -98,7 +98,7 @@ it('draws an English phrase under the chapter it counts in', async () => {
     engHits: [{ translation: 'english', positions: [0, 1], matches: [0] }] };
   const c = await open(book([line(1, 'α')], 'One two three.'), [r], 'e=%22one%20two%22&em=phrase');
   await vi.waitFor(() => expect(headings(c).length).toBeGreaterThan(0));
-  expect(headings(c)).toEqual(['Speech 1']);
+  expect(headings(c)).toEqual(['1']);
   expect(text(document.body)).toMatch(/1 speech\b/);
 });
 
@@ -110,7 +110,7 @@ it('files a whole section under each chapter it has a hit in', async () => {
   const r: SearchResult = { ...base, grkMatch: true, engMatch: false, grkPositions: [3, 15] };
   const c = await open(book(Array.from({ length: 22 }, (_, i) => line(i + 1, 'α')), 'One.'),
     [r], 'g=α&ctx=s&ps=20');
-  await vi.waitFor(() => expect(headings(c)).toEqual(['Speech 1', 'Speech 2']));
+  await vi.waitFor(() => expect(headings(c)).toEqual(['1', '2']));
   expect(c.querySelectorAll('li.instance')).toHaveLength(2);
   expect([...c.querySelectorAll('li.instance')].map(i => i.querySelectorAll('.greek mark').length)).toEqual([1, 1]);
 });
@@ -135,7 +135,7 @@ it('marks only its own chapter\'s English in each row of a split section', async
     engHits: [{ translation: 'rackham', positions: [0, 2] }] };
   const c = await open(book(Array.from({ length: 22 }, (_, i) => line(i + 1, 'α')), 'Virtue one. Virtue two.'),
     [r], 'g=α&e=virtue&ctx=s&ps=20');
-  await vi.waitFor(() => expect(headings(c)).toEqual(['Speech 1', 'Speech 2']));
+  await vi.waitFor(() => expect(headings(c)).toEqual(['1', '2']));
   const rows = [...c.querySelectorAll('li.instance')];
   expect(rows).toHaveLength(2);
   expect(rows.map(i => [...i.querySelectorAll('.inst-en mark')].map(m => m.textContent))).toEqual([['Virtue'], ['Virtue']]);
@@ -151,7 +151,7 @@ it('marks a word two overlapping phrase runs share in each run\'s row', async ()
   const r: SearchResult = { ...base, grkMatch: false, engMatch: true, grkPositions: [],
     engHits: [{ translation: 'english', positions: [0, 1, 2], matches: [0, 1] }] };
   const c = await open(book([line(1, 'α')], 'Ha ha ha.'), [r], 'e=%22ha%20ha%22&em=phrase');
-  await vi.waitFor(() => expect(headings(c)).toEqual(['Speech 1', 'Speech 2']));
+  await vi.waitFor(() => expect(headings(c)).toEqual(['1', '2']));
   const rows = [...c.querySelectorAll('li.instance')];
   expect(rows.map(i => [...i.querySelectorAll('.inst-en mark')].map(m => m.textContent).join(' ').trim().toLowerCase()))
     .toEqual(['ha ha', 'ha ha']);
@@ -167,7 +167,7 @@ it('does not stretch a one-word term over the next term\'s words', async () => {
   const r: SearchResult = { ...base, grkMatch: false, engMatch: true, grkPositions: [],
     engHits: [{ translation: 'english', positions: [0, 1, 2], matches: [0, 1] }] };
   const c = await open(book([line(1, 'α')], 'Virtue well-being.'), [r], `e=${encodeURIComponent('virtue well-being')}`);
-  await vi.waitFor(() => expect(headings(c)).toEqual(['Speech 1', 'Speech 2']));
+  await vi.waitFor(() => expect(headings(c)).toEqual(['1', '2']));
   const rows = [...c.querySelectorAll('li.instance')];
   expect(rows.map(i => [...i.querySelectorAll('.inst-en mark')].map(m => m.textContent).join(' ').trim().toLowerCase()))
     .toEqual(['virtue', 'well being']);
@@ -202,7 +202,7 @@ it('"or" (op=xor) counts the chapters with one language, not both', async () => 
   await vi.waitFor(() => expect(splitOf(c)).toEqual(['Greek and English 1 off', 'Greek only 1', 'English only 0']));
   expect(text(c.querySelector('.result-count'))).toMatch(/^1 speech\s*1 hit\b/);
   expect(text(c.querySelector('details.opt.join summary b'))).toBe('or');
-  expect(headings(c)).toEqual(['Speech 2']);
+  expect(headings(c)).toEqual(['2']);
 });
 
 // 12. A new search opens on "and/or" (John, 16 Nov): typed into a blank page

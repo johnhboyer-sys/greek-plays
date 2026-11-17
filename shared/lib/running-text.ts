@@ -323,7 +323,7 @@ async function searchWork(
     const positions = [...claimed].sort((a, b) => a - b);
     return {
       work,
-      meta: meta[si],
+      meta: meta[si], seg: si,
       grkMatch: true,
       engMatch: false,
       grkPositions: positions,

@@ -249,7 +249,7 @@ describe('the editor', () => {
     expect(select('Relation of term 3').value).toBe('near');
     const field = screen.getByRole('searchbox', { name: 'Term 3: a dictionary word' }) as HTMLInputElement;
     expect(field.value).toBe('');
-    expect(field.placeholder).toBe('e.g. ἡδονή');
+    expect(field.placeholder).toBe('e.g. πόλις');
     expect(document.activeElement).toBe(field);
   });
 

@@ -655,6 +655,21 @@ export const SEARCH_GROUPS: WorkGroup[] = AUTHORS
   .map((a) => ({ ref: '', label: a.name, ids: a.works.filter((id) => BY_ID.has(id)) }))
   .filter((g) => g.ids.length);
 
+// The plays' Near rules (John, 25–26 Oct 2026), switched on for every
+// proximity search the plays' page runs, on Aristotle's engine
+// (search.ts ComboOptions): each term a word of its own, measured from the
+// nearer end of each run, lines counted on either side of the first word,
+// a match belonging to its first word's speech, and a word whose every reading
+// fits marked first. Near opens at 10 words, as the plays' Near did.
+export const NEAR_RULES = {
+  distinctWords: true,
+  fromNearerEnd: true,
+  linesEitherSide: true,
+  byFirstWord: true,
+  preferCertain: true,
+} as const;
+export const NEAR_WINDOW_DEFAULT = 10;
+
 // Cross-work ordering for search results, matching the home page's SHELVES
 // flatten order (which differs from the raw WORKS/corpus order). Any real work
 // not referenced by SHELVES is appended in WORKS order so every searchable

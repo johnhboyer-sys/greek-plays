@@ -54,12 +54,14 @@ describe('the search box', () => {
   const files: Record<string, unknown> = {
     '/agamemnon/search/meta.json': [{ id: '1:1', book: 1, column: '1', head: 'λόγος', tokens: 'logos', english_head: '' }],
     '/agamemnon/search/form.json': { logos: [[0, 0]] },
+    // The ported page searches by headword by default (search port).
+    '/agamemnon/search/greek_lemma.json': { logos: [[0, 0]] },
+    '/lemma-map/l.json': { logos: ['logos'] },
     '/agamemnon/book-01.json': book,
     '/agamemnon/chapters.json': {},
   };
 
-  // search-port lane 2: old search box (Beta Code query)
-  it.skip('a Beta Code query with accents finds the Greek hit', async () => {
+  it('a Beta Code query with accents finds the Greek hit', async () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
       const hit = files[String(input).replace(/^.*?\/data/, '')];
@@ -82,83 +84,56 @@ describe('Type Greek dialog', () => {
     expect(dialog()).toBeNull();
   });
 
-  // search-port lane 2: old Type Greek dialog
-  it.skip('Type Greek opens the chart, focused, and Escape closes it and returns focus', async () => {
+  // The ported page (search port): the chart opens from "Beta Code help"
+  // under Try, its keys handled on the dialog itself, Close its one control.
+  it('Beta Code help opens the chart, focused, and Escape closes it and returns focus', async () => {
     const page = render(Search);
-    const btn = page.getByRole('button', { name: 'Type Greek' });
+    const btn = page.getByRole('button', { name: 'Beta Code help' });
     btn.focus();
     await fireEvent.click(btn);
     await waitFor(() => expect(dialog()).not.toBeNull());
-    expect(document.activeElement).toBe(dialog());
-    expect(dialog()!.querySelectorAll('.beta-grid li').length).toBe(BETA_LETTERS.length);
-    expect(dialog()!.textContent).toContain('ἀρετή');
-    await fireEvent.keyDown(window, { key: 'Escape' });
+    await waitFor(() => expect(document.activeElement).toBe(dialog()));
+    expect(dialog()!.querySelectorAll('.beta-grid .beta-cell').length).toBe(BETA_LETTERS.length);
+    expect(dialog()!.textContent).toContain('δίκη');
+    await fireEvent.keyDown(dialog()!, { key: 'Escape' });
     expect(dialog()).toBeNull();
-    expect(document.activeElement).toBe(btn);
+    await waitFor(() => expect(document.activeElement).toBe(btn));
   });
 
-  // search-port lane 2: old Type Greek dialog
-  it.skip('the Beta Code hint opens it too; a click inside keeps it, the backdrop and × close it', async () => {
+  it('a click inside keeps it; the backdrop and × close it', async () => {
     const page = render(Search);
-    await fireEvent.click(page.getByRole('button', { name: 'Beta Code' }));
+    await fireEvent.click(page.getByRole('button', { name: 'Beta Code help' }));
     await waitFor(() => expect(dialog()).not.toBeNull());
     await fireEvent.click(dialog()!.querySelector('h2')!);
     expect(dialog()).not.toBeNull();
     await fireEvent.click(document.querySelector('.help-backdrop')!);
     expect(dialog()).toBeNull();
 
-    await fireEvent.click(page.getByRole('button', { name: 'Type Greek' }));
+    await fireEvent.click(page.getByRole('button', { name: 'Beta Code help' }));
     await waitFor(() => expect(dialog()).not.toBeNull());
     await fireEvent.click(page.getByRole('button', { name: 'Close' }));
     expect(dialog()).toBeNull();
   });
 
-  // search-port lane 2: old Type Greek dialog
-  it.skip('Tab stays inside the dialog', async () => {
+  it('Tab stays inside the dialog', async () => {
     const page = render(Search);
-    await fireEvent.click(page.getByRole('button', { name: 'Type Greek' }));
+    await fireEvent.click(page.getByRole('button', { name: 'Beta Code help' }));
     await waitFor(() => expect(dialog()).not.toBeNull());
     const close = page.getByRole('button', { name: 'Close' });
-    const link = dialog()!.querySelector('a.ln') as HTMLElement;
-    link.focus();
-    await fireEvent.keyDown(window, { key: 'Tab' });
-    expect(document.activeElement).toBe(close);
-    await fireEvent.keyDown(window, { key: 'Tab', shiftKey: true });
-    expect(document.activeElement).toBe(link);
-  });
-
-  // Grok review: the dialog opens focused on itself, which neither end of the
-  // trap matched, so the browser's own Tab left the dialog.
-  // search-port lane 2: old Type Greek dialog
-  it.skip('from the just-opened dialog, Tab goes to its first control and Shift+Tab to its last', async () => {
-    const page = render(Search);
-    await fireEvent.click(page.getByRole('button', { name: 'Type Greek' }));
-    await waitFor(() => expect(document.activeElement).toBe(dialog()));
-    const close = page.getByRole('button', { name: 'Close' });
-    const link = dialog()!.querySelector('a.ln') as HTMLElement;
+    close.focus();
     const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
-    window.dispatchEvent(tab);
+    close.dispatchEvent(tab);
     expect(tab.defaultPrevented).toBe(true);
     expect(document.activeElement).toBe(close);
-    dialog()!.focus();
-    await fireEvent.keyDown(window, { key: 'Tab', shiftKey: true });
-    expect(document.activeElement).toBe(link);
-    // Focus somewhere behind the backdrop comes back in too.
-    (page.container.querySelector('#grk-input') as HTMLElement).focus();
-    await fireEvent.keyDown(window, { key: 'Tab' });
+    const back = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true });
+    close.dispatchEvent(back);
+    expect(back.defaultPrevented).toBe(true);
     expect(document.activeElement).toBe(close);
   });
-
-  // search-port lane 2: old Type Greek dialog
-  it.skip('Escape is spent on the dialog, not passed on to the search box', async () => {
-    const page = render(Search);
-    await fireEvent.click(page.getByRole('button', { name: 'Type Greek' }));
-    await waitFor(() => expect(dialog()).not.toBeNull());
-    const esc = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
-    window.dispatchEvent(esc);
-    expect(esc.defaultPrevented).toBe(true);
-    await waitFor(() => expect(dialog()).toBeNull());
-  });
+  // Not ported: Aristotle's old dialog trapped Tab and Escape on the window,
+  // with a link in the chart (the "from the just-opened dialog" and "Escape
+  // is spent on the dialog" tests); the ported dialog handles its keys on
+  // itself and has Close alone.
 });
 
 describe('liveGreek (Grammata)', () => {
@@ -284,13 +259,15 @@ describe('β Beta Code toggle', () => {
     expect(el.value).toBe('λο/');
   });
 
-  // search-port lane 2: old β Beta Code toggle
-  it.skip('a query typed with it on searches as Greek', async () => {
+  it('a query typed with it on searches as Greek', async () => {
     const book = { book: 1, segments: [{ id: '1:1', column: '1',
       greek: [{ n: 1, ref: '1', text: 'λόγος', tokens: [{ t: 'λόγος', o: 0, k: 'lo/gos' }] }], english: null }] };
     const files: Record<string, unknown> = {
       '/agamemnon/search/meta.json': [{ id: '1:1', book: 1, column: '1', head: 'λόγος', tokens: 'logos', english_head: '' }],
       '/agamemnon/search/form.json': { logos: [[0, 0]] },
+      // The ported page searches by headword by default (search port).
+      '/agamemnon/search/greek_lemma.json': { logos: [[0, 0]] },
+      '/lemma-map/l.json': { logos: ['logos'] },
       '/agamemnon/book-01.json': book,
       '/agamemnon/chapters.json': {},
     };

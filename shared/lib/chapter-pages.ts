@@ -89,7 +89,9 @@ export function chapterPlaces(
   const whole = (r: SearchResult) => at(r.work, r.meta.book, '', 0);
   const place = (r: SearchResult) => {
     const m = mapOf(r.work);
-    const si = m?.seg.get(`${r.meta.book}:${r.meta.column}`);
+    // By the segment's index where the engine gives it: two segments may
+    // share a book and column (Helen's two "post 1226", Seven's 803 and 810).
+    const si = r.seg !== undefined && m && r.seg < m.offsets.segments.length ? r.seg : m?.seg.get(`${r.meta.book}:${r.meta.column}`);
     const starts = m?.starts.get(r.meta.book);
     return m && si !== undefined && starts?.length ? { m, si, starts, names: m.names.get(r.meta.book)! } : null;
   };

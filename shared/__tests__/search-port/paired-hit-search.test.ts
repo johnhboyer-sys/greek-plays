@@ -237,7 +237,7 @@ describe('Search.svelte: Greek and English hits in one unit', () => {
     expect(container.querySelector('.rc-w')).toHaveTextContent(/^speeches$/);
     // Int sorts first; EN's page holds the pair's two Greek hits.
     expect([...container.querySelectorAll('.group-count')].map(text)).toEqual(['1 hit', '2 hits']);
-    const works = screen.getByRole('group', { name: 'Show hits from one work or one translation' });
+    const works = screen.getByRole('group', { name: 'Show hits from one play or one translation' });
     // Each work its chapters, each translation its English hits (John, 16 Nov).
     expect(text(works)).toContain('Nicomachean Ethics1 sp. Rackham1');
     expect(text(works)).toContain('De Interpretatione1 sp.');

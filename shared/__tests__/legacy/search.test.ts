@@ -357,7 +357,7 @@ describe('Search.svelte play-line result routing', () => {
   });
   afterEach(() => vi.restoreAllMocks());
 
-  // search-port lane 2: play-line result routing: translator slot
+  // search port: not ported. Its fixture is the old English index ([segment, slot] postings, english_slots in meta), which the build no longer writes; the translation label on a hit and its trans= link are covered in search-port/reading-results-search.test.ts.
   it.skip('shows the matching translator and opens that slot', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation(url => {
       const path = String(url);
@@ -382,7 +382,7 @@ describe('Search.svelte play-line result routing', () => {
     expect(container.querySelector('.inst-snippet')?.textContent).toContain('plenteous');
   });
 
-  // search-port lane 2: play-line result routing: phrase marks
+  // search port: not ported (the old English index, as above); phrase marks are covered in search-port/english-hit.test.ts and plato-english-hit.test.ts.
   it.skip('marks only the words of the matched phrase, not the same words elsewhere', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation(url => {
       const path = String(url);
@@ -406,7 +406,7 @@ describe('Search.svelte play-line result routing', () => {
     expect([...container.querySelectorAll('.inst-snippet mark')].map(m => m.textContent)).toEqual(['old', 'man']);
   });
 
-  // search-port lane 2: play-line result routing: English Near
+  // search port: not ported (the old English index and the old Advanced search row); English near is covered in plays-near.test.ts, engine and marks.
   it.skip('shows an English near hit whole, however far the near word stands', async () => {
     const far = 'man ' + 'quietly '.repeat(40) + 'child';
     vi.spyOn(globalThis, 'fetch').mockImplementation(url => {
@@ -432,14 +432,14 @@ describe('Search.svelte play-line result routing', () => {
     expect([...container.querySelectorAll('.inst-snippet mark')].map(m => m.textContent)).toEqual(['man', 'child']);
   });
 
-  // search-port lane 2: play-line result routing (old page)
-  it.skip('loads an empty chapter outline and cites the matching printed line ref', async () => {
+  it('loads an empty chapter outline and cites the matching printed line ref', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
       const path = String(url);
       if (path.endsWith('/agamemnon/search/meta.json')) return json([
         { id: '1:125', book: 1, column: '1', head: 'λόγος', tokens: 'logos', english_head: '' },
       ]);
-      if (path.endsWith('/agamemnon/search/form.json')) return json({ logos: [[0, 0]] });
+      if (path.endsWith('/agamemnon/search/form.json') || path.endsWith('/agamemnon/search/greek_lemma.json')) return json({ logos: [[0, 0]] });
+      if (path.endsWith('/lemma-map/l.json')) return json({ logos: ['logos'] });
       if (path.endsWith('/agamemnon/chapters.json')) return json({});
       if (path.endsWith('/agamemnon/book-01.json')) return json({
         book: 1,
@@ -458,23 +458,26 @@ describe('Search.svelte play-line result routing', () => {
     await waitFor(() => expect(container.querySelector('.inst-ref')).toBeTruthy());
     const link = container.querySelector('.inst-ref') as HTMLAnchorElement;
     expect(link.textContent).toBe('147-150');
-    expect(link.getAttribute('href')).toBe('/read/aeschylus/agamemnon?hlg=%CE%BB%CF%8C%CE%B3%CE%BF%CF%82&loc=147-150');
+    // The ported page marks the hit's word in the reader too (hlt).
+    expect(link.getAttribute('href')).toBe('/read/aeschylus/agamemnon?hlg=%CE%BB%CF%8C%CE%B3%CE%BF%CF%82&hlt=147-150:0&loc=147-150');
     // Other works' indexes 404 in this fixture; F10 names them rather than
     // pretending the search was complete.
-    expect(container.querySelector('.search-note.warn')?.textContent).toMatch(/Some plays could not be searched/);
+    expect([...container.querySelectorAll('.sx-note.warn')].map(n => n.textContent).join(' ')).toMatch(/Some plays could not be searched/);
   });
 
-  // search-port lane 2: play-line result routing (old page)
-  it.skip('keeps printed order and omits made-up book and line group labels', async () => {
+  it('keeps printed order and omits made-up book and line group labels', async () => {
+    // A play of its own: the ported search caches each play's index for the
+    // life of the module, and the test before this one loaded Agamemnon's.
     vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
       const path = String(url);
-      if (path.endsWith('/agamemnon/search/meta.json')) return json([
+      if (path.endsWith('/eumenides/search/meta.json')) return json([
         { id: '1:1290', book: 1, column: '1290', head: 'λόγος', tokens: 'logos', english_head: '' },
         { id: '1:1284', book: 1, column: '1284', head: 'λόγος', tokens: 'logos', english_head: '' },
       ]);
-      if (path.endsWith('/agamemnon/search/form.json')) return json({ logos: [[0, 0], [1, 0]] });
-      if (path.endsWith('/agamemnon/chapters.json')) return json({});
-      if (path.endsWith('/agamemnon/book-01.json')) return json({
+      if (path.endsWith('/eumenides/search/form.json') || path.endsWith('/eumenides/search/greek_lemma.json')) return json({ logos: [[0, 0], [1, 0]] });
+      if (path.endsWith('/lemma-map/l.json')) return json({ logos: ['logos'] });
+      if (path.endsWith('/eumenides/chapters.json')) return json({});
+      if (path.endsWith('/eumenides/book-01.json')) return json({
         book: 1,
         segments: [
           { id: '1:1290', column: '1290', english: null, greek: [{ n: 1, ref: '1290', text: 'λόγος', tokens: [{ t: 'λόγος', o: 0, k: 'logos' }] }] },
@@ -487,7 +490,7 @@ describe('Search.svelte play-line result routing', () => {
     const { getByLabelText, getByRole, container } = render(Search);
     await fireEvent.input(getByLabelText('Greek'), { target: { value: 'λόγος' } });
     await fireEvent.click(getByRole('button', { name: 'Search' }));
-    await waitFor(() => expect(container.querySelectorAll('.inst-ref')).toHaveLength(2));
+    await waitFor(() => expect(container.querySelectorAll('.inst-ref')).toHaveLength(2), { timeout: 5000 });
 
     expect(Array.from(container.querySelectorAll('.inst-ref')).map((el) => el.textContent)).toEqual(['1290', '1284']);
     expect(container.querySelector('.book-name')).toBeNull();
