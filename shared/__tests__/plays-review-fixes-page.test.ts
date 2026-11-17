@@ -181,14 +181,35 @@ describe('review fix 4: an old multiword lemma search on the page', () => {
   it('keeps the picks when only the capitals, accents or script of the same words change', async () => {
     const { search } = await import('../lib/search');
     const run = async (container: HTMLElement) => { const n = vi.mocked(search).mock.calls.length; await fireEvent.submit(container.querySelector('form.search-form')!); await vi.waitFor(() => expect(vi.mocked(search).mock.calls.length).toBeGreaterThan(n)); };
-    for (const typed of ['LOGOU QEOUS', 'λόγου θεούς', 'λογου θεους']) {
+    for (const typed of ['LOGOU QEOUS', 'λόγου θεούς', 'λογου θεους', '*logou qeous']) {
       window.history.replaceState(null, '', '/search?g=logou%20qeous&m=lemma&lp=logos~qea');
+      // Wait for this page's own first search, so the old link is restored
+      // before anything is typed (the mock keeps earlier pages' calls).
+      const before = vi.mocked(search).mock.calls.length;
       const { container, unmount } = render(Search);
-      await vi.waitFor(() => expect(search).toHaveBeenCalled());
+      await vi.waitFor(() => expect(vi.mocked(search).mock.calls.length).toBeGreaterThan(before));
       await fireEvent.input(container.querySelector('#grk-input') as HTMLInputElement, { target: { value: typed } });
       await run(container);
       expect(vi.mocked(search).mock.calls.at(-1)![11], typed).toEqual([['logos'], ['qea']]);
       expect(window.location.search, typed).toContain('lp=logos~qea');
+      unmount();
+    }
+  });
+
+  it('drops the picks when a wildcard is added to the same words', async () => {
+    const { search } = await import('../lib/search');
+    const run = async (container: HTMLElement) => { const n = vi.mocked(search).mock.calls.length; await fireEvent.submit(container.querySelector('form.search-form')!); await vi.waitFor(() => expect(vi.mocked(search).mock.calls.length).toBeGreaterThan(n)); };
+    for (const typed of ['logou* qeous', 'λόγ*υ θεούς', 'log?u qeous']) {
+      window.history.replaceState(null, '', '/search?g=logou%20qeous&m=lemma&lp=logos~qea');
+      // Wait for this page's own first search, so the old link is restored
+      // before anything is typed (the mock keeps earlier pages' calls).
+      const before = vi.mocked(search).mock.calls.length;
+      const { container, unmount } = render(Search);
+      await vi.waitFor(() => expect(vi.mocked(search).mock.calls.length).toBeGreaterThan(before));
+      await fireEvent.input(container.querySelector('#grk-input') as HTMLInputElement, { target: { value: typed } });
+      await run(container);
+      expect(vi.mocked(search).mock.calls.at(-1)![11], typed).toBeUndefined();
+      expect(window.location.search, typed).not.toContain('lp=');
       unmount();
     }
   });

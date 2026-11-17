@@ -3554,8 +3554,12 @@
   // when the words changed (review fix 4).
   let grkPick: { query: string; picks: string[][] } | null = null;
   // Folded as the index keys words, so capitals, accents, or Greek typed for
-  // Beta Code (λόγου for logou) are the same words and keep their picks.
-  const pickWords = (q: string) => q.trim().split(/\s+/).filter(Boolean).map(greekFold).join(' ');
+  // Beta Code (λόγου for logou) are the same words and keep their picks. The
+  // wildcards (* ? .) are kept, since greekFold drops them: adding one makes
+  // another search. A leading * before a letter is dropped first, as
+  // lemmaHeads drops it (the Beta Code capital), so it changes nothing.
+  const foldPickWord = (w: string) => w.replace(/^\*+(?=\p{L})/u, '').split(/([*?.])/).map(p => (/^[*?.]$/.test(p) ? p : greekFold(p))).join('');
+  const pickWords = (q: string) => q.trim().split(/\s+/).filter(Boolean).map(foldPickWord).join(' ');
   const grkPickNow = () => (grkPick && matchMode === 'lemma' && !soloLemmaActive && pickWords(grkQuery) === grkPick.query ? grkPick.picks : undefined);
 
   // A change of words or mode ends the picks for good: coming back to the old
