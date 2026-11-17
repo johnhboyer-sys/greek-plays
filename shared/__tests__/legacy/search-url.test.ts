@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { decodeSearchUrl, encodeSearchUrl, emptyUrlSearch, hasSearch, type UrlSearch } from '../lib/search-url';
+import { decodeSearchUrl, encodeSearchUrl, emptyUrlSearch, hasSearch, type UrlSearch } from '../../lib/legacy/search-url';
 const works = ['A', 'B', 'C'];
 it('keeps defaults aligned with the search form', () => {
   const state = emptyUrlSearch(works);

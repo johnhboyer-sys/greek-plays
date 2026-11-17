@@ -1089,3 +1089,22 @@ CI had failed on every run since the first push (2026-09-09). The fixes:
 - `pipeline/drama_pipeline/{stage6_search,stage8_ngrams}.py`, `shared/lib/data.ts`, `shared/components/Phrases.svelte` — 2026-10-25 (John: "Do it"): the phrase index shows phrases with accents: as written, the commonest printed spelling; any form, the accented LSJ headwords (aristotle-reader shows the unaccented key). `shared/lib/search-url.ts` — the search's address uses short parameters (lp, n/nt/nr/nw/nu/no/ng, sh, en/enr/enw) in place of aristotle-reader's JSON.
 - `app/src/styles/reader-drama.css` — 2026-11-14: a verse translation's first line runs on from the speaker's name (each printed line was a block, so the name sat alone above); the paragraph carries the hanging indent; comparison unchanged.
 - `shared/components/Reader.svelte`, `app/src/styles/reader-drama.css` — 2026-11-14: a direction that opens a verse speech (Murray's `(sneering)`) runs in after the speaker's name, bracketed, and the first verse line follows on the same line.
+
+## Search port (2026-11-16): aristotle-reader's search page, origin/main 3fd71978e
+
+Rebuilt on Aristotle's files; the old search is kept under `shared/lib/legacy/` (`search.ts`, `search-advanced.ts`, `search-url.ts`) for `Phrases.svelte` and its tests (`shared/__tests__/legacy/`). Reader-facing "chapter" is "speech" throughout (John, 2026-11-16).
+
+- `shared/lib/search.ts` — replaced by aristotle-reader's; data through `data.ts` (`dataRoot`, `editionBase`); this repo's lemma-map pairs (`[fold, headword]`) read as folds; offsets `segments[i].refs` give the printed line ref (`offsetRef().ref`, play-line cites by it); crossTurn unset now crosses a speaker change (only `false` stops it; `plays-cross-turn.test.ts`); a Greek-only search may read a play's edition (`ed`, `edKey`, `greekEditionOf`, `SearchResult.ed`; `plays-edition-search.test.ts`).
+- `shared/lib/search-url.ts` — replaced by aristotle-reader's; adds `ed=` (written only with a Greek query or picks; `tlg` reads as none).
+- `shared/components/Search.svelte` — replaced by aristotle-reader's: speech for chapter in every string, `/search/how` for `/advanced`, no Authentic scope (`AUTH_SPLIT` false), play hits cited and linked by printed line ref, speech heads show speaker and first line ref; WordPopup without `rail`; no edition choice on the page yet (`ed: null`).
+- `shared/components/SavedSearches.svelte`, `app/src/pages/saved.astro` — new, from aristotle-reader, in this site's frame and the Vase's tokens.
+- `shared/lib/{search-pages,chapter-pages,phrase-list,result-views,form-panel,english-hit,english-place,paired-hit,running-text,running-text.worker,running-match,greek-keys,saved-searches}.ts` — new, copied from aristotle-reader unchanged.
+- `shared/lib/proximity-sentence.ts` — new, from aristotle-reader; its chapter unit reads "in the same speech".
+- `shared/lib/works.ts` — `narrator?`, `searchableTranslations`, `AUTHENTIC_IDS` (every play), `HAS_SPEAKERS = true`, `SEARCH_GROUPS` (by author) for the ported page.
+- `shared/lib/data.ts` — `isChapterSection` (always false), `GreekLine.sub`, `FlowTurn.es` and the sub/alt `es` types the ported page reads.
+- `shared/lib/betacode.ts` — `LIVE_RANK` exported, `liveGreek` keeps a wildcard `*` and takes digamma, `betaQueryToGreek` added, as aristotle-reader's.
+- `shared/lib/text.ts` — `esc` exported.
+- `shared/components/Phrases.svelte` — reads the legacy search's lemma options.
+- `shared/styles/vase-search.css` — new, aristotle-reader's `b-search.css` under `.vase-search` in the Vase's tokens (clay for red ink, `--hair`, `--hit`, Cardo and Alegreya Sans).
+- `app/src/pages/search.astro` — mounts the ported page with each play's `chapter-titles.json` (speech names) inside `.vase-search`.
+- `shared/__tests__/search-port/` — aristotle-reader's search tests against its own registry (`aristotle-works.ts`) and stubs; skips marked `// search port:`. Old tests of removed behaviour are `it.skip` with `// search-port lane 2:`.

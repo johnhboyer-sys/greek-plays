@@ -1,8 +1,8 @@
 import { beforeEach, afterEach, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { search, invalidateSearchIndex, type AdvancedSearch } from '../lib/search';
-import { shardName, searchCombo } from '../lib/search-advanced';
+import { search, invalidateSearchIndex, type AdvancedSearch } from '../../lib/legacy/search';
+import { shardName, searchCombo } from '../../lib/legacy/search-advanced';
 const meta = [
   { id: 'a', book: 1, column: '1', head: '', tokens: 'logos kalos', english_head: 'man loves child', english_slots: { other: 'men love children' } },
   { id: 'b', book: 1, column: '2', head: '', tokens: 'logos qea', english_head: 'child sees man' },
@@ -42,7 +42,7 @@ beforeEach(() => {
 });
 afterEach(() => vi.restoreAllMocks());
 it('pins shardName to the stage-9 fixture', () => {
-  const fixture = JSON.parse(readFileSync(resolve(__dirname, '../../pipeline/tests/fixtures/search_shards.json'), 'utf8'));
+  const fixture = JSON.parse(readFileSync(resolve(__dirname, '../../../pipeline/tests/fixtures/search_shards.json'), 'utf8'));
   for (const { word, shard } of fixture.cases) expect(shardName(word)).toBe(shard);
 });
 it.each([

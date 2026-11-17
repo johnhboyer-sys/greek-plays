@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { searchCombo, COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX, type ComboOptions } from '../lib/search-advanced';
+import { searchCombo, COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX, type ComboOptions } from '../../lib/legacy/search-advanced';
 
 const meta = [
   { id: '1:1000a', book: 1, column: '1000a' },
@@ -318,7 +318,7 @@ function positions(r: { grkPositions: number[]; nearPositions?: number[] }): num
 
 describe('comboWindows backtracking', () => {
   it('finds a match a greedy first pick would block', async () => {
-    const { comboWindows } = await import('../lib/search-advanced');
+    const { comboWindows } = await import('../../lib/legacy/search-advanced');
     // Term 2 can use 1 or 2, term 3 only 1: taking 1 for term 2 must be undone.
     const off = { token_count: 10, seg_base_offset: [0], segments: [{ book: 1, column: '1', line_runs: [[1, 10]] }], book_bounds: [{ book: 1, start: 0 }] } as never;
     const hit = (start: number) => ({ start, span: 1, certain: true });
@@ -329,7 +329,7 @@ describe('comboWindows backtracking', () => {
 
 describe('which word a grammatical term marks', () => {
   it('prefers a word whose every reading fits over a nearer ambiguous one', async () => {
-    const { comboWindows } = await import('../lib/search-advanced');
+    const { comboWindows } = await import('../../lib/legacy/search-advanced');
     const off = { token_count: 10, seg_base_offset: [0], segments: [{ book: 1, column: '1', line_runs: [[1, 10]] }], book_bounds: [{ book: 1, start: 0 }] } as never;
     const hit = (start: number, certain = true) => ({ start, span: 1, certain });
     // Anchor 5; an ambiguous vocative at 4 (ἐμέ), a sure one at 7 (παῖ).
@@ -343,7 +343,7 @@ describe('which word a grammatical term marks', () => {
 
 describe('lines away', () => {
   it('counts lines either side of the first word, 0 being its own line', async () => {
-    const { comboWindows } = await import('../lib/search-advanced');
+    const { comboWindows } = await import('../../lib/legacy/search-advanced');
     // Five lines of two tokens: line k holds tokens 2k and 2k+1.
     const off = { token_count: 10, seg_base_offset: [0], segments: [{ book: 1, column: '1', line_runs: [[1, 2], [2, 2], [3, 2], [4, 2], [5, 2]] }], book_bounds: [{ book: 1, start: 0 }] } as never;
     const hit = (start: number) => ({ start, span: 1, certain: true });

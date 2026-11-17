@@ -1,8 +1,8 @@
 import { beforeEach, afterEach, expect, it, vi } from 'vitest';
-import { search, invalidateSearchIndex, loadIndex, englishNearOccurrences, type AdvancedSearch } from '../lib/search';
-import { searchCombo, searchGrammar, loadOffsets, type GrammarDict } from '../lib/search-advanced';
-vi.mock('../lib/works', async importOriginal => ({
-  ...await importOriginal<typeof import('../lib/works')>(),
+import { search, invalidateSearchIndex, loadIndex, englishNearOccurrences, type AdvancedSearch } from '../../lib/legacy/search';
+import { searchCombo, searchGrammar, loadOffsets, type GrammarDict } from '../../lib/legacy/search-advanced';
+vi.mock('../../lib/works', async importOriginal => ({
+  ...await importOriginal<typeof import('../../lib/works')>(),
   getWork: () => ({ language: 'grc', greekEditions: [{ id: 'alt' }] }),
 }));
 const meta = [
@@ -147,7 +147,7 @@ it('keeps shard and binary requests under the runtime data root', async () => {
 });
 
 it('reads English words as the index keys them: ligatures, curly elision, edge quotes', async () => {
-  const { englishOccurrences, englishWords } = await import('../lib/search');
+  const { englishOccurrences, englishWords } = await import('../../lib/legacy/search');
   const text = 'Æschylus said they’d come, ‘friend’.';
   expect(englishWords(text).map(w => w.word)).toEqual(['aeschylus', 'said', "they'd", 'come', 'friend']);
   expect(englishOccurrences(text, ['Aeschylus'], 'all')).toEqual([0]);
@@ -156,7 +156,7 @@ it('reads English words as the index keys them: ligatures, curly elision, edge q
 });
 
 it('treats a quoted lone * as no word, with or without English forms', async () => {
-  const { englishOccurrences } = await import('../lib/search');
+  const { englishOccurrences } = await import('../../lib/legacy/search');
   expect(englishOccurrences('old man', ['old', "'*'"], 'phrase', true)).toEqual([]);
   expect(englishOccurrences('old man', ['old', "'*'"], 'phrase', false)).toEqual([]);
 });

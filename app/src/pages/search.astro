@@ -7,8 +7,25 @@ import SiteFoot from '../components/SiteFoot.astro';
 import Pwa from '../components/Pwa.astro';
 import { jsonLdSafe } from '../lib/jsonld';
 import { SITE_NAME } from '../lib/site';
+import { readFileSync } from 'node:fs';
+import { WORKS } from '@shared/lib/works';
 import '@shared/styles/global.css';
+import '../styles/vase.css';
+import '@shared/styles/vase-search.css';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+// The speech headings over the hits (the search port; Aristotle's chapter
+// titles, ruling 17): a speech's title is its speaker's name, read from each
+// play's chapter-titles.json when the page is built. A play without one gets
+// the line the speech opens on alone.
+type Titles = Record<string, Record<string, string>>;
+const readTitles = (path: string): Titles => {
+  try { return JSON.parse(readFileSync(`public/data/${path}`, 'utf-8')); } catch { return {}; }
+};
+const chapterTitles: Record<string, Titles> = {};
+for (const w of WORKS) {
+  const titles = readTitles(`${w.id}/chapter-titles.json`);
+  if (Object.keys(titles).length) chapterTitles[w.id] = titles;
+}
 
 const siteName = SITE_NAME;
 
@@ -66,10 +83,10 @@ const jsonLd = {
 <body>
   <SkipLink />
   <h1 class="sr-only">Search</h1>
-  <div class="wrap">
+  <div class="wrap vase-search">
     <SiteHeader />
     <span id="main" tabindex="-1"></span>
-    <Search client:load />
+    <Search client:load {chapterTitles} />
     <SiteFoot />
   </div>
 </body>

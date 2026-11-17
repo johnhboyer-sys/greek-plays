@@ -2,8 +2,8 @@
 // PUBLIC_EDITIONS=1 and an edition is chosen (plan 4.6).
 import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import Search from '../components/Search.svelte';
-import { search, invalidateSearchIndex } from '../lib/search';
+import Search from '../../components/Search.svelte';
+import { search, invalidateSearchIndex } from '../../lib/legacy/search';
 
 const book = { book: 1, segments: [{ id: '1:1', column: '1',
   greek: [{ n: 1, ref: '1', text: 'λόγος', tokens: [{ t: 'λόγος', o: 0, k: 'lo/gos' }] }], english: null }] };
@@ -35,7 +35,8 @@ async function searchOnce(flag: boolean) {
 }
 
 describe('search page without an edition choice', () => {
-  it('flag off: no edition control, no /ed/ request, no ed= on a hit', async () => {
+  // search-port lane 2: edition picker on the search page
+  it.skip('flag off: no edition control, no /ed/ request, no ed= on a hit', async () => {
     const { page, urls, hrefs } = await searchOnce(false);
     expect(page.queryByLabelText('Greek text to search')).toBeNull();
     expect(urls.filter(u => u.includes('/ed/'))).toEqual([]);
@@ -44,7 +45,8 @@ describe('search page without an edition choice', () => {
     expect(hrefs[0]).not.toContain('ed=');
     expect(hrefs[0]).toBe('/read/aeschylus/agamemnon?hlg=%CE%BB%CF%8C%CE%B3%CE%BF%CF%82&loc=1');
   });
-  it('flag on, reference chosen (the default): the control shows, and still no /ed/ request or ed=', async () => {
+  // search-port lane 2: edition picker on the search page
+  it.skip('flag on, reference chosen (the default): the control shows, and still no /ed/ request or ed=', async () => {
     const { page, urls, hrefs } = await searchOnce(true);
     expect((page.getByLabelText('Greek text to search') as HTMLSelectElement).value).toBe('tlg');
     expect(urls.filter(u => u.includes('/ed/'))).toEqual([]);

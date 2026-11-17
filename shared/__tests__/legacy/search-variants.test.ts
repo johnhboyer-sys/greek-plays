@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { searchPhraseVariants, VARIANT_READING_CAP } from '../lib/search-advanced';
+import { searchPhraseVariants, VARIANT_READING_CAP } from '../../lib/legacy/search-advanced';
 
 // One segment. The phrase "to ti hn einai" stands at 0-3; the same formula with
 // a different article, "tw ti hn einai", stands at 10-13. Only the second is

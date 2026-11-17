@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { searchGrammar, offsetRef, englishForms, englishTermMatcher } from '../lib/search-advanced';
+import { searchGrammar, offsetRef, englishForms, englishTermMatcher } from '../../lib/legacy/search-advanced';
 const meta = [{id: '1', book: 1, column: '1094a', tokens: 'a b c d', head: '', english_head: ''}];
 const json = (data: unknown) => Promise.resolve({ok: true, json: async () => data} as Response);
 const grammarDict = {

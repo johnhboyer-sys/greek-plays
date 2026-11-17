@@ -250,6 +250,10 @@ export interface Work {
   commentaries?: string[];
   /** Authorship status. Absent ⇒ genuine. Drives the homepage/landing badge. */
   authenticity?: 'genuine' | 'dubious' | 'spurious';
+  // A narrated work's frame speaker (Plato's Phaedo), whose labels the
+  // search's speaker filter leaves out. No play is narrated; the search port
+  // (from aristotle-reader) reads the field.
+  narrator?: string;
   // Traditional stylometric/dramatic dating (early/middle/late Plato), shown
   // as a single hedged line on the work's landing page. Omitted for the
   // disputed corpus (works without a settled place in the traditional
@@ -473,6 +477,13 @@ export function freemanApparatusCredit(work: Work): string | null {
   return `Groupings, title markings, and editorial apparatus follow Kathleen Freeman, Ancilla to the Pre-Socratic Philosophers (Oxford: Blackwell, 1948); the translation is Freeman's.`;
 }
 
+// The translations the corpus build indexes for search (Aristotle's
+// searchableTranslations): the registry's, gated as visibleTranslations gates
+// them, without a host's runtime imports, which have no index to search.
+export function searchableTranslations(work: Work): TranslationRef[] {
+  return work.translations.filter(t => !t.private || SHOW_PRIVATE);
+}
+
 // Translations visible in the current build. Private (copyright-encumbered)
 // entries are already dropped from WORKS at compile time unless the build opted
 // in (see SHOW_PRIVATE above); this filter is a runtime backstop.
@@ -634,6 +645,15 @@ const AUTHOR_WORK_GROUPS = AUTHOR_WORK_GROUPS_DATA as Record<string, AuthorWorkG
 export function workGroupsFor(authorId: string): AuthorWorkGroup[] {
   return AUTHOR_WORK_GROUPS[authorId] ?? [];
 }
+
+// What the search page (ported from aristotle-reader) asks of the corpus.
+// The plays have no authentic/doubtful split, so "authentic" is every play;
+// every play has speakers; the works picker groups the plays by playwright.
+export const AUTHENTIC_IDS: string[] = WORKS.map((w) => w.id);
+export const HAS_SPEAKERS = true;
+export const SEARCH_GROUPS: WorkGroup[] = AUTHORS
+  .map((a) => ({ ref: '', label: a.name, ids: a.works.filter((id) => BY_ID.has(id)) }))
+  .filter((g) => g.ids.length);
 
 // Cross-work ordering for search results, matching the home page's SHELVES
 // flatten order (which differs from the raw WORKS/corpus order). Any real work

@@ -49,6 +49,9 @@ export interface Witness {
 
 export interface GreekLine {
   n: number;
+  // Aristotle's lettered Bekker lines (244b5a). No play line carries one; the
+  // search port (from aristotle-reader) reads the field.
+  sub?: string;
   text: string;
   // play-line only (the Greek drama corpus, P1 — docs/p1-probe.md): the
   // play's own printed lineref -- a plain number ("1234"), a single-letter
@@ -317,7 +320,7 @@ export interface FlowTurn {
   // is its whole English cell; when the row also carries English (a narration
   // lead, e.g. Lysis 203a) the stack follows it. Each speech has its own
   // lead-in, English text, and optional paragraph breaks.
-  sub?: { s: string | null; d: string | null; e: string; ep?: number[] | null }[] | null;
+  sub?: { s: string | null; d: string | null; e: string; ep?: number[] | null; es?: { o: number; c: string }[] | null }[] | null;
   // `alt`: this turn's text in ALTERNATE translations, keyed by translation id
   // (see shared/lib/works.ts TranslationRef.id). Populated by the post-stage7
   // turn aligner (pipeline/drama_pipeline/align_turns.py), which pairs each
@@ -325,7 +328,10 @@ export interface FlowTurn {
   // alternate inherits Stephanus anchoring. The reader's turn-by-turn compare
   // renders `alt[id].e` in the second column on this same row; `e` is null for
   // a reference turn the alternate has no match for (rendered as an em-dash).
-  alt?: Record<string, { e: string | null; ep?: number[] | null }> | null;
+  alt?: Record<string, { e: string | null; ep?: number[] | null; es?: { o: number; c: string }[] | null }> | null;
+  // `es`: section starts inside this turn's English (Plato's flows; the
+  // search port reads it). No play book has a turn flow.
+  es?: { o: number; c: string }[] | null;
 }
 
 // A dialogue book's turn flow: the globally-paired, ordered turn list the
@@ -637,6 +643,12 @@ const ROOT = dataRoot;
 const workBase = (work: string) => `${ROOT()}/${work}`;
 export const editionBase = (work: string, ed?: string) =>
   !ed || ed === 'tlg' ? workBase(work) : `${workBase(work)}/ed/${encodeURIComponent(ed)}`;
+
+// The search page (ported from aristotle-reader) asks whether a work is cited
+// chapter.section, as Aristotle's Isagoge is. No play is.
+export function isChapterSection(_work: unknown): boolean {
+  return false;
+}
 
 export function readerHref(work: string, options: { book?: number; loc?: string; ed?: string; trans?: string; view?: string } = {}): string {
   const meta = getWork(work);

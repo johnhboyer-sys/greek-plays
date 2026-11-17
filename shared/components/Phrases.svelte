@@ -15,7 +15,7 @@
   } from '../lib/data';
   import { betaToGreek } from '../lib/betacode';
   import { greekFold } from '../lib/search';
-  import { VARIANT_READING_CAP, lemmaOptions, lemmaReadings } from '../lib/search-advanced';
+  import { VARIANT_READING_CAP, lemmaOptions, lemmaReadings } from '../lib/legacy/search-advanced';
   import { WORKS, getWork, workPath } from '../lib/works';
   import { AUTHORS } from '../lib/authors';
   import { formatLocValue } from '../lib/citation';

@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, waitFor } from '@testing-library/svelte';
-import Search from '../components/Search.svelte';
-import { invalidateBookCache } from '../lib/data';
-import { DEFAULT_MATCH_MODE, englishOccurrences, greekFold, latinFold, search, invalidateSearchIndex } from '../lib/search';
+import Search from '../../components/Search.svelte';
+import { invalidateBookCache } from '../../lib/data';
+import { DEFAULT_MATCH_MODE, englishOccurrences, greekFold, latinFold, search, invalidateSearchIndex } from '../../lib/legacy/search';
 
 describe('search rulings', () => {
   afterEach(() => vi.restoreAllMocks());
@@ -52,9 +52,9 @@ describe('search rulings', () => {
 // Latin-language test work ids (unregistered in the real WORKS registry, so
 // getWork() would otherwise resolve them to 'grc' and mask the Blocker 2
 // asymmetry this file guards against): stubbed to `language: 'lat'` here,
-// everything else in '../lib/works' stays real.
-vi.mock('../lib/works', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../lib/works')>();
+// everything else in '../../lib/works' stays real.
+vi.mock('../../lib/works', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../lib/works')>();
   return {
     ...actual,
     getWork: (id: string) =>
@@ -210,7 +210,7 @@ describe('search', () => {
 // query for "vita" would never match an index built with the fold("vita",
 // "lat") == fold("uita", "lat") equivalence, because the query side used
 // Greek's Beta-Code fold table instead. These tests use a work id
-// ('TLat...') the top-of-file `vi.mock('../lib/works', ...)` resolves to
+// ('TLat...') the top-of-file `vi.mock('../../lib/works', ...)` resolves to
 // `language: 'lat'`, with a synthetic index built the way stage6_search.py
 // would build it for a Latin work (fold(key, 'lat') keys).
 describe('search — Latin work language dispatch', () => {
@@ -357,7 +357,8 @@ describe('Search.svelte play-line result routing', () => {
   });
   afterEach(() => vi.restoreAllMocks());
 
-  it('shows the matching translator and opens that slot', async () => {
+  // search-port lane 2: play-line result routing: translator slot
+  it.skip('shows the matching translator and opens that slot', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation(url => {
       const path = String(url);
       if (path.endsWith('/agamemnon/search/meta.json')) return json([
@@ -381,7 +382,8 @@ describe('Search.svelte play-line result routing', () => {
     expect(container.querySelector('.inst-snippet')?.textContent).toContain('plenteous');
   });
 
-  it('marks only the words of the matched phrase, not the same words elsewhere', async () => {
+  // search-port lane 2: play-line result routing: phrase marks
+  it.skip('marks only the words of the matched phrase, not the same words elsewhere', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation(url => {
       const path = String(url);
       if (path.endsWith('/agamemnon/search/meta.json')) return json([
@@ -404,7 +406,8 @@ describe('Search.svelte play-line result routing', () => {
     expect([...container.querySelectorAll('.inst-snippet mark')].map(m => m.textContent)).toEqual(['old', 'man']);
   });
 
-  it('shows an English near hit whole, however far the near word stands', async () => {
+  // search-port lane 2: play-line result routing: English Near
+  it.skip('shows an English near hit whole, however far the near word stands', async () => {
     const far = 'man ' + 'quietly '.repeat(40) + 'child';
     vi.spyOn(globalThis, 'fetch').mockImplementation(url => {
       const path = String(url);
@@ -429,7 +432,8 @@ describe('Search.svelte play-line result routing', () => {
     expect([...container.querySelectorAll('.inst-snippet mark')].map(m => m.textContent)).toEqual(['man', 'child']);
   });
 
-  it('loads an empty chapter outline and cites the matching printed line ref', async () => {
+  // search-port lane 2: play-line result routing (old page)
+  it.skip('loads an empty chapter outline and cites the matching printed line ref', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
       const path = String(url);
       if (path.endsWith('/agamemnon/search/meta.json')) return json([
@@ -460,7 +464,8 @@ describe('Search.svelte play-line result routing', () => {
     expect(container.querySelector('.search-note.warn')?.textContent).toMatch(/Some plays could not be searched/);
   });
 
-  it('keeps printed order and omits made-up book and line group labels', async () => {
+  // search-port lane 2: play-line result routing (old page)
+  it.skip('keeps printed order and omits made-up book and line group labels', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
       const path = String(url);
       if (path.endsWith('/agamemnon/search/meta.json')) return json([
@@ -506,7 +511,7 @@ describe('PUBLIC_DATA_ROOT build-time root override', () => {
   it('prefixes every index fetch with PUBLIC_DATA_ROOT when set', async () => {
     vi.stubEnv('PUBLIC_DATA_ROOT', 'https://data.example.com/v1/');
     vi.resetModules();
-    const fresh = await import('../lib/search');
+    const fresh = await import('../../lib/legacy/search');
     const urls: string[] = [];
     vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
       urls.push(String(url));

@@ -1,7 +1,7 @@
 // Reference-text grammar, proximity, phrase variants, and corpus shard lookups.
 import { ROOT, loadIndex, pool, greekFold, englishWords, englishQueryWord, type GrkIndex, type EngIndex,
   type SegMeta, type SearchResult, type SearchResponse } from './search';
-import { memoAsyncBy } from './memo';
+import { memoAsyncBy } from '../memo';
 type SearchOutcome = SearchResponse;
 const shared = memoAsyncBy<string, unknown>(url => fetch(url).then(r => {
   if (!r.ok) throw new Error(`HTTP ${r.status} for ${url}`);
