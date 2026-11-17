@@ -196,10 +196,10 @@ describe('review fix 4: an old multiword lemma search on the page', () => {
     }
   });
 
-  it('drops the picks when a wildcard is added to the same words', async () => {
+  it('drops the picks when a wildcard or any pattern mark is added to the same words', async () => {
     const { search } = await import('../lib/search');
     const run = async (container: HTMLElement) => { const n = vi.mocked(search).mock.calls.length; await fireEvent.submit(container.querySelector('form.search-form')!); await vi.waitFor(() => expect(vi.mocked(search).mock.calls.length).toBeGreaterThan(n)); };
-    for (const typed of ['logou* qeous', 'λόγ*υ θεούς', 'log?u qeous']) {
+    for (const typed of ['logou* qeous', 'λόγ*υ θεούς', 'log?u qeous', '*λόγου θεούς', 'λό+γου θεούς', 'λό|γου θεούς', 'λό(γ|ο)υ θεούς', 'λό[γο]υ θεούς', 'λό^γου θεούς', 'λό$γου θεούς']) {
       window.history.replaceState(null, '', '/search?g=logou%20qeous&m=lemma&lp=logos~qea');
       // Wait for this page's own first search, so the old link is restored
       // before anything is typed (the mock keeps earlier pages' calls).

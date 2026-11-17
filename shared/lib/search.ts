@@ -570,7 +570,9 @@ function compileGreekPattern(term: string): CompiledPattern | null {
   return { test: matches, prefix: split ? '' : literal(lead) };
 }
 
-function compilePattern(
+// Exported for the plays' page: an old link's lemma picks hold only while
+// the typed words read as the same exact words (Search.svelte pickWords).
+export function compilePattern(
   term: string,
   fold: (s: string) => string,
 ): CompiledPattern | null {

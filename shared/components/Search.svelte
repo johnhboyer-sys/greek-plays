@@ -8,6 +8,7 @@
     searchPhraseVariants,
     speakerRoster,
     greekFold,
+    compilePattern,
     greekHitForms,
     greekHitGrammar,
     formAccents,
@@ -3554,11 +3555,14 @@
   // when the words changed (review fix 4).
   let grkPick: { query: string; picks: string[][] } | null = null;
   // Folded as the index keys words, so capitals, accents, or Greek typed for
-  // Beta Code (λόγου for logou) are the same words and keep their picks. The
-  // wildcards (* ? .) are kept, since greekFold drops them: adding one makes
-  // another search. A leading * before a letter is dropped first, as
-  // lemmaHeads drops it (the Beta Code capital), so it changes nothing.
-  const foldPickWord = (w: string) => w.replace(/^\*+(?=\p{L})/u, '').split(/([*?.])/).map(p => (/^[*?.]$/.test(p) ? p : greekFold(p))).join('');
+  // Beta Code (λόγου for logou) are the same words and keep their picks. A
+  // word is read as the engine reads it (compilePattern, as resolveHeadwords
+  // does): an exact word by its fold; any pattern or invalid term as typed,
+  // so adding a pattern mark makes another search and drops the picks.
+  const foldPickWord = (w: string) => {
+    const p = compilePattern(w, greekFold);
+    return p && 'exact' in p ? p.exact : `\u0000${w}`;
+  };
   const pickWords = (q: string) => q.trim().split(/\s+/).filter(Boolean).map(foldPickWord).join(' ');
   const grkPickNow = () => (grkPick && matchMode === 'lemma' && !soloLemmaActive && pickWords(grkQuery) === grkPick.query ? grkPick.picks : undefined);
 
