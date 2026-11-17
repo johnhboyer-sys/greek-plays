@@ -58,7 +58,7 @@ const canonical = Astro.site ? new URL(`${base}/search/how/`, Astro.site).href :
         <dt>Each play’s main text</dt>
         <dd>The menu under the Greek box. “Each play’s main text” searches the Greek each play opens with. Choosing an edition searches that edition, in Greek-only word searches, in the plays that have it; “running text” always reads each play’s main text. A note over the results names any play searched in another text.</dd>
         <dt>Wildcards</dt>
-        <dd><code>*</code> stands for any letters: <code>fron*</code> finds <span lang="grc">φρόνησις</span>, <span lang="grc">φρόνιμος</span>, and so on. <code>?</code> is one letter, <code>[εη]</code> one of these letters, and <code>^</code> and <code>$</code> the start and end of the word; in Greek letters <code>(ος|ου)</code> is one or the other. In Beta Code a leading <code>*</code> is a capital, so write <code>.*ikos$</code> for words ending in -ικος. English takes <code>*</code> and <code>?</code> only. These are for word searches: “running text” takes regular expressions, where <code>.*</code> is any run of letters.</dd>
+        <dd><code>*</code> stands for any letters: <code>fron*</code> finds <span lang="grc">φρόνησις</span>, <span lang="grc">φρόνιμος</span>, and so on. <code>?</code> is one letter, <code>[εη]</code> one of these letters, and <code>^</code> and <code>$</code> the start and end of the word; in Greek letters <code>(ος|ου)</code> is one or the other. In Beta Code a leading <code>*</code> is a capital, so write <code>.*ikos$</code> for words ending in -ικος. English takes <code>*</code> and <code>?</code> only. These are for word searches: “running text” takes regular expressions, where <code>.*</code> is any run of text, spaces and stops included.</dd>
         <dt>and, and/or, or</dt>
         <dd>With both boxes filled, the word between them. “and” (“Both languages”) finds speeches where the Greek and the English both match. “and/or” (“Either or both”), the default, finds speeches where either matches. “or” (“One language, not both”) finds speeches where one matches and the other does not.</dd>
         <dt>English near</dt>
@@ -85,7 +85,7 @@ const canonical = Astro.site ? new URL(`${base}/search/how/`, Astro.site).href :
       <h2 id="results">The results</h2>
       <dl>
         <dt>Speeches and hits</dt>
-        <dd>The count gives the speeches with hits and, where it can, the hits: with Greek and English, the hits are the Greek words; with English alone, the hits show when each play has one translation searched. With Greek and English, the rows under it give the speeches with “Greek and English”, “Greek only”, and “English only”.</dd>
+        <dd>The count gives the speeches with hits and, where it can, the hits: with Greek and English, the hits are the Greek matches (a phrase is one hit); with English alone, the hits show when each play has one translation searched. With Greek and English, the rows under it give the speeches with “Greek and English”, “Greek only”, and “English only”.</dd>
         <dt>Group by, Sort, Context, Per page</dt>
         <dd>“Group by” lists the hits “By play”, “By form”, or “By grammar”. “Sort” orders the page: “Line order”, “Plays A–Z”, “Forms A–Z”, or “Commonest form first”. “Context” shows “1 line”, “3 lines”, or the “Whole speech”. “Per page” shows 20, 40, or 100; at 100 each hit is its reference and a few words, opened with a click.</dd>
         <dt>Show the whole speech</dt>
