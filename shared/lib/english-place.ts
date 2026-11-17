@@ -37,6 +37,13 @@ export function overlayPieces(seg: Segment, t: Pick<TranslationRef, 'id' | 'slot
 // the running number of the line that prints it (or the next line printed
 // after it), so a tick and a line compare. Other schemes print no `ref`, and
 // their ticks stand as they are.
+//
+// The English is cut by rising ticks. A line the edition prints out of order
+// (Ag. 1290 before 1284) takes no tick: the tick goes where its number falls
+// among the lines printed in order. A tick that would still fall back, or
+// land on the line before it took (784 and 785 on one line "784-785"), joins
+// the stretch before it; a tick the translation repeats for one printed line
+// stands.
 const runningTicks = new WeakMap<object, unknown[]>();
 export function lineTicks<T extends { n: number }>(seg: Segment, ticks: T[] | undefined): T[] {
   if (!ticks?.length || !seg.greek.some(l => l.ref)) return ticks ?? [];
@@ -46,14 +53,36 @@ export function lineTicks<T extends { n: number }>(seg: Segment, ticks: T[] | un
       const m = /^(\d+)(?:-(\d+))?/.exec(l.ref ?? '');
       return m ? [Number(m[1]), Number(m[2] ?? m[1])] : null;
     });
+    const inOrder = printedInOrder(span);
+    let last: { n: number; printed: number } | undefined;
     out = ticks.map(t => {
-      let i = span.findIndex(r => r !== null && r[0] <= t.n && t.n <= r[1]);
-      if (i < 0) i = span.findIndex(r => r !== null && r[0] >= t.n);
+      let i = span.findIndex((r, j) => inOrder[j] && r![0] <= t.n && t.n <= r![1]);
+      if (i < 0) i = span.findIndex((r, j) => inOrder[j] && r![0] >= t.n);
       return { ...t, n: i >= 0 ? seg.greek[i].n : (seg.greek.at(-1)?.n ?? t.n) + 1 };
+    }).filter((t, k) => {
+      const keep = !last || t.n > last.n || (t.n === last.n && ticks[k].n === last.printed);
+      if (keep) last = { n: t.n, printed: ticks[k].n };
+      return keep;
     });
     runningTicks.set(ticks, out);
   }
   return out;
+}
+
+// The lines printed in number order: the longest run of rising refs, so a
+// line or block the edition moved is the shorter run left out.
+function printedInOrder(span: (number[] | null)[]): boolean[] {
+  const at = span.flatMap((r, j) => r ? [{ ref: r[0], j }] : []);
+  const len = at.map(() => 1);
+  const prev = at.map(() => -1);
+  for (let b = 0; b < at.length; b++) {
+    for (let a = 0; a < b; a++) {
+      if (at[a].ref <= at[b].ref && len[a] + 1 > len[b]) { len[b] = len[a] + 1; prev[b] = a; }
+    }
+  }
+  const keep = span.map(() => false);
+  for (let k = len.indexOf(Math.max(0, ...len)); k >= 0; k = prev[k]) keep[at[k].j] = true;
+  return keep;
 }
 
 function piecesOf(seg: Segment, t: Pick<TranslationRef, 'id' | 'slot'>): Piece[] {
