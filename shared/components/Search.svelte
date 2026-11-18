@@ -44,6 +44,9 @@
     type EngNear,
     edKey,
     pool,
+    resolveHeadwordKeys,
+    corpusHeadwordDeps,
+    type HeadwordKeyDeps,
   } from '../lib/search';
   import { joinEnglish, searchRunningText } from '../lib/running-text';
   import { englishPlace, englishMarked, markEnglishHtml, markWordsHtml, plainEnglish, translationTexts, turnTranslationTexts } from '../lib/english-hit';
@@ -77,7 +80,7 @@
   } from '../lib/data';
   import { WORKS, getWork, workPath, WORK_ORDER, SEARCH_GROUPS, searchableTranslations, type TranslationRef } from '../lib/works';
   import { formatCite, formatLocValue, schemeFor } from '../lib/citation';
-  import { decodeSearchUrl, encodeSearchUrl, hasSearch, resolveUrlLemmas, type UrlCombo, type UrlSearch } from '../lib/search-url';
+  import { decodeSearchUrl, encodeSearchUrl, hasSearch, resolveUrlLemmas, resolveDecodedLemmaKeys, type UrlCombo, type UrlSearch } from '../lib/search-url';
   import { grammarWords, proximitySentence, termWords } from '../lib/proximity-sentence';
   import { FULL, addSaved, findSaved, savedAvailable, summarizeSearch } from '../lib/saved-searches';
   import { betaQueryToGreek, betaToGreek, liveGreek } from '../lib/betacode';
@@ -334,6 +337,8 @@
   // Stepping through history can start a search while another is running;
   // only the latest may write results.
   let searchRun = 0;
+  // Drop an address load if a newer address or manual search starts.
+  let urlLoad = 0;
 
   // `keep`: filters the reader already has on widened results, to stay on
   // when they are widened again (the speaker lifted from them). A first
@@ -2011,16 +2016,18 @@
   }
   // The picker's keys for a typed word: itself when it is a dictionary word,
   // else the dictionary words the corpus map files it under.
-  async function headwordKeys(word: string): Promise<string[]> {
-    const fold = greekFold(word);
-    if (!fold) return [];
-    const has = async (key: string) => {
-      try { return Object.hasOwn(await fetchLemmaPickerShard(/^[a-z]/.test(key) ? key[0] : '_'), key); } catch { return false; }
+  function headwordDeps(): HeadwordKeyDeps {
+    return {
+      pickerShard: corpusHeadwordDeps.pickerShard,
+      lemmaMap: async (_letter, fold) => {
+        const rows = await lemmaOptions([fold]);
+        if (rows === null) throw new Error('lemma map unavailable');
+        return { [fold]: rows[0] ?? [] };
+      },
     };
-    if (await has(fold)) return [fold];
-    const heads = (await lemmaOptions([fold]))?.[0] ?? [];
-    const found = await Promise.all(heads.map(async h => ((await has(h)) ? h : '')));
-    return found.filter(Boolean);
+  }
+  async function headwordKeys(word: string): Promise<string[]> {
+    return resolveHeadwordKeys(word, headwordDeps());
   }
 
   function setComboKind(id: number, kind: SlotKind) {
@@ -3772,11 +3779,16 @@
     popup = null;
     closeSugg();
     // An old plays link's lemma terms are looked up first, as its page did.
-    const s = await resolveUrlLemmas(decodeSearchUrl(window.location.search, WORK_IDS));
+    const decoded = decodeSearchUrl(window.location.search, WORK_IDS);
+    const load = ++urlLoad;
+    const s = await resolveUrlLemmas(decoded);
+    await resolveDecodedLemmaKeys(s, key => resolveHeadwordKeys(key, headwordDeps()));
+    if (load !== urlLoad) return;
     applySearch(s);
     // The reactive comboActive / soloLemmaActive / speakerFilter that doSearch
     // reads must catch up with the controls just set.
     await tick();
+    if (load !== urlLoad) return;
     if (hasSearch(s)) {
       await doSearch(undefined, { history: 'none', trans: s.trans, work: s.workFilter, xforms: s.xforms, xphrases: s.xphrases, facets: s.facets });
       return;
@@ -3869,6 +3881,7 @@
 
   async function doSearch(e?: Event, opts: { history?: 'push' | 'none'; trans?: string | null; work?: string | null; xforms?: string[]; xphrases?: string[]; facets?: Facets } = {}) {
     e?.preventDefault();
+    if (opts.history !== 'none') urlLoad++;
     if (!grkQuery.trim() && !engQuery.trim() && !comboActive && !soloLemmaActive) return;
     // Lemma on and no word picked yet: the list to pick from, not a search.
     if (lemmaOn && !soloLemmaActive && grkQuery.trim() && !comboActive) {
