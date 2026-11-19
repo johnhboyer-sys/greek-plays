@@ -435,6 +435,7 @@
     // The plays' English near term, as a run to mark beside the query's.
     engNearUnits?: string[][];
     langOp: LangOp;       // how the two queries were joined, for the translation filter
+    grkPhrase: boolean;   // the Greek words were searched as a phrase, as the form list must read them
     // The speaker filter the results on screen were produced under. Frozen with
     // the rest of the query: "widen to all inflections" runs after the fact,
     // and reading the live control there would rerun it under a filter the
@@ -442,7 +443,7 @@
     speaker?: SpeakerFilter;
   }
   const emptyCtx = (): SearchCtx => ({
-    grkQuery: '', engQuery: '', engUnits: [], grkAccentTerms: [], grkCaseTerms: [], engPhrase: false, engForms: false, langOp: 'and',
+    grkQuery: '', engQuery: '', engUnits: [], grkAccentTerms: [], grkCaseTerms: [], engPhrase: false, engForms: false, langOp: 'and', grkPhrase: false,
   });
   let searchCtx: SearchCtx = emptyCtx();
 
@@ -514,7 +515,7 @@
   async function loadForms(results: SearchResult[]) {
     let found: HitForms | null = null;
     try {
-      found = await greekHitForms(results, searchCtx.grkQuery, formsMode);
+      found = await greekHitForms(results, searchCtx.grkQuery, formsMode, searchCtx.grkPhrase);
     } catch (err) {
       console.warn('search: no form list —', err);
     }
@@ -3984,6 +3985,7 @@
         engPhrase: engMode === 'phrase',
         engForms,
         langOp,
+        grkPhrase: !comboActive && !soloLemmaActive && !runningText && grkMode === 'phrase',
         speaker: speakerFilter,
       };
       const { results: found, failedWorks: failed, approximateTurns: approximate, approximateChapters: chaptersApproximate, unsearchedTranslations, unresolvedTerms, unnarrowed, unsupported, mainText } = comboActive

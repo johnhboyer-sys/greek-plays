@@ -1143,3 +1143,10 @@ Page 1 reads only the plays it draws. Ported hunk by hunk; `countRows` checked a
 - `shared/components/Search.svelte` — aristotle-reader's row-table hunks (`countKnown`, `known`, `tableOff`, `rowsReady`, `pageRows` reading only its own books, the failed-book and Retry fixes) with each play's edition table (`r.ed`) and the plays' empty-outline rule; the phrase list's words read when it is opened (Show, the phone's Phrases screen, or at once for `xp=`); line helpers from `lib/greek-lines`.
 - `scripts/build-row-tables.mjs` — new: writes `build/dist/<play>/rows.json` and `build/dist/<play>/ed/<id>/rows.json` from the built books with app/'s esbuild (as `verify-registry-roundtrip.mjs` bundles `works.ts`); fails on an English unit that disagrees with `unitAtEnglish`. `scripts/build-public.mjs` runs it before the Astro build.
 - `shared/__tests__/plays-row-table.test.ts` — new: speeches with a shared line, a transposed line, a doubled column, an edition, in contexts 1, 3 and whole speech; page 1 reading only its plays; no table; a counted play that fails; a disagreeing table; built data where present. `shared/__tests__/search-port/{search-phrases,search-r8,reading-results-search}.test.ts` — aristotle-reader's PR #208 changes.
+
+### Search, a typed word's accents choose its headword (2026-11-19): aristotle-reader PR #218
+
+- `shared/lib/lemma-accents.ts`, `app/src/pages/data/lemma-accents.json.ts`, `shared/__tests__/lemma-accents.test.ts` — new, from aristotle-reader unchanged; the endpoint reads each play's `search/greek_lemma.json`, `search/meta.json`, and books as Aristotle's do, and the plays' `[key, beta]` lemma-map pairs as keys.
+- `shared/lib/search.ts` — aristotle-reader's hunks (`accentNarrowing` in `resolveHeadwords` and `searchPhraseVariants`; `greekHitForms`' `phrase` flag) on the plays' `resolveHeadwords(terms, picks?)`.
+- `shared/components/Search.svelte` — `grkPhrase` in `SearchCtx`, passed to `greekHitForms`.
+- `shared/__tests__/search-port/form-panel-search.test.ts`, `shared/__tests__/typed-headword.test.ts` — the `phrase` argument, and a phrase Forms-list test.
