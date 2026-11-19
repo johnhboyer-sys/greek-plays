@@ -1146,7 +1146,8 @@ Page 1 reads only the plays it draws. Ported hunk by hunk; `countRows` checked a
 
 ### Search, a typed word's accents choose its headword (2026-11-19): aristotle-reader PR #218
 
-- `shared/lib/lemma-accents.ts`, `app/src/pages/data/lemma-accents.json.ts`, `shared/__tests__/lemma-accents.test.ts` — new, from aristotle-reader unchanged; the endpoint reads each play's `search/greek_lemma.json`, `search/meta.json`, and books as Aristotle's do, and the plays' `[key, beta]` lemma-map pairs as keys.
+- `shared/lib/lemma-accents.ts`, `shared/__tests__/lemma-accents.test.ts` — new, from aristotle-reader unchanged; the plays' `[key, beta]` lemma-map pairs read as keys.
+- `app/src/pages/data/lemma-accents.json.ts` — new, from aristotle-reader, but with no lemma map and no search index at all (CI's zero-works and fixture builds) it writes `{}` instead of failing the build; a map without postings, or an unreadable posting, still fails it.
 - `shared/lib/search.ts` — aristotle-reader's hunks (`accentNarrowing` in `resolveHeadwords` and `searchPhraseVariants`; `greekHitForms`' `phrase` flag) on the plays' `resolveHeadwords(terms, picks?)`.
 - `shared/components/Search.svelte` — `grkPhrase` in `SearchCtx`, passed to `greekHitForms`.
 - `shared/__tests__/search-port/form-panel-search.test.ts`, `shared/__tests__/typed-headword.test.ts` — the `phrase` argument, and a phrase Forms-list test.

@@ -22,6 +22,7 @@ function lemmaMap(): Record<string, (string | string[])[]> {
 }
 
 function* works(): Generator<IndexedWork> {
+  if (!existsSync(dataDir)) return;
   for (const work of readdirSync(dataDir).sort()) {
     const dir = `${dataDir}${work}/`;
     if (!existsSync(`${dir}search/greek_lemma.json`) || !existsSync(`${dir}search/meta.json`)) continue;
@@ -38,13 +39,19 @@ function* works(): Generator<IndexedWork> {
   }
 }
 
+const json = (body: unknown) => new Response(JSON.stringify(body), { headers: { 'Content-Type': 'application/json' } });
+
 export const GET: APIRoute = () => {
   const map = lemmaMap();
   const { table, missing, postings } = buildLemmaAccents(works(), map, greekFold);
-  // No corpus, or an index whose positions the books do not bear out, would
-  // serve a table that narrows wrongly or not at all: fail the build instead.
+  // CI's zero-works and fixture builds carry neither a lemma map nor a search
+  // index: there is nothing to narrow, so the table is empty. A map without
+  // postings, postings without a map, or an index whose positions the books do
+  // not bear out would serve a table that narrows wrongly or not at all: fail
+  // the build instead.
+  if (!Object.keys(map).length && !postings) return json({});
   if (!Object.keys(map).length || !postings || missing) {
     throw new Error(`lemma-accents: lemma map ${Object.keys(map).length} spellings, ${postings} postings, ${missing} unreadable`);
   }
-  return new Response(JSON.stringify(table), { headers: { 'Content-Type': 'application/json' } });
+  return json(table);
 };
