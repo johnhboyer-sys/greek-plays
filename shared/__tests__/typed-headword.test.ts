@@ -148,4 +148,15 @@ describe('a lemma phrase does not fan a typed headword out to its homographs', (
     const asWords = await greekHitForms(phrase.results, 'τί μήν', 'lemma', false);
     expect(asWords.headwords.get('mhn')).toEqual(['meis', 'mhn', 'mhs']);
   });
+
+  // The search keeps the headwords the reader ticked (lp=); the form list must
+  // read the same ones, or the hits of a ticked μείς have no form row.
+  it('the form list of a phrase keeps the headwords the reader ticked', async () => {
+    mockFetch();
+    const picks = [['tis'], ['mhn', 'meis']];
+    const phrase = await search('τί μήν', '', 'phrase', 'all', 'and', ['persians'],
+      'lemma', false, undefined, undefined, undefined, picks);
+    const forms = await greekHitForms(phrase.results, 'τί μήν', 'lemma', true, picks);
+    expect(forms.headwords.get('mhn')).toEqual(['meis', 'mhn']);
+  });
 });

@@ -2993,6 +2993,8 @@ export async function greekHitForms(
   grkQuery: string,
   matchMode: MatchMode,
   phrase = false,
+  // The headwords the reader ticked (lp=), as search() was handed them.
+  picks?: string[][] | null,
 ): Promise<HitForms> {
   const out: HitForms = { byResult: new Map(), headwords: new Map(), failedWorks: [] };
   const failed = new Set<string>();
@@ -3005,11 +3007,13 @@ export async function greekHitForms(
   const keyFor = (w: string) => keyOf.get(w) ?? w;
   let formTerms = typed;
   if (matchMode !== 'form') {
-    let perWord = matchMode === 'lemma' ? (await resolveHeadwords(typed)).terms : typed.map(t => [t]);
+    let perWord = matchMode === 'lemma' ? (await resolveHeadwords(typed, picks ?? undefined)).terms : typed.map(t => [t]);
     // As search() reads a lemma phrase: μήν in τί μήν is μήν, so the list must
-    // not name μείς as a headword of hits it never took.
+    // not name μείς as a headword of hits it never took. A ticked word keeps
+    // its picks, as there.
     if (matchMode === 'lemma' && phrase && typed.length > 1) {
-      perWord = await narrowToTypedHeadwords(typed, perWord, pickerHeadwords);
+      const narrowed = await narrowToTypedHeadwords(typed, perWord, pickerHeadwords);
+      perWord = narrowed.map((options, i) => picks?.[i]?.length ? perWord[i] : options);
     }
     const terms = perWord.flat();
     const lemmaIx = queryIndexes('lemma', terms, []);
