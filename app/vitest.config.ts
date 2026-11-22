@@ -15,6 +15,8 @@ export default defineConfig({
       '@shared': fileURLToPath(new URL('../shared', import.meta.url)),
     },
   },
+  // As astro.config.mjs: shared/ modules import files above app/ (?raw).
+  server: { fs: { allow: ['..'] } },
   test: {
     environment: 'happy-dom',
     globals: true,
