@@ -73,7 +73,7 @@ const lemmaIndex = {
 const formIndex = { ti: [[0, 0], [0, 2]], mhn: [[0, 1]], meis: [[0, 3]], mhs: [[0, 5]] };
 const lemmaMap: Record<string, Record<string, string[]>> = {
   t: { ti: ['tis'] },
-  m: { mhn: ['meis', 'mhn', 'mhs'] },
+  m: { mhn: ['meis', 'mhn', 'mhs'], meis: ['meis'] },
   e: { ei: ['ei', 'eimi'] },
 };
 const picker: Record<string, Record<string, { n: number; c: { h: string }[] }>> = {
@@ -158,5 +158,7 @@ describe('a lemma phrase does not fan a typed headword out to its homographs', (
       'lemma', false, undefined, undefined, undefined, picks);
     const forms = await greekHitForms(phrase.results, 'τί μήν', 'lemma', true, picks);
     expect(forms.headwords.get('mhn')).toEqual(['meis', 'mhn']);
+    // Every hit the search took has its form, the ticked μείς's included.
+    expect(forms.byResult.get('persians:s1')).toEqual(['ti', 'mhn', 'ti', 'meis']);
   });
 });
