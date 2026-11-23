@@ -445,6 +445,36 @@ Concurrency sits on the job, so a skipped run cancels nothing. The Image
 workflow (phase 2) stays by hand or by the `build-image` label. Earlier the
 same day John okayed one round of by-hand runs ("okay. run it this time").
 
+## The licence (ruled by John, 2026-11-23)
+
+The pattern John ruled for Plato and Homer: MIT for the code in `LICENSE`,
+CC0 1.0 on `corpus/greek/`, CC BY 4.0 on his own apparatus, and every other
+source on its own terms, in a table at the head of `sources/INVENTORY.md`,
+each line repeating what this repo and the site's attribution page already
+state. Drafted so in the licence PR. What is new with the plays:
+
+- **36 of the 44 Greek editions were printed after 1930** (Murray 1955,
+  Diggle 1981-1994, Dain and Mazon 1955-1960, Dover 1968, MacDowell 1971,
+  Ussher 1973); 8 are Coulon's Budé, 1923-1930. For Homer's 1931 Allen John
+  answered "CC0 now". The draft puts CC0 on all 44 files, worded as a waiver
+  of whatever rights John holds, since an editor's rights in his edition are
+  not his to give.
+- **The OCR'd Greek editions** (`sources/ocr/`: Jebb, Paley, Way) are John's
+  transcriptions of public-domain books, and each file's header says "Not
+  for redistribution until the owner rules on it". The draft leaves them
+  unruled.
+- **NonCommercial and NoDerivatives sources**: the Kosmos Society
+  translations (CC BY-NC-ND 3.0) and Ian Johnston's (his non-commercial
+  terms). Public releases (phase 3) would carry them once the repo is public.
+- **The drawings** count as John's own apparatus (CC BY 4.0) in the draft.
+
+John ruled, in this session, on three questions put to him at once with the
+table linked: "CC0 on all 44" (the Greek files, as drafted); for the OCR'd
+Jebb, Paley, and Way, "Yes, CC0"; and the four export-shaped fixtures, "Keep
+them" (decision 10, as for Plato and Homer). Every recommendation, taken. The
+OCR files' own headers still carry their old note; the table says the ruling
+supersedes it (changing the files would change their pinned sums).
+
 ## Later
 
 - **A command line for headless runs by AI agents.** John, 2026-11-23, 16:07:
@@ -456,5 +486,5 @@ same day John okayed one round of by-hand runs ("okay. run it this time").
 
 ## Decisions for John
 
-- Decision 10 for the plays: keep the four export-shaped fixtures, pinned
-  (as ruled for Plato and Homer), or replace them with made-up Greek.
+None open from the port. Ruled 2026-11-23: the CI triggers, the licence,
+the OCR'd editions, and decision 10 (above).
