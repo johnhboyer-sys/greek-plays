@@ -52,6 +52,10 @@
 // (the Worker's own files; data/, which is compared on its own); an item that
 // matches no build file is an error.
 //
+// --svelte-at=<absolute folder> (the plays): the build ran with the --svelte
+// components at that path (CI's checkout), so their classes are computed for
+// it rather than for this checkout's path.
+//
 // --floor (the plays: greek-plays, HANDOFF-PORTABILITY.md): the snapshot is
 // a floor, not a whole. The plays' live site has no key record, so its files
 // were found by the site's own indexes and by guessed names. A file only in
@@ -199,7 +203,7 @@ function main(argv) {
   const args = {};
   for (const a of argv) {
     if (a === '--floor') { args.floor = true; continue; }
-    const m = a.match(/^--(sums|prefix|build|live-only|pages|svelte|skip|plays)=(.*)$/s);
+    const m = a.match(/^--(sums|prefix|build|live-only|pages|svelte|svelte-at|skip|plays)=(.*)$/s);
     if (!m) throw new Error(`unknown argument ${a}`);
     args[m[1]] = m[2];
   }
@@ -224,10 +228,15 @@ function main(argv) {
   let components = 0;
   if (args.pages) {
     const ours = new Set();
-    for (const dir of args.svelte ? args.svelte.split(',') : []) {
+    const dirs = args.svelte ? args.svelte.split(',') : [];
+    // --svelte-at: the absolute folder the build saw these components in (a
+    // CI checkout), when it is not this one. One --svelte folder only.
+    const at = args['svelte-at'];
+    if (at !== undefined && (!path.isAbsolute(at) || dirs.length !== 1)) throw new Error('--svelte-at takes an absolute path, with exactly one --svelte folder');
+    for (const dir of dirs) {
       const found = existsSync(dir) ? walk(dir).files.filter(f => f.endsWith('.svelte')) : [];
       if (!found.length) throw new Error(`--svelte names ${JSON.stringify(dir)}, which holds no .svelte file`);
-      for (const f of found) ours.add(svelteClass(realpathSync(path.join(dir, f))));
+      for (const f of found) ours.add(svelteClass(at !== undefined ? path.posix.join(at, f) : realpathSync(path.join(dir, f))));
       components += found.length;
     }
     // latin1: one character to a byte, so equal strings are equal bytes.

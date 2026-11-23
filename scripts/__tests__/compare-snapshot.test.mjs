@@ -387,3 +387,29 @@ test('floor: a page the build changed still fails, and a bundle only the build h
     assert.match(r.stdout, /differs: index\.html/);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+// --svelte-at (the plays): the build ran in another folder (CI's checkout),
+// whose path is known, so its classes are computed for that path rather than
+// this checkout's. Still only the classes of components under --svelte.
+test('pages: --svelte-at computes the classes for the folder the build ran in', () => {
+  const at = '/home/runner/work/greek-plays/greek-plays/shared/components';
+  const ci = svelteClass(`${at}/Ck.svelte`);
+  const t = appTrees(() => ({ built: { 'index.html': PAGE('search.BBBBBBBB.css', ci, 'Q7'), '_astro/search.BBBBBBBB.css': CSS(ci) } }));
+  try {
+    const without = runApp(t);
+    assert.equal(without.status, 1, without.stdout);
+    assert.match(without.stdout, /is not the class of a component under --svelte/);
+    const r = spawnSync(process.execPath, [SCRIPT, `--sums=${t.sums}`, '--prefix=app/', `--build=${t.build}`, `--pages=${t.snap}`,
+      `--svelte=${t.shared}`, `--svelte-at=${at}`, '--skip=data/,_redirects'], { encoding: 'utf8' });
+    assert.equal(r.status, 0, r.stdout + r.stderr);
+    assert.ok(r.stdout.includes(`swapped: ${OLD} -> ${ci}`), r.stdout);
+    // a class for another folder is still refused
+    const wrong = spawnSync(process.execPath, [SCRIPT, `--sums=${t.sums}`, '--prefix=app/', `--build=${t.build}`, `--pages=${t.snap}`,
+      `--svelte=${t.shared}`, '--svelte-at=/home/runner/elsewhere', '--skip=data/,_redirects'], { encoding: 'utf8' });
+    assert.equal(wrong.status, 1, wrong.stdout);
+    // and it must name an absolute path, with one --svelte folder
+    const rel = spawnSync(process.execPath, [SCRIPT, `--sums=${t.sums}`, `--build=${t.build}`, `--pages=${t.snap}`, `--svelte=${t.shared}`, '--svelte-at=shared/components'], { encoding: 'utf8' });
+    assert.equal(rel.status, 1);
+    assert.match(rel.stdout, /--svelte-at/);
+  } finally { clean(t); }
+});
