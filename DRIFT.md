@@ -1174,3 +1174,6 @@ Page 1 reads only the plays it draws. Ported hunk by hunk; `countRows` checked a
 - `scripts/check-served.mjs` — new, homer-reader's unchanged.
 - `pipeline/drama_pipeline/preflight.py` — `--web` (`validate(..., web=True)`): on the web build's data, which ships no LSJ shards, the dictionary keys are not looked up in shards; the mirror bundle's preflight runs with it. Unset, preflight is as it was.
 - `app/src/pages/[author]/[work]/[cite].astro`, `app/src/pages/texts/[author]/[work]/index.astro` — the redirect target carries the site's base; under `/mirror/` the link check found 3,482 links that left it out. At the root the pages are as they were.
+- `shared/lib/edition-citation.ts` (`siteHref`), `shared/components/Reader.svelte` — a citation copied from a Greek edition puts the reader's path under the site's base (Grok's read of #18); at the root it is the address it was.
+- `app/src/pages/read/[author]/[work]/section-[n].astro` — the redirect keeps the base, as the other two redirects do (no play builds a section page today).
+- `scripts/site-params.mjs` (`inSitemap`), `app/astro.config.mjs` — the sitemap filter, moved out of the config, reads each path below the base.

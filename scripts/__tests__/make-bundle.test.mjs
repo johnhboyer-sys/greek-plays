@@ -298,14 +298,15 @@ test('the real gates: each Python gate runs on the folder’s data and its failu
   try {
     const served = function* (filter) { if (filter('manifest.json')) yield { path: 'data/Cat/manifest.json', text: '{}' }; };
     const reports = dataGates(served, { dataDir: path.join(s.dist, 'data') });
-    assert.deepEqual(reports.map(([name]) => name), ['preflight', 'data contracts', 'LSJ headwords', 'lemma pages', 'JSON']);
+    assert.deepEqual(reports.map(([name]) => name), ['preflight', 'data contracts', 'play files', 'LSJ headwords', 'lemma pages', 'JSON']);
     for (const [name, report] of reports.slice(0, 2)) {     // a folder with no play in it
       assert.equal(report.ok, false, name);
       assert.match(report.problems.join('\n'), /^exit [1-9]/m, name);
     }
-    assert.equal(reports[2][1].ok, false);                      // this small site has no LSJ headwords
-    assert.equal(reports[3][1].ok, false);                      // nor a lemma index
-    assert.equal(reports[4][1].ok, true);
+    assert.equal(reports[2][1].ok, false);                      // this small site has no play of the 44
+    assert.equal(reports[3][1].ok, false);                      // nor LSJ headwords
+    assert.equal(reports[4][1].ok, false);                      // nor a lemma index
+    assert.equal(reports[5][1].ok, true);
   } finally { rmSync(s.root, { recursive: true, force: true }); }
 });
 
@@ -405,4 +406,71 @@ test('the real gates are handed the folder by its full path, wherever the script
     // it read the folder by its full path: the one it names is s.root's
     assert.match(preflight.problems.join('\n'), new RegExp(`${realpathSync(s.root).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/dist/data`));
   } finally { process.chdir(here); rmSync(s.root, { recursive: true, force: true }); }
+});
+
+// Grok's read of #18: a play's search files, an edition's book, or a play's
+// analyses could be lost and every gate still pass. Every play the
+// manifests declare must hold the files every play holds, and every edition
+// its manifest names the files every edition holds, none of them empty.
+import { EDITION_FILES, PLAY_FILES, playFilesCheck } from '../make-bundle.mjs';
+
+function corpus(over = {}) {
+  const tree = {};
+  for (const play of ['medea', 'agamemnon']) {
+    for (const f of PLAY_FILES) tree[`data/${play}/${f}`] = f.endsWith('.bin') ? 'xx' : '{"a":1}';
+    tree[`data/${play}/manifest.json`] = JSON.stringify({ greekEditions: play === 'medea' ? [{ id: 'paley' }] : [] });
+  }
+  for (const f of EDITION_FILES) tree[`data/medea/ed/paley/${f}`] = f.endsWith('.bin') ? 'xx' : '[1]';
+  Object.assign(tree, over);
+  for (const [k, v] of Object.entries(tree)) if (v === undefined) delete tree[k];
+  const served = function* (filter) { for (const [p, text] of Object.entries(tree)) if (filter(path.posix.basename(p))) yield { path: p, text }; };
+  return { served, files: Object.keys(tree) };
+}
+
+test('play files: a whole corpus passes and says how much it read', () => {
+  const c = corpus();
+  const r = playFilesCheck(c.served, c.files, 2);
+  assert.equal(r.ok, true, r.problems.join('\n'));
+  assert.equal(r.read, 2 * PLAY_FILES.length + EDITION_FILES.length);
+});
+
+for (const [name, over, expected, pattern] of [
+  ['a play\'s search file deleted', { 'data/medea/search/greek_form.json': undefined }, 2, /medea: search\/greek_form\.json is missing/],
+  ['a play\'s search file emptied', { 'data/agamemnon/search/greek_lemma.json': '{}' }, 2, /agamemnon: search\/greek_lemma\.json is empty/],
+  ['an edition\'s book deleted', { 'data/medea/ed/paley/book-01.json': undefined }, 2, /medea\/ed\/paley: book-01\.json is missing/],
+  ['an edition\'s analyses emptied', { 'data/medea/ed/paley/analyses.json': '{}' }, 2, /medea\/ed\/paley: analyses\.json is empty/],
+  ['a binary file emptied', { 'data/medea/search/grammar-col.bin': '' }, 2, /medea: search\/grammar-col\.bin is empty/],
+  ['a play the manifests declare and the data lacks', {}, 3, /2 plays in the data, 3 manifests/],
+  ['a manifest that is not JSON', { 'data/medea/manifest.json': '{' }, 2, /medea: manifest\.json is not JSON/],
+]) {
+  test(`play files: ${name} fails`, () => {
+    const c = corpus(over);
+    const r = playFilesCheck(c.served, c.files, expected);
+    assert.equal(r.ok, false);
+    assert.match(r.problems.join('\n'), pattern);
+  });
+}
+
+test('play files: no play at all fails, having read nothing', () => {
+  const r = playFilesCheck(function* () {}, [], 44);
+  assert.equal(r.ok, false);
+  assert.match(r.problems.join('\n'), /0 plays in the data, 44 manifests/);
+});
+
+test('the LSJ headwords: a play whose analyses name no key fails, though others do', () => {
+  const files = (tree) => function* (filter) {
+    for (const [p, body] of Object.entries(tree)) if (filter(path.posix.basename(p))) yield { path: p, text: JSON.stringify(body) };
+  };
+  const tree = { 'data/lsj-heads.json': { 'lo/gos': { head: 'λόγος' } },
+    'data/medea/analyses.json': { 'λόγος': [{ lsj: ['lo/gos'] }] }, 'data/agamemnon/analyses.json': {} };
+  assert.match(lsjHeadsCheck(files(tree)).problems.join('\n'), /1 play's analyses name no LSJ key, first: agamemnon/);
+});
+
+test('refuses a build made under a base path: its pages point under the base', () => {
+  refuses(({ put }) => put('index.html', '<link rel="stylesheet" href="/mirror/_astro/a.css"><h1>x</h1>'), /built under the base \/mirror\//);
+});
+
+test('a build at the root passes the base check', () => {
+  const s = site(({ put }) => put('index.html', '<link rel="stylesheet" href="/_astro/a.css"><script src="/_astro/b.js"></script>'));
+  try { assert.equal(run(s).ok, true, run.problems); } finally { rmSync(s.root, { recursive: true, force: true }); }
 });

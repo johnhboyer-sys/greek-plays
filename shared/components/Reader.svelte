@@ -73,7 +73,7 @@
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type EnglishTurn, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, lastPrintedRef, unitNounFor } from '../lib/citation';
-  import { editionCopyCitation } from '../lib/edition-citation';
+  import { editionCopyCitation, siteHref } from '../lib/edition-citation';
   import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, phonePieceCuts, markStageDirections, directionRows, splitAtDirections, splitShortDirections, directionBracket, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
@@ -4357,7 +4357,7 @@
       const ref = selected ? citeForGreekLine(selected)?.column : segmentFromEl(range.startContainer.parentElement ?? document.body)?.column;
       if (ref) {
         const link = editionCopyCitation(work, edition, { column: ref }, null, bookNum, trans);
-        if (link) parts.push(new URL(link.url, location.origin).href);
+        if (link) parts.push(siteHref(link.url, location.origin));
       }
     }
     return parts;

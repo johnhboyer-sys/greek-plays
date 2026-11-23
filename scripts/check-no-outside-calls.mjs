@@ -404,6 +404,13 @@ const LOAD = { waitUntil: 'domcontentloaded', timeout: 60000 };
 async function openWork(page, url) {
   await page.goto(url + WORK, LOAD);
   await page.waitForSelector('.greek-col .tok', { timeout: 30000 });
+  await enoughText(page);
+}
+
+// The reading page's visible letters, held to the floors below (also after
+// the service worker's reload: Grok's read of #18 found that visit took one
+// token as enough).
+async function enoughText(page) {
   const n = await page.evaluate((src) => {
     // Only what is laid out on the page: not a column a style hides.
     const text = (sel) => [...document.querySelectorAll(sel)].filter((e) => e.checkVisibility({ checkVisibilityCSS: true, checkOpacity: true }))
@@ -542,6 +549,9 @@ export const SITE_VISITS = [
       const links = await page.locator('ul.plays li a').evaluateAll((as) => as.map((a) => ({ text: a.textContent.trim(), href: a.href,
         shown: a.checkVisibility({ checkVisibilityCSS: true, checkOpacity: true }) })));
       if (!built || links.length !== built) throw new Error(`the play list has ${links.length} links, not the ${built} plays built`);
+      // one link per play, not one play linked many times (Grok's read of #18)
+      const distinct = new Set(links.map((l) => l.href)).size;
+      if (distinct !== built) throw new Error(`the play list's ${links.length} links lead to ${distinct} pages, not ${built}`);
       const hidden = links.find((l) => !l.shown);
       if (hidden) throw new Error(`the play list's link to ${hidden.text} is not on screen`);
       const away = links.find((l) => !localPage(l.href, url, dist));
@@ -611,6 +621,7 @@ export const SITE_VISITS = [
       await page.reload(LOAD);
       await page.waitForSelector('.greek-col .tok', { timeout: 30000 });
       if (!(await page.evaluate(() => !!navigator.serviceWorker.controller))) throw new Error('the service worker does not control the reloaded page');
+      await enoughText(page);
     },
   },
 ];

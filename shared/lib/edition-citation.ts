@@ -32,3 +32,10 @@ export function editionCopyCitation(
     url: url.pathname + url.search,
   };
 }
+
+// A site path ("/read/…?…", from the host's root as editionCopyCitation
+// gives it) as an absolute address under the site's base, so a citation
+// copied on a mirror at /mirror/ points into the mirror (Grok's read of #18).
+export function siteHref(path: string, origin: string, base: string = import.meta.env.BASE_URL): string {
+  return new URL(`${base.replace(/\/$/, '')}${path}`, origin).href;
+}

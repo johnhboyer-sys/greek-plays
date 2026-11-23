@@ -6,6 +6,7 @@
 // missing and the form stays hidden (HANDOFF-PORTABILITY.md, phase 2). The
 // marker is a static file, so asking for it never wakes the Worker.
 export const FEEDBACK_MARKER = 'feedback-endpoint.json';
+const SAME_HOST_PATH = /^\/(?!\/)[A-Za-z0-9._~/-]*$/;
 
 export async function feedbackEndpoint(
   base: string,
@@ -13,11 +14,15 @@ export async function feedbackEndpoint(
 ): Promise<string | null> {
   try {
     const r = await fetchFn(`${base}/${FEEDBACK_MARKER}`);
-    if (!r.ok) return null;
+    // A marker that came by way of a redirect may be another host's (Grok's
+    // read of #18).
+    if (!r.ok || r.redirected) return null;
     const body = await r.json();
     const post = body?.post;
-    // A path on this host only: never another origin, never "//host".
-    return typeof post === 'string' && post.startsWith('/') && !post.startsWith('//') ? post : null;
+    // A plain path on this host only: never another origin, "//host", or
+    // "/\\host" (a browser reads a backslash as a slash), and no scheme,
+    // query, or fragment.
+    return typeof post === 'string' && SAME_HOST_PATH.test(post) ? post : null;
   } catch {
     return null;
   }

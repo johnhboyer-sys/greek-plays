@@ -30,3 +30,17 @@ export function siteParams(env = process.env) {
   }
   return { site, base };
 }
+
+// Which pages the sitemap lists (app/astro.config.mjs): redirect shims
+// (/texts/ aliases, /read/.../section-N/, /<author>/<work>/<line>/
+// citations) and the client-only lexicon entry shell stay out (Codex
+// pre-launch review, 2026-10-24). Paths are read below the base, so a
+// mirror's sitemap lists the same pages (Grok's read of #18).
+export function inSitemap(page, base = '/') {
+  let path = new URL(page).pathname;
+  if (base !== '/' && path.startsWith(base)) path = path.slice(base.length - 1);
+  if (path.startsWith('/texts/') || /\/section-\d+\/?$/.test(path) || path.startsWith('/lemma/grc/entry')) return false;
+  if (path.startsWith('/read/')) return true;
+  const parts = path.split('/').filter(Boolean);
+  return !(parts.length === 3 && parts[2] !== 'book');
+}
