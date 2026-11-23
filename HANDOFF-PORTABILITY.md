@@ -46,6 +46,82 @@ by hand, and on the `build-site` label (John's ruling, below).
 | `ARCHITECTURE.md`, `RESTORE.md` | Written; `RESTORE.md`'s log is empty until a restore path is run |
 | Review by another model family | Done: Grok, a static read of phase 2: sixteen findings; eleven fixed with failing tests first, five answered (phase 2 record) |
 
+| Phase 3 step | State |
+|---|---|
+| Push the repo to a second git host | Done: `scripts/mirror-git.mjs` (Homer's, byte for byte), run by `mirror.yml` with the plays' own deploy key since 2026-11-23 (the lead session's; John added it at 14:36); first run on this branch: "25 of 25 refs match the source after the push" |
+| Check a git mirror | Done: `scripts/mirror-check.mjs`, run for real against `git@gitlab.com:johnhboyer/greek-plays.git` (below) |
+| The deploy tags its commit | Written: `scripts/deploy-cloudflare.mjs`, new for the plays. Never run for real |
+| A release for each deploy tag | Written: `release.yml`, through the new `site-bundle` action; runs first at the first tagged deploy |
+| `mirror.yml`, `check-mirrors.mjs`, `mirrors.json` | Homer's, byte for byte (`mirrors.json` names the plays' mirror); the push job showed as skipped until `MIRROR_GIT_URL` was set |
+| `docs/cloudflare.md`, `DEPLOY-STATUS.md` | Written from the repo and the live site, with what could not be confirmed marked |
+| Review by another model family | Done: Grok, a static read of phase 3 and the licence: eleven findings, nine fixed, two with nothing to fix (phase 3 record) |
+
+## Phase 3 record
+
+**What was ported.** `mirror-git.mjs`, `mirror-check.mjs`, `check-mirrors.mjs`,
+their tests, `.github/actions/mirror-key`, `.github/mirror_known_hosts`, and
+`mirror.yml` are homer-reader's `origin/main` (`6c8070f3fc`) byte for byte, but
+for one test line (the base path `/plays/`); `cmp` against Homer's files
+says so for each. They carry the private-repo fix already (the job's token
+reads the source). `mirrors.json` names `git@gitlab.com:johnhboyer/greek-plays.git`.
+
+**The deploy script.** The plays had none; sessions ran `build:public` and
+`wrangler deploy` by hand. `scripts/deploy-cloudflare.mjs` is new, in the
+shape of Homer's: by default a rehearsal (every gate, then `wrangler deploy
+--dry-run`); `--deploy` deploys from `app/`, then tags `deploy/<date>` and
+pushes the tag. Its gates are the plays' own: the Worker serves the data, so
+a build with a data root, no `data/`, `data/` left out by `.assetsignore`, or
+no feedback marker is refused, and so is one over 20,000 files or with a
+file over 25 MiB; then live's sitemap (90% of its pages), the link check, and
+the bundle's data gates. The tag code (`tagPlan`, `tagCommits`,
+`uncleanFiles`, `tagDeploy`) is Homer's. Every outside effect is passed in,
+so the tests drive each branch with fakes: 38 tests, among them Homer's tag
+tests against a real checkout and a bare origin. 11 hand breaks (a rehearsal
+that deploys or tags, a tag before the deploy, a failed tag failing the
+deploy, each gate ignored) each fail a test. It has never run for real.
+
+**The release.** `release.yml` is Homer's, its bundle named for the plays and
+its data held to `https://greekdrama.johnhboyer.com` (the site serves its
+own data), built through `.github/actions/site-bundle` (the steps of CI's
+`site` job), so a release is built the way a pull request is tested. While
+the repo is private, releases are private; once it is public, each release
+is public with every source under its own terms (Kosmos's NonCommercial and
+NoDerivatives text and Johnston's NonCommercial terms among them): John's to
+weigh then.
+
+**`mirror-check.mjs` against GitLab** (2026-11-23, before the key, with the
+account key): `FAIL …: 21 of 25 refs match` (`main` at `bf4c79c` on the
+mirror against `c1cf9b9`; the three portability branches missing): the
+truth, since nothing had kept the mirror current. With those four skipped:
+`ok …: 21 of 21 refs match; … history: 1407 commits, whole`. After the key,
+the lead's run from the Mac: 25 of 25 refs, 1,431 commits, whole.
+
+**Review (Grok, 2026-11-23).** A static read of phase 3 with the licence
+(session `01a20a72-f3f3…`). Eleven findings, each checked against the
+source; nine fixed. (1, High) `release.yml` asked the live site for each data
+file at its root, where the Worker serves them under `/data/`, so every
+release would have failed its data check: now `--base=/data/`; run by hand
+against the live site with two of the snapshot's data files, they answered
+404 before and match now. (5) A rerun on a later day stamped another
+`corpus_version` and could never match live: the release now builds with the
+version live names, and stops if live was not built from the tagged
+commit. (2) The deploy's scale check counted redirect shims as pages: it now
+counts the build's own sitemap pages that exist as files, and refuses a
+build with no sitemap. (3) An `.assetsignore` glob (`data/**`, `*.json`)
+passed: only Finder files may be left out. (4) `app/dist` is git-ignored,
+so a build made at one commit was deployed and tagged at another: the
+deploy reads the commit each play's `corpus_version` names and refuses a
+mismatch. Each with a failing test first (46 deploy tests; three hand
+breaks of the new gates each fail one). (6) The drawings row now names
+`antigone.svg`'s CC BY-SA 4.0, as the drawings' README does. (7) The root
+README now says `LICENSE` covers the code and nothing under `sources/`. (8,
+9) Johnston's terms and the Wikisource line say what the repo's own sections
+say. (11) `wrangler.jsonc`'s file count corrected. (10) Grok found nothing
+wrong in it.
+
+**Not yet seen.** `mirror.yml` on `main` (with this PR's merge), a tag push,
+the weekly check, a release, and a real deploy through the script.
+
 ## Phase 2 record
 
 **Parameters.** The plays already had `PUBLIC_SITE_ORIGIN`, optional (unset
@@ -369,7 +445,46 @@ Concurrency sits on the job, so a skipped run cancels nothing. The Image
 workflow (phase 2) stays by hand or by the `build-image` label. Earlier the
 same day John okayed one round of by-hand runs ("okay. run it this time").
 
+## The licence (ruled by John, 2026-11-23)
+
+The pattern John ruled for Plato and Homer: MIT for the code in `LICENSE`,
+CC0 1.0 on `corpus/greek/`, CC BY 4.0 on his own apparatus, and every other
+source on its own terms, in a table at the head of `sources/INVENTORY.md`,
+each line repeating what this repo and the site's attribution page already
+state. Drafted so in the licence PR. What is new with the plays:
+
+- **36 of the 44 Greek editions were printed after 1930** (Murray 1955,
+  Diggle 1981-1994, Dain and Mazon 1955-1960, Dover 1968, MacDowell 1971,
+  Ussher 1973); 8 are Coulon's Budé, 1923-1930. For Homer's 1931 Allen John
+  answered "CC0 now". The draft puts CC0 on all 44 files, worded as a waiver
+  of whatever rights John holds, since an editor's rights in his edition are
+  not his to give.
+- **The OCR'd Greek editions** (`sources/ocr/`: Jebb, Paley, Way) are John's
+  transcriptions of public-domain books, and each file's header says "Not
+  for redistribution until the owner rules on it". The draft leaves them
+  unruled.
+- **NonCommercial and NoDerivatives sources**: the Kosmos Society
+  translations (CC BY-NC-ND 3.0) and Ian Johnston's (his non-commercial
+  terms). Public releases (phase 3) would carry them once the repo is public.
+- **The drawings** count as John's own apparatus (CC BY 4.0) in the draft.
+
+John ruled, in this session, on three questions put to him at once with the
+table linked: "CC0 on all 44" (the Greek files, as drafted); for the OCR'd
+Jebb, Paley, and Way, "Yes, CC0"; and the four export-shaped fixtures, "Keep
+them" (decision 10, as for Plato and Homer). Every recommendation, taken. The
+OCR files' own headers still carry their old note; the table says the ruling
+supersedes it (changing the files would change their pinned sums).
+
+## Later
+
+- **A command line for headless runs by AI agents.** John, 2026-11-23, 16:07:
+  "Can we add cli stuff later for headless runs by ai agents? Just note for
+  later." Not started; to be scoped with him (which runs, which outputs).
+- **The other editions' headwords.** 189 LSJ keys in the other Greek
+  editions' analyses have no headword in `lsj-heads.json` (phase 2 record);
+  live has the same gap.
+
 ## Decisions for John
 
-- Decision 10 for the plays: keep the four export-shaped fixtures, pinned
-  (as ruled for Plato and Homer), or replace them with made-up Greek.
+None open from the port. Ruled 2026-11-23: the CI triggers, the licence,
+the OCR'd editions, and decision 10 (above).

@@ -33,9 +33,10 @@ t	ΑΓΑΜΕΜΝΩΝ
 
 ## Licence
 
-Not yet stated. Decision 3 gives these files CC0 1.0; most of the 44
-editions were printed after 1930, so the licence comes in its own change,
-put to John with each edition named.
+CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/), for
+whatever rights the site's author holds in these files. The texts are
+ancient; an editor's rights in his edition, if any, are not his to give.
+`sources/INVENTORY.md` names each edition and its year.
 
 ## Making the files
 

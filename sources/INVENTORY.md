@@ -1,8 +1,68 @@
 # Source inventory — The Greek Drama Reader
 
-Greek: TLG via the local Diogenes export (never committed). English: vendored
-public-domain texts, one section per source with provenance, US-PD rationale,
-and per-file SHA-256 (`SHA256SUMS` beside the files). Populated from P2 on.
+Greek: each play's main text is committed as a line file in `corpus/greek/`
+(decision 1, `HANDOFF-PORTABILITY.md`), made from the local Diogenes export;
+the TLG's own files, its beta code, and the export are never committed. The
+other Greek editions and the English: vendored texts, one section per source
+with provenance, US-PD rationale or licence, and per-file SHA-256
+(`SHA256SUMS` beside the files). Populated from P2 on.
+
+## Licences in this repository (John, 2026-11-23)
+
+| Part | Licence |
+|---|---|
+| The code (pipeline, app, shared, scripts) | MIT, in `LICENSE` |
+| `corpus/greek/` (each play's main Greek, one printed line per row; the editions are named in each file and below) | CC0 1.0, for whatever rights John holds in the files; an editor's rights in his edition, if any, are not his to give (see below) |
+| John's own apparatus and derived data: the manifests' speaker rosters, alignments, line fixes and text fixes; the drawings (`docs/redesign/drawings/`, served at `/drawings/`); the site's own prose | CC BY 4.0, except `antigone.svg`, which is CC BY-SA 4.0 after its source photo, as `docs/redesign/drawings/README.md` says; that README names each drawing's source |
+| The OCR'd Greek editions (`ocr/`: Jebb, Paley, Way), John's transcriptions of public-domain books | CC0 1.0 (John, 2026-11-23). The note "Not for redistribution until the owner rules on it" in each file's header predates the ruling and no longer holds |
+| The fonts (`app/public/fonts/`) | SIL Open Font License 1.1, each family's text beside it |
+| Everything else under `sources/`, and site data built from it | Its own terms, below. Not covered by `LICENSE` |
+
+The terms that bind most, each as this file and the site's attribution page
+already state them:
+
+- **Perseus TEI** (`perseus/`): CC BY-SA 4.0 on the encoding; the texts are
+  public domain (Smyth's, Storr's, Murray's, and Hall and Geldart's Greek;
+  the English of Smyth, Jebb, Coleridge, Buckley, and Hickie's *Clouds*).
+  The site's data built from them stays CC BY-SA 4.0.
+- **The Kosmos Society translations** (`kosmos/`, `bench/kosmos/`): CC
+  BY-NC-ND 3.0, reproduced without change, with every translator and reviser
+  credited. NonCommercial and NoDerivatives: these files keep their own terms.
+- **Ian Johnston's translations** (`johnston/`, `bench/johnston/`): his own
+  terms (`johnston/copyright.htm`): readers, teachers, students, and
+  performers may download and edit them without charge, and distribute them
+  to their friends and students, but not in a commercial publication.
+  NonCommercial; not public domain.
+- **Wikisource** (`wikisource/`): Murray's *Frogs* (1912), public domain, as
+  its section below says; Morshead's Aeschylus, public domain, with
+  Wikisource's transcription of it under CC BY-SA 4.0, as its section says.
+- **Arrowsmith's *Birds* and *Clouds*** (`fulcrum/`, `bench/arrowsmith/`): the
+  publisher's Creative Commons Public Domain Mark 1.0 (John's ruling,
+  2026-09-11).
+- **Project Gutenberg** (`gutenberg/`) and the archive.org scans
+  (`archive-org/`): public-domain texts; Gutenberg's own licence terms ride
+  with its files.
+- **`bench/`**: the cleaned texts the build reads, each under its source's
+  terms above.
+- **The LSJ** (`grc.lsj.xml`, from Diogenes 4.7.2; pinned, not vendored): CC
+  BY-SA 3.0 US. The site's lexicon data built from it stays CC BY-SA.
+- **The Morpheus table** (`greek-analyses.txt`, from Diogenes 4.7.2; pinned,
+  not vendored): its terms were not read for this table; the parses in each
+  play's `analyses.json` come from it.
+
+**The Greek editions in `corpus/greek/`.** Eight plays are from Coulon and
+van Daele's Budé (1923-1930), public domain in the US. The other 36 are from
+editions printed after 1930: Murray's Aeschylus (OCT, 2nd ed., 1955; 7
+plays), Diggle's Euripides (OCT, 1981-1994; 19), Dain and Mazon's Sophocles
+(Belles Lettres, 1955-1960; 7), Dover's *Clouds* (1968), MacDowell's *Wasps*
+(1971), and Ussher's *Ecclesiazusae* (1973). The text of an ancient play holds
+at most a thin copyright in the editor's choices; the site already shows all
+of it.
+
+The site's built bundle, which each deploy will attach to a GitHub release,
+carries all of these. While the repository is private, so are its releases;
+once it is public, every release is public with every source under its own
+terms (the NonCommercial and NoDerivatives ones among them).
 
 ## perseus/ — PerseusDL/canonical-greekLit @ `341e309c821d5eca8c976bebca77c28b10bad58f` (vendored 2026-09-05; CC BY-SA 4.0 on the TEI encoding, underlying texts as listed)
 

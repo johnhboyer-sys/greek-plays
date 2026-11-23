@@ -23,9 +23,19 @@ cd ../pipeline && uv sync
 
 Tests: `npx vitest run` in `app/` and `shared/`; `uv run pytest` in `pipeline/`.
 
+## Licence
+
+The code is MIT (`LICENSE`). The Greek line files in `corpus/greek/` are
+CC0 1.0; John's own apparatus and drawings are CC BY 4.0. Everything under
+`sources/`, and the site data built from it, keeps its own terms, which
+`LICENSE` does not cover: some are NonCommercial or NoDerivatives. The table
+at the head of `sources/INVENTORY.md` lists each.
+
 ## Copyright stance
 
-Greek source text (TLG) is licensed and local and is never committed.
+The TLG's own files, its beta code, and the Diogenes export are licensed and
+local and never committed; each play's Greek is committed as a plain line file
+in `corpus/greek/` (`python -m drama_pipeline.extract` makes them).
 Translations are used when their terms allow reproduction: public domain
 by US rules (pre-1931, or a 1931-1963 US book whose copyright was never
 renewed), a Creative Commons or other open licence, or the rights holder's
