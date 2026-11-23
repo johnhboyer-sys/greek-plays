@@ -1,11 +1,12 @@
 name: Site
 
 # The whole public build on a clean Linux runner, from the clone plus the two
-# inputs fetched by checksum (HANDOFF-PORTABILITY.md, test 1). The repo is
-# private, so its minutes are John's money (about 17 minutes a run). John,
-# 2026-11-23: "Yes, on PRs". So it runs on a pull request to main that is not
-# a draft (opened, new commits, reopened, marked ready), by hand from the
-# Actions tab, and on any pull request when someone adds the label
+# inputs fetched by checksum (HANDOFF-PORTABILITY.md, test 1), the mirror
+# bundle, and test 3 (no outside calls) at / and at a test base path. The
+# repo is private, so its minutes are John's money (about 17 minutes a run).
+# John, 2026-11-23: "Yes, on PRs". So it runs on a pull request to main that
+# is not a draft (opened, new commits, reopened, marked ready), by hand from
+# the Actions tab, and on any pull request when someone adds the label
 # "build-site". Never on a plain branch push, and never for a draft's pushes.
 
 on:
@@ -21,10 +22,6 @@ env:
   PUBLIC_SITE_ORIGIN: https://greekdrama.johnhboyer.com
   DRAMA_EDITIONS: "1"
   PUBLIC_EDITIONS: "1"
-  # The commit the 2026-11-20 snapshot of live was built from, and the
-  # version its data names, so test 2 can compare byte for byte.
-  SNAPSHOT_COMMIT: bf4c79cd9f31e128719d605e1143561ad9c28697
-  CORPUS_VERSION: bf4c79c-2026-11-19
 
 jobs:
   site:
@@ -44,7 +41,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           persist-credentials: false
 
       - name: Setup Node
@@ -81,28 +77,42 @@ jobs:
       - name: Build the site (test 1)
         run: npm run build:public
 
-      # Test 2's half: the app as the snapshot's deploy built it (main since
-      # then changed only the app: PRs #14 and #15), over this build's data,
-      # so the comparison with the snapshot is exact. Done on the Mac with
-      # scripts/compare-snapshot.mjs; the Mac builds nothing.
-      - name: Rebuild the app at the snapshot's commit
-        run: |
-          mv app/dist "$RUNNER_TEMP/dist-branch"
-          git restore --source="$SNAPSHOT_COMMIT" --staged --worktree -- app shared
-          (cd app && npm ci && PUBLIC_SHOW_PRIVATE=0 npm run build)
-          node scripts/check-links.mjs app/dist
-          rm -rf app/dist/data/lsj app/dist/data/ls
-          echo "Files that differ between this branch's app and the snapshot commit's, over the same data:"
-          diff -rq "$RUNNER_TEMP/dist-branch" app/dist | sed -E 's#^Files .*/dist-branch/([^ ]*) and .*#differ: \1#' \
-            | sed -E 's#/[^/]*$##' | sort | uniq -c | sort -rn | head -40 || true
-          diff -rq "$RUNNER_TEMP/dist-branch" app/dist | wc -l
-          tar -czf "$RUNNER_TEMP/plays-app-at-snapshot.tar.gz" -C app dist
-          ls -l "$RUNNER_TEMP/plays-app-at-snapshot.tar.gz"
+      # The mirror bundle: the data gates, the host's own files left out
+      # (feedback-endpoint.json), packed and read back against SHA256SUMS.
+      - name: Pack the bundle
+        run: node scripts/make-bundle.mjs --out="$RUNNER_TEMP/greek-plays-bundle.tar.gz"
 
-      - name: Upload the app built at the snapshot's commit
+      - name: Upload the bundle
         uses: actions/upload-artifact@v4
         with:
-          name: plays-app-at-snapshot
-          path: ${{ runner.temp }}/plays-app-at-snapshot.tar.gz
+          name: greek-plays-bundle
+          path: ${{ runner.temp }}/greek-plays-bundle.tar.gz
           if-no-files-found: error
           retention-days: 3
+
+      # Test 3 on the bundle as a mirror would serve it. Playwright is this
+      # step's tool and no package of the repo; nothing of it ships.
+      - name: No outside calls, the bundle at /
+        run: |
+          npx --yes playwright@1.65.1 install --with-deps chromium
+          mkdir -p "$RUNNER_TEMP/site" && tar -xzf "$RUNNER_TEMP/greek-plays-bundle.tar.gz" -C "$RUNNER_TEMP/site"
+          node scripts/check-no-outside-calls.mjs --dist="$RUNNER_TEMP/site"
+
+      # A test base path: the app rebuilt under /mirror/ for another origin
+      # over the same data; its link check must find nothing broken, the same
+      # folder checked as if at / must fail, and test 3 runs there too.
+      - name: The site under a base path
+        env:
+          SITE_BASE: /mirror/
+          PUBLIC_SITE_ORIGIN: https://mirror.example.org
+        run: |
+          (cd app && PUBLIC_SHOW_PRIVATE=0 npm run build)
+          node scripts/check-links.mjs app/dist
+          if SITE_BASE=/ node scripts/check-links.mjs app/dist > "$RUNNER_TEMP/at-root.txt"; then
+            echo "the /mirror/ build passed the link check as if at /: the check cannot see the base" >&2; exit 1
+          fi
+          tail -3 "$RUNNER_TEMP/at-root.txt"
+          rm -rf app/dist/data/lsj app/dist/data/ls
+          grep -o '<link rel="canonical"[^>]*>' app/dist/read/euripides/medea/index.html || true
+          cat app/dist/robots.txt
+          node scripts/check-no-outside-calls.mjs --dist=app/dist
