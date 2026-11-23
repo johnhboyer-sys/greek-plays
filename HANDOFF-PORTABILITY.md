@@ -12,14 +12,32 @@ The goal, in one line: the site builds from a clone plus checksummed inputs,
 with no laptop; any static host can serve it; and copies live off GitHub and
 Cloudflare.
 
-## State (2026-11-23)
+## State (2026-11-23, evening)
 
-Phases 1, 2, and 3 and the licence are four stacked draft PRs (#17, #18,
-#19, #20). Nothing is merged or deployed. John paused heavy local runs on
-2026-11-23 (the Mac went down with several sessions building): no full
-build, no full `shared` or pipeline suite, and no browser on the Mac. CI
-runs those: the full build on pull requests to `main` that are not drafts,
-by hand, and on the `build-site` label (John's ruling, below).
+Phases 1, 2, and 3 and the licence are on `main`. John said "Merge each when
+ready" (15:15) and agreed to fold #20 and #19 into #18 so the three reach
+`main` with one full build (15:16). #17 (phase 1) merged as `8cf681cc46`;
+#20 (licence) into #19's branch as `0fe99037c2`, #19 (phase 3) into #18's
+branch as `f3572e5691`; #18 (phase 2, carrying both) merged as `c3cf661ecf`,
+after its full build on the final tree passed (Site run 45283843153: 0
+broken of 12,898 links; the bundle, 12,267 files, passed its six gates; test
+3, 9 of 9 visits at `/` and at `/mirror/`, Grammata the only outside host).
+Main's Mirror job then ran green (run 45286470742: "26 of 26 refs match the
+source after the push"). Nothing is deployed.
+
+What is left, none of it blocking:
+
+- The Image workflow has never run (by hand or the `build-image` label).
+- Not yet seen: a tag push, `release.yml`, the weekly mirror check, and a
+  real deploy through `deploy-cloudflare.mjs` (John's call; never run here).
+- The bundle on two candidate hosts (decision 6) waits on John's accounts.
+- The next deploy changes the key order of 25 `lemma-map` files once (the
+  same JSON; phase 1 record).
+- "Later", below.
+
+John paused heavy local runs on 2026-11-23 (the Mac went down with several
+sessions building); CI runs the full build on pull requests to `main` that
+are not drafts, by hand, and on the `build-site` label (John's ruling, below).
 
 | Phase 1 step | State |
 |---|---|
