@@ -3,16 +3,13 @@ name: Image
 # The Dockerfile: build the site in a container, serve it with Caddy, and ask
 # the running container for every file. The repo is private, so its minutes
 # are John's money: this runs only by hand (the Actions tab, once it is on
-# main) or on a pull request when someone adds the label "build-image".
-# Which triggers it should have for good is John's call.
+# main) or on a pull request when someone adds the label "build-image"
+# (John, 2026-11-23, by way of the lead session: the full build on pull
+# requests, the image by hand or label only).
 on:
   workflow_dispatch:
   pull_request:
     types: [labeled]
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -21,6 +18,11 @@ jobs:
   image:
     name: image
     if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'build-image'
+    # On the job, not the workflow: a skipped run (another label) then
+    # cancels nothing; a newer image build cancels an older one.
+    concurrency:
+      group: image-${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
