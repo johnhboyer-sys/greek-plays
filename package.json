@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:public": "node scripts/build-public.mjs"
+    "build:public": "node scripts/build-public.mjs",
+    "deploy:cloudflare": "node scripts/deploy-cloudflare.mjs"
   }
 }

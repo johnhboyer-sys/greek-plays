@@ -878,3 +878,32 @@ def test_validate_reads_the_editions_switch(tmp_path, monkeypatch):
     monkeypatch.setenv('DRAMA_EDITIONS', '1')
     assert "'jebb' not built" in ot_messages()
     assert "'jebb' not built" not in ot_messages(editions=False)
+
+
+def test_web_mode_reads_no_dictionary_shards_and_only_that(tmp_path):
+    # The web build (app/dist/data) has no lsj/ shards: build:public removes
+    # them after the link check, since Grammata serves the entries, and its
+    # own preflight has already held every key to them in build/dist. The
+    # mirror bundle's preflight runs with web=True (HANDOFF-PORTABILITY.md,
+    # phase 2): the shard lookup is skipped there and nowhere else.
+    manifest = WorkManifest(work_id="TST", path=Path("fake.yaml"), data={"work": {}})
+    problems: list = []
+    _validate_lsj_keys(manifest, tmp_path, {"lo/gos"}, problems)
+    assert any("references missing shard" in m for _w, _f, m in problems)
+    problems = []
+    _validate_lsj_keys(manifest, tmp_path, {"lo/gos"}, problems, web=True)
+    assert problems == []
+    # web mode does not excuse a bad language
+    bad = WorkManifest(work_id="TST", path=Path("fake.yaml"), data={"work": {"language": "xx"}})
+    problems = []
+    _validate_lsj_keys(bad, tmp_path, {"lo/gos"}, problems, web=True)
+    assert any("unrecognized language" in m for _w, _f, m in problems)
+
+
+def test_the_web_flag_reaches_the_shard_check_from_the_command_line(tmp_path, monkeypatch):
+    from drama_pipeline import preflight
+    seen = []
+    monkeypatch.setattr(preflight, "validate", lambda d, m, public=False, editions=None, web=False: seen.append(web) or [])
+    assert preflight.main(["--web", str(tmp_path), str(tmp_path)]) == 0
+    assert preflight.main([str(tmp_path), str(tmp_path)]) == 0
+    assert seen == [True, False]

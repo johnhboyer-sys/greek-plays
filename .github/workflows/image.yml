@@ -1,0 +1,57 @@
+name: Image
+
+# The Dockerfile: build the site in a container, serve it with Caddy, and ask
+# the running container for every file. The repo is private, so its minutes
+# are John's money: this runs only by hand (the Actions tab, once it is on
+# main) or on a pull request when someone adds the label "build-image"
+# (John, 2026-11-23, by way of the lead session: the full build on pull
+# requests, the image by hand or label only).
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: read
+
+jobs:
+  image:
+    name: image
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'build-image'
+    # On the job, not the workflow: a skipped run (another label) then
+    # cancels nothing; a newer image build cancels an older one.
+    concurrency:
+      group: image-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build the image
+        run: docker build -t greek-plays .
+
+      # The list is the one the bundle step wrote inside the image, so this
+      # proves that Caddy serves the folder as it is: every file with its
+      # bytes, a folder's address with its index, a missing page with 404.
+      - name: Serve it and ask for every file
+        run: |
+          docker run -d --name site -p 8080:80 greek-plays
+          docker cp site:/srv/SHA256SUMS "$RUNNER_TEMP/SHA256SUMS"
+          for i in $(seq 1 30); do
+            curl -fsS -o /dev/null http://127.0.0.1:8080/ && break
+            sleep 1
+          done
+          node scripts/check-served.mjs --origin=http://127.0.0.1:8080 --sums="$RUNNER_TEMP/SHA256SUMS"
+
+      - name: Server log
+        if: failure()
+        run: docker logs site || true

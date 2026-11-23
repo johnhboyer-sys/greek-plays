@@ -4,7 +4,11 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const BASE = process.env.READER_BASE_PATH || '';
+import { siteParams } from './site-params.mjs';
+
+// The site base: app/astro.config.mjs `base` without its trailing slash, from
+// the same build parameter (SITE_BASE). By default the root, so empty.
+export const BASE = siteParams().base.replace(/\/$/, '');
 const MAX_ID_CACHE = 6000;
 const MAX_REPORTS = 200;
 // A fixture build (CI) runs no partner-manifest emitter; build-public.mjs does,
@@ -185,6 +189,9 @@ async function main() {
       let rooted = decodePath(pathname);
       if (rooted === BASE || rooted === `${BASE}/`) rooted = '/';
       else if (rooted.startsWith(`${BASE}/`)) rooted = rooted.slice(BASE.length);
+      // Under a base, a root-relative link that leaves it out points outside
+      // the site, though the file it names may sit in dist.
+      else if (BASE) return null;
       relative = rooted.replace(/^\/+/, '');
     } else {
       relative = path.join(virtualDirectory(dist, source), decodePath(pathname));

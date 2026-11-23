@@ -14,11 +14,12 @@ Cloudflare.
 
 ## State (2026-11-23)
 
-Phase 1 is in a draft PR (#17). Nothing is merged or deployed. John paused
-heavy local runs on 2026-11-23 (the Mac went down with several sessions
-building): no full build, no full `shared` or pipeline suite, and no browser
-on the Mac. CI runs those, and the full build runs in CI only by hand (the
-repo is private, so its minutes are John's money).
+Phases 1, 2, and 3 and the licence are four stacked draft PRs (#17, #18,
+#19, #20). Nothing is merged or deployed. John paused heavy local runs on
+2026-11-23 (the Mac went down with several sessions building): no full
+build, no full `shared` or pipeline suite, and no browser on the Mac. CI
+runs those: the full build on pull requests to `main` that are not drafts,
+by hand, and on the `build-site` label (John's ruling, below).
 
 | Phase 1 step | State |
 |---|---|
@@ -31,6 +32,202 @@ repo is private, so its minutes are John's money).
 | Test 1, a clean Linux build in CI | Passed: `site.yml` run 45253108089 (on `90c5e23`), 16 min 47 s; inputs fetched and matched their pins, preflight ok, 44 manifests checked, every dictionary key resolved, 1,318 pages and 12,795 links with 0 broken, 12,194 files |
 | Test 2, against the snapshot | On that run's artifact: 12,194 files; 10,942 byte for byte, 3 pages and 2 bundles equal under 9 swaps, 26 differ for named reasons, 1,221 only in the build (the floor's gaps, by family), 2 only in the snapshot (the two bundles' old names). Stage 6 now sorts, so the 25 lemma-map files no longer depend on the disk (they change key order once at the next deploy) |
 | Review by another model family | Done: Grok, a static read of the diff (session `01a209f7…`): ten findings, three fixed with failing tests first, seven answered (phase 1 record) |
+
+| Phase 2 step | State |
+|---|---|
+| Build parameters for origin, base path, and the Grammata address | Done: `PUBLIC_SITE_ORIGIN` (the plays' existing name, optional) and `SITE_BASE` in `scripts/site-params.mjs`, read by the Astro config, `robots.txt`, and the link check; `PUBLIC_GRAMMATA_LOOKUP` in `shared/lib/grammata.ts`. `READER_BASE_PATH` is gone |
+| Fonts self-hosted | Done: `app/public/fonts/`, 66 woff2 files (every one Google served for the pages' two queries, and the Ῥ subset), 6 families, each OFL text; 15 pages link `fonts/fonts.css`; no page names a Google font host |
+| The feedback form hides where there is no `/api` | Done: the button shows only when the host serves `feedback-endpoint.json`, which the bundle leaves out; test 3 saw it hidden on the bundle |
+| The mirror bundle | Done: `scripts/make-bundle.mjs`, 12,267 files, 445,933,017 bytes, 105 MB packed, 5 gates on 10,770 data files |
+| No outside calls (test 3) | Green at `/` and at `/mirror/`: 9 of 9 visits, one outside host asked for (Grammata, allowed) |
+| A build at a test base path passes the link check | Done: `/mirror/` at another origin, 1,318 pages, 12,898 links, 0 broken; the same folder checked as if at `/` fails (about 12,700 broken) |
+| `check-served.mjs` | Homer's, unchanged |
+| `Dockerfile`, Caddy, image workflow | Written; the image builds in CI only by hand or on the `build-image` label; not yet run |
+| `ARCHITECTURE.md`, `RESTORE.md` | Written; `RESTORE.md`'s log is empty until a restore path is run |
+| Review by another model family | Done: Grok, a static read of phase 2: sixteen findings; eleven fixed with failing tests first, five answered (phase 2 record) |
+
+| Phase 3 step | State |
+|---|---|
+| Push the repo to a second git host | Done: `scripts/mirror-git.mjs` (Homer's, byte for byte), run by `mirror.yml` with the plays' own deploy key since 2026-11-23 (the lead session's; John added it at 14:36); first run on this branch: "25 of 25 refs match the source after the push" |
+| Check a git mirror | Done: `scripts/mirror-check.mjs`, run for real against `git@gitlab.com:johnhboyer/greek-plays.git` (below) |
+| The deploy tags its commit | Written: `scripts/deploy-cloudflare.mjs`, new for the plays. Never run for real |
+| A release for each deploy tag | Written: `release.yml`, through the new `site-bundle` action; runs first at the first tagged deploy |
+| `mirror.yml`, `check-mirrors.mjs`, `mirrors.json` | Homer's, byte for byte (`mirrors.json` names the plays' mirror); the push job showed as skipped until `MIRROR_GIT_URL` was set |
+| `docs/cloudflare.md`, `DEPLOY-STATUS.md` | Written from the repo and the live site, with what could not be confirmed marked |
+| Review by another model family | Done: Grok, a static read of phase 3 and the licence: eleven findings, nine fixed, two with nothing to fix (phase 3 record) |
+
+## Phase 3 record
+
+**What was ported.** `mirror-git.mjs`, `mirror-check.mjs`, `check-mirrors.mjs`,
+their tests, `.github/actions/mirror-key`, `.github/mirror_known_hosts`, and
+`mirror.yml` are homer-reader's `origin/main` (`6c8070f3fc`) byte for byte, but
+for one test line (the base path `/plays/`); `cmp` against Homer's files
+says so for each. They carry the private-repo fix already (the job's token
+reads the source). `mirrors.json` names `git@gitlab.com:johnhboyer/greek-plays.git`.
+
+**The deploy script.** The plays had none; sessions ran `build:public` and
+`wrangler deploy` by hand. `scripts/deploy-cloudflare.mjs` is new, in the
+shape of Homer's: by default a rehearsal (every gate, then `wrangler deploy
+--dry-run`); `--deploy` deploys from `app/`, then tags `deploy/<date>` and
+pushes the tag. Its gates are the plays' own: the Worker serves the data, so
+a build with a data root, no `data/`, `data/` left out by `.assetsignore`, or
+no feedback marker is refused, and so is one over 20,000 files or with a
+file over 25 MiB; then live's sitemap (90% of its pages), the link check, and
+the bundle's data gates. The tag code (`tagPlan`, `tagCommits`,
+`uncleanFiles`, `tagDeploy`) is Homer's. Every outside effect is passed in,
+so the tests drive each branch with fakes: 38 tests, among them Homer's tag
+tests against a real checkout and a bare origin. 11 hand breaks (a rehearsal
+that deploys or tags, a tag before the deploy, a failed tag failing the
+deploy, each gate ignored) each fail a test. It has never run for real.
+
+**The release.** `release.yml` is Homer's, its bundle named for the plays and
+its data held to `https://greekdrama.johnhboyer.com` (the site serves its
+own data), built through `.github/actions/site-bundle` (the steps of CI's
+`site` job), so a release is built the way a pull request is tested. While
+the repo is private, releases are private; once it is public, each release
+is public with every source under its own terms (Kosmos's NonCommercial and
+NoDerivatives text and Johnston's NonCommercial terms among them): John's to
+weigh then.
+
+**`mirror-check.mjs` against GitLab** (2026-11-23, before the key, with the
+account key): `FAIL …: 21 of 25 refs match` (`main` at `bf4c79c` on the
+mirror against `c1cf9b9`; the three portability branches missing): the
+truth, since nothing had kept the mirror current. With those four skipped:
+`ok …: 21 of 21 refs match; … history: 1407 commits, whole`. After the key,
+the lead's run from the Mac: 25 of 25 refs, 1,431 commits, whole.
+
+**Review (Grok, 2026-11-23).** A static read of phase 3 with the licence
+(session `01a20a72-f3f3…`). Eleven findings, each checked against the
+source; nine fixed. (1, High) `release.yml` asked the live site for each data
+file at its root, where the Worker serves them under `/data/`, so every
+release would have failed its data check: now `--base=/data/`; run by hand
+against the live site with two of the snapshot's data files, they answered
+404 before and match now. (5) A rerun on a later day stamped another
+`corpus_version` and could never match live: the release now builds with the
+version live names, and stops if live was not built from the tagged
+commit. (2) The deploy's scale check counted redirect shims as pages: it now
+counts the build's own sitemap pages that exist as files, and refuses a
+build with no sitemap. (3) An `.assetsignore` glob (`data/**`, `*.json`)
+passed: only Finder files may be left out. (4) `app/dist` is git-ignored,
+so a build made at one commit was deployed and tagged at another: the
+deploy reads the commit each play's `corpus_version` names and refuses a
+mismatch. Each with a failing test first (46 deploy tests; three hand
+breaks of the new gates each fail one). (6) The drawings row now names
+`antigone.svg`'s CC BY-SA 4.0, as the drawings' README does. (7) The root
+README now says `LICENSE` covers the code and nothing under `sources/`. (8,
+9) Johnston's terms and the Wikisource line say what the repo's own sections
+say. (11) `wrangler.jsonc`'s file count corrected. (10) Grok found nothing
+wrong in it.
+
+**Not yet seen.** `mirror.yml` on `main` (with this PR's merge), a tag push,
+the weekly check, a release, and a real deploy through the script.
+
+## Phase 2 record
+
+**Parameters.** The plays already had `PUBLIC_SITE_ORIGIN`, optional (unset
+in CI's test builds: no canonical links and no sitemap). `site-params.mjs`
+keeps that name and meaning (trailing slashes dropped, as before) and adds
+`SITE_BASE`, which replaces the link check's own `READER_BASE_PATH`, so one
+name means one thing. `robots.txt` names the sitemap under the base. The
+app already built its links from `BASE_URL`; CI's first `/mirror/` build
+found two pages that did not: the line-citation redirects and the `texts/`
+aliases (3,482 broken links). Both now prefix the base; at the root it is
+empty, so live's pages do not change. `PUBLIC_GRAMMATA_LOOKUP` is read in
+the one module both callers load (`shared/lib/grammata.ts`).
+
+**Fonts.** Aristotle's method (#232): Google's CSS for the two queries the
+pages sent (Alegreya Sans, Alegreya Sans SC, and Cardo on screen; Bodoni
+Moda and DM Mono for the print masthead), every rule and file kept, each
+address made local: 65 rules and files. The Ῥ face (`GDR Rho Dasia`, a
+Gentium Book Plus subset) moved from `shared/styles/global.css`, which named
+Google's address, into `fonts.css` with its file and Gentium Book Plus's
+licence. `scripts/__tests__/fonts.test.mjs` (Aristotle's, with the plays'
+counts) holds the folder and the stylesheet to each other and fails a page
+that names a Google font host; 19 pass. The service worker's branch for
+Google's hosts stays, unreachable, as in Aristotle.
+
+**The feedback form.** `app/worker/index.js` answers `/api/feedback` on the
+Cloudflare Worker only. The button is now `hidden` until
+`lib/feedback-endpoint.ts` reads `feedback-endpoint.json` and finds a
+same-host address (12 tests, the failing cases first: a 404, a host that
+answers every path with its home page, not JSON, no address, another host,
+`//host`, a server error, a network error). The bundle leaves the marker
+out (`HOST_FILES`); `deploy-cloudflare.mjs` (phase 3) refuses a build
+without it.
+
+**The bundle.** `make-bundle.mjs` is Homer's with the plays' gates: preflight
+`--public --editions --web`, the data contracts, every LSJ key of the plays'
+own analyses with a headword in `lsj-heads.json`, the lemma pages, and JSON.
+CI's first run stopped at two of them, both gates of the bundle's own:
+preflight looked keys up in LSJ shards the web build removes on purpose
+(`--web` now skips only that lookup; `build:public`'s own preflight makes it
+on `build/dist`), and the headword gate held the other editions' keys too.
+**A gap found on the way, live today and left for John:** 189 LSJ keys in the
+other Greek editions' analyses (`data/<play>/ed/<id>/analyses.json`; Jebb,
+Smyth's Loeb, and others) have no headword in `lsj-heads.json`, which
+`build-lsj-heads.mjs` builds from the plays' own analyses only, so the word
+popup in those editions shows no headword for them. On the downloaded
+build's data the five gates passed locally before the CI rerun: 18,145 keys,
+7,405 lemma pages, 10,671 JSON files.
+
+**Test 3.** `check-no-outside-calls.mjs`, drafted by an Opus agent from
+Homer's (everything above its visits unchanged but names), with Grammata's
+two hosts the only ones allowed and nine visits: Medea's reading page (1,500
+Greek and 2,000 Latin letters at least), a word popup (headword, gloss,
+parse), one speaker's lines (the search's speaker filter, Medea's), a
+search (τέκνα, a hit linking into this build), a lexicon entry (τέκνον,
+headword and works list from the site's data), the home page (44 plays), Medea's
+own page, the feedback form (hidden, and the marker's 404 expected only where
+the folder lacks it), and the reading page under the service worker. CI run
+45264091146: `ok …/site at /: 9 of 9 visits, 374 requests to the site (0 not
+found, 6 expected), 1 outside host asked for, it allowed (grammata.pages.dev
+x2); control seen`, and at `/mirror/` `9 of 9 visits, 373 requests … (0 not
+found)`. The browser fixtures were ported and not run (the Mac runs no
+browser); the unit tests pass, 15.
+
+**CI runs and minutes.** Run 45257010840 (bundle gates, fixed), 45259871277
+(the base-path link check, fixed), 45264091146 (green, 17 min 55 s).
+
+**Review (Grok, 2026-11-23).** A static read of the phase 2 diff (session
+`01a20a72-f2de…`; a first read, started before John's close-up, was stopped
+with no result). Sixteen findings, each checked against the source.
+
+Fixed, each with a failing test first: (1, 2, 4) a play's search files, an
+edition's book or analyses, or a play's emptied analyses passed every bundle
+gate: a sixth gate, "play files", holds every play the manifests declare to
+the 17 files all 44 share, and every edition a play's manifest names to the
+13 all 54 share (the lists read from the 2026-11-20 snapshot), none of them
+empty; and each play's own analyses must name an LSJ key. (5) A build made
+under `SITE_BASE` could be packed for a web root: refused, by the asset
+paths on its home page. (6) The feedback marker took `/\host`, which a
+browser reads as `//host`, and (7) a marker that came by a redirect: the
+address must be a plain same-host path, and a redirected answer shows no
+form. (8) The sitemap filter read paths as if at the root: moved to
+`site-params.mjs` as `inSitemap(page, base)`. (9) A citation copied from a
+Greek edition named the root path: `siteHref` puts it under the base. (10)
+The section redirect, which no play builds today, keeps the base. (12) The
+home visit took one play linked 44 times: the links must lead to 44
+different pages. (13) The service-worker visit took one token: it holds the
+reloaded page to the same letter floors.
+
+Answered: (3) a lemma index cut to one slug with the other lemma files
+removed passes; a partial loss of this kind is left, as in Homer's (the
+gates catch an empty or broken index, and the visits read one lemma). (11)
+`robots.txt` says `Allow: /`; a crawler reads it only at a host's root,
+where a mirror under a base does not place it. (14) The popup visit accepts
+any text in Grammata's mount; Grammata is refused there, so the text is its
+error, and an empty mount still fails. (15) Nothing in the workflows. (16)
+A new page without the fonts link passes the font test; it would have no
+web fonts, which is no outside call, and test 3 would see any Google host.
+
+The visit changes run first in the final CI build (no browser on the Mac).
+
+**A slip.** While checking the citation fix, a test command that matched no
+file ran the whole `shared` suite on the Mac once (2,975 passed, 60 skipped),
+against John's pause on heavy local runs. It finished; nothing else ran.
+
+**Known and left.** As in the siblings: a saved search keeps whole paths,
+base included, in the browser's storage.
 
 ## Phase 1 record
 
@@ -248,7 +445,46 @@ Concurrency sits on the job, so a skipped run cancels nothing. The Image
 workflow (phase 2) stays by hand or by the `build-image` label. Earlier the
 same day John okayed one round of by-hand runs ("okay. run it this time").
 
+## The licence (ruled by John, 2026-11-23)
+
+The pattern John ruled for Plato and Homer: MIT for the code in `LICENSE`,
+CC0 1.0 on `corpus/greek/`, CC BY 4.0 on his own apparatus, and every other
+source on its own terms, in a table at the head of `sources/INVENTORY.md`,
+each line repeating what this repo and the site's attribution page already
+state. Drafted so in the licence PR. What is new with the plays:
+
+- **36 of the 44 Greek editions were printed after 1930** (Murray 1955,
+  Diggle 1981-1994, Dain and Mazon 1955-1960, Dover 1968, MacDowell 1971,
+  Ussher 1973); 8 are Coulon's Budé, 1923-1930. For Homer's 1931 Allen John
+  answered "CC0 now". The draft puts CC0 on all 44 files, worded as a waiver
+  of whatever rights John holds, since an editor's rights in his edition are
+  not his to give.
+- **The OCR'd Greek editions** (`sources/ocr/`: Jebb, Paley, Way) are John's
+  transcriptions of public-domain books, and each file's header says "Not
+  for redistribution until the owner rules on it". The draft leaves them
+  unruled.
+- **NonCommercial and NoDerivatives sources**: the Kosmos Society
+  translations (CC BY-NC-ND 3.0) and Ian Johnston's (his non-commercial
+  terms). Public releases (phase 3) would carry them once the repo is public.
+- **The drawings** count as John's own apparatus (CC BY 4.0) in the draft.
+
+John ruled, in this session, on three questions put to him at once with the
+table linked: "CC0 on all 44" (the Greek files, as drafted); for the OCR'd
+Jebb, Paley, and Way, "Yes, CC0"; and the four export-shaped fixtures, "Keep
+them" (decision 10, as for Plato and Homer). Every recommendation, taken. The
+OCR files' own headers still carry their old note; the table says the ruling
+supersedes it (changing the files would change their pinned sums).
+
+## Later
+
+- **A command line for headless runs by AI agents.** John, 2026-11-23, 16:07:
+  "Can we add cli stuff later for headless runs by ai agents? Just note for
+  later." Not started; to be scoped with him (which runs, which outputs).
+- **The other editions' headwords.** 189 LSJ keys in the other Greek
+  editions' analyses have no headword in `lsj-heads.json` (phase 2 record);
+  live has the same gap.
+
 ## Decisions for John
 
-- Decision 10 for the plays: keep the four export-shaped fixtures, pinned
-  (as ruled for Plato and Homer), or replace them with made-up Greek.
+None open from the port. Ruled 2026-11-23: the CI triggers, the licence,
+the OCR'd editions, and decision 10 (above).

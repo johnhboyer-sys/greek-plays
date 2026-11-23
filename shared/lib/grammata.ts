@@ -1,7 +1,9 @@
 // Grammata owns the dictionary entry markup and styles. Keep this URL live:
 // one Grammata deploy updates every reader, so do not vendor, proxy, pin, or
-// cache-bust it.
-const GRAMMATA_LOOKUP = 'https://grammata.pages.dev/t8/lookup.js';
+// cache-bust it. A mirror may point it elsewhere with the build parameter
+// PUBLIC_GRAMMATA_LOOKUP (HANDOFF-PORTABILITY.md, phase 2); unset, it is the
+// address every build has used.
+const GRAMMATA_LOOKUP = import.meta.env.PUBLIC_GRAMMATA_LOOKUP || 'https://grammata.pages.dev/t8/lookup.js';
 
 export type GrammataLookup = (
   word: string,

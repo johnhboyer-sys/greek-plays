@@ -25,7 +25,9 @@ const work = getWorkBySlug(author, slug);
 if (!work) {
   throw new Error(`texts/[author]/[work]: no work at author '${author}' slug '${slug}'`);
 }
-const target = `/${author}/${slug}`;
+// Under the site's base (SITE_BASE); empty at the root.
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const target = `${base}/${author}/${slug}`;
 const title = work.title;
 ---
 <!doctype html>

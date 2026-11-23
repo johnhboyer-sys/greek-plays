@@ -16,26 +16,12 @@
   border: 0;
 }
 
-/* Ῥ (U+1FEC) alone, from Gentium Book Plus: Cardo's Ῥ hangs its breathing
-   33px left of the letter at 64px, so Ῥῆσος read as "῾ Ρῆσος" (John,
-   2026-09-10). The file is Google Fonts' own `text=Ῥ` subset; Google's CSS for
-   it also claims U+0314 and U+03A1, which would pull every plain Ρ out of
-   Cardo, hence this private face with a one-codepoint unicode-range. If the
-   URL ever lapses, Ῥ falls back to Cardo. */
-@font-face {
-  font-family: "GDR Rho Dasia";
-  font-style: normal;
-  font-weight: 400 700;
-  font-display: swap;
-  src: url(https://fonts.gstatic.com/l/font?kit=vEFL2-RHBgUK5fbjKxRpbBtJPyRpofKadbTOrPnTsSt6q7tC5Q&skey=611942dd48f5b6af&v=v1) format("woff2");
-  unicode-range: U+1FEC;
-}
-
 :root {
-  /* Cardo and EB Garamond loaded from Google Fonts in each page <head>.
-     Fallback chain works without the network load. */
-  /* "GDR Rho Dasia" (the @font-face below) supplies Ῥ alone; every other
-     character falls through to Cardo (John, 2026-09-10, Rhesus). */
+  /* The site's faces come from app/public/fonts/fonts.css, linked in each
+     page <head>. Fallback chain works without them. */
+  /* "GDR Rho Dasia" (declared in app/public/fonts/fonts.css) supplies Ῥ
+     alone; every other character falls through to Cardo (John, 2026-09-10,
+     Rhesus). */
   --font-greek:   "GDR Rho Dasia", "Cardo", "Gentium Plus", "Noto Serif", Georgia, serif;
   --font-english: "EB Garamond", Georgia, "Times New Roman", serif;
   /* Latin source text (Wave 2 Batch 1a: Cicero's De Officiis, PHI corpus) --
