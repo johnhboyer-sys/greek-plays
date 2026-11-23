@@ -33,6 +33,21 @@ jobs:
       - name: Name the bundle
         run: echo "BUNDLE=$RUNNER_TEMP/greek-plays-${GITHUB_REF_NAME//\//-}.tar.gz" >> "$GITHUB_ENV"
 
+      # Each play's manifest names the commit and day it was built from
+      # (corpus_version). Build the release with the version live names, so
+      # its data is byte for byte what the site serves, on whatever day this
+      # runs; and stop if live was not built from this commit (Grok's read of
+      # #19: a rerun on a later day stamped another date and failed).
+      - name: The data version live names
+        run: |
+          version=$(curl -fsS https://greekdrama.johnhboyer.com/data/agamemnon/manifest.json \
+            | node -e 'let s="";process.stdin.on("data",(d)=>s+=d).on("end",()=>process.stdout.write(String(JSON.parse(s).corpus_version ?? "")))')
+          sha=${version%%-*}
+          if [ -z "$sha" ] || [ "${GITHUB_SHA#"$sha"}" = "$GITHUB_SHA" ]; then
+            echo "::error::live names corpus_version '$version', not built from $GITHUB_SHA"; exit 1
+          fi
+          echo "CORPUS_VERSION=$version" >> "$GITHUB_ENV"
+
       - name: Build the site and pack the bundle
         uses: ./.github/actions/site-bundle
         with:
@@ -41,14 +56,15 @@ jobs:
       # The tag says this commit is what the primary serves, and the deploy
       # script cannot know that app/dist was built from it. Hold the tag to
       # its word: every data file of the bundle is asked of the primary,
-      # which serves the plays' data itself. (The pages cannot be held the same way: a build's page
+      # which serves the plays' data itself, under /data/ (--base; Grok's
+      # read of #19: without it every file was asked for at the root). (The pages cannot be held the same way: a build's page
       # bytes vary.) A file changed by the deploy can be up to ten minutes
       # stale at the host's cache; this step runs later than that, and a
       # failed run can be run again, for no release exists yet.
       - name: The bundle's data is what the primary serves
         run: |
           tar -xzf "$BUNDLE" -C "$RUNNER_TEMP" ./SHA256SUMS
-          node scripts/check-served.mjs --origin=https://greekdrama.johnhboyer.com --sums="$RUNNER_TEMP/SHA256SUMS" --part=data
+          node scripts/check-served.mjs --origin=https://greekdrama.johnhboyer.com --base=/data/ --sums="$RUNNER_TEMP/SHA256SUMS" --part=data
 
       # SHA256SUMS names every file in the bundle; it is attached beside the
       # bundle so a mirror can be checked against it without a download of

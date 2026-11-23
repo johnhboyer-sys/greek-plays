@@ -45,7 +45,8 @@ function site(change = () => {}) {
   put('read/euripides/medea/index.html', '<p>Medea</p>');
   put('sw.js', "const DATA_ROOT = '';\n");
   put('feedback-endpoint.json', '{"post":"/api/feedback"}');
-  put('data/medea/manifest.json', '{}');
+  put('data/medea/manifest.json', `{"corpus_version":"${'c'.repeat(7)}-2026-11-23"}`);
+  put('sitemap-0.xml', '<urlset><url><loc>https://greekdrama.johnhboyer.com/</loc></url><url><loc>https://greekdrama.johnhboyer.com/read/euripides/medea/</loc></url></urlset>');
   change({ dist, put, root });
   return { root, dist, done: () => rmSync(root, { recursive: true, force: true }) };
 }
@@ -67,6 +68,10 @@ for (const [name, change, pattern, extra] of [
   ['no data', ({ dist }) => rmSync(path.join(dist, 'data'), { recursive: true }), /no data\/ in the build/],
   ['data left out of the upload', ({ put }) => put('.assetsignore', 'data/\n'), /leaves data\/ out/],
   ['data left out of the upload, rooted', ({ put }) => put('.assetsignore', '/data\n'), /leaves data\/ out/],
+  // Grok's read of #19: a glob left data/ out and passed
+  ['data left out by a glob', ({ put }) => put('.assetsignore', 'data/**\n'), /\.assetsignore/],
+  ['every JSON file left out', ({ put }) => put('.assetsignore', '*.json\n'), /\.assetsignore/],
+  ['everything left out', ({ put }) => put('.assetsignore', '**\n'), /\.assetsignore/],
   ['no feedback marker', ({ dist }) => rmSync(path.join(dist, 'feedback-endpoint.json')), /no feedback-endpoint\.json/],
 ]) {
   test(`distProblems: ${name}`, () => {
@@ -74,6 +79,11 @@ for (const [name, change, pattern, extra] of [
     try { assert.match(distProblems(s.dist, [...walk(s.dist)]).join('\n'), pattern); } finally { s.done(); }
   });
 }
+
+test('distProblems: an .assetsignore that leaves out only Finder files passes', () => {
+  const s = site(({ put }) => put('.assetsignore', '# Finder\n.DS_Store\n\n'));
+  try { assert.deepEqual(distProblems(s.dist, [...walk(s.dist)]), []); } finally { s.done(); }
+});
 
 test('distProblems: over the Worker\'s file count, or a file over 25 MiB', () => {
   const s = site();
@@ -184,6 +194,16 @@ for (const [name, setup, pattern, args = []] of [
   ['no build at all', { change: ({ dist }) => rmSync(dist, { recursive: true }) }, /has no index\.html; build first/],
   ['a live sitemap with no pages', { fakes: { sitemap: '<urlset/>' } }, /lists no pages/],
   ['a build with too few pages', { fakes: { sitemap: '<loc>a</loc>'.repeat(10) } }, /below the 90% floor/],
+  // Grok's read of #19: redirect shims counted as pages; only the build's own
+  // sitemap pages that exist as files count now
+  ['a build whose sitemap pages are missing', { change: ({ dist }) => rmSync(path.join(dist, 'read'), { recursive: true }), fakes: { sitemap: '<loc>a</loc><loc>b</loc>' } },
+    /below the 90% floor/],
+  ['a build with no sitemap of its own', { change: ({ dist }) => rmSync(path.join(dist, 'sitemap-0.xml')) }, /no sitemap-0\.xml/],
+  // Grok's read of #19: app/dist is git-ignored, so a build made at another
+  // commit deployed cleanly and was tagged at HEAD
+  ['a build made at another commit', { change: ({ put }) => put('data/medea/manifest.json', '{"corpus_version":"abcdef1-2026-11-20"}') },
+    /built from abcdef1, but HEAD is cccccc/],
+  ['a build that names no commit', { change: ({ put }) => put('data/medea/manifest.json', '{}') }, /names no commit/],
   ['a broken link', { fakes: { fails: ['check-links.mjs'] } }, /link check did not pass/],
   ['a data gate that fails', { fakes: { gates: 'fail' } }, /preflight did not pass: exit 1; medea: book-01\.json: no text/],
   ['no data gate at all', { fakes: { gates: 'none' } }, /no data gate ran/],

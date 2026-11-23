@@ -99,8 +99,13 @@ export function distProblems(dist, files) {
     else if (root) problems.push(`the build reads its data from ${root}; the plays serve their data from the Worker itself. Rebuild with PUBLIC_DATA_ROOT unset`);
   }
   if (!files.some((f) => f.path.startsWith('data/'))) problems.push('no data/ in the build: the Worker serves the data');
-  if (has.has('.assetsignore') && /^\/?data\/?$/m.test(readFileSync(path.join(dist, '.assetsignore'), 'utf8'))) {
-    problems.push('.assetsignore leaves data/ out of the upload; the Worker serves the data');
+  if (has.has('.assetsignore')) {
+    // The Worker serves the whole folder; only Finder files may be left out
+    // (Grok's read of #19: a glob such as data/** passed the old check).
+    const lines = readFileSync(path.join(dist, '.assetsignore'), 'utf8').split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#'));
+    const other = lines.filter((l) => l !== '.DS_Store');
+    if (other.some((l) => /^\/?data\/?$/.test(l))) problems.push('.assetsignore leaves data/ out of the upload; the Worker serves the data');
+    else if (other.length) problems.push(`.assetsignore leaves out more than Finder files (${other.slice(0, 3).join(', ')}); the Worker serves the whole folder`);
   }
   for (const name of HOST_FILES) if (!has.has(name)) problems.push(`no ${name}: the feedback form would stay hidden on the primary`);
   if (files.length > MAX_FILES) problems.push(`${files.length} files, over the ${MAX_FILES} a Worker version may hold`);
@@ -195,6 +200,17 @@ async function fetchText(url) {
   return r.text();
 }
 
+// The commit a build was made from: the short sha each play's manifest
+// names in corpus_version (scripts/build-public.mjs), or null.
+export function builtFrom(dist, files) {
+  const manifest = files.find((f) => /^data\/[^/]+\/manifest\.json$/.test(f.path));
+  if (!manifest) return null;
+  let version;
+  try { version = JSON.parse(readFileSync(manifest.file, 'utf8')).corpus_version; } catch { return null; }
+  const m = typeof version === 'string' ? version.match(/^([0-9a-f]{7,40})-/) : null;
+  return m ? m[1] : null;
+}
+
 // The deploy, with every effect passed in so the tests can run each branch
 // with fakes: `exec` runs a program (git, node, npx), `getText` fetches a
 // page, `gates` runs the data gates, `log` prints, `today` names the day.
@@ -215,14 +231,27 @@ export async function deploy(options, {
   const problems = distProblems(dist, files);
   if (problems.length) fail(problems.join('; '));
   const head = exec('git', ['rev-parse', 'HEAD'], { cwd: root, capture: true }).trim();
+  // app/dist is git-ignored, so a clean tree says nothing of where it came
+  // from: a build made at one commit must not be deployed and tagged at
+  // another (Grok's read of #19).
+  const from = builtFrom(dist, files);
+  if (!from) fail('the build names no commit (no corpus_version in its manifests); rebuild with npm run build:public');
+  if (!head.startsWith(from)) fail(`the build was built from ${from}, but HEAD is ${head.slice(0, 10)}; rebuild, or check out ${from}`);
   const unclean = uncleanFiles(root, exec);
   log(`  source ${head.slice(0, 10)}${unclean.length ? ` (${unclean.length} file(s) not as committed)` : ''}; ${files.length} files`);
 
   heading(`Scale: the build against ${options.site}`);
-  const distPages = files.filter((f) => path.posix.basename(f.path) === 'index.html').length;
+  // The build's own sitemap pages that exist as files: redirect shims and
+  // aliases are left out of the sitemap, so they cannot stand in for the
+  // pages (Grok's read of #19).
+  if (!files.some((f) => f.path === 'sitemap-0.xml')) fail('no sitemap-0.xml in the build; build with PUBLIC_SITE_ORIGIN set, as the deploy does');
+  const has = new Set(files.map((f) => f.path));
+  const distPages = [...readFileSync(path.join(dist, 'sitemap-0.xml'), 'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)]
+    .map((m) => { try { return new URL(m[1]).pathname.replace(/^\/+/, ''); } catch { return null; } })
+    .filter((p) => p !== null && has.has(p === '' || p.endsWith('/') ? `${p}index.html` : `${p}/index.html`)).length;
   const livePages = countSitemapPages(await getText(`${options.site}/sitemap-0.xml`));
   if (!livePages) fail(`${options.site}/sitemap-0.xml lists no pages; the scale check would examine nothing`);
-  log(`  pages: ${distPages} index.html files in the build, ${livePages} in the live sitemap`);
+  log(`  pages: ${distPages} of the build's sitemap pages present, ${livePages} in the live sitemap`);
   const scale = auditDistScale(distPages, livePages, options.minPagesRatio);
   if (!scale.ok) fail(scale.reason);
 
