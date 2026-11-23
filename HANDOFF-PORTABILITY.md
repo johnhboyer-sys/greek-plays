@@ -384,6 +384,15 @@ Concurrency sits on the job, so a skipped run cancels nothing. The Image
 workflow (phase 2) stays by hand or by the `build-image` label. Earlier the
 same day John okayed one round of by-hand runs ("okay. run it this time").
 
+## Later
+
+- **A command line for headless runs by AI agents.** John, 2026-11-23, 16:07:
+  "Can we add cli stuff later for headless runs by ai agents? Just note for
+  later." Not started; to be scoped with him (which runs, which outputs).
+- **The other editions' headwords.** 189 LSJ keys in the other Greek
+  editions' analyses have no headword in `lsj-heads.json` (phase 2 record);
+  live has the same gap.
+
 ## Decisions for John
 
 - Decision 10 for the plays: keep the four export-shaped fixtures, pinned
