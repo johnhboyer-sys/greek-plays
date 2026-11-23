@@ -1,0 +1,103 @@
+name: Site
+
+# The whole public build on a clean Linux runner, from the clone plus the two
+# inputs fetched by checksum (HANDOFF-PORTABILITY.md, test 1). The repo is
+# private, so its minutes are John's money: this runs only by hand, from the
+# Actions tab once it is on main, or on a pull request when someone adds the
+# label "build-site". Never on a push. Which triggers it should have for good
+# is John's call, once he has seen what one run bills.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [labeled]
+
+concurrency:
+  group: site-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # The deploy's own settings (the build recipe in HANDOFF-PORTABILITY.md).
+  PUBLIC_SITE_ORIGIN: https://greekdrama.johnhboyer.com
+  DRAMA_EDITIONS: "1"
+  PUBLIC_EDITIONS: "1"
+  # The commit the 2026-11-20 snapshot of live was built from, and the
+  # version its data names, so test 2 can compare byte for byte.
+  SNAPSHOT_COMMIT: bf4c79cd9f31e128719d605e1143561ad9c28697
+  CORPUS_VERSION: bf4c79c-2026-11-19
+
+jobs:
+  site:
+    name: site
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'build-site'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: pipeline/.python-version
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+
+      # build-public.mjs runs pipeline/.venv/bin/python, which uv sync makes.
+      - name: Install dependencies
+        run: |
+          (cd pipeline && uv sync)
+          (cd app && npm ci)
+
+      # 186 MB from Diogenes's own release; the archive and each file in it
+      # are held to the sha256 pins in pipeline/drama_pipeline/inputs.py.
+      - name: Fetch the Morpheus table and the LSJ
+        run: |
+          echo "DIOGENES_DATA=$RUNNER_TEMP/diogenes-data" >> "$GITHUB_ENV"
+          cd pipeline && uv run python -m drama_pipeline.inputs fetch --dir "$RUNNER_TEMP/diogenes-data"
+
+      # Test 1: every play from corpus/greek/, every edition, the corpus-wide
+      # stages, the gates, the app build, and the link check. No Diogenes, no
+      # TLG, no Mac path.
+      - name: Build the site (test 1)
+        run: npm run build:public
+
+      # Test 2's half: the app as the snapshot's deploy built it (main since
+      # then changed only the app: PRs #14 and #15), over this build's data,
+      # so the comparison with the snapshot is exact. Done on the Mac with
+      # scripts/compare-snapshot.mjs; the Mac builds nothing.
+      - name: Rebuild the app at the snapshot's commit
+        run: |
+          mv app/dist "$RUNNER_TEMP/dist-branch"
+          git restore --source="$SNAPSHOT_COMMIT" --staged --worktree -- app shared
+          (cd app && npm ci && PUBLIC_SHOW_PRIVATE=0 npm run build)
+          node scripts/check-links.mjs app/dist
+          rm -rf app/dist/data/lsj app/dist/data/ls
+          echo "Files that differ between this branch's app and the snapshot commit's, over the same data:"
+          diff -rq "$RUNNER_TEMP/dist-branch" app/dist | sed -E 's#^Files .*/dist-branch/([^ ]*) and .*#differ: \1#' \
+            | sed -E 's#/[^/]*$##' | sort | uniq -c | sort -rn | head -40 || true
+          diff -rq "$RUNNER_TEMP/dist-branch" app/dist | wc -l
+          tar -czf "$RUNNER_TEMP/plays-app-at-snapshot.tar.gz" -C app dist
+          ls -l "$RUNNER_TEMP/plays-app-at-snapshot.tar.gz"
+
+      - name: Upload the app built at the snapshot's commit
+        uses: actions/upload-artifact@v4
+        with:
+          name: plays-app-at-snapshot
+          path: ${{ runner.temp }}/plays-app-at-snapshot.tar.gz
+          if-no-files-found: error
+          retention-days: 3

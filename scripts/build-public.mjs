@@ -16,7 +16,10 @@ if (gitVersion.error) throw gitVersion.error;
 // HEAD to name — fall back to a placeholder rather than crash; every commit
 // after the first names a real short sha here as before.
 const gitSha = gitVersion.status === 0 ? gitVersion.stdout.trim() : '';
-const CORPUS_VERSION = `${gitSha || 'nogit'}-${new Date().toISOString().slice(0, 10)}`;
+// Every work's manifest names the commit and day it was built from. Set
+// CORPUS_VERSION to build a past deploy's data byte for byte (the snapshot
+// comparison, HANDOFF-PORTABILITY.md); unset, it is this commit and today.
+const CORPUS_VERSION = process.env.CORPUS_VERSION || `${gitSha || 'nogit'}-${new Date().toISOString().slice(0, 10)}`;
 
 // uv is not installed on this machine (post-wipe); the pipeline runs from its
 // checked-out venv. Override with DRAMA_PY if the interpreter lives elsewhere.
