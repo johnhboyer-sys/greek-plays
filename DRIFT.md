@@ -1173,3 +1173,4 @@ Page 1 reads only the plays it draws. Ported hunk by hunk; `countRows` checked a
 - `app/src/components/SiteFoot.astro`, `app/src/lib/feedback-endpoint.ts`, `app/public/feedback-endpoint.json` — the feedback button shows only where the host serves the marker (the Cloudflare deploy; the mirror bundle leaves it out), and the form posts to the address it names.
 - `scripts/check-served.mjs` — new, homer-reader's unchanged.
 - `pipeline/drama_pipeline/preflight.py` — `--web` (`validate(..., web=True)`): on the web build's data, which ships no LSJ shards, the dictionary keys are not looked up in shards; the mirror bundle's preflight runs with it. Unset, preflight is as it was.
+- `app/src/pages/[author]/[work]/[cite].astro`, `app/src/pages/texts/[author]/[work]/index.astro` — the redirect target carries the site's base; under `/mirror/` the link check found 3,482 links that left it out. At the root the pages are as they were.
