@@ -253,13 +253,40 @@ _WORK = re.compile(r"# work: [a-z0-9]+(?:-[a-z0-9]+)*")
 # not hold: a TLG author and work number "(0085: 005)", the canon's author
 # epithets ("Trag.", "Comic."), its dates "(c. 6-5 B.C.)", its "Ed. Murray,
 # G." and "Repr. 1960", and the names of the disc and the program.
+# The edition line is a short bibliographic line (Grok's review of #17: as
+# free text it could hold beta code, markup in look-alike brackets, or a
+# whole play): Latin letters, accented or not, digits, spaces, and these
+# marks, at most 120 characters.
+_EDITION_MARKS = frozenset(" .,:;'&()-")
+EDITION_MAX = 120
+
+
+def bad_edition(edition: str) -> bool:
+    return (not edition or len(edition) > EDITION_MAX
+            or any(not (ch in _EDITION_MARKS or ch.isascii() and ch.isalnum()
+                        or unicodedata.name(ch, "").startswith("LATIN ")) for ch in edition))
+
+
 # Case counts: an edition's own "2nd ed." is not the canon's "Ed. Murray".
 _SOURCE_WORDS = re.compile(r"\(\s*\d{4}\s*:\s*\d{3}\s*\)|\b(?:Trag|Comic|Phil|Hist|Lyr|Epic|Tragic)\.|B\.\s?C\.|\bEd\.\s|\bRepr\.|"
                            r"\bTLG\b|Thesaurus\s+Linguae|Diogenes")
 
 
+# Greek is a Greek letter (with its accents and breathings: the name says
+# GREEK SMALL LETTER or GREEK CAPITAL LETTER), or one of the three marks the
+# editions print: the ano teleia, the question mark, and the numeral sign.
+# Not every character Unicode calls Greek: the obol sign, vocal notation, or
+# the koronis on its own are not text (Grok's review of #17).
+_GREEK_MARKS = frozenset("\u0387\u037e\u0374")
+
+
+def _is_greek(ch: str) -> bool:
+    name = unicodedata.name(ch, "")
+    return ch in _GREEK_MARKS or name.startswith(("GREEK SMALL LETTER", "GREEK CAPITAL LETTER"))
+
+
 def not_greek(text: str) -> list[str]:
-    return [ch for ch in text if ch not in _MARKS and not unicodedata.name(ch, "").startswith("GREEK")]
+    return [ch for ch in text if ch not in _MARKS and not _is_greek(ch)]
 
 
 def bad_label(label: str) -> bool:
@@ -285,6 +312,9 @@ def forbidden(text: str) -> list[str]:
         return ["not a line file: it must open with # work, # edition and the # columns line, then lines of text"]
     if "\t" in lines[0] or "\t" in lines[1]:
         return ["not a line file: a tab in a heading line"]
+    if bad_edition(lines[1][len("# edition: "):]):
+        problems.append(f"the edition line is not a short bibliographic line (Latin letters, digits, {''.join(sorted(_EDITION_MARKS))!r}; "
+                        f"at most {EDITION_MAX} characters): {lines[1][:100]!r}")
     if _SOURCE_WORDS.search(lines[1]):
         problems.append(f"the edition line holds a source description's words: {lines[1][:100]!r}")
     controls = [line for line in lines if _CONTROL.search(line)]

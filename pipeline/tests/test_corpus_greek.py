@@ -391,6 +391,17 @@ def _texts(body: bytes) -> list[str]:
     return texts
 
 
+# Grok's review of #17: a stripped export could pass in a vendored folder if
+# that folder's SHA256SUMS were rewritten with it. The four lists are pinned
+# here, so a change to any vendored TEI is a change to this file too.
+SUM_LISTS = {
+    "sources/perseus/SHA256SUMS": "6ba4bd39d6029cb942dc5858ea6f421bb2309f5f4f744489c50371549302de0b",
+    "sources/ocr/jebb/SHA256SUMS": "c812440308d61df8fcec846c9d32051bff6ecb098b5a2574dffb5483a14f46a6",
+    "sources/ocr/paley/SHA256SUMS": "5e56c57333e83d83e153ba44fefc9ef4db07c4e8b6141886f0275b0d155233a4",
+    "sources/ocr/way-loeb/SHA256SUMS": "fbbafa12e4b9363b8fb8bd8a3214c50409812ccd1d2023abafa0081125de3b61",
+}
+
+
 def _listed(files: dict[str, bytes], path: str, body: bytes) -> bool:
     """Is the file listed, by its hash, in its own folder's tracked SHA256SUMS?"""
     folder = path.rsplit("/", 1)[0]
@@ -445,6 +456,13 @@ def export_problems(files: dict[str, bytes]) -> list[str]:
     for path in PINNED:
         if path not in files:
             problems.append(f"{path}: the pinned file is gone; take it off the list")
+    for path, sha in SUM_LISTS.items():
+        got = hashlib.sha256(files[path]).hexdigest() if path in files else None
+        if got != sha:
+            problems.append(f"{path}: the pinned list of vendored TEI changed ({got}); review the change, then pin it here")
+    for path in files:
+        if path.startswith(VENDORED) and path.endswith("/SHA256SUMS") and path not in SUM_LISTS:
+            problems.append(f"{path}: a list of vendored TEI that is not pinned here")
     return problems
 
 
@@ -473,7 +491,7 @@ def _tracked(root: Path = REPO_ROOT) -> dict[str, bytes]:
 
 
 def _pinned() -> dict[str, bytes]:
-    return {p: (REPO_ROOT / p).read_bytes() for p in PINNED}
+    return {p: (REPO_ROOT / p).read_bytes() for p in [*PINNED, *SUM_LISTS]}
 
 
 _EXPORT = ('<?xml version="1.0"?>\n<TEI><text><body>\n'
@@ -514,6 +532,10 @@ def _with_sums(path: str, body: bytes, listed: bool = True) -> dict[str, bytes]:
     # a vendored-looking name outside the two folders gets no pass
     (_with_sums("sources/gutenberg/x.xml", _PLAIN.encode()), "40 export lines, more than 30"),
     ({"sources/x.md": "".join(f'<space quantity="{n}"/>' for n in range(40)).encode()}, "of the export's own marks"),
+    # a vendored list rewritten to pass a new file, a list dropped, a new list
+    ({"sources/perseus/SHA256SUMS": b"0" * 64 + b"  tlg0085.tlg005.perseus-grc2.xml\n"}, "the pinned list of vendored TEI changed"),
+    ({"drop": "sources/ocr/paley/SHA256SUMS"}, "the pinned list of vendored TEI changed (None)"),
+    ({"sources/ocr/new/SHA256SUMS": b""}, "a list of vendored TEI that is not pinned here"),
     ({"pipeline/tests/test_stage1_tei_greek.py": "".join(f'<l n="{n}">λόγος</l>' for n in range(1, 82)).encode()},
      "more than the 80 it may hold"),
     ({"pipeline/tests/test_stage1_tei_greek.py": _EXPORT.encode()}, "of the export's own marks, more than 30"),

@@ -255,6 +255,36 @@ def test_forbidden_fails_an_edition_line_that_holds_a_source_description(edition
     assert any("source description" in p for p in problems), problems
 
 
+# Grok's review of #17: the edition line was free text, so beta code, markup
+# in look-alike brackets, or a whole play could sit on it. It holds a short
+# bibliographic line: Latin letters (accents allowed), digits, spaces, and a
+# few marks, at most 120 characters.
+@pytest.mark.parametrize("edition", [
+    "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955). mh=nin a)/eide qea/",
+    "Murray (OCT, 1955) *)axilh=os",
+    "Murray (OCT, 1955) \uff1cl n=\"1\"\uff1e",          # fullwidth angle brackets
+    "Murray (OCT, 1955) λόγος",                         # Greek text in the heading
+    "Murray, " + "x" * 120,                              # a long line is a place to keep anything
+    "Murray (OCT, 1955) | / \\ = + * # @ ~",
+])
+def test_forbidden_fails_an_edition_line_that_is_not_a_short_bibliographic_line(edition):
+    problems = gl.forbidden(CLEAN.replace("# edition: e", f"# edition: {edition}"))
+    assert any("the edition line" in p for p in problems), problems
+
+
+# Grok's review: "Greek by its Unicode name" let in Greek symbols that are not
+# text (the obol sign, vocal notation). A character is Greek when it is a
+# Greek letter, or one of the three marks the editions print.
+@pytest.mark.parametrize("ch", ["\U0001017c", "\U0001d200", "\u03f6", "\u03d0", "\u0375", "\u1fbd"])
+def test_greek_symbols_that_are_not_letters_or_the_editions_marks_fail(ch):
+    assert gl.forbidden(CLEAN) == []
+    assert any(NOT_GREEK in p for p in gl.forbidden(CLEAN + f"9\tλόγος{ch} οὐσία\n")), ch
+
+
+def test_the_three_greek_marks_the_editions_print_pass():
+    assert gl.forbidden(CLEAN + "9\tλόγος\u0387 τί\u037e α\u0374\n") == []
+
+
 def test_every_manifest_edition_passes_the_edition_line_check():
     import glob, yaml
     from drama_pipeline.config import REPO_ROOT

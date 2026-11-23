@@ -30,7 +30,7 @@ repo is private, so its minutes are John's money).
 | Machine paths out of the public build | Nothing on the build path. Two OCR cleaning tools, not run by the build, name the laptop's scan files |
 | Test 1, a clean Linux build in CI | Passed: `site.yml` run 45253108089 (on `90c5e23`), 16 min 47 s; inputs fetched and matched their pins, preflight ok, 44 manifests checked, every dictionary key resolved, 1,318 pages and 12,795 links with 0 broken, 12,194 files |
 | Test 2, against the snapshot | On that run's artifact: 12,194 files; 10,942 byte for byte, 3 pages and 2 bundles equal under 9 swaps, 26 differ for named reasons, 1,221 only in the build (the floor's gaps, by family), 2 only in the snapshot (the two bundles' old names). One fix (`build-lemmata.mjs` sorts) awaits the next run |
-| Review by another model family | Not yet |
+| Review by another model family | Done: Grok, a static read of the diff (session `01a209f7…`): ten findings, three fixed with failing tests first, seven answered (phase 1 record) |
 
 ## Phase 1 record
 
@@ -188,6 +188,36 @@ away (`only in the snapshot: data/medea/columns.json`), and green again
 once each was put back. `--svelte-at` is new (with a failing test first): the
 class names Svelte hashes from a component's path are computed for CI's
 folder, since the build ran there.
+
+**Review (Grok, 2026-11-23).** A static read of the phase 1 diff, briefed
+with the claims and the places to look; ten findings.
+
+Fixed, each with a failing test first and a hand break that fails it:
+(1, High) the edition line was free text, so beta code, markup in
+look-alike brackets, or a whole play could sit on it: it is now a short
+bibliographic line (Latin letters, accented or not, digits, spaces, and
+`.,:;'&()-`, at most 120 characters), and every manifest's edition passes;
+(3) a stripped export could pass in a vendored folder if that folder's
+`SHA256SUMS` were rewritten with it: the four lists are pinned by sha256 in
+the test, and an unpinned list fails; (7) "Greek by its Unicode name" let in
+Greek symbols that are not text (the obol sign, vocal notation): a character
+is now a Greek letter or one of the three marks the editions print (ano
+teleia, question mark, numeral sign), which are all the 44 files use.
+
+Answered: (2) a strophe label with ASCII angle brackets would show ⟨ ⟩ in
+the spine, where the old reader kept `<` `>`; no committed label has one,
+and the 88 spines are byte for byte the old code's, so it is left as the
+file's rule (angles are written ⟨ ⟩). (4) a file of `<l>` lines with no
+numbers, no Diogenes marks, and no header is not the Diogenes XML in any
+sense the scan guards; out of its reach, said in the test. (5) the three test
+files allowed by name cannot hold a play between them (590 lines against
+the Cyclops's 707), and a header or export name still fails. (6) the
+README is prose, held to 4 KB and no markup, as in Homer's. (8) the unit
+test compares two paths of the new code; the old code was compared by hand
+(88 spines) and the pin holds the result. (9) `extract` reads an export
+already on disk without a checksum; it holds the export's source statement
+to the manifest, and any change to a line file is a reviewed diff. (10)
+`lost_lines` counts lines only, as in the siblings.
 
 **`CORPUS_VERSION`.** Each play's manifest names the commit and day it was
 built from (88 files). `build:public` now takes `CORPUS_VERSION` from the
