@@ -44,7 +44,7 @@ by hand, and on the `build-site` label (John's ruling, below).
 | `check-served.mjs` | Homer's, unchanged |
 | `Dockerfile`, Caddy, image workflow | Written; the image builds in CI only by hand or on the `build-image` label; not yet run |
 | `ARCHITECTURE.md`, `RESTORE.md` | Written; `RESTORE.md`'s log is empty until a restore path is run |
-| Review by another model family | Running (Grok, phases 2 and 3 together) |
+| Review by another model family | Done: Grok, a static read of phase 2: sixteen findings; eleven fixed with failing tests first, five answered (phase 2 record) |
 
 | Phase 3 step | State |
 |---|---|
@@ -54,7 +54,7 @@ by hand, and on the `build-site` label (John's ruling, below).
 | A release for each deploy tag | Written: `release.yml`, through the new `site-bundle` action; runs first at the first tagged deploy |
 | `mirror.yml`, `check-mirrors.mjs`, `mirrors.json` | Homer's, byte for byte (`mirrors.json` names the plays' mirror); the push job showed as skipped until `MIRROR_GIT_URL` was set |
 | `docs/cloudflare.md`, `DEPLOY-STATUS.md` | Written from the repo and the live site, with what could not be confirmed marked |
-| Review by another model family | Running (Grok, with the licence) |
+| Review by another model family | Done: Grok, a static read of phase 3 and the licence: eleven findings, nine fixed, two with nothing to fix (phase 3 record) |
 
 ## Phase 3 record
 
@@ -95,6 +95,29 @@ mirror against `c1cf9b9`; the three portability branches missing): the
 truth, since nothing had kept the mirror current. With those four skipped:
 `ok …: 21 of 21 refs match; … history: 1407 commits, whole`. After the key,
 the lead's run from the Mac: 25 of 25 refs, 1,431 commits, whole.
+
+**Review (Grok, 2026-11-23).** A static read of phase 3 with the licence
+(session `01a20a72-f3f3…`). Eleven findings, each checked against the
+source; nine fixed. (1, High) `release.yml` asked the live site for each data
+file at its root, where the Worker serves them under `/data/`, so every
+release would have failed its data check: now `--base=/data/`; run by hand
+against the live site with two of the snapshot's data files, they answered
+404 before and match now. (5) A rerun on a later day stamped another
+`corpus_version` and could never match live: the release now builds with the
+version live names, and stops if live was not built from the tagged
+commit. (2) The deploy's scale check counted redirect shims as pages: it now
+counts the build's own sitemap pages that exist as files, and refuses a
+build with no sitemap. (3) An `.assetsignore` glob (`data/**`, `*.json`)
+passed: only Finder files may be left out. (4) `app/dist` is git-ignored,
+so a build made at one commit was deployed and tagged at another: the
+deploy reads the commit each play's `corpus_version` names and refuses a
+mismatch. Each with a failing test first (46 deploy tests; three hand
+breaks of the new gates each fail one). (6) The drawings row now names
+`antigone.svg`'s CC BY-SA 4.0, as the drawings' README does. (7) The root
+README now says `LICENSE` covers the code and nothing under `sources/`. (8,
+9) Johnston's terms and the Wikisource line say what the repo's own sections
+say. (11) `wrangler.jsonc`'s file count corrected. (10) Grok found nothing
+wrong in it.
 
 **Not yet seen.** `mirror.yml` on `main` (with this PR's merge), a tag push,
 the weekly check, a release, and a real deploy through the script.
@@ -164,6 +187,44 @@ browser); the unit tests pass, 15.
 
 **CI runs and minutes.** Run 45257010840 (bundle gates, fixed), 45259871277
 (the base-path link check, fixed), 45264091146 (green, 17 min 55 s).
+
+**Review (Grok, 2026-11-23).** A static read of the phase 2 diff (session
+`01a20a72-f2de…`; a first read, started before John's close-up, was stopped
+with no result). Sixteen findings, each checked against the source.
+
+Fixed, each with a failing test first: (1, 2, 4) a play's search files, an
+edition's book or analyses, or a play's emptied analyses passed every bundle
+gate: a sixth gate, "play files", holds every play the manifests declare to
+the 17 files all 44 share, and every edition a play's manifest names to the
+13 all 54 share (the lists read from the 2026-11-20 snapshot), none of them
+empty; and each play's own analyses must name an LSJ key. (5) A build made
+under `SITE_BASE` could be packed for a web root: refused, by the asset
+paths on its home page. (6) The feedback marker took `/\host`, which a
+browser reads as `//host`, and (7) a marker that came by a redirect: the
+address must be a plain same-host path, and a redirected answer shows no
+form. (8) The sitemap filter read paths as if at the root: moved to
+`site-params.mjs` as `inSitemap(page, base)`. (9) A citation copied from a
+Greek edition named the root path: `siteHref` puts it under the base. (10)
+The section redirect, which no play builds today, keeps the base. (12) The
+home visit took one play linked 44 times: the links must lead to 44
+different pages. (13) The service-worker visit took one token: it holds the
+reloaded page to the same letter floors.
+
+Answered: (3) a lemma index cut to one slug with the other lemma files
+removed passes; a partial loss of this kind is left, as in Homer's (the
+gates catch an empty or broken index, and the visits read one lemma). (11)
+`robots.txt` says `Allow: /`; a crawler reads it only at a host's root,
+where a mirror under a base does not place it. (14) The popup visit accepts
+any text in Grammata's mount; Grammata is refused there, so the text is its
+error, and an empty mount still fails. (15) Nothing in the workflows. (16)
+A new page without the fonts link passes the font test; it would have no
+web fonts, which is no outside call, and test 3 would see any Google host.
+
+The visit changes run first in the final CI build (no browser on the Mac).
+
+**A slip.** While checking the citation fix, a test command that matched no
+file ran the whole `shared` suite on the Mac once (2,975 passed, 60 skipped),
+against John's pause on heavy local runs. It finished; nothing else ran.
 
 **Known and left.** As in the siblings: a saved search keeps whole paths,
 base included, in the browser's storage.

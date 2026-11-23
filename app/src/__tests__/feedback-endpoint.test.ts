@@ -21,8 +21,18 @@ describe('feedbackEndpoint', () => {
     ['a protocol-relative address', () => res(200, '{"post":"//evil.example/api"}')],
     ['an address that is not a string', () => res(200, '{"post":["/api/feedback"]}')],
     ['a server error', () => res(500, '{"post":"/api/feedback"}')],
+    // Grok's read of #18: a browser reads "/\\host" as "//host"
+    ['a backslash address', () => res(200, '{"post":"/\\\\evil.example/collect"}')],
+    ['an address with a scheme inside', () => res(200, '{"post":"/x:evil"}')],
+    ['an address with a query', () => res(200, '{"post":"/api/feedback?to=x"}')],
   ])('shows no form for %s', async (_name, answer) => {
     expect(await feedbackEndpoint('', async () => answer())).toBeNull();
+  });
+
+  it('shows no form when the marker came by way of a redirect', async () => {
+    // Grok's read of #18: a host that redirects the marker elsewhere
+    const redirected = { ok: true, redirected: true, json: async () => ({ post: '/api/feedback' }) } as unknown as Response;
+    expect(await feedbackEndpoint('', async () => redirected)).toBeNull();
   });
 
   it('shows no form when the request itself fails (offline, refused)', async () => {
