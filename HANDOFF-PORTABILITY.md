@@ -46,6 +46,59 @@ by hand, and on the `build-site` label (John's ruling, below).
 | `ARCHITECTURE.md`, `RESTORE.md` | Written; `RESTORE.md`'s log is empty until a restore path is run |
 | Review by another model family | Running (Grok, phases 2 and 3 together) |
 
+| Phase 3 step | State |
+|---|---|
+| Push the repo to a second git host | Done: `scripts/mirror-git.mjs` (Homer's, byte for byte), run by `mirror.yml` with the plays' own deploy key since 2026-11-23 (the lead session's; John added it at 14:36); first run on this branch: "25 of 25 refs match the source after the push" |
+| Check a git mirror | Done: `scripts/mirror-check.mjs`, run for real against `git@gitlab.com:johnhboyer/greek-plays.git` (below) |
+| The deploy tags its commit | Written: `scripts/deploy-cloudflare.mjs`, new for the plays. Never run for real |
+| A release for each deploy tag | Written: `release.yml`, through the new `site-bundle` action; runs first at the first tagged deploy |
+| `mirror.yml`, `check-mirrors.mjs`, `mirrors.json` | Homer's, byte for byte (`mirrors.json` names the plays' mirror); the push job showed as skipped until `MIRROR_GIT_URL` was set |
+| `docs/cloudflare.md`, `DEPLOY-STATUS.md` | Written from the repo and the live site, with what could not be confirmed marked |
+| Review by another model family | Running (Grok, with the licence) |
+
+## Phase 3 record
+
+**What was ported.** `mirror-git.mjs`, `mirror-check.mjs`, `check-mirrors.mjs`,
+their tests, `.github/actions/mirror-key`, `.github/mirror_known_hosts`, and
+`mirror.yml` are homer-reader's `origin/main` (`6c8070f3fc`) byte for byte, but
+for one test line (the base path `/plays/`); `cmp` against Homer's files
+says so for each. They carry the private-repo fix already (the job's token
+reads the source). `mirrors.json` names `git@gitlab.com:johnhboyer/greek-plays.git`.
+
+**The deploy script.** The plays had none; sessions ran `build:public` and
+`wrangler deploy` by hand. `scripts/deploy-cloudflare.mjs` is new, in the
+shape of Homer's: by default a rehearsal (every gate, then `wrangler deploy
+--dry-run`); `--deploy` deploys from `app/`, then tags `deploy/<date>` and
+pushes the tag. Its gates are the plays' own: the Worker serves the data, so
+a build with a data root, no `data/`, `data/` left out by `.assetsignore`, or
+no feedback marker is refused, and so is one over 20,000 files or with a
+file over 25 MiB; then live's sitemap (90% of its pages), the link check, and
+the bundle's data gates. The tag code (`tagPlan`, `tagCommits`,
+`uncleanFiles`, `tagDeploy`) is Homer's. Every outside effect is passed in,
+so the tests drive each branch with fakes: 38 tests, among them Homer's tag
+tests against a real checkout and a bare origin. 11 hand breaks (a rehearsal
+that deploys or tags, a tag before the deploy, a failed tag failing the
+deploy, each gate ignored) each fail a test. It has never run for real.
+
+**The release.** `release.yml` is Homer's, its bundle named for the plays and
+its data held to `https://greekdrama.johnhboyer.com` (the site serves its
+own data), built through `.github/actions/site-bundle` (the steps of CI's
+`site` job), so a release is built the way a pull request is tested. While
+the repo is private, releases are private; once it is public, each release
+is public with every source under its own terms (Kosmos's NonCommercial and
+NoDerivatives text and Johnston's NonCommercial terms among them): John's to
+weigh then.
+
+**`mirror-check.mjs` against GitLab** (2026-11-23, before the key, with the
+account key): `FAIL …: 21 of 25 refs match` (`main` at `bf4c79c` on the
+mirror against `c1cf9b9`; the three portability branches missing): the
+truth, since nothing had kept the mirror current. With those four skipped:
+`ok …: 21 of 21 refs match; … history: 1407 commits, whole`. After the key,
+the lead's run from the Mac: 25 of 25 refs, 1,431 commits, whole.
+
+**Not yet seen.** `mirror.yml` on `main` (with this PR's merge), a tag push,
+the weekly check, a release, and a real deploy through the script.
+
 ## Phase 2 record
 
 **Parameters.** The plays already had `PUBLIC_SITE_ORIGIN`, optional (unset
