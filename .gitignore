@@ -1,5 +1,6 @@
 # Build artifacts (pipeline output AND Diogenes exports are TLG-derived —
-# never committed, in full).
+# never committed, in full). Each play's Greek is committed instead as a line
+# file in corpus/greek/ (decision 1, HANDOFF-PORTABILITY.md).
 build
 build/
 

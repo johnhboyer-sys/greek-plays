@@ -4356,18 +4356,16 @@ def _clouds_export_xml_path() -> Path | None:
         return None
     from drama_pipeline import stage1_greek
 
-    manifest = Manifest.for_work("clouds")
-    return stage1_greek.exported_xml_path(manifest)
+    from drama_pipeline import greek_lines
+
+    return greek_lines.corpus_path(Manifest.for_work("clouds"))
 
 
 _clouds_export = _clouds_export_xml_path()
 
 requires_clouds_export = pytest.mark.skipif(
     _clouds_export is None or not _clouds_export.exists(),
-    reason="build/export's Diogenes TLG export for Clouds (author 0019, "
-           "work 003) is not present in this checkout -- run the Diogenes "
-           "export recipe in docs/tlg-phi-export.md before this test can "
-           "build the real Greek spine",
+    reason="the play's Greek line file (corpus/greek/) is not in this checkout",
 )
 
 
@@ -4385,8 +4383,7 @@ def _clouds_third_chunks(pins: list[dict]) -> dict:
     )
 
     manifest = Manifest.for_work("clouds")
-    xml_path = stage1_greek.run_export(manifest)
-    spine = stage1_greek.parse_spine(xml_path, manifest)
+    spine = stage1_greek.play_spine(manifest)
     cfg = manifest.data["english"]["third"]
     speakers = manifest.data["speakers"]
     aliases = _aliases_for_slot(speakers, "third", cfg["id"])
@@ -4456,18 +4453,16 @@ def _bacchae_export_xml_path() -> Path | None:
         return None
     from drama_pipeline import stage1_greek
 
-    manifest = Manifest.for_work("bacchae")
-    return stage1_greek.exported_xml_path(manifest)
+    from drama_pipeline import greek_lines
+
+    return greek_lines.corpus_path(Manifest.for_work("bacchae"))
 
 
 _bacchae_export = _bacchae_export_xml_path()
 
 requires_bacchae_export = pytest.mark.skipif(
     _bacchae_export is None or not _bacchae_export.exists(),
-    reason="build/export's Diogenes TLG export for Bacchae (author 0006, "
-           "work 050) is not present in this checkout -- run the Diogenes "
-           "export recipe in docs/tlg-phi-export.md before this test can "
-           "build the real Greek spine",
+    reason="the play's Greek line file (corpus/greek/) is not in this checkout",
 )
 
 
@@ -4477,7 +4472,7 @@ def test_bacchae_greek_spine_corrects_the_export_parodos_ref():
     from drama_pipeline import stage1_greek
 
     manifest = Manifest.for_work("bacchae")
-    spine = stage1_greek.parse_spine(stage1_greek.run_export(manifest), manifest)
+    spine = stage1_greek.play_spine(manifest)
     refs = [line["ref"] for segment in spine["segments"] for line in segment["lines"]]
     parodos = refs[refs.index("147"):refs.index("149") + 1]
     assert parodos == ["147", "148a", "148b", "149"]
@@ -4499,8 +4494,7 @@ def _bacchae_murray_chunks(pins: list[dict]) -> dict:
     )
 
     manifest = Manifest.for_work("bacchae")
-    xml_path = stage1_greek.run_export(manifest)
-    spine = stage1_greek.parse_spine(xml_path, manifest)
+    spine = stage1_greek.play_spine(manifest)
     overlays = manifest.data["english"]["overlays"]
     cfg = next(o for o in overlays if o["id"] == "murray-verse")
     speakers = manifest.data["speakers"]

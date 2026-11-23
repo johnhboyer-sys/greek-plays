@@ -728,7 +728,7 @@ def tlg_lines(slug: str) -> list[dict]:
     from drama_pipeline.config import Manifest
     from drama_pipeline import stage1_greek
     manifest = Manifest.load(ROOT / "manifests" / f"{slug}.yaml")
-    spine = stage1_greek.parse_spine(stage1_greek.run_export(manifest), manifest)
+    spine = stage1_greek.play_spine(manifest)
     return [{"n": line["ref"].split("-")[0], "text": nfc(line["text"]), "parts": []}
             for seg in spine["segments"] for line in seg["lines"]]
 

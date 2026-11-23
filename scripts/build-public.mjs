@@ -93,6 +93,16 @@ if (!inv.ok) {
   for (const p of inv.problems) console.error(`  ${p}`);
   process.exit(1);
 }
+// The build's two inputs from outside the repo, checked once by checksum: a
+// build made with another Morpheus table or another LSJ must not pass for this
+// one. Each play's Greek is corpus/greek/<play>.tsv, and its other editions are
+// in sources/; stage 1 never runs Diogenes (HANDOFF-PORTABILITY.md). Before
+// anything is cleaned: a failed check leaves the last build.
+console.log('\nChecking the Morpheus table and the LSJ against their pins');
+run(PY, ['-m', 'drama_pipeline.inputs', 'check'], {
+  cwd: join(ROOT, 'pipeline'),
+});
+
 console.log('\nCleaning generated public build output');
 rmSync(join(ROOT, 'build', 'dist'), { recursive: true, force: true });
 // Stage 8 merges every stream left here, so a stale one must not survive.
@@ -253,8 +263,8 @@ run('npm', ['run', 'build'], {
 });
 
 // Deploy gate: every internal href, fragment anchor, Bekker deep link, and
-// lemma page in the emitted site must resolve. CI can't run this (the corpus
-// is machine-local), so the pre-deploy build is where it has to hold the line.
+// lemma page in the emitted site must resolve. CI's `site` job runs it too,
+// when it is run (HANDOFF-PORTABILITY.md says when).
 //
 // Runs BEFORE the data prune below, on purpose: check-links's lemma
 // cross-check reads dist/data/lemmata*/_index.json (and dist/data/lemmata*/
