@@ -44,7 +44,7 @@ by hand, and on the `build-site` label (John's ruling, below).
 | `check-served.mjs` | Homer's, unchanged |
 | `Dockerfile`, Caddy, image workflow | Written; the image builds in CI only by hand or on the `build-image` label; not yet run |
 | `ARCHITECTURE.md`, `RESTORE.md` | Written; `RESTORE.md`'s log is empty until a restore path is run |
-| Review by another model family | Running (Grok, phases 2 and 3 together) |
+| Review by another model family | Done: Grok, a static read of phase 2: sixteen findings; eleven fixed with failing tests first, five answered (phase 2 record) |
 
 ## Phase 2 record
 
@@ -111,6 +111,44 @@ browser); the unit tests pass, 15.
 
 **CI runs and minutes.** Run 45257010840 (bundle gates, fixed), 45259871277
 (the base-path link check, fixed), 45264091146 (green, 17 min 55 s).
+
+**Review (Grok, 2026-11-23).** A static read of the phase 2 diff (session
+`01a20a72-f2de…`; a first read, started before John's close-up, was stopped
+with no result). Sixteen findings, each checked against the source.
+
+Fixed, each with a failing test first: (1, 2, 4) a play's search files, an
+edition's book or analyses, or a play's emptied analyses passed every bundle
+gate: a sixth gate, "play files", holds every play the manifests declare to
+the 17 files all 44 share, and every edition a play's manifest names to the
+13 all 54 share (the lists read from the 2026-11-20 snapshot), none of them
+empty; and each play's own analyses must name an LSJ key. (5) A build made
+under `SITE_BASE` could be packed for a web root: refused, by the asset
+paths on its home page. (6) The feedback marker took `/\host`, which a
+browser reads as `//host`, and (7) a marker that came by a redirect: the
+address must be a plain same-host path, and a redirected answer shows no
+form. (8) The sitemap filter read paths as if at the root: moved to
+`site-params.mjs` as `inSitemap(page, base)`. (9) A citation copied from a
+Greek edition named the root path: `siteHref` puts it under the base. (10)
+The section redirect, which no play builds today, keeps the base. (12) The
+home visit took one play linked 44 times: the links must lead to 44
+different pages. (13) The service-worker visit took one token: it holds the
+reloaded page to the same letter floors.
+
+Answered: (3) a lemma index cut to one slug with the other lemma files
+removed passes; a partial loss of this kind is left, as in Homer's (the
+gates catch an empty or broken index, and the visits read one lemma). (11)
+`robots.txt` says `Allow: /`; a crawler reads it only at a host's root,
+where a mirror under a base does not place it. (14) The popup visit accepts
+any text in Grammata's mount; Grammata is refused there, so the text is its
+error, and an empty mount still fails. (15) Nothing in the workflows. (16)
+A new page without the fonts link passes the font test; it would have no
+web fonts, which is no outside call, and test 3 would see any Google host.
+
+The visit changes run first in the final CI build (no browser on the Mac).
+
+**A slip.** While checking the citation fix, a test command that matched no
+file ran the whole `shared` suite on the Mac once (2,975 passed, 60 skipped),
+against John's pause on heavy local runs. It finished; nothing else ran.
 
 **Known and left.** As in the siblings: a saved search keeps whole paths,
 base included, in the browser's storage.
