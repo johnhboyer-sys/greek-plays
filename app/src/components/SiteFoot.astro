@@ -3,7 +3,8 @@
 // §3.4), one wrapping line in Alegreya Sans. It keeps pass 1's report form and
 // links elsewhere (John, 2026-10-20: "Keep them all and have a link to
 // johnhboyer.com"). The report form posts to /api/feedback, which emails John
-// (app/worker/index.js; John, 2026-10-24).
+// (app/worker/index.js; John, 2026-10-24). Its button shows only where the
+// host serves feedback-endpoint.json: a mirror has no /api (lib/feedback-endpoint.ts).
 import '../styles/vase.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -14,7 +15,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <a href={`${base}/lemma/grc/`}>Greek lexicon</a>
     <a href={`${base}/attribution`}>Texts and licences</a>
     <a href={`${base}/support`}>Support</a>
-    <button type="button" class="feedback-btn">Request a feature or report an error</button>
+    <button type="button" class="feedback-btn" hidden>Request a feature or report an error</button>
   </nav>
   <nav aria-label="Elsewhere">
     <a href="https://homer.johnhboyer.com/" target="_blank" rel="noopener">The Homer Reader ↗</a>
@@ -82,6 +83,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 </style>
 
 <script>
+  import { feedbackEndpoint } from '../lib/feedback-endpoint';
+
   const modal = document.getElementById('feedback-modal');
   const cancelBtn = document.getElementById('fb-cancel');
   const submitBtn = document.getElementById('fb-submit');
@@ -142,14 +145,21 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
   // The form posts to the site's own /api/feedback, which emails John
   // (app/worker/index.js); the message stays in the box until it is sent.
+  // The button shows once the host's marker names that address.
+  let endpoint: string | null = null;
+  feedbackEndpoint(import.meta.env.BASE_URL.replace(/\/$/, '')).then((post) => {
+    endpoint = post;
+    if (post) document.querySelectorAll<HTMLElement>('.feedback-btn').forEach((b) => { b.hidden = false; });
+  });
   submitBtn?.addEventListener('click', async () => {
+    if (!endpoint) return;
     const msg = textarea?.value.trim();
     if (!msg || !submitBtn) { say('Write a message first.', true); return; }
     const type = (document.querySelector('input[name="fb-type"]:checked') as HTMLInputElement).value;
     submitBtn.setAttribute('disabled', '');
     say('Sending…');
     try {
-      const r = await fetch('/api/feedback', {
+      const r = await fetch(endpoint, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ type, message: msg, email: emailInput?.value.trim() ?? '', website: trap?.value ?? '', page: location.pathname + location.search + location.hash }),

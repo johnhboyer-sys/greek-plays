@@ -1163,3 +1163,12 @@ Page 1 reads only the plays it draws. Ported hunk by hunk; `countRows` checked a
 - `scripts/ocr/jebb_to_tei.py` — reads the reference spine from the line file (`play_spine`), not the export.
 - `pipeline/drama_pipeline/stage6_search.py` — `build_lemma_map` reads the plays' analyses in name order: the disk's order (APFS's hash order on a Mac, another on Linux) set the key order of `lemma-map/*.json`, so CI's build and a Mac's differed (same JSON, other bytes).
 - `scripts/compare-snapshot.mjs`, `scripts/verify-snapshot.mjs` — new, homer-reader's, with `--floor` (a snapshot that is a floor: build-only files counted by family, not failed) and `--svelte-at` (the classes of components a build saw at another absolute path, as in CI).
+
+### Portability phase 2, a bundle any host can serve (2026-11-23): homer-reader PR #79, aristotle-reader PR #232
+
+- `scripts/site-params.mjs` — new, homer-reader's fitted to the plays' existing `PUBLIC_SITE_ORIGIN` (optional; unset, no canonical origin and no sitemap) and a new `SITE_BASE`; `app/astro.config.mjs`, `app/scripts/postbuild-robots.mjs`, and `scripts/check-links.mjs` read it. `check-links.mjs` drops `READER_BASE_PATH` for `SITE_BASE` and, under a base, fails a root-relative link that leaves the base out.
+- `shared/lib/grammata.ts` — the lookup address reads `PUBLIC_GRAMMATA_LOOKUP`, with the old address as its default (`shared/__tests__/grammata-address.test.ts`).
+- `shared/styles/global.css` — the "GDR Rho Dasia" face (Ῥ alone) moved to `app/public/fonts/fonts.css`, with its file served by the site; the desktop app, which has no fonts folder, falls back to Cardo for Ῥ.
+- `app/public/fonts/` — new: every file Google served for the pages' two font queries, `fonts.css`, and each family's OFL text (aristotle-reader PR #232's method); the 15 pages and components that linked Google's stylesheets link `fonts/fonts.css` under the base.
+- `app/src/components/SiteFoot.astro`, `app/src/lib/feedback-endpoint.ts`, `app/public/feedback-endpoint.json` — the feedback button shows only where the host serves the marker (the Cloudflare deploy; the mirror bundle leaves it out), and the form posts to the address it names.
+- `scripts/check-served.mjs` — new, homer-reader's unchanged.
