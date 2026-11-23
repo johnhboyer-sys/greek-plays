@@ -9,7 +9,7 @@ read from there and have none.
 A file is the printed lines of one play, in printed order (never sorted):
 
     # work: agamemnon
-    # edition: Aeschylus Trag. (c. 6-5 B.C.), Agamemnon (0085: 005) "Aeschyli …
+    # edition: Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)
     # columns: n	text
     t	ΑΓΑΜΕΜΝΩΝ
     1	{ΦΥΛΑΞ} θεοὺς μὲν αἰτῶ τῶνδ' ἀπαλλαγὴν πόνων
@@ -22,8 +22,11 @@ export's <label type="speaker">, which also carries strophe marks) stands in
 braces where it stands, `{Χο.}`, `{[στρ. α.}`; the export's ASCII angle
 brackets are written ⟨ ⟩, as stage 1 has always shown them. Nothing else is
 changed: no NFC. The title line is the title's text alone. The `# edition:`
-line is the export's own statement of its edition (stage 1 holds it to the
-manifest's `work.expected_sourcedesc`). Stage 1 does the reading: speakers
+line is the manifest's `work.greek_edition`: the files name editions, never
+the digital source they were read from (John's rule for every public file,
+aristotle-reader's decision 3). `extract` holds the export's own source
+statement to the manifest's `work.expected_sourcedesc` before it writes, and
+that statement goes no further. Stage 1 does the reading: speakers
 from strophe marks, lacunae, transpositions, repeated refs, ref fixes, metrical
 schemes, hyphens. No markup, no beta code, no Diogenes XML:
 pipeline/tests/test_corpus_greek.py holds that line.
@@ -105,7 +108,8 @@ def title_text(el) -> str:
 
 
 def sourcedesc(tree) -> str:
-    """The export's <sourceDesc>, as stage1_greek._check_sourcedesc reads it."""
+    """The export's <sourceDesc>, as stage1_greek._check_sourcedesc reads it.
+    Never written to a line file."""
     return " ".join(_flat("".join(node.itertext())) for node in tree.findall(".//{*}sourceDesc"))
 
 
@@ -245,6 +249,13 @@ _N = re.compile(rf"{_NUM}(?:[a-f]|[-/]{_NUM})?|post ?{_NUM}|t")
 _TAG = re.compile(r"[<>]|&#|&[A-Za-z]")
 _CONTROL = re.compile(r"[\x00-\x08\x0b-\x1f\x7f\x80-\x9f   ]")
 _WORK = re.compile(r"# work: [a-z0-9]+(?:-[a-z0-9]+)*")
+# The words of a digital source's own statement, which the edition line must
+# not hold: a TLG author and work number "(0085: 005)", the canon's author
+# epithets ("Trag.", "Comic."), its dates "(c. 6-5 B.C.)", its "Ed. Murray,
+# G." and "Repr. 1960", and the names of the disc and the program.
+# Case counts: an edition's own "2nd ed." is not the canon's "Ed. Murray".
+_SOURCE_WORDS = re.compile(r"\(\s*\d{4}\s*:\s*\d{3}\s*\)|\b(?:Trag|Comic|Phil|Hist|Lyr|Epic|Tragic)\.|B\.\s?C\.|\bEd\.\s|\bRepr\.|"
+                           r"\bTLG\b|Thesaurus\s+Linguae|Diogenes")
 
 
 def not_greek(text: str) -> list[str]:
@@ -261,10 +272,10 @@ def bad_label(label: str) -> bool:
 def forbidden(text: str) -> list[str]:
     """Problems with a line file's contents; empty when it is clean. Every
     line of the file is examined: the three heading lines, each line number,
-    each label, and each line of text. The edition line is free text (the
-    export's statement of author, title, editor, year) and gets only the
-    control check and a check against markup; the corpus test holds it to the
-    manifest's own words."""
+    each label, and each line of text. The edition line is free text (an
+    editor, a title, a year) and gets the control check, a check against
+    markup, and a check against the words of a source description; the corpus
+    test holds it to the manifest's own words."""
     problems: list[str] = []
     lines = text.split("\n")
     if lines and lines[-1] == "":
@@ -274,6 +285,8 @@ def forbidden(text: str) -> list[str]:
         return ["not a line file: it must open with # work, # edition and the # columns line, then lines of text"]
     if "\t" in lines[0] or "\t" in lines[1]:
         return ["not a line file: a tab in a heading line"]
+    if _SOURCE_WORDS.search(lines[1]):
+        problems.append(f"the edition line holds a source description's words: {lines[1][:100]!r}")
     controls = [line for line in lines if _CONTROL.search(line)]
     if controls:
         problems.append(f"a control character in {len(controls)} lines, first: {controls[0][:80]!r}")

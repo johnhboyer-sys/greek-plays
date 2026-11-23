@@ -59,7 +59,9 @@ def test_each_file_is_lines_of_greek_under_its_own_heading(work):
     rows, edition = greek_lines.parse_tsv(text, path.name)
     assert len(rows) >= 700, f"{work}: only {len(rows)} lines"   # the Cyclops has 707
     assert text.split("\n")[0] == f"# work: {work}"
-    assert manifest.data["work"]["expected_sourcedesc"] in edition
+    # The edition the manifest names, not the export's own source statement
+    # (the lead's review of #17; John's rule that public files name editions).
+    assert edition == " ".join(manifest.data["work"]["greek_edition"].split())
     # The licence page names editions; these files do the same and never name
     # the disc the text was read from.
     assert "TLG" not in text and "Thesaurus Linguae" not in text and "Diogenes" not in text
@@ -142,6 +144,16 @@ def test_extract_refuses_to_write_a_file_the_guard_would_fail(tmp_path, monkeypa
     with pytest.raises(ValueError, match="refusing"):
         extract.main(["--work", "agamemnon"])
     assert not (tmp_path / "out").exists()
+
+
+def test_extract_writes_the_manifest_edition_and_not_the_source_statement(tmp_path, monkeypatch):
+    out = tmp_path / "out"
+    monkeypatch.setattr(greek_lines, "CORPUS_DIR", out)
+    monkeypatch.setattr(extract, "ensure_export", lambda m: _export(tmp_path, 3))
+    assert extract.main(["--work", "agamemnon"]) == 0
+    head = (out / "agamemnon.tsv").read_text(encoding="utf-8").split("\n")[:2]
+    assert head == ["# work: agamemnon", "# edition: Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"]
+    assert "0085" not in (out / "agamemnon.tsv").read_text(encoding="utf-8")
 
 
 def test_extract_refuses_an_export_of_another_edition(tmp_path, monkeypatch):

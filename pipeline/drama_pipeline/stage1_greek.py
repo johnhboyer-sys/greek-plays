@@ -1792,16 +1792,16 @@ def _parse_spine_play(xml_path: Path, manifest: Manifest, sch) -> dict:
     (bidirectional — an undeclared OR a stale declaration both fail
     loudly), and groups the result into per-speech segments."""
     tree = etree.parse(str(xml_path))
+    _check_sourcedesc(tree, manifest, xml_path)
     rows = greek_lines.rows_from_tree(tree, str(xml_path))
-    return _parse_spine_play_rows(rows, greek_lines.sourcedesc(tree), manifest, sch, xml_path)
+    return _parse_spine_play_rows(rows, manifest, sch, xml_path)
 
 
-def _parse_spine_play_rows(rows, source: str, manifest: Manifest, sch, origin=None) -> dict:
-    """The play's spine from its lines and the export's edition statement:
-    what the build does with a line file, and the XML path does with the
-    lines it reads out of an export."""
+def _parse_spine_play_rows(rows, manifest: Manifest, sch, origin=None) -> dict:
+    """The play's spine from its lines: what the build does with a line
+    file, and the XML path does with the lines it reads out of an export
+    (whose source statement it has checked first)."""
     xml_path = origin
-    _check_sourcedesc_text(source, manifest, origin)
     flat = _parse_play_rows(rows, sch, manifest, origin)
     _rejoin_play_line_hyphens(flat)
 
@@ -1869,12 +1869,7 @@ def _check_sourcedesc(tree, manifest: Manifest, xml_path) -> None:
 
     Optional: a work with no `work.expected_sourcedesc` declared skips
     this check entirely -- not every work has been backfilled with it."""
-    _check_sourcedesc_text(greek_lines.sourcedesc(tree), manifest, xml_path)
-
-
-def _check_sourcedesc_text(actual: str, manifest: Manifest, xml_path) -> None:
-    """`_check_sourcedesc` on the export's <sourceDesc> text, which a line
-    file keeps as its `# edition:` line."""
+    actual = greek_lines.sourcedesc(tree)
     expected = manifest.data.get("work", {}).get("expected_sourcedesc")
     if not expected:
         return
@@ -2069,7 +2064,14 @@ def play_spine(manifest: Manifest) -> dict:
     if not sch.play_line_scheme:
         raise ValueError(f"{manifest.work_id}: only a play-line work reads a line file (scheme {sch.name!r})")
     rows, edition = read_lines(manifest)
-    return _parse_spine_play_rows(rows, edition, manifest, sch, greek_lines.corpus_path(manifest))
+    path = greek_lines.corpus_path(manifest)
+    # The file names the edition the manifest does: a file of another
+    # edition must not build as this one (extract checked the export's own
+    # source statement against work.expected_sourcedesc).
+    wanted = " ".join(manifest.data["work"]["greek_edition"].split())
+    if edition != wanted:
+        raise ValueError(f"{manifest.work_id}: {path} names the edition {edition!r}, and the manifest {wanted!r}")
+    return _parse_spine_play_rows(rows, manifest, sch, path)
 
 
 def run(manifest: Manifest) -> Path:

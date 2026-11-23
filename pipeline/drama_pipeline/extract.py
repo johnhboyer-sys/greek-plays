@@ -81,18 +81,21 @@ def line_file(manifest: Manifest) -> tuple[str, int] | None:
     if w.get("greek_source"):
         return None
     xml = ensure_export(manifest)
-    rows, edition = greek_lines.rows_from_xml(xml)
+    rows, source = greek_lines.rows_from_xml(xml)
+    # The export's own statement of its source is checked here, against the
+    # manifest, and goes no further: the file names the edition.
     expected = w.get("expected_sourcedesc")
-    if not expected or expected not in edition:
-        raise ValueError(f"{manifest.work_id}: the export's edition {edition!r} does not hold the manifest's "
+    if not expected or expected not in source:
+        raise ValueError(f"{manifest.work_id}: the export's source statement {source!r} does not hold the manifest's "
                          f"work.expected_sourcedesc {expected!r}")
+    edition = w["greek_edition"]
     text = greek_lines.format_tsv(rows, greek_lines.work_name(manifest), edition)
     problems = greek_lines.forbidden(text)
     if problems:
         raise ValueError(f"{manifest.work_id}: refusing to write a line file with {problems[:3]}")
     # Read it back before it replaces anything: what the build will read must
     # be what the export says.
-    if greek_lines.parse_tsv(text, manifest.work_id) != (rows, edition):
+    if greek_lines.parse_tsv(text, manifest.work_id) != (rows, " ".join(edition.split())):
         raise ValueError(f"{manifest.work_id}: the line file does not read back as written")
     return text, len(rows)
 

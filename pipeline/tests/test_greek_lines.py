@@ -234,6 +234,37 @@ def test_forbidden_refuses_a_file_that_does_not_open_with_the_three_heading_line
     assert any("not a line file" in p for p in gl.forbidden(text))
 
 
+# The lead's review of #17: the edition line named the export's own source
+# statement, TLG numbers and all. It names the edition; a source
+# description's words fail it.
+@pytest.mark.parametrize("edition", [
+    'Aeschylus Trag. (c. 6-5 B.C.), Agamemnon (0085: 005) "Aeschyli tragoediae, 2nd edn.", Ed. Murray, G. Oxford: Clarendon Press, 1955, Repr. 1960.',
+    "Murray, Aeschyli tragoediae (0085: 005)",
+    "Murray, Aeschyli tragoediae (0085:005)",
+    "Aeschylus Trag., Agamemnon",
+    "Aristophanes Comic., Nubes",
+    "Murray (c. 6-5 B.C.)",
+    "Murray, Ed. Murray, G.",
+    "Murray (OCT, 1955), Repr. 1960",
+    "Murray, from the TLG",
+    "Murray, via Diogenes",
+    "Thesaurus Linguae Graecae",
+])
+def test_forbidden_fails_an_edition_line_that_holds_a_source_description(edition):
+    problems = gl.forbidden(CLEAN.replace("# edition: e", f"# edition: {edition}"))
+    assert any("source description" in p for p in problems), problems
+
+
+def test_every_manifest_edition_passes_the_edition_line_check():
+    import glob, yaml
+    from drama_pipeline.config import REPO_ROOT
+    editions = {yaml.safe_load(open(p, encoding="utf-8"))["work"]["greek_edition"]
+                for p in glob.glob(str(REPO_ROOT / "manifests" / "*.yaml")) if not p.endswith("authors.yaml")}
+    assert len(editions) >= 15, editions
+    for edition in editions:
+        assert gl.forbidden(CLEAN.replace("# edition: e", f"# edition: {edition}")) == [], edition
+
+
 def test_forbidden_checks_the_heading_lines_too():
     assert any("markup" in p for p in gl.forbidden(CLEAN.replace("# edition: e", "# edition: <TEI>e</TEI>")))
     for columns in ("mh=nin a)/eide", "mhnin\ttext", "book\tn\tsigla\ttext", "n\ttext\textra"):
@@ -306,16 +337,18 @@ def _flat_lines(spine):
 def test_the_line_file_reads_back_and_makes_the_same_spine(tmp_path):
     manifest = _manifest(**CASE_CITATION)
     xml = _xml(tmp_path, CASE)
-    rows, edition = gl.rows_from_xml(xml)
+    rows, _source = gl.rows_from_xml(xml)
     assert len(rows) == CASE.count("<l ")                # every line, none dropped
     assert rows == ROWS                                   # written out by hand, above
-    text = gl.format_tsv(rows, "t", edition)
-    assert gl.parse_tsv(text) == (rows, edition)
+    text = gl.format_tsv(rows, "t", "e")
+    assert gl.parse_tsv(text) == (rows, "e")
     assert gl.forbidden(text) == []
-    tsv = tmp_path / "t.tsv"
-    tsv.write_text(text, encoding="utf-8")
-    sch = scheme_mod.for_manifest(manifest)
-    from_file = s1._parse_spine_play_rows(*gl.load(tsv), manifest, sch)
+    (tmp_path / "corpus").mkdir()
+    (tmp_path / "corpus" / "t.tsv").write_text(text, encoding="utf-8")
+    import pytest as _pt
+    with _pt.MonkeyPatch.context() as mp:
+        mp.setattr(gl, "CORPUS_DIR", tmp_path / "corpus")
+        from_file = s1.play_spine(manifest)
     from_xml = s1.parse_spine(xml, manifest)
     assert from_file == from_xml
     # ... and both are what a reader of the case would write by hand
@@ -335,16 +368,28 @@ def test_a_label_moved_in_the_line_file_moves_in_the_spine(tmp_path):
     rows = list(ROWS)
     rows[2] = gl.Row("2", "{Α.} ἰδού. παπαιάξ.")
     rows[6] = gl.Row("5", "{Β.} πέμπτος")
-    spine = s1._parse_spine_play_rows(rows, gl.rows_from_xml(_xml(tmp_path, CASE))[1], manifest,
-                                      scheme_mod.for_manifest(manifest))
+    spine = s1._parse_spine_play_rows(rows, manifest, scheme_mod.for_manifest(manifest))
     speakers = [s["label"] for seg in spine["segments"] for s in seg.get("speakers", [])]
     assert speakers == ["ΑΛΦΑ", "Α.", "Αν.", "Β.", "Γ."]
 
 
-def test_the_edition_line_is_held_to_the_manifest(tmp_path):
+def test_the_edition_line_is_held_to_the_manifest(tmp_path, monkeypatch):
+    # The file names the manifest's greek_edition; a file of another edition
+    # does not build as this one.
+    monkeypatch.setattr(gl, "CORPUS_DIR", tmp_path)
     manifest = _manifest(**CASE_CITATION)
+    (tmp_path / "t.tsv").write_text(gl.format_tsv(ROWS, "t", "another edition"), encoding="utf-8")
+    with pytest.raises(ValueError, match="names the edition 'another edition', and the manifest 'e'"):
+        s1.play_spine(manifest)
+    (tmp_path / "t.tsv").write_text(gl.format_tsv(ROWS, "t", "e"), encoding="utf-8")
+    assert s1.play_spine(manifest)["edition"] == "e"
+
+
+def test_the_export_path_still_checks_the_export_source_statement(tmp_path):
+    manifest = _manifest(**CASE_CITATION)
+    manifest.data["work"]["expected_sourcedesc"] = "Another Play (0000: 001)"
     with pytest.raises(ValueError, match="expected_sourcedesc"):
-        s1._parse_spine_play_rows(ROWS, "Another Play (0000: 001)", manifest, scheme_mod.for_manifest(manifest))
+        s1.parse_spine(_xml(tmp_path, CASE), manifest)
 
 
 def test_stage_1_reads_the_committed_file_and_names_extract_when_it_is_missing(tmp_path, monkeypatch):

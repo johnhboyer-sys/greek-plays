@@ -22,7 +22,7 @@ repo is private, so its minutes are John's money).
 
 | Phase 1 step | State |
 |---|---|
-| `extract` writes `corpus/greek/`; the build reads only those | Done: 44 files, 58,999 lines, 4,493,538 bytes. Stage 1 runs no program |
+| `extract` writes `corpus/greek/`; the build reads only those | Done: 44 files, 58,999 lines, 4,489,421 bytes. Stage 1 runs no program |
 | Guard on the committed files, failing cases first | Done: every character Greek or one of 19 listed marks; every label a speaker or one of five strophe words and a stanza number; no named exception. 25 hand breaks each fail a test |
 | The line file gives stage 1 the export's spine | Done: 88 spines (44 plays, full and public manifests), 20,860,780 bytes, byte for byte the same three ways |
 | Export-shaped files elsewhere | Done: four fixtures pinned (decision 10, for John to overrule); 94 vendored Perseus and OCR TEI files allowed by their own `SHA256SUMS` |
@@ -61,8 +61,15 @@ no space added: stage 1 drops a strophe mark outright, and the words either
 side must meet as they did. Two more changes, both what stage 1 already did:
 ASCII angle brackets are written ⟨ ⟩ (so no `<` or `>` is left in a file), and
 the title line is its text alone (stage 1 hashes it). The `# edition:` line is
-the export's `<sourceDesc>`, which stage 1 holds to the manifest's
-`work.expected_sourcedesc`. The text is not NFC, as in the siblings.
+the manifest's `work.greek_edition` ("Murray, Aeschyli tragoediae, 2nd ed.
+(OCT, 1955)"), as in the siblings: the files name editions, never the TLG
+(decision 3). The first cut wrote the export's own source statement there,
+TLG numbers included; the lead's review caught it. `extract` holds the
+export's statement to `work.expected_sourcedesc` before it writes, and the
+statement goes no further; stage 1 holds the file's edition line to
+`greek_edition`; the guard fails an edition line with a `(NNNN: NNN)` number
+or the canon's words ("Trag.", "Comic.", "B.C.", "Ed. ", "Repr.", "TLG",
+"Diogenes"), 11 planted cases first. The text is not NFC, as in the siblings.
 
 The XML reader is shared: `greek_lines.rows_from_tree` is now the only way
 stage 1 reads a play's export, so the old path and the line file meet in one
