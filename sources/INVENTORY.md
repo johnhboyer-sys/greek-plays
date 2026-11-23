@@ -13,7 +13,7 @@ with provenance, US-PD rationale or licence, and per-file SHA-256
 |---|---|
 | The code (pipeline, app, shared, scripts) | MIT, in `LICENSE` |
 | `corpus/greek/` (each play's main Greek, one printed line per row; the editions are named in each file and below) | CC0 1.0, for whatever rights John holds in the files; an editor's rights in his edition, if any, are not his to give (see below) |
-| John's own apparatus and derived data: the manifests' speaker rosters, alignments, line fixes and text fixes; the drawings (`docs/redesign/drawings/`, served at `/drawings/`); the site's own prose | CC BY 4.0 |
+| John's own apparatus and derived data: the manifests' speaker rosters, alignments, line fixes and text fixes; the drawings (`docs/redesign/drawings/`, served at `/drawings/`); the site's own prose | CC BY 4.0, except `antigone.svg`, which is CC BY-SA 4.0 after its source photo, as `docs/redesign/drawings/README.md` says; that README names each drawing's source |
 | The OCR'd Greek editions (`ocr/`: Jebb, Paley, Way), John's transcriptions of public-domain books | CC0 1.0 (John, 2026-11-23). The note "Not for redistribution until the owner rules on it" in each file's header predates the ruling and no longer holds |
 | The fonts (`app/public/fonts/`) | SIL Open Font License 1.1, each family's text beside it |
 | Everything else under `sources/`, and site data built from it | Its own terms, below. Not covered by `LICENSE` |
@@ -29,10 +29,13 @@ already state them:
   BY-NC-ND 3.0, reproduced without change, with every translator and reviser
   credited. NonCommercial and NoDerivatives: these files keep their own terms.
 - **Ian Johnston's translations** (`johnston/`, `bench/johnston/`): his own
-  terms (free to download, edit, and share, but not in a commercial
-  publication). NonCommercial; not public domain.
-- **Wikisource transcriptions** (`wikisource/`: Murray's *Frogs*, Morshead's
-  Aeschylus): CC BY-SA 4.0 on the transcription; the texts are public domain.
+  terms (`johnston/copyright.htm`): readers, teachers, students, and
+  performers may download and edit them without charge, and distribute them
+  to their friends and students, but not in a commercial publication.
+  NonCommercial; not public domain.
+- **Wikisource** (`wikisource/`): Murray's *Frogs* (1912), public domain, as
+  its section below says; Morshead's Aeschylus, public domain, with
+  Wikisource's transcription of it under CC BY-SA 4.0, as its section says.
 - **Arrowsmith's *Birds* and *Clouds*** (`fulcrum/`, `bench/arrowsmith/`): the
   publisher's Creative Commons Public Domain Mark 1.0 (John's ruling,
   2026-09-11).
