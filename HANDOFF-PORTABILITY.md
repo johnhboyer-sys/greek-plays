@@ -14,11 +14,12 @@ Cloudflare.
 
 ## State (2026-11-23)
 
-Phase 1 is in a draft PR (#17). Nothing is merged or deployed. John paused
-heavy local runs on 2026-11-23 (the Mac went down with several sessions
-building): no full build, no full `shared` or pipeline suite, and no browser
-on the Mac. CI runs those, and the full build runs in CI only by hand (the
-repo is private, so its minutes are John's money).
+Phases 1, 2, and 3 and the licence are four stacked draft PRs (#17, #18,
+#19, #20). Nothing is merged or deployed. John paused heavy local runs on
+2026-11-23 (the Mac went down with several sessions building): no full
+build, no full `shared` or pipeline suite, and no browser on the Mac. CI
+runs those: the full build on pull requests to `main` that are not drafts,
+by hand, and on the `build-site` label (John's ruling, below).
 
 | Phase 1 step | State |
 |---|---|
@@ -31,6 +32,88 @@ repo is private, so its minutes are John's money).
 | Test 1, a clean Linux build in CI | Passed: `site.yml` run 45253108089 (on `90c5e23`), 16 min 47 s; inputs fetched and matched their pins, preflight ok, 44 manifests checked, every dictionary key resolved, 1,318 pages and 12,795 links with 0 broken, 12,194 files |
 | Test 2, against the snapshot | On that run's artifact: 12,194 files; 10,942 byte for byte, 3 pages and 2 bundles equal under 9 swaps, 26 differ for named reasons, 1,221 only in the build (the floor's gaps, by family), 2 only in the snapshot (the two bundles' old names). Stage 6 now sorts, so the 25 lemma-map files no longer depend on the disk (they change key order once at the next deploy) |
 | Review by another model family | Done: Grok, a static read of the diff (session `01a209f7…`): ten findings, three fixed with failing tests first, seven answered (phase 1 record) |
+
+| Phase 2 step | State |
+|---|---|
+| Build parameters for origin, base path, and the Grammata address | Done: `PUBLIC_SITE_ORIGIN` (the plays' existing name, optional) and `SITE_BASE` in `scripts/site-params.mjs`, read by the Astro config, `robots.txt`, and the link check; `PUBLIC_GRAMMATA_LOOKUP` in `shared/lib/grammata.ts`. `READER_BASE_PATH` is gone |
+| Fonts self-hosted | Done: `app/public/fonts/`, 66 woff2 files (every one Google served for the pages' two queries, and the Ῥ subset), 6 families, each OFL text; 15 pages link `fonts/fonts.css`; no page names a Google font host |
+| The feedback form hides where there is no `/api` | Done: the button shows only when the host serves `feedback-endpoint.json`, which the bundle leaves out; test 3 saw it hidden on the bundle |
+| The mirror bundle | Done: `scripts/make-bundle.mjs`, 12,267 files, 445,933,017 bytes, 105 MB packed, 5 gates on 10,770 data files |
+| No outside calls (test 3) | Green at `/` and at `/mirror/`: 9 of 9 visits, one outside host asked for (Grammata, allowed) |
+| A build at a test base path passes the link check | Done: `/mirror/` at another origin, 1,318 pages, 12,898 links, 0 broken; the same folder checked as if at `/` fails (about 12,700 broken) |
+| `check-served.mjs` | Homer's, unchanged |
+| `Dockerfile`, Caddy, image workflow | Written; the image builds in CI only by hand or on the `build-image` label; not yet run |
+| `ARCHITECTURE.md`, `RESTORE.md` | Written; `RESTORE.md`'s log is empty until a restore path is run |
+| Review by another model family | Running (Grok, phases 2 and 3 together) |
+
+## Phase 2 record
+
+**Parameters.** The plays already had `PUBLIC_SITE_ORIGIN`, optional (unset
+in CI's test builds: no canonical links and no sitemap). `site-params.mjs`
+keeps that name and meaning (trailing slashes dropped, as before) and adds
+`SITE_BASE`, which replaces the link check's own `READER_BASE_PATH`, so one
+name means one thing. `robots.txt` names the sitemap under the base. The
+app already built its links from `BASE_URL`; CI's first `/mirror/` build
+found two pages that did not: the line-citation redirects and the `texts/`
+aliases (3,482 broken links). Both now prefix the base; at the root it is
+empty, so live's pages do not change. `PUBLIC_GRAMMATA_LOOKUP` is read in
+the one module both callers load (`shared/lib/grammata.ts`).
+
+**Fonts.** Aristotle's method (#232): Google's CSS for the two queries the
+pages sent (Alegreya Sans, Alegreya Sans SC, and Cardo on screen; Bodoni
+Moda and DM Mono for the print masthead), every rule and file kept, each
+address made local: 65 rules and files. The Ῥ face (`GDR Rho Dasia`, a
+Gentium Book Plus subset) moved from `shared/styles/global.css`, which named
+Google's address, into `fonts.css` with its file and Gentium Book Plus's
+licence. `scripts/__tests__/fonts.test.mjs` (Aristotle's, with the plays'
+counts) holds the folder and the stylesheet to each other and fails a page
+that names a Google font host; 19 pass. The service worker's branch for
+Google's hosts stays, unreachable, as in Aristotle.
+
+**The feedback form.** `app/worker/index.js` answers `/api/feedback` on the
+Cloudflare Worker only. The button is now `hidden` until
+`lib/feedback-endpoint.ts` reads `feedback-endpoint.json` and finds a
+same-host address (12 tests, the failing cases first: a 404, a host that
+answers every path with its home page, not JSON, no address, another host,
+`//host`, a server error, a network error). The bundle leaves the marker
+out (`HOST_FILES`); `deploy-cloudflare.mjs` (phase 3) refuses a build
+without it.
+
+**The bundle.** `make-bundle.mjs` is Homer's with the plays' gates: preflight
+`--public --editions --web`, the data contracts, every LSJ key of the plays'
+own analyses with a headword in `lsj-heads.json`, the lemma pages, and JSON.
+CI's first run stopped at two of them, both gates of the bundle's own:
+preflight looked keys up in LSJ shards the web build removes on purpose
+(`--web` now skips only that lookup; `build:public`'s own preflight makes it
+on `build/dist`), and the headword gate held the other editions' keys too.
+**A gap found on the way, live today and left for John:** 189 LSJ keys in the
+other Greek editions' analyses (`data/<play>/ed/<id>/analyses.json`; Jebb,
+Smyth's Loeb, and others) have no headword in `lsj-heads.json`, which
+`build-lsj-heads.mjs` builds from the plays' own analyses only, so the word
+popup in those editions shows no headword for them. On the downloaded
+build's data the five gates passed locally before the CI rerun: 18,145 keys,
+7,405 lemma pages, 10,671 JSON files.
+
+**Test 3.** `check-no-outside-calls.mjs`, drafted by an Opus agent from
+Homer's (everything above its visits unchanged but names), with Grammata's
+two hosts the only ones allowed and nine visits: Medea's reading page (1,500
+Greek and 2,000 Latin letters at least), a word popup (headword, gloss,
+parse), one speaker's lines (the search's speaker filter, Medea's), a
+search (τέκνα, a hit linking into this build), a lexicon entry (τέκνον,
+headword and works list from the site's data), the home page (44 plays), Medea's
+own page, the feedback form (hidden, and the marker's 404 expected only where
+the folder lacks it), and the reading page under the service worker. CI run
+45264091146: `ok …/site at /: 9 of 9 visits, 374 requests to the site (0 not
+found, 6 expected), 1 outside host asked for, it allowed (grammata.pages.dev
+x2); control seen`, and at `/mirror/` `9 of 9 visits, 373 requests … (0 not
+found)`. The browser fixtures were ported and not run (the Mac runs no
+browser); the unit tests pass, 15.
+
+**CI runs and minutes.** Run 45257010840 (bundle gates, fixed), 45259871277
+(the base-path link check, fixed), 45264091146 (green, 17 min 55 s).
+
+**Known and left.** As in the siblings: a saved search keeps whole paths,
+base included, in the browser's storage.
 
 ## Phase 1 record
 
