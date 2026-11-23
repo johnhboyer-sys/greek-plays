@@ -224,9 +224,23 @@ built from (88 files). `build:public` now takes `CORPUS_VERSION` from the
 environment when set, so a build can make a past deploy's data byte for
 byte; unset, it is as before.
 
+## CI minutes (ruled by John, 2026-11-23)
+
+The repo is private, so Actions minutes are paid for. Measured: a full
+`site.yml` run takes about 17 minutes (16 min 47 s and 17 min 7 s), about
+$0.10 at list price ($0.006 a Linux minute); the account is on the Pro plan,
+and the repo had used about 300 private minutes in November when John
+ruled. In October it used 384 minutes ($1.13 net). John, to the lead
+session's question "Run the plays' full build on every PR to main, or by hand
+only?", at 14:38: "Yes, on PRs". So `site.yml` runs on a pull request to
+`main` that is not a draft (opened, new commits, reopened, marked ready), by
+hand, and on the `build-site` label; never on a branch push. A draft's push
+starts a run whose job skips at once (run 45261560673, on `f72bf82`).
+Concurrency sits on the job, so a skipped run cancels nothing. The Image
+workflow (phase 2) stays by hand or by the `build-image` label. Earlier the
+same day John okayed one round of by-hand runs ("okay. run it this time").
+
 ## Decisions for John
 
 - Decision 10 for the plays: keep the four export-shaped fixtures, pinned
   (as ruled for Plato and Homer), or replace them with made-up Greek.
-- CI minutes: the `site` workflow runs only by hand. Its triggers for good
-  wait on the minutes one run billed (phase 1 record, to come).
