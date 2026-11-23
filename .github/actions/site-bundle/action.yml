@@ -1,0 +1,76 @@
+name: Build the site and pack the bundle
+description: >
+  The whole public build from a clean checkout (the two outside inputs fetched
+  by checksum), with the deploy's settings, the mirror bundle with its
+  SHA256SUMS and data gates, and the no-outside-calls check on the unpacked
+  bundle. CI's `site` workflow runs these steps; the Release workflow runs
+  them too, so what a release ships is built the way a pull request is tested.
+
+inputs:
+  out:
+    description: Where to write the bundle (.tar.gz).
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: npm
+        cache-dependency-path: app/package-lock.json
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version-file: pipeline/.python-version
+
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v5
+
+    # build-public.mjs runs pipeline/.venv/bin/python, which uv sync makes.
+    - name: Install dependencies
+      shell: bash
+      run: |
+        (cd pipeline && uv sync)
+        (cd app && npm ci)
+
+    # 186 MB from Diogenes's own release; the archive and each file in it
+    # are held to the sha256 pins in pipeline/drama_pipeline/inputs.py.
+    - name: Fetch the Morpheus table and the LSJ
+      shell: bash
+      run: |
+        echo "DIOGENES_DATA=$RUNNER_TEMP/diogenes-data" >> "$GITHUB_ENV"
+        cd pipeline && uv run python -m drama_pipeline.inputs fetch --dir "$RUNNER_TEMP/diogenes-data"
+
+    # Every play from corpus/greek/, every edition, the corpus-wide stages,
+    # the gates, the app build, and the link check, with the deploy's
+    # settings. No PUBLIC_DATA_ROOT: the data is in the folder, as the
+    # Worker and a mirror serve it.
+    - name: Build the site
+      shell: bash
+      env:
+        PUBLIC_SITE_ORIGIN: https://greekdrama.johnhboyer.com
+        DRAMA_EDITIONS: "1"
+        PUBLIC_EDITIONS: "1"
+      run: npm run build:public
+
+    # The data gates, the host's own files left out (feedback-endpoint.json),
+    # packed and read back against SHA256SUMS.
+    - name: Pack the bundle
+      shell: bash
+      env:
+        OUT: ${{ inputs.out }}
+      run: node scripts/make-bundle.mjs --out="$OUT"
+
+    # Test 3 on the bundle as a mirror would serve it. Playwright is this
+    # step's tool and no package of the repo; nothing of it ships.
+    - name: No outside calls, the bundle at /
+      shell: bash
+      env:
+        OUT: ${{ inputs.out }}
+      run: |
+        npx --yes playwright@1.65.1 install --with-deps chromium
+        mkdir -p "$RUNNER_TEMP/site" && tar -xzf "$OUT" -C "$RUNNER_TEMP/site"
+        node scripts/check-no-outside-calls.mjs --dist="$RUNNER_TEMP/site"
