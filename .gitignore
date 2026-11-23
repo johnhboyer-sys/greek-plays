@@ -29,3 +29,6 @@ shared/lib/registry.generated.ts
 # worktree symlinks to the main checkout (dir-only patterns miss symlinks — plato gotcha)
 node_modules
 .venv
+
+# Third-party reference images from the design research (kept local, not ours to commit)
+docs/redesign/research/references/
