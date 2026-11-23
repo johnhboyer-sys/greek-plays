@@ -106,15 +106,9 @@ const cleanGloss = (s) =>
 // ── Enumerate built works ───────────────────────────────────────────────────
 // 'lsj'/'ls' are the shared dictionary shard dirs (Greek/Latin — see
 // pipeline's stage5_lsj.SHARD_DIR), not works; skip both.
-// Sorted: a Mac lists a folder in name order and Linux does not, and the
-// works' order is the order keys enter lemma-map/*.json, so an unsorted list
-// made a Linux build's lemma map differ from a Mac's in key order
-// (HANDOFF-PORTABILITY.md, phase 1, test 2). Name order is the Mac's order,
-// so live's files are unchanged.
 const works = readdirSync(DATA, { withFileTypes: true })
   .filter((d) => d.isDirectory() && !['lsj', 'ls', 'lemmata', 'lemmata-lat'].includes(d.name))
   .map((d) => d.name)
-  .sort()
   .filter((w) => existsSync(join(DATA, w, 'analyses.json')));
 
 // Titles + language + a stable display order from each work's manifest. A

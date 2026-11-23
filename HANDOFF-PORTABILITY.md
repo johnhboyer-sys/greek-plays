@@ -29,7 +29,7 @@ repo is private, so its minutes are John's money).
 | Morpheus table and LSJ pinned, folder from the environment | Done: the same two files as the siblings' pins, byte for byte; `inputs check` runs first in `build:public` |
 | Machine paths out of the public build | Nothing on the build path. Two OCR cleaning tools, not run by the build, name the laptop's scan files |
 | Test 1, a clean Linux build in CI | Passed: `site.yml` run 45253108089 (on `90c5e23`), 16 min 47 s; inputs fetched and matched their pins, preflight ok, 44 manifests checked, every dictionary key resolved, 1,318 pages and 12,795 links with 0 broken, 12,194 files |
-| Test 2, against the snapshot | On that run's artifact: 12,194 files; 10,942 byte for byte, 3 pages and 2 bundles equal under 9 swaps, 26 differ for named reasons, 1,221 only in the build (the floor's gaps, by family), 2 only in the snapshot (the two bundles' old names). One fix (`build-lemmata.mjs` sorts) awaits the next run |
+| Test 2, against the snapshot | On that run's artifact: 12,194 files; 10,942 byte for byte, 3 pages and 2 bundles equal under 9 swaps, 26 differ for named reasons, 1,221 only in the build (the floor's gaps, by family), 2 only in the snapshot (the two bundles' old names). Stage 6 now sorts, so the 25 lemma-map files no longer depend on the disk (they change key order once at the next deploy) |
 | Review by another model family | Done: Grok, a static read of the diff (session `01a209f7…`): ten findings, three fixed with failing tests first, seven answered (phase 1 record) |
 
 ## Phase 1 record
@@ -166,9 +166,17 @@ FAIL …/dist: 10942 of 12194 build files are byte for byte what the snapshot ho
 Every difference has a named reason:
 
 - 25 `data/lemma-map/*.json`: the same keys and values, in another order.
-  `build-lemmata.mjs` read the plays' folder unsorted, and Linux lists a
-  folder in another order than the Mac (which lists it by name). It now
-  sorts, which is the Mac's and so live's order; the next CI run checks it.
+  Stage 6 (`build_lemma_map`) reads every play's analyses in the order the
+  disk lists the folder, and a Mac's APFS lists it in its own hash order
+  (`oedipus-coloneus`, `agamemnon`, `antigone`, `persians`, …: live's key
+  order, inferred from live's own files), Linux in another. A first fix in
+  `build-lemmata.mjs` was the wrong file (it writes no lemma map; CI's
+  second bundle still differed) and is undone. Stage 6 now reads the plays
+  in name order, so every build makes the same bytes, Mac or Linux; the next
+  deploy changes the key order of these 25 files once (the same JSON). An
+  exact match with live's current bytes is not possible on Linux: live's
+  maps also hold a key (`zeunames`) that comes from the last play's
+  in-memory analyses at stage 6, not from any committed file.
 - `data/wing.drama.json`: its `generated` time.
 - `_astro/Phrases.*.js` and `_astro/Search.*.js` (and so the 2 "only in the
   snapshot", their old names): the same token stream on both sides; every

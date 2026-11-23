@@ -1161,5 +1161,5 @@ Page 1 reads only the plays it draws. Ported hunk by hunk; `countRows` checked a
 - `pipeline/drama_pipeline/config.py` — `diogenes_data()` reads `$DIOGENES_DATA` first, as homer-reader's.
 - `scripts/build-public.mjs` — runs `drama_pipeline.inputs check` before anything is cleaned.
 - `scripts/ocr/jebb_to_tei.py` — reads the reference spine from the line file (`play_spine`), not the export.
-- `app/scripts/build-lemmata.mjs` — the works' folder list is sorted before use: Linux lists a folder in another order than a Mac, which put the keys of `lemma-map/*.json` in another order on CI's build (same JSON, other bytes).
+- `pipeline/drama_pipeline/stage6_search.py` — `build_lemma_map` reads the plays' analyses in name order: the disk's order (APFS's hash order on a Mac, another on Linux) set the key order of `lemma-map/*.json`, so CI's build and a Mac's differed (same JSON, other bytes).
 - `scripts/compare-snapshot.mjs`, `scripts/verify-snapshot.mjs` — new, homer-reader's, with `--floor` (a snapshot that is a floor: build-only files counted by family, not failed) and `--svelte-at` (the classes of components a build saw at another absolute path, as in CI).
