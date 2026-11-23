@@ -137,7 +137,8 @@ README now says `LICENSE` covers the code and nothing under `sources/`. (8,
 say. (11) `wrangler.jsonc`'s file count corrected. (10) Grok found nothing
 wrong in it.
 
-**Not yet seen.** `mirror.yml` on `main` (with this PR's merge), a tag push,
+**Seen since.** `mirror.yml` on `main`, after #18's merge: "26 of 26 refs
+match the source after the push" (run 45286470742). **Not yet seen.** A tag push,
 the weekly check, a release, and a real deploy through the script.
 
 ## Phase 2 record
