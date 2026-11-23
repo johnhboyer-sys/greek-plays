@@ -259,8 +259,8 @@ export function greekFold(input: string): string {
     else if (lower >= 'a' && lower <= 'z') out.push(lower); // Beta Code Latin input
     // Elision: the index keys δ' as d'. The page prints the mark as U+2019
     // (δ’), so a word copied from the text must fold to the same key as one
-    // typed with a straight apostrophe.
-    else if (ch === "'" || ch === '\u2019' || ch === '\u02bc') out.push("'");
+    // typed with a straight apostrophe. stage6 keys U+1FBD (᾽) the same way.
+    else if (ch === "'" || ch === '\u2019' || ch === '\u02bc' || ch === '\u1fbd') out.push("'");
     // skip combining marks, punctuation, Beta Code diacritics ) ( / \ = | +,
     // asterisk (handled by caller), and sigma-variant digits
   }
@@ -2993,6 +2993,8 @@ export async function greekHitForms(
   grkQuery: string,
   matchMode: MatchMode,
   phrase = false,
+  // The headwords the reader ticked (lp=), as search() was handed them.
+  picks?: string[][] | null,
 ): Promise<HitForms> {
   const out: HitForms = { byResult: new Map(), headwords: new Map(), failedWorks: [] };
   const failed = new Set<string>();
@@ -3005,11 +3007,13 @@ export async function greekHitForms(
   const keyFor = (w: string) => keyOf.get(w) ?? w;
   let formTerms = typed;
   if (matchMode !== 'form') {
-    let perWord = matchMode === 'lemma' ? (await resolveHeadwords(typed)).terms : typed.map(t => [t]);
+    let perWord = matchMode === 'lemma' ? (await resolveHeadwords(typed, picks ?? undefined)).terms : typed.map(t => [t]);
     // As search() reads a lemma phrase: μήν in τί μήν is μήν, so the list must
-    // not name μείς as a headword of hits it never took.
+    // not name μείς as a headword of hits it never took. A ticked word keeps
+    // its picks, as there.
     if (matchMode === 'lemma' && phrase && typed.length > 1) {
-      perWord = await narrowToTypedHeadwords(typed, perWord, pickerHeadwords);
+      const narrowed = await narrowToTypedHeadwords(typed, perWord, pickerHeadwords);
+      perWord = narrowed.map((options, i) => picks?.[i]?.length ? perWord[i] : options);
     }
     const terms = perWord.flat();
     const lemmaIx = queryIndexes('lemma', terms, []);
