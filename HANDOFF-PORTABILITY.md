@@ -331,7 +331,7 @@ Concurrency sits on the job, so a skipped run cancels nothing. The Image
 workflow (phase 2) stays by hand or by the `build-image` label. Earlier the
 same day John okayed one round of by-hand runs ("okay. run it this time").
 
-## The licence (drafted 2026-11-23; John's to rule)
+## The licence (ruled by John, 2026-11-23)
 
 The pattern John ruled for Plato and Homer: MIT for the code in `LICENSE`,
 CC0 1.0 on `corpus/greek/`, CC BY 4.0 on his own apparatus, and every other
@@ -354,7 +354,14 @@ state. Drafted so in the licence PR. What is new with the plays:
   terms). Public releases (phase 3) would carry them once the repo is public.
 - **The drawings** count as John's own apparatus (CC BY 4.0) in the draft.
 
+John ruled, in this session, on three questions put to him at once with the
+table linked: "CC0 on all 44" (the Greek files, as drafted); for the OCR'd
+Jebb, Paley, and Way, "Yes, CC0"; and the four export-shaped fixtures, "Keep
+them" (decision 10, as for Plato and Homer). Every recommendation, taken. The
+OCR files' own headers still carry their old note; the table says the ruling
+supersedes it (changing the files would change their pinned sums).
+
 ## Decisions for John
 
-- Decision 10 for the plays: keep the four export-shaped fixtures, pinned
-  (as ruled for Plato and Homer), or replace them with made-up Greek.
+None open from the port. Ruled 2026-11-23: the CI triggers, the licence,
+the OCR'd editions, and decision 10 (above).

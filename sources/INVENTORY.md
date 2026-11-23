@@ -7,14 +7,14 @@ other Greek editions and the English: vendored texts, one section per source
 with provenance, US-PD rationale or licence, and per-file SHA-256
 (`SHA256SUMS` beside the files). Populated from P2 on.
 
-## Licences in this repository (DRAFT, put to John 2026-11-23)
+## Licences in this repository (John, 2026-11-23)
 
 | Part | Licence |
 |---|---|
 | The code (pipeline, app, shared, scripts) | MIT, in `LICENSE` |
 | `corpus/greek/` (each play's main Greek, one printed line per row; the editions are named in each file and below) | CC0 1.0, for whatever rights John holds in the files; an editor's rights in his edition, if any, are not his to give (see below) |
 | John's own apparatus and derived data: the manifests' speaker rosters, alignments, line fixes and text fixes; the drawings (`docs/redesign/drawings/`, served at `/drawings/`); the site's own prose | CC BY 4.0 |
-| The OCR'd Greek editions (`ocr/`: Jebb, Paley, Way), John's transcriptions of public-domain books | Not yet ruled: each file's header says "Not for redistribution until the owner rules on it" |
+| The OCR'd Greek editions (`ocr/`: Jebb, Paley, Way), John's transcriptions of public-domain books | CC0 1.0 (John, 2026-11-23). The note "Not for redistribution until the owner rules on it" in each file's header predates the ruling and no longer holds |
 | The fonts (`app/public/fonts/`) | SIL Open Font License 1.1, each family's text beside it |
 | Everything else under `sources/`, and site data built from it | Its own terms, below. Not covered by `LICENSE` |
 

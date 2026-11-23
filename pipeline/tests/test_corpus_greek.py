@@ -364,9 +364,9 @@ TEST_TEI = {
     "pipeline/tests/test_stage1_lined_source.py": 60,            # 48 today, CPR's lined-source cases
 }
 PINNED = {
-    # Decision 10, on the strength of John's rulings for Plato (2026-11-21)
-    # and Homer (2026-11-23, "keep em"): test fixtures in the export's
-    # markup, kept and pinned. Listed for John to overrule.
+    # Decision 10, ruled for the plays by John on 2026-11-23 ("Keep them"),
+    # as for Plato (2026-11-21) and Homer ("keep em"): test fixtures in the
+    # export's markup, kept and pinned.
     "pipeline/tests/fixtures/stephanus/euthyphro_p2_3.xml": {
         "bytes": 9369, "sha256": "38226581bfbb162fc7b8e67e375d954ba708cfb58fc240bd103543c3001420eb", "lines": 77,
         "why": "Plato's fixture, copied here; ruled A (kept, pinned) for plato-reader on 2026-11-21"},
