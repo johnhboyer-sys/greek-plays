@@ -28,8 +28,8 @@ repo is private, so its minutes are John's money).
 | Export-shaped files elsewhere | Done: four fixtures pinned (decision 10, for John to overrule); 94 vendored Perseus and OCR TEI files allowed by their own `SHA256SUMS` |
 | Morpheus table and LSJ pinned, folder from the environment | Done: the same two files as the siblings' pins, byte for byte; `inputs check` runs first in `build:public` |
 | Machine paths out of the public build | Nothing on the build path. Two OCR cleaning tools, not run by the build, name the laptop's scan files |
-| Test 1, a clean Linux build in CI | Run by hand: see the phase 1 record |
-| Test 2, against the snapshot | See the phase 1 record |
+| Test 1, a clean Linux build in CI | Passed: `site.yml` run 45253108089 (on `90c5e23`), 16 min 47 s; inputs fetched and matched their pins, preflight ok, 44 manifests checked, every dictionary key resolved, 1,318 pages and 12,795 links with 0 broken, 12,194 files |
+| Test 2, against the snapshot | On that run's artifact: 12,194 files; 10,942 byte for byte, 3 pages and 2 bundles equal under 9 swaps, 26 differ for named reasons, 1,221 only in the build (the floor's gaps, by family), 2 only in the snapshot (the two bundles' old names). One fix (`build-lemmata.mjs` sorts) awaits the next run |
 | Review by another model family | Not yet |
 
 ## Phase 1 record
@@ -138,6 +138,56 @@ code. Live's `data/lemma-accents.json` differs from the snapshot's; a play
 book (`medea/book-01.json`) does not. So test 2 compares the build's data
 with the snapshot as is, and the pages with an app built at `bf4c79c` over
 the same data.
+
+**Test 1, a clean Linux build (2026-11-23).** `site.yml`, started by the
+`build-site` label on #17, run 45253108089 at `90c5e23`: the two inputs
+fetched from Diogenes's release and matched their pins; `build:public` with
+the deploy's settings (`DRAMA_EDITIONS=1 PUBLIC_EDITIONS=1
+PUBLIC_SITE_ORIGIN=…`, and `CORPUS_VERSION=bf4c79c-2026-11-19`) ran in 15
+minutes: preflight ok, `checked: 44 manifest(s), snapshot, registry`, "every
+referenced dictionary key resolves", `Pages crawled: 1318; links checked:
+12795; … broken: 0`. Then the app was rebuilt at `bf4c79c` over the same
+data (55 seconds) and uploaded (104 MB packed). The run took 16 min 47 s; the
+billing endpoint (`actions/runs/45253108089/timing`) reported `total_ms: 0`
+when read right after.
+
+**Test 2, on that artifact.** `node scripts/compare-snapshot.mjs
+--sums=<snapshot>/SHA256SUMS --prefix=app/ --build=<artifact>/dist
+--pages=<snapshot> --svelte=<bf4c79c's shared/components>
+--svelte-at=/home/runner/work/greek-plays/greek-plays/shared/components
+--floor --plays=manifests`:
+
+```
+FAIL …/dist: 10942 of 12194 build files are byte for byte what the snapshot holds; 0 live-only files allowed;
+3 pages and 2 renamed bundles equal once 9 names are swapped (Svelte classes checked against 12 component paths);
+26 differ, 1221 only in the build (a floor: counted, not failed), 2 only in the snapshot
+```
+
+Every difference has a named reason:
+
+- 25 `data/lemma-map/*.json`: the same keys and values, in another order.
+  `build-lemmata.mjs` read the plays' folder unsorted, and Linux lists a
+  folder in another order than the Mac (which lists it by name). It now
+  sorts, which is the Mac's and so live's order; the next CI run checks it.
+- `data/wing.drama.json`: its `generated` time.
+- `_astro/Phrases.*.js` and `_astro/Search.*.js` (and so the 2 "only in the
+  snapshot", their old names): the same token stream on both sides; every
+  difference is a one-to-one rename of a minifier's short name (130 and 179
+  names, none over two letters) or a Svelte class. esbuild picks short names
+  by how often each letter occurs, and the folder-dependent class names
+  change that. Aristotle's and Homer's swaps did not need this; their
+  bundles came out equal.
+- Only in the build, 1,221, the floor's gaps: 1,170 line-citation redirect
+  pages (`<author>/<play>/<line>/index.html`), 44 `texts/` aliases,
+  `data/lemmata-lat/_index.json`, and six bundles the snapshot's walk did not
+  reach.
+
+The compare turned red on one byte added to `data/medea/book-01.json`
+(`differs: data/medea/book-01.json`) and on `data/medea/columns.json` taken
+away (`only in the snapshot: data/medea/columns.json`), and green again
+once each was put back. `--svelte-at` is new (with a failing test first): the
+class names Svelte hashes from a component's path are computed for CI's
+folder, since the build ran there.
 
 **`CORPUS_VERSION`.** Each play's manifest names the commit and day it was
 built from (88 files). `build:public` now takes `CORPUS_VERSION` from the
