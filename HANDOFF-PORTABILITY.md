@@ -54,7 +54,7 @@ by hand, and on the `build-site` label (John's ruling, below).
 | A release for each deploy tag | Written: `release.yml`, through the new `site-bundle` action; runs first at the first tagged deploy |
 | `mirror.yml`, `check-mirrors.mjs`, `mirrors.json` | Homer's, byte for byte (`mirrors.json` names the plays' mirror); the push job showed as skipped until `MIRROR_GIT_URL` was set |
 | `docs/cloudflare.md`, `DEPLOY-STATUS.md` | Written from the repo and the live site, with what could not be confirmed marked |
-| Review by another model family | Running (Grok, with the licence) |
+| Review by another model family | Done: Grok, a static read of phase 3 and the licence: eleven findings, nine fixed, two with nothing to fix (phase 3 record) |
 
 ## Phase 3 record
 
@@ -95,6 +95,29 @@ mirror against `c1cf9b9`; the three portability branches missing): the
 truth, since nothing had kept the mirror current. With those four skipped:
 `ok …: 21 of 21 refs match; … history: 1407 commits, whole`. After the key,
 the lead's run from the Mac: 25 of 25 refs, 1,431 commits, whole.
+
+**Review (Grok, 2026-11-23).** A static read of phase 3 with the licence
+(session `01a20a72-f3f3…`). Eleven findings, each checked against the
+source; nine fixed. (1, High) `release.yml` asked the live site for each data
+file at its root, where the Worker serves them under `/data/`, so every
+release would have failed its data check: now `--base=/data/`; run by hand
+against the live site with two of the snapshot's data files, they answered
+404 before and match now. (5) A rerun on a later day stamped another
+`corpus_version` and could never match live: the release now builds with the
+version live names, and stops if live was not built from the tagged
+commit. (2) The deploy's scale check counted redirect shims as pages: it now
+counts the build's own sitemap pages that exist as files, and refuses a
+build with no sitemap. (3) An `.assetsignore` glob (`data/**`, `*.json`)
+passed: only Finder files may be left out. (4) `app/dist` is git-ignored,
+so a build made at one commit was deployed and tagged at another: the
+deploy reads the commit each play's `corpus_version` names and refuses a
+mismatch. Each with a failing test first (46 deploy tests; three hand
+breaks of the new gates each fail one). (6) The drawings row now names
+`antigone.svg`'s CC BY-SA 4.0, as the drawings' README does. (7) The root
+README now says `LICENSE` covers the code and nothing under `sources/`. (8,
+9) Johnston's terms and the Wikisource line say what the repo's own sections
+say. (11) `wrangler.jsonc`'s file count corrected. (10) Grok found nothing
+wrong in it.
 
 **Not yet seen.** `mirror.yml` on `main` (with this PR's merge), a tag push,
 the weekly check, a release, and a real deploy through the script.
