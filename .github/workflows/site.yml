@@ -2,19 +2,16 @@ name: Site
 
 # The whole public build on a clean Linux runner, from the clone plus the two
 # inputs fetched by checksum (HANDOFF-PORTABILITY.md, test 1). The repo is
-# private, so its minutes are John's money: this runs only by hand, from the
-# Actions tab once it is on main, or on a pull request when someone adds the
-# label "build-site". Never on a push. Which triggers it should have for good
-# is John's call, once he has seen what one run bills.
+# private, so its minutes are John's money (about 17 minutes a run). John,
+# 2026-11-23: "Yes, on PRs". So it runs on a pull request to main that is not
+# a draft (opened, new commits, reopened, marked ready), by hand from the
+# Actions tab, and on any pull request when someone adds the label
+# "build-site". Never on a plain branch push, and never for a draft's pushes.
 
 on:
   workflow_dispatch:
   pull_request:
-    types: [labeled]
-
-concurrency:
-  group: site-${{ github.ref }}
-  cancel-in-progress: true
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
 
 permissions:
   contents: read
@@ -32,7 +29,15 @@ env:
 jobs:
   site:
     name: site
-    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'build-site'
+    if: >-
+      github.event_name == 'workflow_dispatch'
+      || (github.event.action == 'labeled' && github.event.label.name == 'build-site')
+      || (github.event.action != 'labeled' && github.event.pull_request.base.ref == 'main' && !github.event.pull_request.draft)
+    # On the job, not the workflow: a skipped run (a draft's push, another
+    # label) then cancels nothing; a newer run of the build cancels an older.
+    concurrency:
+      group: site-${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
