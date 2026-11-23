@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en" data-genre="tragedy" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mid-speech directions and Medea's sons: options</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700&family=Alegreya+Sans+SC:wght@500;700&family=Cardo:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="site.css">
+<style>
+  /* Mockup chrome only. Everything inside .reader-body and .plate is the site's own CSS. */
+  .mock-bar { position: sticky; top: 0; z-index: 5; display: flex; gap: 1rem; align-items: center;
+    padding: .6rem 1rem; background: var(--page-bg); color: var(--text); border-bottom: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+    font: 500 .9rem "Alegreya Sans", sans-serif; }
+  .mock-bar button { font: inherit; padding: .25rem .7rem; cursor: pointer; }
+  .mock-h { max-width: 1080px; margin: 2.2rem auto .2rem; padding: 0 1rem; font: 700 1.05rem "Alegreya Sans", sans-serif; }
+  .mock-note { max-width: 1080px; margin: 0 auto .6rem; padding: 0 1rem; font: 400 .92rem/1.45 "Alegreya Sans", sans-serif; opacity: .8; }
+  .mock-part { max-width: 1080px; margin: 3rem auto 0; padding: 0 1rem; font: 700 1.5rem "Alegreya Sans", sans-serif; }
+  .mock .reader-body { padding-top: .4rem; padding-bottom: .4rem; }
+  hr.mock-rule { max-width: 1080px; margin: 1.2rem auto; border: 0; border-top: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
+
+  /* The four renderings. A is the site as built (span.stage-dir is display:block). */
+  .opt-B span.stage-dir, .opt-C span.stage-dir,
+  .opt-E span.stage-dir.short { display: inline; margin: 0; font-size: .92em; }
+  .opt-B span.stage-dir::before, .opt-E span.stage-dir.short::before { content: "("; }
+  .opt-B span.stage-dir::after,  .opt-E span.stage-dir.short::after  { content: ") "; }
+  .opt-B span.stage-dir.tail::before, .opt-C span.stage-dir.tail::before { content: " ("; }
+  .opt-C span.stage-dir::before { content: ""; }
+  .opt-C span.stage-dir::after { content: " "; }
+  .opt-C span.stage-dir.tail::before { content: " "; }
+  .opt-D span.stage-dir { display: none; }
+  span.stage-dir.stage-dir-short { display: inline; font-size: .92em; margin: 0; }
+</style>
+</head>
+<body>
+<div class="mock-bar">
+  <strong>Mockup, 2026-09-21</strong>
+  <span>Real rows from the built site, the site's own CSS.</span>
+  <button type="button" onclick="const h=document.documentElement;h.dataset.theme=h.dataset.theme==='dark'?'light':'dark'">Light / dark</button>
+</div>
+
+<h1 class="mock-part">1. Directions inside a speech</h1>
+<p class="mock-note">Two shapes occur. Orestes 1288–91: Perseus marks delivery with a bare <em>sung</em> and <em>spoken</em> in the middle of Electra's speech. Hecuba 432–37 and 438–43: a full sentence of stage business closes the speech. Directions <em>between</em> speeches already have their own row (your 09-19 ruling) and are not in question here.</p>
+
+<div id="options"></div>
+
+<h1 class="mock-part">2. Medea's sons</h1>
+<p class="mock-note">The “Persons” list on Medea's plate names three sons, in three colours, for two boys. Diggle prints three sigla at the murder: ΠΑΙΣ (ἔσωθεν) for the first cry at 1270a, then Πα.α and Πα.β. Coleridge heads the first cry “Sons”. The list below is the plate as built; under it, the three lines as the reader shows them.</p>
+<div id="medea"></div>
+
+<h1 class="mock-part">3. A direction that stands where a speech would go</h1>
+<p class="mock-note">Libation Bearers 869. Aegisthus cries out inside the palace: ἒ ἔ, ὀτοτοτοῖ. Smyth and Morshead give him words (“Oh! Oh! O woe!”). Johnston gives him none: he prints only a direction, <em>[Aegisthus screams in pain from inside the palace]</em>. The question is where that direction sits in Johnston's column.</p>
+<div id="lb869"></div>
+
+<script>
+const G = (num, spk, spkn, text) => `<div class="greek-line"><span class="line-num">${num}</span> <span class="line-text" lang="grc">${spk ? `<span class="speaker" data-spk="${spkn}" lang="grc">${spk}</span>` : ''}${text}</span></div>`;
+const ROW = (greek, eng) => `<div class="seg-row"><div class="greek-col" lang="grc">${greek}</div><div class="english-col prose-measure" data-trans="coleridge"><div><div class="overlay-prose turn-eng turn-stack">${eng}</div></div></div></div>`;
+const DIRROW = (t) => `<div class="seg-row play-direction-row"><div class="greek-col" aria-hidden="true"></div><div class="english-col prose-measure" data-trans="coleridge"><div class="overlay-prose turn-eng"><p class="stage-dir">${t}</p></div></div></div>`;
+const SPK = (n, name) => `<span class="speaker" data-spk="${n}">${name}</span>`;
+const BODY = (cls, inner) => `<div class="mock ${cls}"><div class="reader-body view-both trans-coleridge play-line prose-page spk-color"><div class="segment">${inner}</div></div></div>`;
+
+const orestes =
+  ROW(G('', 'Ηλ.', 2, "οὐκ εἰσακούουσ'· ὦ τάλαιν' ἐγὼ κακῶν·") + G('', '', 0, "ἆρ' ἐς τὸ κάλλος ἐκκεκώφηται ξίφη;"),
+      `<p class="turn-para">${SPK(2,'Electra')}They do not hear; alas for my troubles! Can it be that her beauty has blunted their swords?</p>`) +
+  ROW(G('1288-1289', 'Χο.', 10, 'τάχα τις Ἀργείων ἔνοπλος ὁρμάσας') + G('1290-1291', '', 0, 'ποδὶ βοηδρόμωι μέλαθρα προσμείξει.'),
+      `<p class="turn-para">${SPK(2,'Electra')}<span class="stage-dir short">sung</span>Soon some Argive in full armor, hurrying to her rescue, will attack the palace. <span class="stage-dir short">spoken</span>Keep a better look-out; it is not a contest of sitting still; turn about, some here, some there.</p>`);
+
+const hecuba =
+  ROW(G('', 'Πο.', 0, "κόμιζ', Ὀδυσσεῦ, μ' ἀμφιθεὶς κάραι πέπλους,") + G('', '', 0, "ὡς πρὶν σφαγῆναί γ' ἐκτέτηκα καρδίαν") + G('', '', 0, "θρήνοισι μητρὸς τήνδε τ' ἐκτήκω γόοις.") + G('435', '', 0, "ὦ φῶς· προσειπεῖν γὰρ σὸν ὄνομ' ἔξεστί μοι,") + G('', '', 0, "μέτεστι δ' οὐδὲν πλὴν ὅσον χρόνον ξίφους") + G('', '', 0, 'βαίνω μεταξὺ καὶ πυρᾶς Ἀχιλλέως.'),
+      `<p class="turn-para">${SPK(0,'Polyxena')}Come veil my head, Odysseus, and take me away; for now, before the fatal blow, my heart is melted by my mother’s wailing, and hers by mine. O light of day! for still I may call you by your name, though now my share in you is only the time I take to go between Achilles’ tomb and the sword.<span class="stage-dir tail">Odysseus and his attendants lead Polyxena away.</span></p>`) +
+  ROW(G('', 'Εκ.', 2, "οἲ 'γώ, προλείπω· λύεται δέ μου μέλη.") + G('', '', 0, "ὦ θύγατερ, ἅψαι μητρός, ἔκτεινον χέρα,") + G('440', '', 0, "δός· μὴ λίπηις μ' ἄπαιδ'. ἀπωλόμην, φίλαι."),
+      `<p class="turn-para">${SPK(2,'Hecuba')}Alas! I faint; my limbs sink under me. O my daughter, embrace your mother, stretch out your hand, give it to me; do not leave me childless! Ah, friends! it is my death-blow.<span class="stage-dir tail">Hecuba sinks fainting to the ground.</span></p>`);
+
+const opts = [
+  ['A', 'A. Own italic line (the site as built)', 'Every direction inside a speech takes a small italic line of its own. A one-word direction costs a whole line and breaks the sentence flow.'],
+  ['B', 'B. Inline, in parentheses', 'The direction runs in the text, italic, in round brackets, as a printed play sets it. Nothing breaks the paragraph.'],
+  ['C', 'C. Inline italic, no brackets', 'As B without the brackets. Short directions can read as part of the speech.'],
+  ['D', 'D. Omitted', 'Directions inside a speech are dropped. Hecuba loses the exit and the faint; directions between speeches stay.'],
+  ['E', 'E. By length: a word or two inline in brackets, a sentence on its own line', 'Delivery marks (sung, spoken, aside) sit inline as in B; stage business that is a full sentence keeps its own line as in A.'],
+];
+document.getElementById('options').innerHTML = opts.map(([k, h, note]) =>
+  `<h2 class="mock-h">${h}</h2><p class="mock-note">${note}</p>` + BODY('opt-' + k, orestes) + BODY('opt-' + k, hecuba) + '<hr class="mock-rule">').join('');
+
+const LI = (n, name, sig) => `<li style="--spk: var(--spk-${n})">${name} <span class="plate-sigl" lang="grc">(${sig})</span></li>`;
+const castHead = LI(9,'Nurse','Τρ.') + LI(10,'Attendant','Πα.') + LI(8,'Medea','Μη.') + LI(11,'Chorus','Χο.') + LI(5,'Creon','Κρ.') + LI(3,'Jason','Ια.') + LI(0,'Aegeus','Αι.') + LI(1,'Messenger','Αγ.');
+const PLATE = (tail) => `<section class="plate"><div class="plate-body"><div class="plate-main"><h3 class="plate-h">Persons</h3><ul class="plate-cast">${castHead}${tail}</ul></div></div></section>`;
+const murder = (n0, engName0) =>
+  ROW(G('1270a', 'Παις', n0, 'ἰώ μοι.'), `<p class="turn-para">${SPK(n0, engName0)}Ah!</p>`) +
+  ROW(G('1273', 'Χο.', 11, 'ἀκούεις βοὰν ἀκούεις τέκνων;') + G('1274', '', 0, 'ἰὼ τλᾶμον, ὦ κακοτυχὲς γύναι.'), `<p class="turn-para">${SPK(11,'Chorus')}Didst hear, didst hear the children’s cry? O lady, born to sorrow, victim of an evil fate!</p>`) +
+  ROW(G('1271', 'Πα.α', 4, 'οἴμοι, τί δράσω; ποῖ φύγω μητρὸς χέρας;'), `<p class="turn-para">${SPK(4,'1st Son')}Ah, me; what can I do? Whither fly to escape my mother’s blows?</p>`) +
+  ROW(G('', 'Πα.β', 6, "οὐκ οἶδ', ἀδελφὲ φίλτατ'· ὀλλύμεσθα γάρ."), `<p class="turn-para">${SPK(6,'2nd Son')}I know not, sweet brother mine; we are undone.</p>`);
+
+document.getElementById('medea').innerHTML =
+  `<h2 class="mock-h">A. As built: Son, First Son, Second Son</h2><p class="mock-note">Three entries, three colours. The edition's three sigla, read as three characters.</p>` +
+  PLATE(LI(2,'Son','Παις') + LI(4,'First Son','Πα.α') + LI(6,'Second Son','Πα.β')) + BODY('', murder(2, 'Sons')) + '<hr class="mock-rule">' +
+  `<h2 class="mock-h">B. Fold the first cry into the First Son</h2><p class="mock-note">Two entries. The cry at 1270a takes the First Son's colour. An editorial choice: Diggle does not say which boy cries out.</p>` +
+  PLATE(LI(4,'First Son','Παις, Πα.α') + LI(6,'Second Son','Πα.β')) + BODY('', murder(4, 'Sons')) + '<hr class="mock-rule">' +
+  `<h2 class="mock-h">C. Keep the edition's three sigla, name the first for what it is</h2><p class="mock-note">The first entry reads “A child, within”, as the edition's ΠΑΙΣ (ἔσωθεν) does. No boy is chosen; the list no longer reads as three sons.</p>` +
+  PLATE(LI(2,'A child, within','Παις') + LI(4,'First Son','Πα.α') + LI(6,'Second Son','Πα.β')) + BODY('', murder(2, 'Sons'));
+
+const lb = (mid) =>
+  ROW(G('868', '', 0, 'ἅψειν. εἴη δ᾽ ἐπὶ νίκῃ.'), `<p class="turn-para">… noble Orestes by himself<br>must face two enemies.<br>Let him emerge the victor!</p>`) +
+  mid +
+  ROW(G('870', 'Χο.', 11, 'ἔα ἔα μάλα·'), `<p class="turn-para">${SPK(11,'Chorus')}<span class="stage-dir stage-dir-short">(speaking separately)</span> Listen!<br>What was that?</p>`) +
+  ROW(G('871', '', 0, 'πῶς ἔχει; πῶς κέκρανται δόμοις;'), `<p class="turn-para">What’s going on,<br>in there, inside the palace?</p>`);
+const cry = G('869', 'Αἴ.', 4, 'ἒ ἔ, ὀτοτοτοῖ.');
+const DIRTXT = 'Aegisthus screams in pain from inside the palace';
+document.getElementById('lb869').innerHTML =
+  `<h2 class="mock-h">A. Own row across the page, as for any direction between speeches</h2><p class="mock-note">The rule you set on 09-19. The Greek cry then has nothing beside it, and the direction sits below it, across both columns.</p>` +
+  BODY('', lb(ROW(cry, '') + DIRROW(DIRTXT))) + '<hr class="mock-rule">' +
+  `<h2 class="mock-h">B. Beside the Greek it stands for</h2><p class="mock-note">The direction takes the speech's place in the row: the scream faces the cry.</p>` +
+  BODY('', lb(ROW(cry, `<p class="stage-dir">${DIRTXT}</p>`))) + '<hr class="mock-rule">' +
+  `<h2 class="mock-h">C. Beside the Greek, under the speaker's name</h2><p class="mock-note">As B, with Aegisthus named in his colour, so the row reads as his turn.</p>` +
+  BODY('', lb(ROW(cry, `<p class="turn-para">${SPK(4,'Aegisthus')}<span class="stage-dir" style="display:inline">${DIRTXT}</span></p>`)));
+</script>
+</body>
+</html>
