@@ -18,6 +18,7 @@ from pathlib import Path
 
 from lxml import etree
 
+from . import greek_lines
 from . import scheme as scheme_mod
 from .config import BUILD_DIR, SOURCES_DIR, Manifest
 from .lined import (
@@ -1215,10 +1216,19 @@ _PLAY_ANGLE_BRACKETS = str.maketrans("<>", "⟨⟩")
 def _line_with_play_labels(
     el: etree._Element,
 ) -> tuple[str, list[dict], str | None, bool]:
-    """Flatten a play <l>: classify each `<label type="speaker">` as a real
-    speaker cue or a strophe/antistrophe/epode marker (see the module-doc
-    block above), returning (text, speaker_markers, strophe_label,
-    had_schema) — ``had_schema`` per :func:`_strip_metrical_schema` (C5).
+    """A play <l> from the export: flattened as the line file writes it
+    (greek_lines.flatten_line), then read by `_play_line_from_text`."""
+    return _play_line_from_text(greek_lines.flatten_line(el))
+
+
+def _play_line_from_text(
+    line: str,
+) -> tuple[str, list[dict], str | None, bool]:
+    """Read one play line as the line file holds it: classify each label in
+    braces (the export's `<label type="speaker">`) as a real speaker cue or a
+    strophe/antistrophe/epode marker (see the module-doc block above),
+    returning (text, speaker_markers, strophe_label, had_schema) —
+    ``had_schema`` per :func:`_strip_metrical_schema` (C5).
 
     A speaker cue is excluded from the text stream and recorded as an
     `{offset, label}` marker, exactly like `_line_with_speakers` above — the
@@ -1230,37 +1240,35 @@ def _line_with_play_labels(
     `strophe_label` (see `_normalize_strophe_label`) — never a speaker
     marker, never citable text.
 
-    Unlike `_line_with_speakers`, a label's text is taken via `itertext()`
-    (not `.text`), because a full-caps first-appearance speaker name is
-    wrapped in its own `<hi rend="small">` child ("<label type=\"speaker\">
+    A label's text was taken via `itertext()` (not `.text`) when the line was
+    flattened, because a full-caps first-appearance speaker name is wrapped
+    in its own `<hi rend="small">` child ("<label type=\"speaker\">
     <hi rend=\"small\">ΦΥΛΑΞ</hi></label>") — `.text` alone would see only
     the label's own (empty) direct text and silently lose the name."""
-    parts: list[str] = [el.text or ""]
+    parts: list[str] = []
     speaker_texts: list[str] = []
     strophe_label: str | None = None
-    for child in el:
-        tag = etree.QName(child).localname if isinstance(child.tag, str) else ""
-        if tag == "label" and child.get("type") == "speaker":
-            text = re.sub(r"\s+", " ", "".join(child.itertext())).strip()
-            m = _PLAY_LINE_MALFORMED_RE.match(text)
-            if m:
-                if strophe_label is not None:
-                    raise ValueError(f"more than one strophe label on one play line: {text!r}")
-                strophe_label = _normalize_strophe_label(m.group("strophe"))
-                speaker_texts.append(m.group("speaker"))
-                parts.append(_SPEAKER_SENTINEL)
-            elif _PLAY_LINE_STROPHE_RE.match(text):
-                if strophe_label is not None:
-                    raise ValueError(f"more than one strophe label on one play line: {text!r}")
-                strophe_label = _normalize_strophe_label(text)
-                # Dropped outright: no sentinel, no token-stream content, no
-                # speaker marker.
-            else:
-                speaker_texts.append(text)
-                parts.append(_SPEAKER_SENTINEL)
+    for kind, value in greek_lines.split_labels(line):
+        if kind == "text":
+            parts.append(value)
+            continue
+        text = value
+        m = _PLAY_LINE_MALFORMED_RE.match(text)
+        if m:
+            if strophe_label is not None:
+                raise ValueError(f"more than one strophe label on one play line: {text!r}")
+            strophe_label = _normalize_strophe_label(m.group("strophe"))
+            speaker_texts.append(m.group("speaker"))
+            parts.append(_SPEAKER_SENTINEL)
+        elif _PLAY_LINE_STROPHE_RE.match(text):
+            if strophe_label is not None:
+                raise ValueError(f"more than one strophe label on one play line: {text!r}")
+            strophe_label = _normalize_strophe_label(text)
+            # Dropped outright: no sentinel, no token-stream content, no
+            # speaker marker.
         else:
-            parts.append("".join(child.itertext()))
-        parts.append(child.tail or "")
+            speaker_texts.append(text)
+            parts.append(_SPEAKER_SENTINEL)
     collapsed = re.sub(r"\s+", " ", "".join(parts)).strip()
     out: list[str] = []
     markers: list[dict] = []
@@ -1466,8 +1474,14 @@ def _check_repeated_refs(allowed: dict[str, int], counts: dict[str, int], xml_pa
 
 
 def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
-    """Flat (ref, text, speakers, role?, label?) list for play-line's flat
-    export, in DOCUMENT (printed) order — never re-sorted (docs/p1-probe.md:
+    """`_parse_play_rows` over an export's lines (greek_lines.rows_from_tree)."""
+    return _parse_play_rows(greek_lines.rows_from_tree(tree, str(xml_path or "<xml>")), sch, manifest, xml_path)
+
+
+def _parse_play_rows(rows, sch, manifest, xml_path=None) -> list[dict]:
+    """Flat (ref, text, speakers, role?, label?) list for a play's lines (a
+    line file's rows, or an export's, read the same way), in DOCUMENT
+    (printed) order — never re-sorted (docs/p1-probe.md:
     "display document order, never re-sort"; a jump to a transposed number
     lands on its printed position, no seam note needed).
 
@@ -1498,16 +1512,13 @@ def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
     ref_fixes = _load_play_ref_fixes(manifest)
     ref_fix_hits: dict[str, int] = {raw: 0 for raw in ref_fixes}
     ref_counts: dict[str, int] = {}
-    body = tree.find(".//{*}body")
-    if body is None:
-        raise ValueError(f"{xml_path or '<xml>'}: no <body> element in play-line export")
-    for l_el in body.iterfind("{*}l"):
-        n = l_el.get("n")
+    for row in rows:
+        n = row.n
         if n == "t":
             if title_seen:
                 raise ValueError(f"{xml_path or '<xml>'}: more than one <l n=\"t\"> title line")
             title_seen = True
-            title_text = _line_text(l_el)
+            title_text = row.text
             h = _flat_title_content_hash(title_text)
             observed_titles.add(h)
             if h not in declared_titles:
@@ -1528,7 +1539,7 @@ def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
                 f"(declare it in citation.repeated_refs if the edition prints it twice)"
             )
         seen_refs.add(ref)
-        text, markers, label, had_schema = _line_with_play_labels(l_el)
+        text, markers, label, had_schema = _play_line_from_text(row.text)
         entry: dict = {"ref": ref, "text": text}
         if markers:
             entry["speakers"] = markers
@@ -1782,7 +1793,16 @@ def _parse_spine_play(xml_path: Path, manifest: Manifest, sch) -> dict:
     loudly), and groups the result into per-speech segments."""
     tree = etree.parse(str(xml_path))
     _check_sourcedesc(tree, manifest, xml_path)
-    flat = _parse_play(tree, sch, manifest, xml_path)
+    rows = greek_lines.rows_from_tree(tree, str(xml_path))
+    return _parse_spine_play_rows(rows, manifest, sch, xml_path)
+
+
+def _parse_spine_play_rows(rows, manifest: Manifest, sch, origin=None) -> dict:
+    """The play's spine from its lines: what the build does with a line
+    file, and the XML path does with the lines it reads out of an export
+    (whose source statement it has checked first)."""
+    xml_path = origin
+    flat = _parse_play_rows(rows, sch, manifest, origin)
     _rejoin_play_line_hyphens(flat)
 
     doc_refs = [e["ref"] for e in flat]
@@ -1849,13 +1869,10 @@ def _check_sourcedesc(tree, manifest: Manifest, xml_path) -> None:
 
     Optional: a work with no `work.expected_sourcedesc` declared skips
     this check entirely -- not every work has been backfilled with it."""
+    actual = greek_lines.sourcedesc(tree)
     expected = manifest.data.get("work", {}).get("expected_sourcedesc")
     if not expected:
         return
-    nodes = tree.findall(".//{*}sourceDesc")
-    actual = " ".join(
-        re.sub(r"\s+", " ", "".join(node.itertext())).strip() for node in nodes
-    )
     if expected not in actual:
         raise ValueError(
             f"{xml_path or manifest.work_id}: export XML's <sourceDesc> "
@@ -2029,9 +2046,42 @@ def parse_spine(xml_path: Path, manifest: Manifest) -> dict:
     }
 
 
+def read_lines(manifest: Manifest) -> tuple[list, str]:
+    """A play's committed line file, corpus/greek/<play>.tsv: (rows, edition)."""
+    path = greek_lines.corpus_path(manifest)
+    if not path.exists():
+        raise FileNotFoundError(
+            f"{manifest.work_id}: the Greek line file {path} is missing. Make it on a machine "
+            f"with the TLG: python -m drama_pipeline.extract --work {greek_lines.work_name(manifest)} "
+            f"(the build never runs Diogenes)"
+        )
+    return greek_lines.load(path)
+
+
+def play_spine(manifest: Manifest) -> dict:
+    """A play's spine, from its committed line file."""
+    sch = scheme_mod.for_manifest(manifest)
+    if not sch.play_line_scheme:
+        raise ValueError(f"{manifest.work_id}: only a play-line work reads a line file (scheme {sch.name!r})")
+    rows, edition = read_lines(manifest)
+    path = greek_lines.corpus_path(manifest)
+    # The file names the edition the manifest does: a file of another
+    # edition must not build as this one (extract checked the export's own
+    # source statement against work.expected_sourcedesc).
+    wanted = " ".join(manifest.data["work"]["greek_edition"].split())
+    if edition != wanted:
+        raise ValueError(f"{manifest.work_id}: {path} names the edition {edition!r}, and the manifest {wanted!r}")
+    return _parse_spine_play_rows(rows, manifest, sch, path)
+
+
 def run(manifest: Manifest) -> Path:
-    xml_path = run_export(manifest)
-    spine = parse_spine(xml_path, manifest)
+    if scheme_mod.for_manifest(manifest).play_line_scheme:
+        spine = play_spine(manifest)
+    else:
+        # The sibling readers' page and section schemes, which no play uses
+        # (the tests' made-up works): an export already on disk, as before.
+        # Diogenes is never run.
+        spine = parse_spine(run_export(manifest), manifest)
     out = BUILD_DIR / "stage1" / "greek_spine.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(spine, ensure_ascii=False, indent=1), encoding="utf-8")

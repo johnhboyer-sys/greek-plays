@@ -396,7 +396,11 @@ def emit_translation_indexes(
 def build_lemma_map(current: dict, work_id: str, build_dir: Path = BUILD_DIR) -> None:
     """Merge shipped analyses into fold(form) -> [fold, printed headword] shards."""
     forms: dict[str, dict[str, str]] = defaultdict(dict)
-    paths = (build_dir / "dist").glob("*/analyses.json")
+    # Sorted: the order the plays are read is the order keys enter each shard,
+    # and a Mac and Linux list a folder in different orders, so an unsorted
+    # list made CI's maps differ from a Mac's in key order
+    # (HANDOFF-PORTABILITY.md, phase 1, test 2).
+    paths = sorted((build_dir / "dist").glob("*/analyses.json"))
     for path in paths:
         if path.parent.name == work_id:
             continue

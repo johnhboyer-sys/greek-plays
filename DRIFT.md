@@ -1152,3 +1152,14 @@ Page 1 reads only the plays it draws. Ported hunk by hunk; `countRows` checked a
 - `shared/lib/search.ts` — aristotle-reader's hunks (`accentNarrowing` in `resolveHeadwords` and `searchPhraseVariants`; `greekHitForms`' `phrase` flag) on the plays' `resolveHeadwords(terms, picks?)`.
 - `shared/components/Search.svelte` — `grkPhrase` in `SearchCtx`, passed to `greekHitForms`.
 - `shared/__tests__/search-port/form-panel-search.test.ts`, `shared/__tests__/typed-headword.test.ts` — the `phrase` argument, and a phrase Forms-list test.
+
+### Portability phase 1, the committed Greek (2026-11-23): homer-reader PR #78, aristotle-reader PR #231
+
+- `pipeline/drama_pipeline/greek_lines.py`, `pipeline/drama_pipeline/extract.py` — new, in the shape of homer-reader's: one line file per play in `corpus/greek/` (`n`, then the text with speaker labels in braces), its reader, writer, and guard (`forbidden`); `extract` runs Diogenes once per author and writes all 44 files or none. `write_all` is the siblings' unchanged.
+- `pipeline/drama_pipeline/inputs.py` — new, homer-reader's unchanged but for names and skipping `manifests/authors.yaml`: the Morpheus table and the LSJ pinned by sha256 (the same pins as all three siblings).
+- `pipeline/drama_pipeline/stage1_greek.py` — a play's spine is read from its line file (`read_lines`, `play_spine`, `_parse_spine_play_rows`); the export path reads the same rows (`greek_lines.rows_from_tree`); labels are classified from the text (`_play_line_from_text`); `_check_sourcedesc_text` reads the file's `# edition:` line. Other schemes (no play uses one) still read an export already on disk; nothing here runs Diogenes.
+- `pipeline/drama_pipeline/config.py` — `diogenes_data()` reads `$DIOGENES_DATA` first, as homer-reader's.
+- `scripts/build-public.mjs` — runs `drama_pipeline.inputs check` before anything is cleaned.
+- `scripts/ocr/jebb_to_tei.py` — reads the reference spine from the line file (`play_spine`), not the export.
+- `pipeline/drama_pipeline/stage6_search.py` — `build_lemma_map` reads the plays' analyses in name order: the disk's order (APFS's hash order on a Mac, another on Linux) set the key order of `lemma-map/*.json`, so CI's build and a Mac's differed (same JSON, other bytes).
+- `scripts/compare-snapshot.mjs`, `scripts/verify-snapshot.mjs` — new, homer-reader's, with `--floor` (a snapshot that is a floor: build-only files counted by family, not failed) and `--svelte-at` (the classes of components a build saw at another absolute path, as in CI).
