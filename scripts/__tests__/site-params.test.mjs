@@ -89,3 +89,22 @@ test('robots.txt names the sitemap under the base, and only when there is an ori
       'User-agent: *\nAllow: /\n\nSitemap: https://mirror.example.org/mirror/sitemap-index.xml\n');
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+// Grok's read of #18: the sitemap filter read paths as if the site were at
+// the root, so under /mirror/ it kept the redirect shims and dropped the
+// play pages. It now reads each path below the base.
+import { inSitemap } from '../site-params.mjs';
+
+test('the sitemap filter reads paths below the base', () => {
+  for (const base of ['/', '/mirror/']) {
+    const at = (p) => `https://example.org${base}${p}`;
+    assert.equal(inSitemap(at(''), base), true, base);
+    assert.equal(inSitemap(at('euripides/medea/'), base), true, base);          // a play's page
+    assert.equal(inSitemap(at('read/euripides/medea/'), base), true, base);     // its reader
+    assert.equal(inSitemap(at('euripides/'), base), true, base);
+    assert.equal(inSitemap(at('texts/euripides/medea/'), base), false, base);   // an alias
+    assert.equal(inSitemap(at('euripides/medea/1000/'), base), false, base);    // a citation shim
+    assert.equal(inSitemap(at('read/euripides/medea/section-3/'), base), false, base);
+    assert.equal(inSitemap(at('lemma/grc/entry/'), base), false, base);
+  }
+});

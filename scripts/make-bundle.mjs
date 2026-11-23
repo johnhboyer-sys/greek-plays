@@ -87,6 +87,7 @@ export function pyReport({ status, stdout = '', stderr = '', error }, pass) {
 export function lsjHeadsCheck(served) {
   let heads = null;
   const keys = new Set();
+  const keyless = [];
   let analyses = 0;
   for (const f of served((n) => n === 'lsj-heads.json' || n === 'analyses.json')) {
     let d;
@@ -94,15 +95,71 @@ export function lsjHeadsCheck(served) {
     if (f.path === 'data/lsj-heads.json') { heads = d; continue; }
     if (!/^data\/[^/]+\/analyses\.json$/.test(f.path) || !d || typeof d !== 'object') continue;
     analyses++;
+
+    let own = 0;
     for (const entries of Object.values(d)) {
-      for (const e of Array.isArray(entries) ? entries : []) for (const k of Array.isArray(e?.lsj) ? e.lsj : []) keys.add(k);
+      for (const e of Array.isArray(entries) ? entries : []) for (const k of Array.isArray(e?.lsj) ? e.lsj : []) { keys.add(k); own++; }
     }
+    if (!own) keyless.push(f.path.split('/')[1]);
   }
   if (!heads || typeof heads !== 'object' || Array.isArray(heads)) return { ok: false, problems: ['no data/lsj-heads.json object'], read: 0 };
   if (!keys.size) return { ok: false, problems: [`no LSJ key in ${analyses} analyses files`], read: 0 };
   const missing = [...keys].filter((k) => typeof heads[k]?.head !== 'string' || !heads[k].head);
-  return { ok: !missing.length, read: keys.size,
-    problems: missing.length ? [`${missing.length} LSJ key${missing.length === 1 ? ' has' : 's have'} no headword, first: ${missing[0]}`] : [] };
+  const problems = missing.length ? [`${missing.length} LSJ key${missing.length === 1 ? ' has' : 's have'} no headword, first: ${missing[0]}`] : [];
+  // Each play's own analyses must name some key: an emptied one would leave
+  // its word popups bare while the union above still had keys.
+  if (keyless.length) problems.push(`${keyless.length} play's analyses name no LSJ key, first: ${keyless.sort()[0]}`);
+  return { ok: !problems.length, read: keys.size, problems };
+}
+
+// The files every play holds, and every Greek edition, none of them empty
+// (read from the 2026-11-20 snapshot of live: the files all 44 plays and all
+// 54 editions share). Grok's read of #18: a play's search files, an edition's
+// book, or a play's analyses could be lost and every other gate pass.
+export const PLAY_FILES = [
+  'analyses.json', 'book-01.json', 'chapter-titles.json', 'chapters.json', 'columns.json', 'manifest.json',
+  'manifest.lyceum.json', 'rows.json', 'search/english-secondary.json', 'search/english.json', 'search/grammar-col.bin',
+  'search/grammar-dict.json', 'search/greek_form.json', 'search/greek_lemma.json', 'search/meta.json',
+  'search/offsets.json', 'search/running.json',
+];
+export const EDITION_FILES = [
+  'analyses.json', 'book-01.json', 'chapter-titles.json', 'columns.json', 'concordance.json', 'edition.json',
+  'rows.json', 'search/grammar-col.bin', 'search/grammar-dict.json', 'search/greek_form.json', 'search/greek_lemma.json',
+  'search/meta.json', 'search/offsets.json',
+];
+
+// Every play (a data/<play>/manifest.json; as many as the manifests declare)
+// holds PLAY_FILES, and every edition its manifest's greekEditions names holds
+// EDITION_FILES, each present and not empty (JSON with nothing in it, or a
+// file of no bytes).
+export function playFilesCheck(served, files, expectedPlays) {
+  const problems = [];
+  let read = 0;
+  const text = new Map();
+  const names = new Set([...PLAY_FILES, ...EDITION_FILES].map((n) => path.posix.basename(n)));
+  for (const f of served((n) => names.has(n))) text.set(f.path, f.text);
+  const plays = files.map((p) => /^data\/([^/]+)\/manifest\.json$/.exec(p)).filter(Boolean).map((m) => m[1]).sort();
+  if (plays.length !== expectedPlays) problems.push(`${plays.length} plays in the data, ${expectedPlays} manifests`);
+  const hold = (dir, names) => {
+    for (const name of names) {
+      const p = `data/${dir}/${name}`;
+      if (!text.has(p)) { problems.push(`${dir}: ${name} is missing`); continue; }
+      read++;
+      const body = text.get(p);
+      let empty = body.length === 0;
+      if (!empty && name.endsWith('.json')) {
+        try { const v = JSON.parse(body); empty = v === null || (typeof v === 'object' && Object.keys(v).length === 0); } catch { /* the JSON check names it */ }
+      }
+      if (empty) problems.push(`${dir}: ${name} is empty`);
+    }
+  };
+  for (const play of plays) {
+    hold(play, PLAY_FILES);
+    let editions = [];
+    try { editions = JSON.parse(text.get(`data/${play}/manifest.json`)).greekEditions ?? []; } catch { problems.push(`${play}: manifest.json is not JSON`); }
+    for (const e of Array.isArray(editions) ? editions : []) if (e?.id) hold(`${play}/ed/${e.id}`, EDITION_FILES);
+  }
+  return { ok: !problems.length, problems: problems.length > 20 ? [...problems.slice(0, 20), `and ${problems.length - 20} more`] : problems, read };
 }
 
 // The lemma pages' index lists slugs, and each has its file. No gate above
@@ -134,6 +191,7 @@ export function dataGates(served, { dataDir, files = [] }) {
     // and it must have checked some manifest: on a folder with none it says "no works"
     ['data contracts', pyReport(py(['-m', 'drama_pipeline.validate_contracts', '--schemas', path.join(ROOT, 'schemas'), '--dist', data]),
       /^checked: [1-9]\d* manifest/m)],
+    ['play files', playFilesCheck(served, files, readdirSync(path.join(ROOT, 'manifests')).filter((n) => n.endsWith('.yaml') && n !== 'authors.yaml').length)],
     ['LSJ headwords', lsjHeadsCheck(served)],
     ['lemma pages', lemmaCheck(served, files)],
     ['JSON', jsonCheck(served)],
@@ -184,6 +242,12 @@ export function makeBundle({ dist, out, gates = dataGates }) {
     }
   }
   if (!has.has('index.html')) r.problems.push(`no index.html in ${dist}: not a built site`);
+  else {
+    // A bundle is served at a web root; a build made under SITE_BASE points
+    // its pages at the base and would 404 there (Grok's read of #18).
+    const bases = new Set([...read('index.html').toString('utf8').matchAll(/(?:href|src)="(\/[^"]*?)_astro\//g)].map((m) => m[1]));
+    for (const b of bases) if (b !== '/') r.problems.push(`built under the base ${b}: a bundle is served at a web root; build again with SITE_BASE unset`);
+  }
   if (has.has(SUMS)) r.problems.push(`${dist} already holds ${SUMS}`);
   for (const p of all) if (path.posix.basename(p) === '.DS_Store') r.problems.push(`${p} is a Finder file, not part of the site; delete it`);
   for (const name of OTHER_HOST_DATA) if (has.has(name)) r.problems.push(`${name} is in the build: it was built for data on another host; build again with PUBLIC_DATA_ROOT unset`);
