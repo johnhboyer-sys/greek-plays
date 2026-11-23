@@ -1172,3 +1172,4 @@ Page 1 reads only the plays it draws. Ported hunk by hunk; `countRows` checked a
 - `app/public/fonts/` — new: every file Google served for the pages' two font queries, `fonts.css`, and each family's OFL text (aristotle-reader PR #232's method); the 15 pages and components that linked Google's stylesheets link `fonts/fonts.css` under the base.
 - `app/src/components/SiteFoot.astro`, `app/src/lib/feedback-endpoint.ts`, `app/public/feedback-endpoint.json` — the feedback button shows only where the host serves the marker (the Cloudflare deploy; the mirror bundle leaves it out), and the form posts to the address it names.
 - `scripts/check-served.mjs` — new, homer-reader's unchanged.
+- `pipeline/drama_pipeline/preflight.py` — `--web` (`validate(..., web=True)`): on the web build's data, which ships no LSJ shards, the dictionary keys are not looked up in shards; the mirror bundle's preflight runs with it. Unset, preflight is as it was.

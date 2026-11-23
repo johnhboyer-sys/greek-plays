@@ -351,22 +351,26 @@ test('a dictionary gate that checked no key does not pass', () => {
 
 // The word popup reads a word's headword from data/lsj-heads.json by the LSJ
 // key the play's analyses give it, then asks Grammata for the entry.
-test('the LSJ headwords: every key a play or edition names has a headword', () => {
+test('the LSJ headwords: every key a play names has a headword; an edition\'s keys are not held to them', () => {
   const files = (tree) => function* (filter) {
     for (const [p, body] of Object.entries(tree)) if (filter(path.posix.basename(p))) yield { path: p, text: JSON.stringify(body) };
   };
   const a = (...keys) => ({ 'λόγος': [{ lemma: 'lo/gos', lsj: keys }] });
   const good = { 'data/lsj-heads.json': { 'lo/gos': { head: 'λόγος' }, 'qeo/s': { head: 'θεός' } },
     'data/medea/analyses.json': a('lo/gos'), 'data/medea/ed/paley/analyses.json': a('qeo/s') };
-  assert.deepEqual(lsjHeadsCheck(files(good)), { ok: true, problems: [], read: 2 });
-  // a key an edition names and the heads lack
-  assert.match(lsjHeadsCheck(files({ ...good, 'data/medea/ed/paley/analyses.json': a('a)reth/') })).problems.join('\n'),
+  assert.deepEqual(lsjHeadsCheck(files(good)), { ok: true, problems: [], read: 1 });
+  // a key a play names and the heads lack
+  assert.match(lsjHeadsCheck(files({ ...good, 'data/medea/analyses.json': a('lo/gos', 'a)reth/') })).problems.join('\n'),
     /1 LSJ key has no headword, first: a\)reth\//);
+  // an edition's key the heads lack: the heads are built from the plays' own
+  // analyses only (build-lsj-heads.mjs), so it is not this gate's to fail
+  assert.equal(lsjHeadsCheck(files({ ...good, 'data/medea/ed/paley/analyses.json': a('a)reth/') })).ok, true);
   // a head with no word, an emptied heads file, no heads file, no key at all
   assert.equal(lsjHeadsCheck(files({ ...good, 'data/lsj-heads.json': { 'lo/gos': { head: '' }, 'qeo/s': { head: 'θεός' } } })).ok, false);
-  assert.match(lsjHeadsCheck(files({ ...good, 'data/lsj-heads.json': {} })).problems.join('\n'), /2 LSJ keys have no headword/);
+  assert.match(lsjHeadsCheck(files({ ...good, 'data/lsj-heads.json': {} })).problems.join('\n'), /1 LSJ key has no headword, first: lo\/gos/);
   assert.match(lsjHeadsCheck(files({ 'data/medea/analyses.json': a('lo/gos') })).problems.join('\n'), /no data\/lsj-heads\.json/);
   assert.match(lsjHeadsCheck(files({ 'data/lsj-heads.json': {} })).problems.join('\n'), /no LSJ key in 0 analyses files/);
+  assert.match(lsjHeadsCheck(files({ 'data/lsj-heads.json': {}, 'data/medea/ed/paley/analyses.json': a('lo/gos') })).problems.join('\n'), /no LSJ key in 0 analyses files/);
   // a heads file deeper down is not the one the popup reads
   assert.match(lsjHeadsCheck(files({ ...good, 'data/lsj-heads.json': undefined, 'data/x/lsj-heads.json': good['data/lsj-heads.json'] }))
     .problems.join('\n'), /no data\/lsj-heads\.json/);

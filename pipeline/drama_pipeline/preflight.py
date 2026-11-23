@@ -118,10 +118,15 @@ class WorkManifest:
     private_data: dict[str, Any] | None = None
 
 
-def validate(data_dir: Path, manifests_dir: Path, public: bool = False, editions: bool | None = None) -> list[Problem]:
+def validate(data_dir: Path, manifests_dir: Path, public: bool = False, editions: bool | None = None,
+             web: bool = False) -> list[Problem]:
     """`editions`: whether this build emits the Greek editions (build-public's
     DRAMA_EDITIONS=1; None reads that variable). A build of editions needs
-    every declared OCR source, and a public one every declared edition's dir."""
+    every declared OCR source, and a public one every declared edition's dir.
+    `web`: `data_dir` is the web build's data (app/dist/data), from which
+    build:public removes the dictionary shards (Grammata serves the entries),
+    so the dictionary keys are not looked up in them; build:public's own
+    preflight did that on build/dist (HANDOFF-PORTABILITY.md, phase 2)."""
     if editions is None:
         editions = os.environ.get("DRAMA_EDITIONS") == "1"
     problems: list[Problem] = []
@@ -130,7 +135,7 @@ def validate(data_dir: Path, manifests_dir: Path, public: bool = False, editions
         _validate_manifest_schema(manifest, problems)
         _validate_greek_editions(manifest, data_dir, problems, editions_built=editions, public=public)
         _validate_public_domain_allowlist(manifest, problems)
-        _validate_work_data(data_dir, manifest, problems, public_build=public)
+        _validate_work_data(data_dir, manifest, problems, public_build=public, web=web)
     return problems
 
 
@@ -140,20 +145,22 @@ def main(argv: list[str] | None = None) -> int:
     if "--public" in argv:
         public = True
         argv = [a for a in argv if a != "--public"]
+    web = "--web" in argv
+    argv = [a for a in argv if a != "--web"]
     editions = None
     if "--editions" in argv:
         editions = True
         argv = [a for a in argv if a != "--editions"]
     if len(argv) != 2:
         print(
-            "usage: python3 -m drama_pipeline.preflight [--public] [--editions] <data-dir> <manifests-dir>",
+            "usage: python3 -m drama_pipeline.preflight [--public] [--editions] [--web] <data-dir> <manifests-dir>",
             file=sys.stderr,
         )
         return 2
 
     data_dir = Path(argv[0])
     manifests_dir = Path(argv[1])
-    problems = validate(data_dir, manifests_dir, public=public, editions=editions)
+    problems = validate(data_dir, manifests_dir, public=public, editions=editions, web=web)
     if problems:
         for work, file_name, problem in problems:
             print(f"{work}: {file_name}: {problem}")
@@ -872,6 +879,7 @@ def _validate_work_data(
     manifest: WorkManifest,
     problems: list[Problem],
     public_build: bool = False,
+    web: bool = False,
 ) -> None:
     work_dir = data_dir / manifest.work_id
     if not work_dir.exists():
@@ -938,7 +946,7 @@ def _validate_work_data(
     )
     _validate_chapters(manifest, loaded.get("chapters.json"), segments, anchors, problems, bekker_native, scheme)
     _validate_columns(manifest, loaded.get("columns.json"), segments, problems, scheme, dk_all_context_columns)
-    _validate_analyses(manifest, data_dir, loaded.get("analyses.json"), token_keys, problems)
+    _validate_analyses(manifest, data_dir, loaded.get("analyses.json"), token_keys, problems, web=web)
     _validate_public_gating(manifest, loaded, problems, public_build=public_build)
     if scheme.fragment_scheme:
         problems.append((
@@ -2299,6 +2307,7 @@ def _validate_analyses(
     analyses: Any,
     token_keys: set[str],
     problems: list[Problem],
+    web: bool = False,
 ) -> None:
     if analyses is None:
         return
@@ -2334,7 +2343,7 @@ def _validate_analyses(
                     problems.append((manifest.work_id, "analyses.json", f"{key}: lsj key must be a non-empty string"))
                 else:
                     lsj_keys.add(lsj_key)
-    _validate_lsj_keys(manifest, data_dir, lsj_keys, problems)
+    _validate_lsj_keys(manifest, data_dir, lsj_keys, problems, web=web)
 
 
 def _validate_lsj_keys(
@@ -2342,6 +2351,7 @@ def _validate_lsj_keys(
     data_dir: Path,
     lsj_keys: set[str],
     problems: list[Problem],
+    web: bool = False,
 ) -> None:
     # Dictionary shard directory is per-language: 'lsj' (Greek/LSJ, default)
     # or 'ls' (Latin/Lewis & Short, Wave 2 Batch 1b) — see
@@ -2364,6 +2374,9 @@ def _validate_lsj_keys(
         ))
         return
     shard_dir_name = SHARD_DIR[language]
+    if web:
+        # The web build ships no shards; see validate().
+        return
     shards: dict[str, dict[str, Any]] = {}
     for key in sorted(lsj_keys):
         shard_name = _lsj_shard(key)

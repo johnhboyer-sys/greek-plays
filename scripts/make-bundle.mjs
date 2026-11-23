@@ -10,9 +10,9 @@
 // folder, no data root in sw.js, no .assetsignore or _redirects. That is the
 // plays' deploy too: their data ships inside the Worker's assets. Before a
 // byte is written the data passes the gates `npm run build:public` runs on
-// it (drama_pipeline.preflight --public --editions, with the public-domain
-// allowlist, and the versioned data contracts), and three of its own: every
-// LSJ key any play's or edition's analyses name has a headword in
+// it (drama_pipeline.preflight --public --editions --web, with the
+// public-domain allowlist, and the versioned data contracts), and three of its
+// own: every LSJ key a play's analyses name has a headword in
 // data/lsj-heads.json (the web build ships no LSJ shards, so the shared-LSJ
 // check build:public runs on build/dist cannot run here; the heads are what
 // the word popup reads), the lemma pages' index must name a file for each
@@ -77,9 +77,13 @@ export function pyReport({ status, stdout = '', stderr = '', error }, pass) {
   return { ok: false, problems: [`exit ${status ?? 'none'}${error ? ` (${error.message})` : ''}`, ...lines] };
 }
 
-// Every LSJ key a play's (or an edition's) analyses name must have a
-// headword in data/lsj-heads.json: the word popup reads the head there and
-// asks Grammata for the entry by that key. A key with none shows no entry.
+// Every LSJ key a play's own analyses name (data/<play>/analyses.json) must
+// have a headword in data/lsj-heads.json: the word popup reads the head
+// there and asks Grammata for the entry by that key. The heads are built
+// from those files only (app/scripts/build-lsj-heads.mjs), so the other Greek
+// editions' analyses (data/<play>/ed/<id>/) are not held to them: on
+// 2026-11-23 189 of their keys had no head, live as in every build, a gap
+// reported for John (HANDOFF-PORTABILITY.md, phase 2) and not this gate's.
 export function lsjHeadsCheck(served) {
   let heads = null;
   const keys = new Set();
@@ -88,7 +92,7 @@ export function lsjHeadsCheck(served) {
     let d;
     try { d = JSON.parse(f.text); } catch { continue; }      // the JSON check names it
     if (f.path === 'data/lsj-heads.json') { heads = d; continue; }
-    if (!f.path.endsWith('/analyses.json') || !d || typeof d !== 'object') continue;
+    if (!/^data\/[^/]+\/analyses\.json$/.test(f.path) || !d || typeof d !== 'object') continue;
     analyses++;
     for (const entries of Object.values(d)) {
       for (const e of Array.isArray(entries) ? entries : []) for (const k of Array.isArray(e?.lsj) ? e.lsj : []) keys.add(k);
@@ -124,7 +128,9 @@ export function dataGates(served, { dataDir, files = [] }) {
   const pipeline = path.join(ROOT, 'pipeline');
   const py = (args) => spawnSync(PY, args, { cwd: pipeline, encoding: 'utf8', maxBuffer: 2 ** 26 });
   return [
-    ['preflight', pyReport(py(['-m', 'drama_pipeline.preflight', '--public', '--editions', data, path.join(ROOT, 'manifests')]), /^preflight ok:/m)],
+    // --web: the web build ships no LSJ shards; build:public's preflight held
+    // every key to them on build/dist, and the next gates read what ships.
+    ['preflight', pyReport(py(['-m', 'drama_pipeline.preflight', '--public', '--editions', '--web', data, path.join(ROOT, 'manifests')]), /^preflight ok:/m)],
     // and it must have checked some manifest: on a folder with none it says "no works"
     ['data contracts', pyReport(py(['-m', 'drama_pipeline.validate_contracts', '--schemas', path.join(ROOT, 'schemas'), '--dist', data]),
       /^checked: [1-9]\d* manifest/m)],
